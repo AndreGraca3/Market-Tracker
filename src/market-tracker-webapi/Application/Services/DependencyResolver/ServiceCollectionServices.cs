@@ -1,18 +1,22 @@
-﻿namespace market_tracker_webapi.Application.Services.DependencyResolver
+﻿using market_tracker_webapi.Application.Queries;
+using market_tracker_webapi.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+
+namespace market_tracker_webapi.Application.Services.DependencyResolver
 {
     public static class ServiceCollectionExtensions
     {
-        /*public static IServiceCollection AddAzureSqlServer(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddPgSQLServer(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<MarketTrackerDataContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("SqlServerConnectionString")));
+            options.UseNpgsql(configuration.GetConnectionString("WebApiDatabase")));
 
             return services;
-        }*/
+        }
 
         public static IServiceCollection AddMarketTrackerDataServices(this IServiceCollection services)
         {
-            // services.AddScoped<IHomeQuery, HomeQuery>();
+            services.AddScoped<IUserQuery, UserQuery>();
 
             return services;
         }

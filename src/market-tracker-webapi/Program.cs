@@ -56,7 +56,7 @@ namespace MarketTracker
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // builder.Services.AddAzureSqlServer(builder.Configuration);
+            builder.Services.AddPgSQLServer(builder.Configuration);
             builder.Services.AddMarketTrackerDataServices();
         }
     }
