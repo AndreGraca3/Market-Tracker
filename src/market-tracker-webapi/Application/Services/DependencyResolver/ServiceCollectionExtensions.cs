@@ -16,7 +16,7 @@ namespace market_tracker_webapi.Application.Services.DependencyResolver
 
         public static IServiceCollection AddMarketTrackerDataServices(this IServiceCollection services)
         {
-            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddSingleton<IUserQuery, UserQuery>();
 
             return services;
         }
