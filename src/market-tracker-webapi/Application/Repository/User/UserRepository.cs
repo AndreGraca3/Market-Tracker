@@ -11,6 +11,14 @@ namespace market_tracker_webapi.Application.Repository
             return MapUserEntity(await marketTrackerDataContext.User.FindAsync(id));
         }
 
+        public async Task<int> AddUser(string name)
+        {
+            var newUser = new UserEntity { Name = name };
+            await marketTrackerDataContext.User.AddAsync(newUser);
+            await marketTrackerDataContext.SaveChangesAsync();
+            return newUser.Id;
+        }
+
         private static User? MapUserEntity(UserEntity? userEntity)
         {
             return userEntity is not null ? new User()

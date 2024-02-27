@@ -1,4 +1,4 @@
-﻿using market_tracker_webapi.Application.Queries;
+﻿using market_tracker_webapi.Application.Repository;
 using market_tracker_webapi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +16,7 @@ namespace market_tracker_webapi.Application.Services.DependencyResolver
 
         public static IServiceCollection AddMarketTrackerDataServices(this IServiceCollection services)
         {
-            services.AddSingleton<IUserQuery, UserQuery>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             return services;
         }

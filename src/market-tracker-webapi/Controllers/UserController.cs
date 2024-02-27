@@ -8,12 +8,12 @@ namespace market_tracker_webapi.Controllers
     [Route("users")]
     public class UserController : ControllerBase
     {
-        private readonly IUserRepository _userQuery;
+        private readonly IUserRepository _userRepository;
         private readonly ILogger<UserController> _logger;
 
         public UserController(IUserRepository userQuery, ILogger<UserController> logger)
         {   
-            _userQuery = userQuery;
+            _userRepository = userQuery;
             _logger = logger;
         }
 
@@ -22,7 +22,7 @@ namespace market_tracker_webapi.Controllers
         {
             _logger.LogDebug($"Call {nameof(GetUserAsync)} with {id}");
 
-            var user = await _userQuery.GetUser(id);
+            var user = await _userRepository.GetUser(id);
             return user is null ? NotFound("User not found!") : Ok(user);
         }
     }
