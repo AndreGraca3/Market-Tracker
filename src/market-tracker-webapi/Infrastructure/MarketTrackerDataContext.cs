@@ -6,12 +6,8 @@ namespace market_tracker_webapi.Infrastructure
 {
     public class MarketTrackerDataContext : DbContext
     {
-        private readonly IConfiguration _configuration;
+        public MarketTrackerDataContext(DbContextOptions options) : base(options) { }
 
-        public MarketTrackerDataContext(IConfiguration configuration, DbContextOptions options) : base(options) 
-        { 
-            _configuration = configuration;
-        }
         public DbSet<UserEntity> User { get; set; }
     }
 }

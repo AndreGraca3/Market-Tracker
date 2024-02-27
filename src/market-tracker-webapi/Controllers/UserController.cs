@@ -12,7 +12,7 @@ namespace market_tracker_webapi.Controllers
         private readonly ILogger<UserController> _logger;
 
         public UserController(IUserQuery userQuery, ILogger<UserController> logger)
-        {   
+        {
             _userQuery = userQuery;
             _logger = logger;
         }
