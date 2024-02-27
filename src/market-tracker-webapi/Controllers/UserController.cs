@@ -21,6 +21,7 @@ namespace market_tracker_webapi.Controllers
         public async Task<ActionResult<User>> GetUserAsync(int id)
         {
             _logger.LogDebug($"Call {nameof(GetUserAsync)} with {id}");
+            // Digo issue (like he is so noob holy moley)
 
             var user = await _userQuery.GetUser(id);
             return user is null ? NotFound("User not found!") : Ok(user);
