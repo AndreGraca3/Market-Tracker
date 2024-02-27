@@ -32,7 +32,6 @@ namespace MarketTracker
                 c.RouteTemplate = "swagger/{documentName}/swagger.json";
             });
 
-
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint($"/swagger/v1/swagger.json", "v1");

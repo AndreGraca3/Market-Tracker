@@ -1,8 +1,8 @@
 ﻿using market_tracker_webapi.Application.Models;
 
-namespace market_tracker_webapi.Application.Queries
+namespace market_tracker_webapi.Application.Repository
 {
-    public interface IUserQuery
+    public interface IUserRepository
     {
         Task<User?> GetUser(int id);
     }

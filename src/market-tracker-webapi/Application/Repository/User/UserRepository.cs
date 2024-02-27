@@ -1,11 +1,10 @@
 ﻿using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgresSQLTables;
-using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi.Application.Queries
+namespace market_tracker_webapi.Application.Repository
 {
-    public class UserQuery(MarketTrackerDataContext marketTrackerDataContext) : IUserQuery
+    public class UserRepository(MarketTrackerDataContext marketTrackerDataContext) : IUserRepository
     {   
         public async Task<User?> GetUser(int id)
         {

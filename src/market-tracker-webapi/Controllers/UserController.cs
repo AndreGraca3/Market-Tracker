@@ -1,5 +1,5 @@
 ﻿using market_tracker_webapi.Application.Models;
-using market_tracker_webapi.Application.Queries;
+using market_tracker_webapi.Application.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Controllers
@@ -8,10 +8,10 @@ namespace market_tracker_webapi.Controllers
     [Route("users")]
     public class UserController : ControllerBase
     {
-        private readonly IUserQuery _userQuery;
+        private readonly IUserRepository _userQuery;
         private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserQuery userQuery, ILogger<UserController> logger)
+        public UserController(IUserRepository userQuery, ILogger<UserController> logger)
         {   
             _userQuery = userQuery;
             _logger = logger;
