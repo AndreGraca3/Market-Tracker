@@ -4,6 +4,6 @@ namespace market_tracker_webapi.Application.Repository
 {
     public interface IUserRepository
     {
-        Task<User?> GetUser(int id);
+        Task<User?> GetUserAsync(int id);
     }
 }

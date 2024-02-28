@@ -11,9 +11,9 @@ namespace market_tracker_webapi.Controllers
         private readonly IUserRepository _userRepository;
         private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserRepository userQuery, ILogger<UserController> logger)
+        public UserController(IUserRepository userRepository, ILogger<UserController> logger)
         {   
-            _userRepository = userQuery;
+            _userRepository = userRepository;
             _logger = logger;
         }
 
@@ -24,7 +24,7 @@ namespace market_tracker_webapi.Controllers
             // Digo issue (like he is so noob holy moley)
             // So confusing to use this
 
-            var user = await _userRepository.GetUser(id);
+            var user = await _userRepository.GetUserAsync(id);
             return user is null ? NotFound("User not found!") : Ok(user);
         }
     }

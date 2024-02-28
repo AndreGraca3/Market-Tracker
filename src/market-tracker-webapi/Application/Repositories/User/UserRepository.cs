@@ -4,18 +4,25 @@ using market_tracker_webapi.Infrastructure.PostgresSQLTables;
 
 namespace market_tracker_webapi.Application.Repository
 {
-    public class UserRepository(MarketTrackerDataContext marketTrackerDataContext) : IUserRepository
-    {   
-        public async Task<User?> GetUser(int id)
+    public class UserRepository: IUserRepository
+    {
+        private readonly MarketTrackerDataContext _marketTrackerDataContext;
+
+        public UserRepository(MarketTrackerDataContext marketTrackerDataContext)
         {
-            return MapUserEntity(await marketTrackerDataContext.User.FindAsync(id));
+            _marketTrackerDataContext = marketTrackerDataContext;
+        }
+
+        public async Task<User?> GetUserAsync(int id)
+        {
+            return MapUserEntity(await _marketTrackerDataContext.User.FindAsync(id));
         }
 
         public async Task<int> AddUser(string name)
         {
             var newUser = new UserEntity { Name = name };
-            await marketTrackerDataContext.User.AddAsync(newUser);
-            await marketTrackerDataContext.SaveChangesAsync();
+            await _marketTrackerDataContext.User.AddAsync(newUser);
+            await _marketTrackerDataContext.SaveChangesAsync();
             return newUser.Id;
         }
 
