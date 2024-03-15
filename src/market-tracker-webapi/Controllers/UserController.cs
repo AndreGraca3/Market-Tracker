@@ -1,5 +1,5 @@
 ﻿using market_tracker_webapi.Application.Models;
-using market_tracker_webapi.Application.Repository;
+using market_tracker_webapi.Application.Repositories.User;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Controllers
@@ -18,11 +18,9 @@ namespace market_tracker_webapi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUserAsync(int id)
+        public async Task<ActionResult<UserData>> GetUserAsync(int id)
         {
             _logger.LogDebug($"Call {nameof(GetUserAsync)} with {id}");
-            // Digo issue (like he is so noob holy moley)
-            // So confusing to use this
 
             var user = await _userRepository.GetUserAsync(id);
             return user is null ? NotFound("User not found!") : Ok(user);
