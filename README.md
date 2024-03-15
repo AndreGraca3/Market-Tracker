@@ -1,24 +1,26 @@
 # Market Tracker 🚀
 
-Market Tracker is service designed to help users track the variation of prices across different stores.
+Market Tracker is a service designed to help users track the variation of prices across different stores.
 
 ## Features 🌟
 
 - **Variation Analysis**: Users can view the variation of prices over time for a specific item.
 - **Store Comparison**: Users can compare prices of an item across different stores.
-- **Account system**: The app supports an account system to allow users to save their preferences and track their favorite items.
+- **Account System**: The app supports an account system to allow users to save their preferences and track their favorite items.
+- **Rating System**: Possibility for users to leave a review on products they choose to.
 
 ## Technologies Used 💻
 
 - **Backend**: C# with ASP.NET Core
-- **Frontend**: Next.js with React
+- **Android**: Jetpack Compose
+- **Webapp**: Vite with React
 - **Database**: PostgreSQL
 - **Authentication**: JSON Web Tokens (JWT)
 - **API Documentation**: Swagger UI
 
 ## About Us 🙋‍♂️
 
-This app was developed by a team of students at ISEL (Instituto Superior de Engenharia de Lisboa) as part of the Software Engineering course. The team members are:
+This service was developed by a team of students at ISEL (Instituto Superior de Engenharia de Lisboa) as part of the Software Engineering course. The team members are:
 
 - André Graça (47224)
 - Diogo Santos (48459)
@@ -72,13 +74,13 @@ This app was developed by a team of students at ISEL (Instituto Superior de Enge
 1. Start the backend server:
 
    ```bash
-   cd src/MarketTracker.WebApi
+   cd src/market-tracker-webapi
    dotnet run
    ```
 
 2. Start the frontend server:
 
    ```bash
-   cd src/MarketTracker.WebApp
+   cd src/market-tracker-webapp
    npm run dev
    ```
