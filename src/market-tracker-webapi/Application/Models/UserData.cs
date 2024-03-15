@@ -1,6 +1,6 @@
 ﻿namespace market_tracker_webapi.Application.Models
 {
-    public class User
+    public class UserData
     {
         public int Id { get; set; }
 
