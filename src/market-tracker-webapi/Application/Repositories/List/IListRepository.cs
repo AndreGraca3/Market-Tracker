@@ -1,6 +1,6 @@
 ﻿using market_tracker_webapi.Application.Models;
 
-namespace market_tracker_webapi.Application.Repositories.Cart
+namespace market_tracker_webapi.Application.Repositories.List   
 {
     public interface IListRepository
     {
