@@ -1,6 +1,6 @@
 ﻿using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Infrastructure;
-using market_tracker_webapi.Infrastructure.PostgresSQLTables;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
 namespace market_tracker_webapi.Application.Repositories.User
 {

@@ -1,6 +1,5 @@
-﻿using market_tracker_webapi.Infrastructure.PostgresSQLTables;
+﻿using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace market_tracker_webapi.Infrastructure
 {
