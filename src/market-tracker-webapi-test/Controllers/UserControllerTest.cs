@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Models;
-using market_tracker_webapi.Application.Repository;
+using market_tracker_webapi.Application.Repositories.User;
 using market_tracker_webapi.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -25,7 +25,7 @@ namespace market_tracker_webapi_test.Controllers
         public async Task GetUserAsync_RespondsWith_Ok_ReturnsObjectAsync()
         {
             // Expected Arrange
-            var expectedUser = new User { Id = 1, Name = "Diogo" };
+            var expectedUser = new UserData { Id = 1, Name = "Diogo" };
 
             // Repository Arrange 
             _userRepositoryMock
@@ -37,8 +37,8 @@ namespace market_tracker_webapi_test.Controllers
 
             // Assert
             OkObjectResult result = Assert.IsType<OkObjectResult>(actual.Result);
-            User user = Assert.IsAssignableFrom<User>(result.Value);
-            user.Should().BeEquivalentTo(expectedUser);
+            UserData userData = Assert.IsAssignableFrom<UserData>(result.Value);
+            userData.Should().BeEquivalentTo(expectedUser);
         }
     }
 }

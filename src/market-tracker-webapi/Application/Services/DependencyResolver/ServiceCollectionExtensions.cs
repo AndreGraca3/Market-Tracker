@@ -1,4 +1,4 @@
-﻿using market_tracker_webapi.Application.Repository;
+﻿using market_tracker_webapi.Application.Repositories.User;
 using market_tracker_webapi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
