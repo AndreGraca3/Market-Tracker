@@ -1,6 +1,6 @@
 using market_tracker_webapi.Application.Services.DependencyResolver;
 
-namespace MarketTracker
+namespace market_tracker_webapi
 {
     static class Program
     {
@@ -25,18 +25,15 @@ namespace MarketTracker
 
         private static void Configure(WebApplication app)
         {
-            app.UsePathBase("/api/v1");
-
-            app.UseSwagger(c =>
-            {
-                c.RouteTemplate = "swagger/{documentName}/swagger.json";
-            });
+            app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
 
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint($"/swagger/v1/swagger.json", "v1");
                 options.RoutePrefix = "swagger";
             });
+
+            app.UsePathBase("/api");
 
             app.UseHttpsRedirection();
 
@@ -45,7 +42,6 @@ namespace MarketTracker
             app.MapControllers();
 
             app.Run();
-
         }
 
         private static void ConfigureServices(WebApplicationBuilder builder)
@@ -59,5 +55,4 @@ namespace MarketTracker
             builder.Services.AddMarketTrackerDataServices();
         }
     }
-
 }
