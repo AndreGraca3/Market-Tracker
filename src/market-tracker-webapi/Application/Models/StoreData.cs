@@ -2,5 +2,14 @@
 {
     public class StoreData
     {
+        public required string Address { get; set; }
+        
+        public required string City { get; set; }
+        
+        public DateTime? OpenTime { get; set; }
+        
+        public DateTime? CloseTime { get; set; }
+        
+        public int CompanyId { get; set; }
     }
 }

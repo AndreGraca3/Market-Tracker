@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Repositories.User;
 using market_tracker_webapi.Infrastructure;
-using market_tracker_webapi.Infrastructure.PostgresSQLTables;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi_test.Application.Repositories
@@ -16,24 +16,20 @@ namespace market_tracker_webapi_test.Application.Repositories
             {
                 new ()
                 {
-                    Id = 1,
                     Name = "Diogo"
                 },
                 new ()
                 {
-                    Id = 2,
                     Name = "Daniel"
                 },
                 new ()
                 {
-                    Id = 3,
                     Name = "André"
                 }
             };
 
             var expectedUser = new UserEntity()
             {
-                Id = 3,
                 Name = "André"
             };
 
