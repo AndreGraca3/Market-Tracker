@@ -2,6 +2,7 @@
 {
     public class StoreData
     {
+        public int Id { get; set; }
         public required string Address { get; set; }
         
         public required string City { get; set; }

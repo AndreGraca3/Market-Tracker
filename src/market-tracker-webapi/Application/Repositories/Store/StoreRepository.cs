@@ -17,7 +17,7 @@ namespace market_tracker_webapi.Application.Repositories.Store
 
         public async Task<int> AddStoreAsync(StoreData storeData)
         {
-            var company = await marketTrackerDataContext.Company.FindAsync(storeData.CompanyId); //Change to Query instead of LINQ
+            var company = await marketTrackerDataContext.Company.FindAsync(storeData.CompanyId);
 
             if (company == null)
             {
@@ -46,14 +46,46 @@ namespace market_tracker_webapi.Application.Repositories.Store
             }   
         }
 
-        public Task<StoreData?> UpdateStoreAsync(int id, DateTime? openTime, DateTime? closeTime)
+        public async Task<StoreData?> UpdateStoreAsync(StoreData storeData)
         {
-            throw new NotImplementedException();
+            var currentStore = await marketTrackerDataContext.Store.FindAsync(storeData.Id) ?? throw new EntityNotFoundException($"Store with Id {storeData.Id} not found.");
+            var company = await marketTrackerDataContext.Company.FindAsync(storeData.CompanyId);
+            
+            if (company == null)
+            {
+                throw new EntityNotFoundException($"Company with Id {storeData.CompanyId} not found.");
+            }
+            
+            currentStore.Address = storeData.Address;
+            currentStore.City = storeData.City;
+            currentStore.OpenTime = storeData.OpenTime;
+            currentStore.CloseTime = storeData.CloseTime;
+            currentStore.CompanyId = storeData.CompanyId;
+            
+            try
+            {
+                await marketTrackerDataContext.SaveChangesAsync();
+                return MapStoreEntity(currentStore);
+            }
+            catch (DbUpdateException e) when (e.GetBaseException() is SqlException { Number: ErrorCodes.CannotInsertDuplicateKeySqlErrorCode })
+            {
+                throw new EntityCreationException("Duplicate values were found in the table MarketTracker.store");
+            }
         }
 
-        public Task DeleteStoreAsync(int id)
+        public async Task<StoreData?> DeleteStoreAsync(int id)
         {
-            throw new NotImplementedException();
+            var currentStore = await marketTrackerDataContext.Store.FindAsync(id);
+            
+            if (currentStore == null)
+            {
+                return null;
+            }
+            
+            marketTrackerDataContext.Store.Remove(currentStore);
+            await marketTrackerDataContext.SaveChangesAsync();
+            
+            return MapStoreEntity(currentStore);
         }
 
         public Task<IEnumerable<StoreData>> GetStoresFromCompany(int id)
@@ -80,6 +112,7 @@ namespace market_tracker_webapi.Application.Repositories.Store
         {
             return new StoreData
             {
+                Id = storeEntity.Id,
                 Address = storeEntity.Address,
                 City = storeEntity.City,
                 OpenTime = storeEntity.OpenTime,

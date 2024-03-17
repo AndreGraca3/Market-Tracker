@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables
 {
     [Table("store", Schema = "MarketTracker")]
-    [Index(nameof(Address), IsUnique = true)]
     public class StoreEntity
     {
         [Key]

@@ -70,7 +70,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             var storeData = await storeRepository.GetStoreByIdAsync(1);
 
             // Assert
-            storeData.Should().BeEquivalentTo(expectedStore);
+            storeData.Should().BeEquivalentTo(expectedStore, options => options.Excluding(x => x.Id));
         }
         
         [Fact]
@@ -187,7 +187,7 @@ namespace market_tracker_webapi_test.Application.Repositories
         }
 
         [Fact]
-        public async Task AddStoreAsync_WhenAddressAlreadyExists_ReturnsEntityCreationException()
+        public async Task UpdateStoreAsync_WhenStoreAndCompanyExist_ReturnsUpdatedStoreData()
         {
             // Arrange
             var companyMockEntities = new List<CompanyEntity>
@@ -209,21 +209,122 @@ namespace market_tracker_webapi_test.Application.Repositories
                     OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
                     CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
                     CompanyId = 1
-                },
+                }
+            };
+
+            var context = CreateDatabase(storeMockEntities, companyMockEntities);
+            var storeRepository = new StoreRepository(context);
+
+            var storeData = new StoreData()
+            {
+                Id = 1,
+                Address = "AddressA",
+                City = "Porto",
+                OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
+                CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                CompanyId = 1
+            };
+
+            // Act
+            var actualStore = await storeRepository.UpdateStoreAsync(storeData);
+            
+            // Assert
+            actualStore.Should().BeEquivalentTo(storeData);
+            (await context.Store.FindAsync(storeData.Id)).Should().BeEquivalentTo(storeData);
+        }
+
+        [Fact]
+        public async Task UpdateStoreAsync_WhenStoreDoesNotExist_ThrowsEntityNotFoundException()
+        {
+            // Arrange
+            var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>());
+            var storeRepository = new StoreRepository(context);
+
+            var storeData = new StoreData()
+            {
+                Id = 1,
+                Address = "AddressA",
+                City = "Porto",
+                OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
+                CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                CompanyId = 1
+            };
+
+            // Act
+            Func<Task> action = async () => await storeRepository.UpdateStoreAsync(storeData);
+            
+            // Assert
+            await action.Should().ThrowAsync<EntityNotFoundException>()
+                .WithMessage($"Store with Id {storeData.Id} not found.");
+        }
+        
+        [Fact]
+        public async Task UpdateStoreAsync_WhenCompanyDoesNotExist_ThrowsEntityNotFoundException()
+        {
+            // Arrange
+            var companyMockEntities = new List<CompanyEntity>
+            {
                 new()
                 {
-                    Id = 2,
-                    Address = "Address2",
-                    City = "Amadora",
+                    Id = 1,
+                    Name = "Company1"
+                }
+            };
+
+            var storeMockEntities = new List<StoreEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Address = "Address1",
+                    City = "Lisboa",
                     OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
                     CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
                     CompanyId = 1
-                },
+                }
+            };
+            
+            var context = CreateDatabase(storeMockEntities, companyMockEntities);
+            var storeRepository = new StoreRepository(context);
+
+            var storeData = new StoreData()
+            {
+                Id = 1,
+                Address = "AddressA",
+                City = "Porto",
+                OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
+                CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                CompanyId = 2
+            };
+
+            // Act
+            Func<Task> action = async () => await storeRepository.UpdateStoreAsync(storeData);
+            
+            // Assert
+            await action.Should().ThrowAsync<EntityNotFoundException>()
+                .WithMessage($"Company with Id {storeData.CompanyId} not found.");
+        }
+        
+        [Fact]
+        public async Task DeleteStoreAsync_WhenStoreExists_ReturnsDeletedStoreData()
+        {
+            // Arrange
+            var companyMockEntities = new List<CompanyEntity>
+            {
                 new()
                 {
-                    Id = 3,
-                    Address = "Address3",
-                    City = "Oeiras",
+                    Id = 1,
+                    Name = "Company1"
+                }
+            };
+
+            var storeMockEntities = new List<StoreEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Address = "Address1",
+                    City = "Lisboa",
                     OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
                     CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
                     CompanyId = 1
@@ -233,24 +334,28 @@ namespace market_tracker_webapi_test.Application.Repositories
             var context = CreateDatabase(storeMockEntities, companyMockEntities);
             var storeRepository = new StoreRepository(context);
 
-            var storeData = new StoreData()
-            {
-                Address = "Address1",
-                City = "Lisboa",
-                OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
-                CompanyId = 1
-            };
+            // Act
+            var actualStore = await storeRepository.DeleteStoreAsync(1);
+            
+            // Assert
+            actualStore.Should().BeEquivalentTo(storeMockEntities[0]);
+            (await context.Store.FindAsync(1)).Should().BeNull();
+        }
+        
+        [Fact]
+        public async Task DeleteStoreAsync_WhenStoreDoesNotExist_ReturnsNull()
+        {
+            // Arrange
+            var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>());
+            var storeRepository = new StoreRepository(context);
 
             // Act
-            Func<Task> action = async () => await storeRepository.AddStoreAsync(storeData);
-
+            var actualStore = await storeRepository.DeleteStoreAsync(1);
+            
             // Assert
-            await action.Should().ThrowAsync<EntityCreationException>()
-                .WithMessage("Duplicate values were found in the table MarketTracker.store");
+            actualStore.Should().BeNull();
         }
-
-
+        
         private static MarketTrackerDataContext CreateDatabase(IEnumerable<StoreEntity> storeEntities, IEnumerable<CompanyEntity> companyEntities)
         {
             DbContextOptions<MarketTrackerDataContext> options = new DbContextOptionsBuilder<MarketTrackerDataContext>()

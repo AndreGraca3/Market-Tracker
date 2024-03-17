@@ -8,9 +8,9 @@ namespace market_tracker_webapi.Application.Repositories.Store
 
         Task<int> AddStoreAsync(StoreData storeData);
 
-        Task<StoreData?> UpdateStoreAsync(int id, DateTime? openTime, DateTime? closeTime);
+        Task<StoreData?> UpdateStoreAsync(StoreData storeData);
         
-        Task DeleteStoreAsync(int id);
+        Task<StoreData?> DeleteStoreAsync(int id);
 
         Task<IEnumerable<StoreData>> GetStoresFromCompany(int id);
 
