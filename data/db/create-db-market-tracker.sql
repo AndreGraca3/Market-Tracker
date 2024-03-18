@@ -1,11 +1,12 @@
-drop table if exists comment;
+drop table if exists post_comment;
 drop table if exists post;
 drop table if exists favorite;
 drop table if exists list_product;
 drop table if exists list;
 drop table if exists token;
+drop table if exists product_review;
+drop table if exists moderator;
 drop table if exists operator;
-drop table if exists client_review;
 drop table if exists client;
 drop table if exists "user";
 drop table if exists promotion;
@@ -32,17 +33,16 @@ create table if not exists category
 
 create table if not exists product
 (
-    id           decimal(13) primary key,
-    name         TEXT unique not null,
-    description  TEXT        not null,
-    image_url    TEXT,
-    quantity     int                  default 1,
-    unit         varchar(10) not null default 'unidades' check (unit in ('unidades', 'kilogramas', 'gramas', 'litros', 'mililitros')),
-    is_available boolean     not null default true,
-    views        int         not null default 0,
-    brand_id     int references brand (id) on delete cascade,
-    category_id  int references category (id) on delete cascade,
-    rate         float       not null default 1.0 check (rate between 1 and 5)
+    id          decimal(13) primary key,
+    name        TEXT unique not null,
+    description TEXT        not null,
+    image_url   TEXT,
+    quantity    int                  default 1,
+    unit        varchar(10) not null default 'unidades' check (unit in ('unidades', 'kilogramas', 'gramas', 'litros', 'mililitros')),
+    views       int         not null default 0,
+    rate        float       not null default 1.0 check (rate between 1 and 5),
+    brand_id    int references brand (id) on delete cascade,
+    category_id int references category (id) on delete cascade
 );
 
 create table if not exists company
@@ -65,10 +65,19 @@ create table if not exists store
 create table if not exists price_history
 (
     price      integer not null,
-    product_id decimal(13) references product (id) on delete cascade,
-    store_id   int references store (id) on delete cascade,
     date       date    not null default now(),
+    store_id   int references store (id) on delete cascade,
+    product_id decimal(13) references product (id) on delete cascade,
     primary key (product_id, store_id, date)
+);
+
+create table if not exists last_checked
+(
+    is_available boolean not null default true,
+    date         date    not null default now(),
+    product_id   decimal(13) references product (id) on delete cascade,
+    store_id     int references store (id) on delete cascade,
+    primary key (product_id, store_id)
 );
 
 create table if not exists promotion
@@ -97,23 +106,13 @@ create table if not exists "user"
     name       varchar(20),
     email      varchar(200) unique not null,
     password   varchar(30)         not null,
-    avatar_url TEXT,
     created_at date                not null default now()
 );
 
 create table if not exists client
 (
-    id uuid primary key references "user" (id) on delete cascade
-);
-
-create table if not exists client_review
-(
-    client_id  uuid references client (id) on delete cascade,
-    product_id decimal(13) references product (id) on delete cascade,
-    rate       float        not null check (rate between 1 and 5),
-    text       varchar(255) not null,
-    created_at date         not null default now(),
-    primary key (client_id, product_id)
+    id         uuid primary key references "user" (id) on delete cascade,
+    avatar_url TEXT
 );
 
 create table if not exists operator
@@ -123,12 +122,27 @@ create table if not exists operator
     phone_number int not null check (phone_number between 210000000 and 999999999)
 );
 
+create table if not exists moderator
+(
+    user_id uuid primary key references "user" (id) on delete cascade
+);
+
 create table if not exists token
 (
     token_value VARCHAR(256) primary key,
     created_at  date not null default now(),
     expires_at  date not null,
     user_id     uuid references "user" (id) on delete cascade
+);
+
+create table if not exists product_review
+(
+    client_id  uuid references client (id) on delete cascade,
+    product_id decimal(13) references product (id) on delete cascade,
+    rate       float        not null check (rate between 1 and 5),
+    text       varchar(255) not null,
+    created_at date         not null default now(),
+    primary key (client_id, product_id)
 );
 
 create table if not exists favorite
@@ -165,7 +179,7 @@ create table if not exists post
     list_id    int references list (id) on delete cascade
 );
 
-create table if not exists comment
+create table if not exists post_comment
 (
     text       varchar(255) not null,
     created_at date         not null default now(),
