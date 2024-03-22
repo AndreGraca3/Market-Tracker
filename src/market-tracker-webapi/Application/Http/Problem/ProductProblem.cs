@@ -16,13 +16,5 @@ public class ProductProblem(
             "product-not-found",
             "Product not found",
             $"Product with id {data.Id} not found"
-        ) { }
-    
-    public class ProductByBrandNotFound(ProductFetchingError.ProductByBrandNotFound data)
-        : ProductProblem(
-            404,
-            "product-not-found",
-            "Product not found",
-            $"Product with brand id {data.BrandId} not found"
-        ) { }
+        );
 }

@@ -6,9 +6,4 @@ public class ProductFetchingError : ProductError
     {
         public int Id { get; } = id;
     }
-
-    public class ProductByBrandNotFound(int brandId) : ProductFetchingError
-    {
-        public int BrandId { get; } = brandId;
-    }
 }
