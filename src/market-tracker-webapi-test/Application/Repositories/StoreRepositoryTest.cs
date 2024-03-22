@@ -74,17 +74,18 @@ namespace market_tracker_webapi_test.Application.Repositories
         }
         
         [Fact]
-        public async Task GetStoreByIdAsync_WhenStoreDoesNotExist_ReturnsNull()
+        public async Task GetStoreByIdAsync_WhenStoreDoesNotExist_ThrowsEntityNotFoundException()
         {
             // Arrange
             var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>());
             var storeRepository = new StoreRepository(context);
 
             // Act
-            var storeData = await storeRepository.GetStoreByIdAsync(99);
-
+            Func<Task> action = async () => await storeRepository.GetStoreByIdAsync(1);
+            
             // Assert
-            storeData.Should().BeNull();
+            await action.Should().ThrowAsync<EntityNotFoundException>()
+                .WithMessage($"Store with Id 1 not found.");
         }
         
         [Fact]
@@ -343,17 +344,18 @@ namespace market_tracker_webapi_test.Application.Repositories
         }
         
         [Fact]
-        public async Task DeleteStoreAsync_WhenStoreDoesNotExist_ReturnsNull()
+        public async Task DeleteStoreAsync_WhenStoreDoesNotExist_ThrowsEntityNotFoundException()
         {
             // Arrange
             var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>());
             var storeRepository = new StoreRepository(context);
 
             // Act
-            var actualStore = await storeRepository.DeleteStoreAsync(1);
+            Func<Task> action = async () => await storeRepository.DeleteStoreAsync(1);
             
             // Assert
-            actualStore.Should().BeNull();
+            await action.Should().ThrowAsync<EntityNotFoundException>()
+                .WithMessage($"Store with Id 1 not found.");
         }
         
         private static MarketTrackerDataContext CreateDatabase(IEnumerable<StoreEntity> storeEntities, IEnumerable<CompanyEntity> companyEntities)

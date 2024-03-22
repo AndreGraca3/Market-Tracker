@@ -9,10 +9,10 @@ namespace market_tracker_webapi.Application.Repositories.Store
 {
     public class StoreRepository(MarketTrackerDataContext marketTrackerDataContext) : IStoreRepository
     {
-        public async Task<StoreData?> GetStoreByIdAsync(int id)
+        public async Task<StoreData> GetStoreByIdAsync(int id)
         {
             var storeEntity = await marketTrackerDataContext.Store.FindAsync(id);
-            return storeEntity != null ? MapStoreEntity(storeEntity) : null;
+            return storeEntity != null ? MapStoreEntity(storeEntity) : throw new EntityNotFoundException($"Store with Id {id} not found.");
         }
 
         public async Task<int> AddStoreAsync(StoreData storeData)
@@ -46,7 +46,7 @@ namespace market_tracker_webapi.Application.Repositories.Store
             }   
         }
 
-        public async Task<StoreData?> UpdateStoreAsync(StoreData storeData)
+        public async Task<StoreData> UpdateStoreAsync(StoreData storeData)
         {
             var currentStore = await marketTrackerDataContext.Store.FindAsync(storeData.Id) ?? throw new EntityNotFoundException($"Store with Id {storeData.Id} not found.");
             var company = await marketTrackerDataContext.Company.FindAsync(storeData.CompanyId);
@@ -73,14 +73,9 @@ namespace market_tracker_webapi.Application.Repositories.Store
             }
         }
 
-        public async Task<StoreData?> DeleteStoreAsync(int id)
+        public async Task<StoreData> DeleteStoreAsync(int id)
         {
-            var currentStore = await marketTrackerDataContext.Store.FindAsync(id);
-            
-            if (currentStore == null)
-            {
-                return null;
-            }
+            var currentStore = await marketTrackerDataContext.Store.FindAsync(id) ?? throw new EntityNotFoundException($"Store with Id {id} not found.");
             
             marketTrackerDataContext.Store.Remove(currentStore);
             await marketTrackerDataContext.SaveChangesAsync();
