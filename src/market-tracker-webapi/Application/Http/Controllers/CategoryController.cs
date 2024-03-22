@@ -39,7 +39,10 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
         [FromBody] CategoryCreationInputModel categoryInput
     )
     {
-        var res = await categoryService.AddCategoryAsync(categoryInput.Name);
+        var res = await categoryService.AddCategoryAsync(
+            categoryInput.Name,
+            categoryInput.parentId
+        );
         return ResultHandler.Handle(
             res,
             error =>

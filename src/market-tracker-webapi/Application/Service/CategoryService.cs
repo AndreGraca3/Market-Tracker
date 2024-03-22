@@ -31,9 +31,12 @@ public class CategoryService(
             );
     }
 
-    public async Task<Either<CategoryCreationError, IdOutputModel>> AddCategoryAsync(string name)
+    public async Task<Either<CategoryCreationError, IdOutputModel>> AddCategoryAsync(
+        string name,
+        int? parentId
+    )
     {
-        if (!categoryManager.IsValidCategoryName(name))
+        /*if (!categoryManager.IsValidCategoryName(name))
         {
             return EitherExtensions.Failure<CategoryCreationError, IdOutputModel>(
                 new CategoryCreationError.InvalidName(
@@ -42,7 +45,7 @@ public class CategoryService(
                     categoryManager.MaxCategoryNameLength
                 )
             );
-        }
+        }*/
 
         if (await categoryRepository.GetCategoryByNameAsync(name) is not null)
         {
@@ -51,7 +54,7 @@ public class CategoryService(
             );
         }
 
-        var category = await categoryRepository.AddCategoryAsync(name);
+        var category = await categoryRepository.AddCategoryAsync(name, parentId);
         return EitherExtensions.Success<CategoryCreationError, IdOutputModel>(
             new IdOutputModel(category.Id)
         );

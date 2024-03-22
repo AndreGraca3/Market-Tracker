@@ -20,17 +20,17 @@ public class CategoryProblem(
 
     public class CategoryNameAlreadyExists()
         : CategoryProblem(
-            400,
+            409,
             "category-name-already-exists",
             "Category name already exists",
             "Category name already exists"
         );
-    
+
     public class InvalidName(CategoryCreationError.InvalidName data)
         : CategoryProblem(
             400,
             "invalid-name",
             "Invalid name",
-            $"Invalid name: {data.Name}"
+            $"Invalid name: {data.Name}. Name must be between {data.MinCategoryNameLength} and {data.MaxCategoryNameLength} characters long"
         );
 }

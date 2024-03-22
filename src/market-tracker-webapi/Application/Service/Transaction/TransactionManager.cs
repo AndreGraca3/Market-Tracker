@@ -10,8 +10,6 @@ public class TransactionManager(MarketTrackerDataContext dataContext)
         try
         {
             var result = await action();
-
-            await dataContext.SaveChangesAsync();
             await transaction.CommitAsync();
             return result;
         }
