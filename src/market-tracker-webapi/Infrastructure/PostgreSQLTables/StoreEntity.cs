@@ -16,13 +16,8 @@ namespace market_tracker_webapi.Infrastructure.PostgreSQLTables
     
         [Required]
         [StringLength(30)]
-        public required string City { get; set; }
-    
-        [DataType(DataType.Date)]
-        public DateTime? OpenTime { get; set; }
-    
-        [DataType(DataType.Date)]
-        public DateTime? CloseTime { get; set; }
+        [ForeignKey("city")]
+        public required int? CityId { get; set; }
     
         [ForeignKey("company")]
         public int CompanyId { get; set; }

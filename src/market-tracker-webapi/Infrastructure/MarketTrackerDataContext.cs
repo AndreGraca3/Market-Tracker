@@ -11,6 +11,8 @@ namespace market_tracker_webapi.Infrastructure
                 
                 public DbSet<CompanyEntity> Company { get; set; }
                 
+                public DbSet<CityEntity> City { get; set; }
+                
         public MarketTrackerDataContext(DbContextOptions options) : base(options) { }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -33,6 +35,11 @@ namespace market_tracker_webapi.Infrastructure
             });
 
             modelBuilder.Entity<ProductEntity>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+            });
+            
+            modelBuilder.Entity<CityEntity>(entity =>
             {
                 entity.HasKey(e => e.Id);
             });

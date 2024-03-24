@@ -1,4 +1,5 @@
 ﻿using market_tracker_webapi.Application.Models;
+using market_tracker_webapi.Application.Models.Company;
 
 namespace market_tracker_webapi.Application.Services.Store
 {

@@ -22,6 +22,25 @@ namespace market_tracker_webapi_test.Application.Repositories
                     Name = "Company1"
                 }
             };
+
+            var cityMockEntities = new List<CityEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Lisboa"
+                },
+                new()
+                {
+                    Id = 2,
+                    Name = "Amadora"
+                },
+                new()
+                {
+                    Id = 3,
+                    Name = "Oeiras"
+                }
+            };
             
             var storeMockEntities = new List<StoreEntity>
             {
@@ -29,27 +48,21 @@ namespace market_tracker_webapi_test.Application.Repositories
                 {
                     Id = 1, 
                     Address = "Address1",
-                    City = "Lisboa",
-                    OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                    CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                    CityId = 1,
                     CompanyId = 1
                 },
                 new ()
                 {
                     Id = 2, 
                     Address = "Address2",
-                    City = "Amadora",
-                    OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                    CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                    CityId = 2,
                     CompanyId = 1
                 },
                 new ()
                 {
                     Id = 3, 
                     Address = "Address3",
-                    City = "Oeiras",
-                    OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                    CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                    CityId = 3,
                     CompanyId = 1
                 }
             };
@@ -57,13 +70,11 @@ namespace market_tracker_webapi_test.Application.Repositories
             var expectedStore = new StoreData()
             {
                 Address = "Address1",
-                City = "Lisboa",
-                OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                CityId = 1,
                 CompanyId = 1
             };
             
-            var context = CreateDatabase(storeMockEntities, companyMockEntities);
+            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
             var storeRepository = new StoreRepository(context);
 
             // Act
@@ -74,18 +85,21 @@ namespace market_tracker_webapi_test.Application.Repositories
         }
         
         [Fact]
-        public async Task GetStoreByIdAsync_WhenStoreDoesNotExist_ThrowsEntityNotFoundException()
+        public async Task GetStoreByIdAsync_WhenStoreDoesNotExist_ReturnNull()
         {
             // Arrange
-            var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>());
+            var context = CreateDatabase(
+                new List<StoreEntity>(), 
+                new List<CompanyEntity>(), 
+                new List<CityEntity>());
+            
             var storeRepository = new StoreRepository(context);
-
+            
             // Act
-            Func<Task> action = async () => await storeRepository.GetStoreByIdAsync(1);
+            var storeData = await storeRepository.GetStoreByIdAsync(1);
             
             // Assert
-            await action.Should().ThrowAsync<EntityNotFoundException>()
-                .WithMessage($"Store with Id 1 not found.");
+            storeData.Should().BeNull();
         }
         
         [Fact]
@@ -101,46 +115,57 @@ namespace market_tracker_webapi_test.Application.Repositories
                 }
             };
             
+            var cityMockEntities = new List<CityEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Lisboa"
+                },
+                new()
+                {
+                    Id = 2,
+                    Name = "Amadora"
+                },
+                new()
+                {
+                    Id = 3,
+                    Name = "Oeiras"
+                }
+            };
+            
             var storeMockEntities = new List<StoreEntity>
             {
                 new ()
                 {
                     Id = 1, 
                     Address = "Address1",
-                    City = "Lisboa",
-                    OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                    CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                    CityId = 1,
                     CompanyId = 1
                 },
                 new ()
                 {
                     Id = 2, 
                     Address = "Address2",
-                    City = "Amadora",
-                    OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                    CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                    CityId = 2,
                     CompanyId = 1
                 },
                 new ()
                 {
                     Id = 3, 
                     Address = "Address3",
-                    City = "Oeiras",
-                    OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                    CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                    CityId = 3,
                     CompanyId = 1
                 }
             };
 
-            var context = CreateDatabase(storeMockEntities, companyMockEntities);
+            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
             var storeRepository = new StoreRepository(context);
 
             var storeData = new StoreData()
             {
                 Address = "Address4",
-                City = "Lisboa",
-                OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                CityId = 1,
                 CompanyId = 1
             };
             
@@ -150,9 +175,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             var storeEntity = new StoreEntity()
             {
                 Address = storeData.Address,
-                City = storeData.City,
-                OpenTime = storeData.OpenTime,
-                CloseTime = storeData.CloseTime,
+                CityId = storeData.CityId,
                 CompanyId = storeData.CompanyId
             };
             
@@ -164,27 +187,68 @@ namespace market_tracker_webapi_test.Application.Repositories
         }
 
         [Fact]
-        public async Task AddStoreAsync_WhenCompanyDoesNotExist_ThrowsEntityNotFoundException()
+        public async Task AddStoreAsync_WhenCompanyDoesNotExist_ReturnsNull()
         {
             // Arrange
-            var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>());
+            var cityMockEntities = new List<CityEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Lisboa"
+                }
+            };
+            
+            var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>(), cityMockEntities);
             var storeRepository = new StoreRepository(context);
-
+            
             var storeData = new StoreData()
             {
                 Address = "Address4",
-                City = "Lisboa",
-                OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                CityId = 1,
                 CompanyId = 1
             };
             
             // Act
-            Func<Task> action = async () => await storeRepository.AddStoreAsync(storeData);
+            var storeId = await storeRepository.AddStoreAsync(storeData);
             
             // Assert
-            await action.Should().ThrowAsync<EntityNotFoundException>()
-                .WithMessage($"Company with Id {storeData.CompanyId} not found.");
+            storeId.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task AddStoreAsync_WhenCityIsNull_ReturnsStoreData()
+        {
+            // Arrange
+            var companyMockEntities = new List<CompanyEntity>
+            {
+                new ()
+                {
+                    Id = 1,
+                    Name = "Company1"
+                }
+            };
+            
+            var context = CreateDatabase(
+                new List<StoreEntity>(), 
+                companyMockEntities,
+                new List<CityEntity>());
+            
+            var storeRepository = new StoreRepository(context);
+            
+            var storeData = new StoreData()
+            {
+                Address = "Address4",
+                CityId = 1,
+                CompanyId = 1
+            };
+            
+            // Act
+            var storeId = await storeRepository.AddStoreAsync(storeData);
+            
+            // Assert
+            storeId.Should().Be(1);
+            context.Store.Should().ContainSingle();
         }
 
         [Fact]
@@ -199,6 +263,20 @@ namespace market_tracker_webapi_test.Application.Repositories
                     Name = "Company1"
                 }
             };
+            
+            var cityMockEntities = new List<CityEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Lisboa"
+                },
+                new()
+                {
+                    Id = 2,
+                    Name = "Porto"
+                },
+            };
 
             var storeMockEntities = new List<StoreEntity>
             {
@@ -206,23 +284,19 @@ namespace market_tracker_webapi_test.Application.Repositories
                 {
                     Id = 1,
                     Address = "Address1",
-                    City = "Lisboa",
-                    OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                    CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                    CityId = 1,
                     CompanyId = 1
                 }
             };
 
-            var context = CreateDatabase(storeMockEntities, companyMockEntities);
+            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
             var storeRepository = new StoreRepository(context);
 
             var storeData = new StoreData()
             {
                 Id = 1,
                 Address = "AddressA",
-                City = "Porto",
-                OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                CityId = 2,
                 CompanyId = 1
             };
 
@@ -235,32 +309,7 @@ namespace market_tracker_webapi_test.Application.Repositories
         }
 
         [Fact]
-        public async Task UpdateStoreAsync_WhenStoreDoesNotExist_ThrowsEntityNotFoundException()
-        {
-            // Arrange
-            var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>());
-            var storeRepository = new StoreRepository(context);
-
-            var storeData = new StoreData()
-            {
-                Id = 1,
-                Address = "AddressA",
-                City = "Porto",
-                OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
-                CompanyId = 1
-            };
-
-            // Act
-            Func<Task> action = async () => await storeRepository.UpdateStoreAsync(storeData);
-            
-            // Assert
-            await action.Should().ThrowAsync<EntityNotFoundException>()
-                .WithMessage($"Store with Id {storeData.Id} not found.");
-        }
-        
-        [Fact]
-        public async Task UpdateStoreAsync_WhenCompanyDoesNotExist_ThrowsEntityNotFoundException()
+        public async Task UpdateStoreAsync_WhenStoreDoesNotExist_ReturnsNull()
         {
             // Arrange
             var companyMockEntities = new List<CompanyEntity>
@@ -271,6 +320,60 @@ namespace market_tracker_webapi_test.Application.Repositories
                     Name = "Company1"
                 }
             };
+            
+            var cityMockEntities = new List<CityEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Lisboa"
+                }
+            };
+            
+            var context = CreateDatabase(new List<StoreEntity>(), companyMockEntities, cityMockEntities);
+            var storeRepository = new StoreRepository(context);
+
+            var storeData = new StoreData()
+            {
+                Id = 1,
+                Address = "AddressA",
+                CityId = 1,
+                CompanyId = 1
+            };
+            
+            // Act
+            var actualStore = await storeRepository.UpdateStoreAsync(storeData);
+            
+            // Assert
+            actualStore.Should().BeNull();
+        }
+        
+        [Fact]
+        public async Task UpdateStoreAsync_WhenCompanyDoesNotExist_ReturnsNull()
+        {
+            // Arrange
+            var companyMockEntities = new List<CompanyEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Company1"
+                }
+            };
+            
+            var cityMockEntities = new List<CityEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Lisboa"
+                },
+                new()
+                {
+                    Id = 2,
+                    Name = "Porto"
+                },
+            };
 
             var storeMockEntities = new List<StoreEntity>
             {
@@ -278,32 +381,76 @@ namespace market_tracker_webapi_test.Application.Repositories
                 {
                     Id = 1,
                     Address = "Address1",
-                    City = "Lisboa",
-                    OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                    CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                    CityId = 1,
                     CompanyId = 1
                 }
             };
             
-            var context = CreateDatabase(storeMockEntities, companyMockEntities);
+            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
             var storeRepository = new StoreRepository(context);
 
             var storeData = new StoreData()
             {
                 Id = 1,
                 Address = "AddressA",
-                City = "Porto",
-                OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                CityId = 2,
                 CompanyId = 2
             };
 
             // Act
-            Func<Task> action = async () => await storeRepository.UpdateStoreAsync(storeData);
+            var actualStore = await storeRepository.UpdateStoreAsync(storeData);
             
             // Assert
-            await action.Should().ThrowAsync<EntityNotFoundException>()
-                .WithMessage($"Company with Id {storeData.CompanyId} not found.");
+            actualStore.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task UpdateStoreAsync_WhenCityIsNull_ReturnsStoreData()
+        {
+            var companyMockEntities = new List<CompanyEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Company1"
+                }
+            };
+            
+            var cityMockEntities = new List<CityEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Lisboa"
+                }
+            };
+            
+            var storeMockEntities = new List<StoreEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Address = "Address1",
+                    CityId = 1,
+                    CompanyId = 1
+                }
+            };
+            
+            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
+            
+            var storeRepository = new StoreRepository(context);
+            
+            var storeData = new StoreData()
+            {
+                Id = 1,
+                Address = "AddressA",
+                CityId = null,
+                CompanyId = 1
+            };
+            
+            var actualStore = await storeRepository.UpdateStoreAsync(storeData);
+            
+            actualStore.Should().BeEquivalentTo(storeData);
         }
         
         [Fact]
@@ -318,6 +465,15 @@ namespace market_tracker_webapi_test.Application.Repositories
                     Name = "Company1"
                 }
             };
+            
+            var cityMockEntities = new List<CityEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Lisboa"
+                }
+            };
 
             var storeMockEntities = new List<StoreEntity>
             {
@@ -325,14 +481,12 @@ namespace market_tracker_webapi_test.Application.Repositories
                 {
                     Id = 1,
                     Address = "Address1",
-                    City = "Lisboa",
-                    OpenTime = new DateTime(2021, 1, 1, 8, 0, 0, DateTimeKind.Unspecified),
-                    CloseTime = new DateTime(2021, 1, 1, 20, 0, 0, DateTimeKind.Unspecified),
+                    CityId = 1,
                     CompanyId = 1
                 }
             };
 
-            var context = CreateDatabase(storeMockEntities, companyMockEntities);
+            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
             var storeRepository = new StoreRepository(context);
 
             // Act
@@ -344,21 +498,23 @@ namespace market_tracker_webapi_test.Application.Repositories
         }
         
         [Fact]
-        public async Task DeleteStoreAsync_WhenStoreDoesNotExist_ThrowsEntityNotFoundException()
+        public async Task DeleteStoreAsync_WhenStoreDoesNotExist_ReturnsNull()
         {
             // Arrange
-            var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>());
+            var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>(), new List<CityEntity>());
             var storeRepository = new StoreRepository(context);
-
+            
             // Act
-            Func<Task> action = async () => await storeRepository.DeleteStoreAsync(1);
+            var actualStore = await storeRepository.DeleteStoreAsync(1);
             
             // Assert
-            await action.Should().ThrowAsync<EntityNotFoundException>()
-                .WithMessage($"Store with Id 1 not found.");
+            actualStore.Should().BeNull();
         }
         
-        private static MarketTrackerDataContext CreateDatabase(IEnumerable<StoreEntity> storeEntities, IEnumerable<CompanyEntity> companyEntities)
+        private static MarketTrackerDataContext CreateDatabase(
+            IEnumerable<StoreEntity> storeEntities,
+            IEnumerable<CompanyEntity> companyEntities,
+                IEnumerable<CityEntity> cityEntities)
         {
             DbContextOptions<MarketTrackerDataContext> options = new DbContextOptionsBuilder<MarketTrackerDataContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -366,6 +522,7 @@ namespace market_tracker_webapi_test.Application.Repositories
 
             var databaseContext = new MarketTrackerDataContext(options);
             databaseContext.Company.AddRange(companyEntities);
+            databaseContext.City.AddRange(cityEntities);
             databaseContext.Store.AddRange(storeEntities);
             databaseContext.SaveChanges();
             databaseContext.Database.EnsureCreated();

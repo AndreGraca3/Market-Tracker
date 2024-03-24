@@ -4,20 +4,16 @@ namespace market_tracker_webapi.Application.Repositories.Store
 {
     public interface IStoreRepository
     {
-        Task<StoreData> GetStoreByIdAsync(int id);
+        Task<StoreData?> GetStoreByIdAsync(int id);
 
-        Task<int> AddStoreAsync(StoreData storeData);
+        Task<int?> AddStoreAsync(StoreData storeData);
 
-        Task<StoreData> UpdateStoreAsync(StoreData storeData);
+        Task<StoreData?> UpdateStoreAsync(StoreData storeData);
         
-        Task<StoreData> DeleteStoreAsync(int id);
+        Task<StoreData?> DeleteStoreAsync(int id);
 
         Task<IEnumerable<StoreData>> GetStoresFromCompany(int id);
-
-        Task<CompanyData> GetCompanyAsync(int id);
-
-        Task<int> AddCompanyAsync(string companyName);
-
-        Task<int> DeleteCompanyAsync(int id);
+        
+        Task<IEnumerable<StoreData>> GetStoresFromCityByName(string name);
     }
 }
