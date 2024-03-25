@@ -1,12 +1,14 @@
-namespace market_tracker_webapi.Application.Http.Models;
+namespace market_tracker_webapi.Application.Domain;
 
-public record ProductCreationInputModel(
+public record Product(
     int Id,
     string Name,
     string Description,
     string ImageUrl,
     int Quantity,
     string Unit,
-    string BrandName,
+    int Views,
+    float Rate,
+    int BrandId,
     int CategoryId
 );

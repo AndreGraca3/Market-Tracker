@@ -1,11 +1,14 @@
-﻿using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
 namespace market_tracker_webapi.Application.Repository.Interfaces
 {
     public interface IProductRepository
     {
-        Task<ProductEntity?> GetProductAsync(int productId);
+        Task<List<Product>> GetProductsAsync(); // TODO: Add filter, pagination, sorting and search
+
+        Task<Product?> GetProductByIdAsync(int productId);
 
         Task<int> AddProductAsync(
             int id,
@@ -18,31 +21,31 @@ namespace market_tracker_webapi.Application.Repository.Interfaces
             int categoryId
         );
 
-        Task<IdOutputModel> UpdateProductAsync(
+        Task<Product> UpdateProductAsync(
             int productId,
             float? price = null,
-            string? description = null
+            string? description = null,
+            string? imageUrl = null,
+            int? quantity = null,
+            string? unit = null,
+            int? brandId = null,
+            int? categoryId = null,
+            int? rate = null
         );
 
-        Task<ProductEntity> DeleteProductAsync(ProductEntity product);
+        Task<Product?> RemoveProductAsync(int productId);
 
-        Task<List<IdOutputModel>> GetProductsAsync(
-            string filter,
-            Pagination pagination
+        Task<List<ProductReview>> GetReviewsByProductIdAsync(int productId);
+
+        Task<int> AddReviewAsync(Guid clientId, int productId, int rate, string comment);
+
+        Task<ProductReview> UpdateReviewAsync(
+            Guid clientId,
+            int productId,
+            int rate,
+            string comment
         );
 
-        Task<BrandModel> GetBrandAsync(int brandId);
-
-        Task<int> AddBrandAsync(string name);
-
-        Task DeleteBrandAsync(int brandId);
-
-        Task<List<CommentModel>> GetReviewFromProduct(int commentId);
-
-        Task<int> CreateReviewAsync(int productId, int userId, CommentModel comment);
-
-        Task<CommentModel> UpdateReviewAsync(int commentId);
-
-        Task DeleteReviewAsync(int commentId);
+        Task RemoveReviewAsync(Guid clientId, int productId);
     }
 }

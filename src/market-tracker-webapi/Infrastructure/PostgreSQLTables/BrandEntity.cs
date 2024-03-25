@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
-[Table("category", Schema = "MarketTracker")]
-public class CategoryEntity
+[Table("brand", Schema = "MarketTracker")]
+public class BrandEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -12,5 +12,5 @@ public class CategoryEntity
     public int Id { get; set; }
 
     [Column("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 }

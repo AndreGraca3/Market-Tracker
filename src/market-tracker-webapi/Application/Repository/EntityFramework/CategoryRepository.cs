@@ -1,5 +1,4 @@
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Interfaces;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
@@ -9,22 +8,10 @@ namespace market_tracker_webapi.Application.Repository.EntityFramework;
 
 public class CategoryRepository(MarketTrackerDataContext dataContext) : ICategoryRepository
 {
-    public Task<List<Category>> GetCategoriesAsync()
+    public async Task<List<Category>> GetCategoriesAsync()
     {
-        return Task.FromResult(
-            dataContext
-                .Category.Where(c => c.ParentId == null)
-                .Select(pc => new Category(
-                    pc.Id,
-                    pc.Name,
-                    pc.ParentId,
-                    dataContext
-                        .Category.Where(c => c.ParentId == pc.Id)
-                        .Select(c => new Category(c.Id, c.Name, c.ParentId, new List<Category>()))
-                        .ToList()
-                ))
-                .ToList()
-        );
+        var categories = await dataContext.Category.ToListAsync();
+        return categories.Select(c => new Category(c.Id, c.Name)).ToList();
     }
 
     public async Task<Category?> GetCategoryByIdAsync(int id)
@@ -36,32 +23,27 @@ public class CategoryRepository(MarketTrackerDataContext dataContext) : ICategor
         }
         return new Category(
             categoryEntity.Id,
-            categoryEntity.Name,
-            categoryEntity.ParentId,
-            dataContext
-                .Category.Where(c => c.ParentId == categoryEntity.Id)
-                .Select(c => new Category(c.Id, c.Name, c.ParentId, new List<Category>()))
-                .ToList()
+            categoryEntity.Name
         );
     }
 
-    public async Task<CategoryItem?> GetCategoryByNameAsync(string name)
+    public async Task<Category?> GetCategoryByNameAsync(string name)
     {
         var categoryEntity = await dataContext.Category.FirstOrDefaultAsync(c => c.Name == name);
         return categoryEntity is null
             ? null
-            : new CategoryItem(categoryEntity.Id, categoryEntity.Name, categoryEntity.ParentId);
+            : new Category(categoryEntity.Id, categoryEntity.Name);
     }
 
-    public async Task<CategoryItem> AddCategoryAsync(string name, int? parentId)
+    public async Task<Category> AddCategoryAsync(string name)
     {
-        var category = new CategoryEntity { Name = name, ParentId = parentId };
+        var category = new CategoryEntity { Name = name  };
         await dataContext.Category.AddAsync(category);
         await dataContext.SaveChangesAsync();
-        return new CategoryItem(category.Id, category.Name, parentId);
+        return new Category(category.Id, category.Name);
     }
 
-    public async Task<CategoryItem?> RemoveCategoryAsync(int id)
+    public async Task<Category?> RemoveCategoryAsync(int id)
     {
         var category = await dataContext.Category.FindAsync(id);
         if (category is null)
@@ -70,6 +52,6 @@ public class CategoryRepository(MarketTrackerDataContext dataContext) : ICategor
         }
         dataContext.Category.Remove(category);
         await dataContext.SaveChangesAsync();
-        return new CategoryItem(category.Id, category.Name, null);
+        return new Category(category.Id, category.Name);
     }
 }

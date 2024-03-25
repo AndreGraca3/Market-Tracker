@@ -1,6 +1,6 @@
 namespace market_tracker_webapi.Application.Service.Errors.Product;
 
-public class ProductFetchingError : ProductError
+public class ProductFetchingError : IProductError
 {
     public class ProductByIdNotFound(int id) : ProductFetchingError
     {

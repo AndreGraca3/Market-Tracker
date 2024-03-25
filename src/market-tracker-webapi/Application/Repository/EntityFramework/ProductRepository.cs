@@ -1,19 +1,52 @@
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Interfaces;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
+using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.EntityFramework;
 
-public class ProductRepository(MarketTrackerDataContext marketTrackerDataContext)
-    : IProductRepository
+public class ProductRepository(MarketTrackerDataContext dataContext) : IProductRepository
 {
-    public async Task<ProductEntity?> GetProductAsync(int productId)
+    public async Task<List<Product>> GetProductsAsync()
     {
-        return await marketTrackerDataContext.Product.FindAsync(productId);
+        return await dataContext
+            .Product.Select(product => new Product(
+                product.Id,
+                product.Name,
+                product.Description,
+                product.ImageUrl,
+                product.Quantity,
+                product.Unit,
+                product.Views,
+                product.Rate,
+                product.BrandId,
+                product.CategoryId
+            ))
+            .ToListAsync();
     }
 
-    public Task<int> AddProductAsync(
+    public async Task<Product?> GetProductByIdAsync(int productId)
+    {
+        var productEntity = await dataContext.Product.FindAsync(productId);
+        return productEntity is null
+            ? null
+            : new Product(
+                productEntity.Id,
+                productEntity.Name,
+                productEntity.Description,
+                productEntity.ImageUrl,
+                productEntity.Quantity,
+                productEntity.Unit,
+                productEntity.Views,
+                productEntity.Rate,
+                productEntity.BrandId,
+                productEntity.CategoryId
+            );
+    }
+
+    public async Task<int> AddProductAsync(
         int id,
         string name,
         string description,
@@ -37,64 +70,90 @@ public class ProductRepository(MarketTrackerDataContext marketTrackerDataContext
             BrandId = brandId,
             CategoryId = categoryId
         };
-        marketTrackerDataContext.Product.Add(productEntity);
-        return Task.FromResult(productEntity.Id);
+        await dataContext.Product.AddAsync(productEntity);
+        await dataContext.SaveChangesAsync();
+        return productEntity.Id;
     }
 
-    public Task<IdOutputModel> UpdateProductAsync(
+    public async Task<Product> UpdateProductAsync(
         int productId,
         float? price = null,
-        string? description = null
+        string? description = null,
+        string? imageUrl = null,
+        int? quantity = null,
+        string? unit = null,
+        int? brandId = null,
+        int? categoryId = null,
+        int? rate = null
     )
     {
         throw new NotImplementedException();
     }
 
-    public Task<ProductEntity> DeleteProductAsync(ProductEntity product)
+    public async Task<Product?> RemoveProductAsync(int productId)
     {
-        marketTrackerDataContext.Product.Remove(product);
-        return Task.FromResult(product);
+        var productEntity = await dataContext.Product.FindAsync(productId);
+        if (productEntity is null)
+        {
+            return null;
+        }
+        dataContext.Product.Remove(productEntity);
+        await dataContext.SaveChangesAsync();
+        return new Product(
+            productEntity.Id,
+            productEntity.Name,
+            productEntity.Description,
+            productEntity.ImageUrl,
+            productEntity.Quantity,
+            productEntity.Unit,
+            productEntity.Views,
+            productEntity.Rate,
+            productEntity.BrandId,
+            productEntity.CategoryId
+        );
     }
 
-    public Task<List<IdOutputModel>> GetProductsAsync(
-        string filter,
-        Pagination pagination
+    public async Task<List<ProductReview>> GetReviewsByProductIdAsync(int productId)
+    {
+        var reviews = await dataContext
+            .ProductReview.Where(review => review.ProductId == productId)
+            .ToListAsync();
+        return reviews
+            .Select(review => new ProductReview(
+                review.ClientId,
+                review.ProductId,
+                review.Rate,
+                review.Comment,
+                review.CreatedAt
+            ))
+            .ToList();
+    }
+
+    public async Task<int> AddReviewAsync(Guid clientId, int productId, int rate, string comment)
+    {
+        var reviewEntity = new ProductReviewEntity()
+        {
+            ClientId = clientId,
+            ProductId = productId,
+            Rate = rate,
+            Comment = comment,
+            CreatedAt = DateTime.Now
+        };
+        dataContext.ProductReview.Add(reviewEntity);
+        return await dataContext.SaveChangesAsync();
+    }
+
+    public Task<ProductReview> UpdateReviewAsync(
+        Guid clientId,
+        int productId,
+        int rate,
+        string comment
     )
     {
         throw new NotImplementedException();
     }
 
-    public Task<BrandModel> GetBrandAsync(int brandId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<int> AddBrandAsync(string name)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteBrandAsync(int brandId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<List<CommentModel>> GetReviewFromProduct(int commentId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<int> CreateReviewAsync(int productId, int userId, CommentModel commentModel)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<CommentModel> UpdateReviewAsync(int commentId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteReviewAsync(int commentId)
+    public Task RemoveReviewAsync(Guid clientId, int productId)
     {
         throw new NotImplementedException();
     }

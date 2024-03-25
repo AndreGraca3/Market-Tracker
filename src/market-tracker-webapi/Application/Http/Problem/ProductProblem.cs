@@ -18,4 +18,22 @@ public class ProductProblem(
             $"Product with id {data.Id} not found",
             data
         );
+
+    public class InvalidBrand(ProductCreationError.InvalidBrand data)
+        : ProductProblem(
+            400,
+            "invalid-brand",
+            "Invalid brand",
+            $"Brand with name {data.BrandName} not found",
+            data
+        );
+
+    public class ProductAlreadyExists(ProductCreationError.ProductAlreadyExists data)
+        : ProductProblem(
+            409,
+            "product-already-exists",
+            "Product already exists",
+            $"Product with id {data.ProductId} already exists",
+            data
+        );
 }

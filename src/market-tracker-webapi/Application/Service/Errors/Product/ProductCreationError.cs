@@ -1,14 +1,14 @@
 namespace market_tracker_webapi.Application.Service.Errors.Product;
 
-public class ProductCreationError : ProductError
+public class ProductCreationError : IProductError
 {
-    public class InvalidBrand(string brand) : ProductCreationError
+    public class InvalidBrand(string brandName) : ProductCreationError
     {
-        public string Brand { get; } = brand;
+        public string BrandName { get; } = brandName;
     }
-
-    public class InvalidCategory(string category) : ProductCreationError
+    
+    public class ProductAlreadyExists(int productId) : ProductCreationError
     {
-        public string Category { get; } = category;
+        public int ProductId { get; } = productId;
     }
 }

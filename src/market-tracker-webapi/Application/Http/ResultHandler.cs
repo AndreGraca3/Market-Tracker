@@ -5,6 +5,10 @@ namespace market_tracker_webapi.Application.Http;
 
 public static class ResultHandler
 {
+    /**
+     * Handle the result of a service method.
+     * If the result is successful, return an OkObjectResult with the value by default.
+     */
     public static ActionResult<T> Handle<TError, T>(
         Either<TError, T> result,
         Func<TError, ActionResult<T>> onError,
@@ -13,9 +17,7 @@ public static class ResultHandler
     {
         if (result.IsSuccessful())
         {
-            return onSuccess is null
-                ? new OkObjectResult(result.Value)
-                : onSuccess(result.Value);
+            return onSuccess?.Invoke(result.Value) ?? new OkObjectResult(result.Value);
         }
 
         return onError(result.Error);

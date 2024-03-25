@@ -3,6 +3,7 @@ using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service;
 using market_tracker_webapi.Application.Service.Errors.Category;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers;
@@ -41,8 +42,7 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
     )
     {
         var res = await categoryService.AddCategoryAsync(
-            categoryInput.Name,
-            categoryInput.parentId
+            categoryInput.Name
         );
         return ResultHandler.Handle(
             res,
@@ -71,7 +71,7 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
     }
 
     [HttpDelete(Uris.Categories.CategoryById)]
-    public async Task<ActionResult<object>> RemoveCategoryAsync(int id)
+    public async Task<ActionResult<IdOutputModel>> RemoveCategoryAsync(int id)
     {
         var res = await categoryService.RemoveCategoryAsync(id);
         return ResultHandler.Handle(

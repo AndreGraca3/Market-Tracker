@@ -1,3 +1,5 @@
+using market_tracker_webapi.Application.Domain;
+
 namespace market_tracker_webapi.Application.Http.Models;
 
 public record ProductOutputModel(
@@ -9,6 +11,6 @@ public record ProductOutputModel(
     string Unit,
     int Views,
     float Rate,
-    int BrandId,
-    int CategoryId
+    BrandOutputModel Brand,
+    Category Category
 );
