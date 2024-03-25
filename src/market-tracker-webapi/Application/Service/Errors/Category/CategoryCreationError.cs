@@ -14,4 +14,9 @@ public class CategoryCreationError : ICategoryError
         public int MinCategoryNameLength { get; } = minCategoryNameLength;
         public int MaxCategoryNameLength { get; } = maxCategoryNameLength;
     }
+
+    public class InvalidParentCategory(int parentId) : CategoryCreationError
+    {
+        public int ParentId { get; } = parentId;
+    }
 }

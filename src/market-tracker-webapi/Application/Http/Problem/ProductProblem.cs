@@ -15,6 +15,7 @@ public class ProductProblem(
             404,
             "product-not-found",
             "Product not found",
-            $"Product with id {data.Id} not found"
+            $"Product with id {data.Id} not found",
+            data
         );
 }

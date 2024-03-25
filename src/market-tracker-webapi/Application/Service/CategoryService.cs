@@ -1,3 +1,4 @@
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Interfaces;
 using market_tracker_webapi.Application.Service.Core;
@@ -11,51 +12,72 @@ public class CategoryService(
     ICategoryRepository categoryRepository
 )
 {
-    public async Task<List<CategoryOutputModel>> GetCategoriesAsync()
+    public async Task<List<Category>> GetCategoriesAsync()
     {
         var categories = await categoryRepository.GetCategoriesAsync();
         return categories
-            .Select(category => new CategoryOutputModel(category.Id, category.Name))
+            .Select(category => new Category(
+                category.Id,
+                category.Name,
+                category.ParentId,
+                category.Children
+            ))
             .ToList();
     }
 
-    public async Task<Either<CategoryFetchingError, CategoryOutputModel>> GetCategoryAsync(int id)
+    public async Task<Either<CategoryFetchingError, Category>> GetCategoryAsync(int id)
     {
         var category = await categoryRepository.GetCategoryByIdAsync(id);
         return category is null
-            ? EitherExtensions.Failure<CategoryFetchingError, CategoryOutputModel>(
+            ? EitherExtensions.Failure<CategoryFetchingError, Category>(
                 new CategoryFetchingError.CategoryByIdNotFound(id)
             )
-            : EitherExtensions.Success<CategoryFetchingError, CategoryOutputModel>(
-                new CategoryOutputModel(category.Id, category.Name)
-            );
+            : EitherExtensions.Success<CategoryFetchingError, Category>(category);
     }
 
-    public async Task<Either<CategoryCreationError, IdOutputModel>> AddCategoryAsync(
+    public async Task<Either<ICategoryError, IdOutputModel>> AddCategoryAsync(
         string name,
         int? parentId
     )
     {
-        /*if (!categoryManager.IsValidCategoryName(name))
+        if (!categoryManager.IsValidCategoryName(name))
         {
-            return EitherExtensions.Failure<CategoryCreationError, IdOutputModel>(
+            return EitherExtensions.Failure<ICategoryError, IdOutputModel>(
                 new CategoryCreationError.InvalidName(
                     name,
                     categoryManager.MinCategoryNameLength,
                     categoryManager.MaxCategoryNameLength
                 )
             );
-        }*/
+        }
 
         if (await categoryRepository.GetCategoryByNameAsync(name) is not null)
         {
-            return EitherExtensions.Failure<CategoryCreationError, IdOutputModel>(
+            return EitherExtensions.Failure<ICategoryError, IdOutputModel>(
                 new CategoryCreationError.CategoryNameAlreadyExists(name)
             );
         }
 
+        if (parentId != null)
+        {
+            var parentCategory = await categoryRepository.GetCategoryByIdAsync(parentId.Value);
+            if (parentCategory is null)
+            {
+                return EitherExtensions.Failure<ICategoryError, IdOutputModel>(
+                    new CategoryFetchingError.CategoryByIdNotFound(parentId.Value)
+                );
+            }
+
+            if (parentCategory.ParentId != null)
+            {
+                return EitherExtensions.Failure<ICategoryError, IdOutputModel>(
+                    new CategoryCreationError.InvalidParentCategory(parentId.Value)
+                );
+            }
+        }
+
         var category = await categoryRepository.AddCategoryAsync(name, parentId);
-        return EitherExtensions.Success<CategoryCreationError, IdOutputModel>(
+        return EitherExtensions.Success<ICategoryError, IdOutputModel>(
             new IdOutputModel(category.Id)
         );
     }

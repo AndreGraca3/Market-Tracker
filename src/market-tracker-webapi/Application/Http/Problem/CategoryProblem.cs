@@ -15,7 +15,8 @@ public class CategoryProblem(
             404,
             "category-not-found",
             "Category not found",
-            $"Category with id {data.Id} not found"
+            $"Category with id {data.Id} not found",
+            data
         );
 
     public class CategoryNameAlreadyExists()
@@ -23,7 +24,7 @@ public class CategoryProblem(
             409,
             "category-name-already-exists",
             "Category name already exists",
-            "Category name already exists"
+            "A category with that name already exists"
         );
 
     public class InvalidName(CategoryCreationError.InvalidName data)
@@ -31,6 +32,16 @@ public class CategoryProblem(
             400,
             "invalid-name",
             "Invalid name",
-            $"Invalid name: {data.Name}. Name must be between {data.MinCategoryNameLength} and {data.MaxCategoryNameLength} characters long"
+            $"Name must be between {data.MinCategoryNameLength} and {data.MaxCategoryNameLength} characters long",
+            data
+        );
+
+    public class InvalidParentCategory(CategoryCreationError.InvalidParentCategory data)
+        : CategoryProblem(
+            400,
+            "invalid-parent-category",
+            "Invalid parent category",
+            $"Parent category must be a root category",
+            data
         );
 }

@@ -1,3 +1,4 @@
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service;
@@ -9,14 +10,14 @@ namespace market_tracker_webapi.Application.Http.Controllers;
 public class CategoryController(CategoryService categoryService) : ControllerBase
 {
     [HttpGet(Uris.Categories.Base)]
-    public async Task<ActionResult<CategoryOutputModel>> GetCategoriesAsync()
+    public async Task<ActionResult<List<Category>>> GetCategoriesAsync()
     {
         var categories = await categoryService.GetCategoriesAsync();
         return Ok(categories);
     }
 
     [HttpGet(Uris.Categories.CategoryById)]
-    public async Task<ActionResult<CategoryOutputModel>> GetCategoryAsync(int id)
+    public async Task<ActionResult<Category>> GetCategoryAsync(int id)
     {
         var res = await categoryService.GetCategoryAsync(id);
         return ResultHandler.Handle(
@@ -49,18 +50,28 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
             {
                 return error switch
                 {
+                    CategoryFetchingError.CategoryByIdNotFound idNotFoundError
+                        => new CategoryProblem.CategoryByIdNotFound(
+                            idNotFoundError
+                        ).ToActionResult(),
+
                     CategoryCreationError.CategoryNameAlreadyExists _
                         => new CategoryProblem.CategoryNameAlreadyExists().ToActionResult(),
 
                     CategoryCreationError.InvalidName invalidNameError
-                        => new CategoryProblem.InvalidName(invalidNameError).ToActionResult()
+                        => new CategoryProblem.InvalidName(invalidNameError).ToActionResult(),
+
+                    CategoryCreationError.InvalidParentCategory invalidParentCategoryIdError
+                        => new CategoryProblem.InvalidParentCategory(
+                            invalidParentCategoryIdError
+                        ).ToActionResult()
                 };
             }
         );
     }
 
     [HttpDelete(Uris.Categories.CategoryById)]
-    public async Task<ActionResult<IdOutputModel>> RemoveCategoryAsync(int id)
+    public async Task<ActionResult<object>> RemoveCategoryAsync(int id)
     {
         var res = await categoryService.RemoveCategoryAsync(id);
         return ResultHandler.Handle(
@@ -74,7 +85,8 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
                             idNotFoundError
                         ).ToActionResult(),
                 };
-            }
+            },
+            _ => NoContent()
         );
     }
 }

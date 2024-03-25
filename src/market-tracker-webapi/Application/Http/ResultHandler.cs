@@ -7,12 +7,15 @@ public static class ResultHandler
 {
     public static ActionResult<T> Handle<TError, T>(
         Either<TError, T> result,
-        Func<TError, ActionResult<T>> onError
+        Func<TError, ActionResult<T>> onError,
+        Func<T, ActionResult<T>>? onSuccess = null
     )
     {
         if (result.IsSuccessful())
         {
-            return result.Value;
+            return onSuccess is null
+                ? new OkObjectResult(result.Value)
+                : onSuccess(result.Value);
         }
 
         return onError(result.Error);
