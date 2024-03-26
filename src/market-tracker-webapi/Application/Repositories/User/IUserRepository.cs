@@ -1,31 +1,22 @@
 ﻿using market_tracker_webapi.Application.Models;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
 namespace market_tracker_webapi.Application.Repositories.User
 {
     public interface IUserRepository
     {
-        Task<Models.UserData?> GetUserAsync(int id);
+        Task<UserData?> GetUserAsync(Guid id);
 
-        Task<UserInfoData?> GetUserByIdAsync(int id);
+        Task<UserInfoData?> GetUserByIdAsync(Guid id);
 
-        Task<int> CreateUserAsync(string name, string userName, string email, string password, string avatarUrl);
+        Task<Guid> CreateUserAsync(string username, string name, string email, string password);
 
         Task<UserInfoData?> GetUserByNameAsync(string name);
 
-        Task<Models.UserData?> GetUserByEmail(string email);
+        Task<UserData?> GetUserByEmail(string email);
 
-        Task<UserDetailsData> UpdateUserAsync(int id, string? name = null, string? userName = null, string? avatarUrl = null);
+        Task<UserDetailsData?> UpdateUserAsync(Guid id, string? name = null, string? userName = null);
 
-        Task DeleteUserAsync(int id);
-
-        Task<TokenData> CreateTokenAsync(string tokenValue, int userId);
-
-        Task<AuthenticatedUserData?> GetUserAndTokenByTokenValueAsync(string token);
-
-        Task<TokenData?> GetTokenByUserIdAsync(int userId);
-
-        Task UpdateTokenLastUsedAsync(TokenData tokenData, DateTime now);
-
-        Task DeleteTokenAsync(string token);
+        Task<DeletedUserData?> DeleteUserAsync(Guid id);
     }
 }

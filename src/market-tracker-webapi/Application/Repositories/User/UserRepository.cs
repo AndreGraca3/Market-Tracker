@@ -4,50 +4,30 @@ using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
 namespace market_tracker_webapi.Application.Repositories.User
 {
-    public class UserRepository: IUserRepository
+    public class UserRepository(MarketTrackerDataContext marketTrackerDataContext) : IUserRepository
     {
-        private readonly MarketTrackerDataContext _marketTrackerDataContext;
-
-        public UserRepository(MarketTrackerDataContext marketTrackerDataContext)
+        public async Task<UserData?> GetUserAsync(Guid id)
         {
-            _marketTrackerDataContext = marketTrackerDataContext;
+            return MapUserEntity(await marketTrackerDataContext.User.FindAsync(id));
         }
 
-        public async Task<Models.UserData?> GetUserAsync(int id)
+        public async Task<UserInfoData?> GetUserByIdAsync(Guid id)
         {
-            return MapUserEntity(await _marketTrackerDataContext.User.FindAsync(id));
+            throw new NotImplementedException();
         }
 
-        public async Task<int> AddUser(string name)
+        public async Task<Guid> CreateUserAsync(string name, string username, string email, string password)
         {
-            var newUser = new UserEntity { Name = name };
-            await _marketTrackerDataContext.User.AddAsync(newUser);
-            await _marketTrackerDataContext.SaveChangesAsync();
-            return newUser.Id;
-        }
-
-        private static Models.UserData? MapUserEntity(UserEntity? userEntity)
-        {
-            return userEntity is not null ? new Models.UserData()
+            var newUser = new UserEntity
             {
-                Id = userEntity.Id,
-                Name = userEntity.Name
-            } : null;
-        }
-
-        Task<Models.UserData?> IUserRepository.GetUserAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<UserInfoData?> IUserRepository.GetUserByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<int> IUserRepository.CreateUserAsync(string name, string userName, string email, string password, string avatarUrl)
-        {
-            throw new NotImplementedException();
+                Name = name,
+                Username = username,
+                Email = email,
+                Password = password
+            };
+            await marketTrackerDataContext.User.AddAsync(newUser);
+            await marketTrackerDataContext.SaveChangesAsync();
+            return newUser.Id;
         }
 
         Task<UserInfoData?> IUserRepository.GetUserByNameAsync(string name)
@@ -55,44 +35,60 @@ namespace market_tracker_webapi.Application.Repositories.User
             throw new NotImplementedException();
         }
 
-        Task<Models.UserData?> IUserRepository.GetUserByEmail(string email)
+        Task<UserData?> IUserRepository.GetUserByEmail(string email)
         {
             throw new NotImplementedException();
         }
 
-        Task<UserDetailsData> IUserRepository.UpdateUserAsync(int id, string? name, string? userName, string? avatarUrl)
+        public async Task<UserDetailsData?> UpdateUserAsync(Guid id, string? name, string? userName)
         {
-            throw new NotImplementedException();
+            var user = await marketTrackerDataContext.User.FindAsync(id);
+            if (user is null)
+            {
+                return null;
+            }
+
+            user.Name = name ?? user.Name  ;
+            user.Username = userName ?? user.Username;
+            
+            await marketTrackerDataContext.SaveChangesAsync();
+            return new UserDetailsData
+            {
+                Name = user.Name,
+                UserName = user.Username
+            };
         }
 
-        Task IUserRepository.DeleteUserAsync(int id)
+        public async Task<DeletedUserData?> DeleteUserAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var deletedUser = await marketTrackerDataContext.User.FindAsync(id);
+            if (deletedUser is null)
+            {
+                return null;
+            }
+
+            marketTrackerDataContext.Remove(deletedUser);
+            await marketTrackerDataContext.SaveChangesAsync();
+            return new DeletedUserData
+            {
+                Id = id, 
+                CreatedAt = deletedUser.CreatedAt
+            };
         }
 
-        Task<TokenData> IUserRepository.CreateTokenAsync(string tokenValue, int userId)
+        private static UserData? MapUserEntity(UserEntity? userEntity)
         {
-            throw new NotImplementedException();
-        }
-
-        Task<AuthenticatedUserData?> IUserRepository.GetUserAndTokenByTokenValueAsync(string token)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<TokenData?> IUserRepository.GetTokenByUserIdAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IUserRepository.UpdateTokenLastUsedAsync(TokenData tokenData, DateTime now)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IUserRepository.DeleteTokenAsync(string token)
-        {
-            throw new NotImplementedException();
+            return userEntity is not null
+                ? new UserData
+                {
+                    Id = userEntity.Id,
+                    Name = userEntity.Name,
+                    Email = userEntity.Email,
+                    Password = userEntity.Password,
+                    Username = userEntity.Username,
+                    CreatedAt = userEntity.CreatedAt
+                }
+                : null;
         }
     }
 }

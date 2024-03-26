@@ -6,24 +6,51 @@ namespace market_tracker_webapi.Controllers
 {
     [ApiController]
     [Route("users")]
-    public class UserController : ControllerBase
+    public class UserController(IUserRepository userRepository, ILogger<UserController> logger)
+        : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
-        private readonly ILogger<UserController> _logger;
+        [HttpGet("{id:Guid}")]
+        public async Task<ActionResult<UserData>> GetUserAsync(Guid id)
+        {
+            logger.LogDebug($"Call {nameof(GetUserAsync)} with {id}");
 
-        public UserController(IUserRepository userRepository, ILogger<UserController> logger)
-        {   
-            _userRepository = userRepository;
-            _logger = logger;
+            var user = await userRepository.GetUserAsync(id);
+            return user is null ? NotFound("User not found!") : Ok(user);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserData>> GetUserAsync(int id)
+        [HttpPost]
+        public async Task<ActionResult<Guid>> CreateUserAsync(
+            [FromBody] string username,
+            [FromBody] string name,
+            [FromBody] string email,
+            [FromBody] string password
+        )
         {
-            _logger.LogDebug($"Call {nameof(GetUserAsync)} with {id}");
+            logger.LogDebug($"Call {nameof(CreateUserAsync)} with {username}, {name}, {email}, {password}");
 
-            var user = await _userRepository.GetUserAsync(id);
-            return user is null ? NotFound("User not found!") : Ok(user);
+            return Ok(await userRepository.CreateUserAsync(username, name, email, password));
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<UserDetailsData?>> UpdateUserAsync(
+            [FromBody] Guid id,
+            [FromBody] string? name,
+            [FromBody] string? username
+        )
+        {
+            logger.LogDebug($"Call {nameof(GetUserAsync)} with ");
+
+            var updatedUser = await userRepository.UpdateUserAsync(id, name, username);
+            return updatedUser is null ? NotFound("User not found!") : Ok(updatedUser);
+        }
+
+        [HttpDelete("{id:Guid}")]
+        public async Task<ActionResult> DeleteUserAsync(Guid id)
+        {
+            logger.LogDebug($"Call {nameof(DeleteUserAsync)} with {id}");
+
+            var deletedUserId = await userRepository.DeleteUserAsync(id);
+            return deletedUserId is null ? NotFound("User not found!") : Ok(deletedUserId);
         }
     }
 }
