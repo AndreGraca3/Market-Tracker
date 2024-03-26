@@ -77,16 +77,17 @@ public class CityRepositoryTest
         var context = CreateDatabase(cityEntities);
         var cityRepository = new CityRepository(context);
         
-        var cityData = new CityCreation
+        var cityData = new CityDomain
         {
+            Id = 2,
             Name = "City 2"
         };
         
         // Act
-        var cityId = await cityRepository.AddCityAsync(cityData);
+        var cityId = await cityRepository.AddCityAsync(cityData.Name);
         
         // Assert
-        cityId.Should().Be(2);
+        cityData.Id.Should().Be(cityId);
     }
     
     [Fact]
@@ -105,14 +106,14 @@ public class CityRepositoryTest
         var context = CreateDatabase(cityEntities);
         var cityRepository = new CityRepository(context);
         
-        var updatedCityData = new CityUpdate()
+        var updatedCityData = new CityDomain
         {
             Id = 1,
             Name = "City 2"
         };
         
         // Act
-        var cityData = await cityRepository.UpdateCityAsync(updatedCityData);
+        var cityData = await cityRepository.UpdateCityAsync(updatedCityData.Id, updatedCityData.Name);
         
         // Assert
         updatedCityData.Should().BeEquivalentTo(cityData);
@@ -134,14 +135,14 @@ public class CityRepositoryTest
         var context = CreateDatabase(cityEntities);
         var cityRepository = new CityRepository(context);
         
-        var updatedCityData = new CityUpdate()
+        var updatedCityData = new CityDomain
         {
             Id = 2,
             Name = "City 2"
         };
         
         // Act
-        var cityData = await cityRepository.UpdateCityAsync(updatedCityData);
+        var cityData = await cityRepository.UpdateCityAsync(updatedCityData.Id, updatedCityData.Name);
         
         // Assert
         cityData.Should().BeNull();

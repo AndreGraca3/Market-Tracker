@@ -1,9 +1,8 @@
-﻿using System.Transactions;
-using market_tracker_webapi.Application.Domain;
+﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Repositories.Company;
+using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Services.Errors.Company;
-using market_tracker_webapi.Application.Services.Operations.Company;
 using market_tracker_webapi.Application.Utils;
 using TransactionManager = market_tracker_webapi.Application.Service.Transaction.TransactionManager;
 
@@ -25,6 +24,17 @@ public class CompanyService(ICompanyRepository companyRepository, TransactionMan
             )
             : EitherExtensions.Success<CompanyFetchingError, CompanyDomain>(company);
     }
+
+    public async Task<Either<CompanyFetchingError, CompanyDomain>> GetCompanyByNameAsync(string companyName)
+    {
+        var company = await companyRepository.GetCompanyByNameAsync(companyName);
+        return company is null
+            ? EitherExtensions.Failure<CompanyFetchingError, CompanyDomain>(
+                new CompanyFetchingError.CompanyByNameNotFound(companyName)
+            )
+            : EitherExtensions.Success<CompanyFetchingError, CompanyDomain>(company);
+    }
+
 
     // may change TL to CompanyCreationError
     public async Task<Either<ICompanyError, IdOutputModel>> AddCompanyAsync(string companyName)

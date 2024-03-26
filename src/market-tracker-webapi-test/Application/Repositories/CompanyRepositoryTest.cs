@@ -78,13 +78,8 @@ public class CompanyRepositoryTest
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
         
-        var newCompanyData = new CompanyCreation
-        {
-            Name = "Company 2"
-        };
-        
         // Act
-        var companyId = await companyRepository.AddCompanyAsync(newCompanyData);
+        var companyId = await companyRepository.AddCompanyAsync("Company 2");
         
         // Assert
         companyId.Should().Be(2);
@@ -106,14 +101,14 @@ public class CompanyRepositoryTest
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
         
-        var updatedCompanyData = new CompanyUpdate()
+        var updatedCompanyData = new CompanyDomain
         {
             Id = 1,
-            Name = "Company 2"
+            Name = "Company 2",
+            CreatedAt = DateTime.Now
         };
-        
         // Act
-        var companyData = await companyRepository.UpdateCompanyAsync(updatedCompanyData);
+        var companyData = await companyRepository.UpdateCompanyAsync(updatedCompanyData.Id, updatedCompanyData.Name);
         
         // Assert
         updatedCompanyData.Should().BeEquivalentTo(companyData, options => options.Excluding(x => x!.CreatedAt));
@@ -135,14 +130,15 @@ public class CompanyRepositoryTest
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
         
-        var updatedCompanyData = new CompanyUpdate()
+        var updatedCompanyData = new CompanyDomain()
         {
             Id = 2,
-            Name = "Company 2"
+            Name = "Company 2",
+            CreatedAt = DateTime.Now
         };
         
         // Act
-        var companyData = await companyRepository.UpdateCompanyAsync(updatedCompanyData);
+        var companyData = await companyRepository.UpdateCompanyAsync(updatedCompanyData.Id, updatedCompanyData.Name);
         
         // Assert
         companyData.Should().BeNull();

@@ -6,4 +6,9 @@ public class CompanyFetchingError : ICompanyError
     {
         public int Id { get; } = id;
     }
+    
+    public class CompanyByNameNotFound(string name) : CompanyFetchingError
+    {
+        public string Name { get; } = name;
+    }
 }

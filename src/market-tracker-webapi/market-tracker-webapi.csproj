@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Service\Core\" />
+    <Folder Include="Application\Services\Core\" />
   </ItemGroup>
 
 </Project>
