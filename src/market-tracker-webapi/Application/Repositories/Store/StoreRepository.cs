@@ -1,4 +1,4 @@
-﻿using market_tracker_webapi.Application.Models;
+﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
@@ -7,26 +7,19 @@ namespace market_tracker_webapi.Application.Repositories.Store
 {
     public class StoreRepository(MarketTrackerDataContext marketTrackerDataContext) : IStoreRepository
     {
-        public async Task<StoreData?> GetStoreByIdAsync(int id)
+        public async Task<StoreDomain?> GetStoreByIdAsync(int id)
         {
             var storeEntity = await marketTrackerDataContext.Store.FindAsync(id);
             return storeEntity != null ? MapStoreEntity(storeEntity) : null;
         }
 
-        public async Task<int?> AddStoreAsync(StoreData storeData)
+        public async Task<int> AddStoreAsync(string address, int cityId, int companyId)
         {
-            var company = await marketTrackerDataContext.Company.FindAsync(storeData.CompanyId);
-
-            if (company == null)
-            {
-                return null;
-            }
-            
             var newStore = new StoreEntity
             {
-                Address = storeData.Address,
-                CityId = storeData.CityId,
-                CompanyId = storeData.CompanyId
+                Address = address,
+                CityId = cityId,
+                CompanyId = companyId
             };
             
             marketTrackerDataContext.Store.Add(newStore);
@@ -35,37 +28,44 @@ namespace market_tracker_webapi.Application.Repositories.Store
             return newStore.Id;
         }
 
-        public async Task<StoreData?> UpdateStoreAsync(StoreData storeData)
+        public async Task<StoreDomain?> UpdateStoreAsync(int id, string address, int cityId, int companyId)
         {
-            var currentStore = await marketTrackerDataContext.Store.FindAsync(storeData.Id);
-            var company = await marketTrackerDataContext.Company.FindAsync(storeData.CompanyId);
-            var city = storeData.CityId;
-
-            if(currentStore == null || company == null)
+            var currentStore = await marketTrackerDataContext.Store.FindAsync(id);
+            
+            if(currentStore == null)
             {
                 return null;
             }
             
-            if (city != null)
-            {
-                var currentCity = await marketTrackerDataContext.City.FindAsync(storeData.CityId);
-                
-                if (currentCity == null)
-                {
-                    return null;
-                }
-                city = currentCity.Id;
-            }
+            //var company = await marketTrackerDataContext.Company.FindAsync(companyId);
+            // var city = cityId;
+            //
+            // if(currentStore == null || company == null)
+            // {
+            //     return null;
+            // }
+            //  
+            // if (city != null)
+            // {
+            //     var currentCity = await marketTrackerDataContext.City.FindAsync(cityId);
+            //
+            //     if (currentCity == null)
+            //     {
+            //         return null;
+            //     }
+            //
+            //     city = currentCity.Id;
+            // }
             
-            currentStore.Address = storeData.Address;
-            currentStore.CityId = city;
-            currentStore.CompanyId = storeData.CompanyId;
+            currentStore.Address = address;
+            currentStore.CityId = cityId;
+            currentStore.CompanyId = companyId;
             
-            //await marketTrackerDataContext.SaveChangesAsync();
+            await marketTrackerDataContext.SaveChangesAsync();
             return MapStoreEntity(currentStore);
         }
 
-        public async Task<StoreData?> DeleteStoreAsync(int id)
+        public async Task<StoreDomain?> DeleteStoreAsync(int id)
         {
             var currentStore = await marketTrackerDataContext.Store.FindAsync(id);
             
@@ -80,7 +80,7 @@ namespace market_tracker_webapi.Application.Repositories.Store
             return MapStoreEntity(currentStore);
         }
 
-        public async Task<IEnumerable<StoreData>> GetStoresFromCompany(int id)
+        public async Task<IEnumerable<StoreDomain>> GetStoresFromCompany(int id)
         {
             var stores = await marketTrackerDataContext.Store
                 .Where(s => s.CompanyId == id)
@@ -89,14 +89,14 @@ namespace market_tracker_webapi.Application.Repositories.Store
             return stores.Select(MapStoreEntity);
         }
 
-        public async Task<IEnumerable<StoreData>> GetStoresFromCityByName(string name)
+        public async Task<IEnumerable<StoreDomain>> GetStoresFromCityByName(string name)
         {
             var city = await marketTrackerDataContext.City
                 .FirstOrDefaultAsync(c => c.Name == name);
             
             if (city == null)
             {
-                return new List<StoreData>();;
+                return new List<StoreDomain>();
             }
             
             var storeEntities = await marketTrackerDataContext.Store
@@ -106,9 +106,9 @@ namespace market_tracker_webapi.Application.Repositories.Store
             return storeEntities.Select(MapStoreEntity);
         }
 
-        private static StoreData MapStoreEntity(StoreEntity storeEntity)
+        private static StoreDomain MapStoreEntity(StoreEntity storeEntity)
         {
-            return new StoreData
+            return new StoreDomain
             {
                 Id = storeEntity.Id,
                 Address = storeEntity.Address,

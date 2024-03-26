@@ -1,6 +1,6 @@
-﻿namespace market_tracker_webapi.Application.Models
+﻿namespace market_tracker_webapi.Application.Domain
 {
-    public class StoreData
+    public class StoreDomain
     {
         public int Id { get; set; }
         public required string Address { get; set; }

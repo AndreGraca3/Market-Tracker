@@ -1,22 +1,35 @@
-﻿using market_tracker_webapi.Application.Models.Company;
+﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
+using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repositories.Company;
 
 public class CompanyRepository(MarketTrackerDataContext marketTrackerDataContext) : ICompanyRepository
 {
-    public async Task<CompanyData?> GetCompanyByIdAsync(int id)
+    public async Task<IEnumerable<CompanyDomain>> GetCompaniesAsync()
+    {
+        var companies = await marketTrackerDataContext.Company.ToListAsync();
+        return companies.Select(MapCompanyEntity);
+    }
+
+    public async Task<CompanyDomain?> GetCompanyByIdAsync(int id)
     {
         var companyEntity = await marketTrackerDataContext.Company.FindAsync(id);
         return companyEntity != null ? MapCompanyEntity(companyEntity) : null;
     }
 
-    public async Task<int?> AddCompanyAsync(CompanyAddInputData companyData)
+    public async Task<CompanyDomain?> GetCompanyByNameAsync(string name)
+    {
+        var companyEntity = await marketTrackerDataContext.Company.FirstOrDefaultAsync(c => c.Name == name);
+        return companyEntity != null ? MapCompanyEntity(companyEntity) : null;
+    }
+    
+    public async Task<int> AddCompanyAsync(string name)
     {
         var newCompany = new CompanyEntity
         {
-            Name = companyData.Name
+            Name = name
         };
         
         marketTrackerDataContext.Company.Add(newCompany);
@@ -25,22 +38,22 @@ public class CompanyRepository(MarketTrackerDataContext marketTrackerDataContext
         return newCompany.Id;
     }
 
-    public async Task<CompanyData?> UpdateCompanyAsync(CompanyUpdateInputData companyData)
+    public async Task<CompanyDomain?> UpdateCompanyAsync(int id, string name)
     {
-        var currentCompany = await marketTrackerDataContext.Company.FindAsync(companyData.Id);
+        var currentCompany = await marketTrackerDataContext.Company.FindAsync(id);
         
         if (currentCompany == null)
         {
             return null;
         }
         
-        currentCompany.Name = companyData.Name;
+        currentCompany.Name = name;
         
-        //await marketTrackerDataContext.SaveChangesAsync();
+        await marketTrackerDataContext.SaveChangesAsync();
         return MapCompanyEntity(currentCompany);
     }
 
-    public async Task<CompanyData?> DeleteCompanyAsync(int id)
+    public async Task<CompanyDomain?> DeleteCompanyAsync(int id)
     {
         var companyEntity = await marketTrackerDataContext.Company.FindAsync(id);
         
@@ -50,14 +63,14 @@ public class CompanyRepository(MarketTrackerDataContext marketTrackerDataContext
         }
         
         marketTrackerDataContext.Company.Remove(companyEntity);
-        //await marketTrackerDataContext.SaveChangesAsync();
+        await marketTrackerDataContext.SaveChangesAsync();
         
         return MapCompanyEntity(companyEntity);
     }
     
-    private static CompanyData MapCompanyEntity(CompanyEntity companyEntity)
+    private static CompanyDomain MapCompanyEntity(CompanyEntity companyEntity)
     {
-        return new CompanyData
+        return new CompanyDomain
         {
             Id = companyEntity.Id,
             Name = companyEntity.Name,

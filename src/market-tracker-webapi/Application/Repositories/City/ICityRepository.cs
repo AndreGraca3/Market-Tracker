@@ -1,16 +1,16 @@
-﻿using market_tracker_webapi.Application.Models.City;
+﻿using market_tracker_webapi.Application.Domain;
 
-namespace MarketTracker.Application.Repositories.City;
+namespace market_tracker_webapi.Application.Repositories.City;
 
 public interface ICityRepository
 {
-    Task<CityData?> GetCityByIdAsync(int id);
+    Task<CityDomain?> GetCityByIdAsync(int id);
     
-    Task<CityData?> GetCityByNameAsync(string name);
+    Task<CityDomain?> GetCityByNameAsync(string name);
     
-    Task<int?> AddCityAsync(CityAddInputData cityData);
+    Task<int> AddCityAsync(string name);
     
-    Task<CityData?> UpdateCityAsync(CityUpdateInputData cityData);
+    Task<CityDomain?> UpdateCityAsync(int id, string name);
     
-    Task<CityData?> DeleteCityAsync(int id);
+    Task<CityDomain?> DeleteCityAsync(int id);
 }

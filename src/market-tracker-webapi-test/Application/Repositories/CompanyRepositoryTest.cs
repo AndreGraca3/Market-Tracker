@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using market_tracker_webapi.Application.Models.Company;
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Repositories.Company;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
@@ -25,7 +25,7 @@ public class CompanyRepositoryTest
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
         
-        var expectedCompanyData = new CompanyData
+        var expectedCompanyData = new CompanyDomain
         {
             Id = 1,
             Name = "Company 1",
@@ -78,7 +78,7 @@ public class CompanyRepositoryTest
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
         
-        var newCompanyData = new CompanyAddInputData
+        var newCompanyData = new CompanyCreation
         {
             Name = "Company 2"
         };
@@ -106,7 +106,7 @@ public class CompanyRepositoryTest
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
         
-        var updatedCompanyData = new CompanyUpdateInputData()
+        var updatedCompanyData = new CompanyUpdate()
         {
             Id = 1,
             Name = "Company 2"
@@ -135,7 +135,7 @@ public class CompanyRepositoryTest
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
         
-        var updatedCompanyData = new CompanyUpdateInputData()
+        var updatedCompanyData = new CompanyUpdate()
         {
             Id = 2,
             Name = "Company 2"

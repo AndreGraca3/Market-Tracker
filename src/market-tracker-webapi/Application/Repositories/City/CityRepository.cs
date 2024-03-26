@@ -1,30 +1,29 @@
-﻿using market_tracker_webapi.Application.Models.City;
+﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
-using MarketTracker.Application.Repositories.City;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repositories.City;
 
 public class CityRepository(MarketTrackerDataContext marketTrackerDataContext) : ICityRepository
 {
-    public async Task<CityData?> GetCityByIdAsync(int id)
+    public async Task<CityDomain?> GetCityByIdAsync(int id)
     {
         var cityEntity = await marketTrackerDataContext.City.FindAsync(id);
         return cityEntity != null ? MapCityEntity(cityEntity) : null;
     }
 
-    public async Task<CityData?> GetCityByNameAsync(string name)
+    public async Task<CityDomain?> GetCityByNameAsync(string name)
     {
         var cityEntity = await marketTrackerDataContext.City.FirstOrDefaultAsync(c => c.Name == name);
         return cityEntity != null ? MapCityEntity(cityEntity) : null;
     }
 
-    public async Task<int?> AddCityAsync(CityAddInputData cityData)
+    public async Task<int> AddCityAsync(string name)
     {
         var newCity = new CityEntity
         {
-            Name = cityData.Name
+            Name = name
         };
         
         marketTrackerDataContext.City.Add(newCity);
@@ -33,22 +32,22 @@ public class CityRepository(MarketTrackerDataContext marketTrackerDataContext) :
         return newCity.Id;
     }
 
-    public async Task<CityData?> UpdateCityAsync(CityUpdateInputData cityData)
+    public async Task<CityDomain?> UpdateCityAsync(int id, string name)
     {
-        var currentCity = await marketTrackerDataContext.City.FindAsync(cityData.Id);
+        var currentCity = await marketTrackerDataContext.City.FindAsync(id);
         
         if (currentCity == null)
         {
             return null;
         }
         
-        currentCity.Name = cityData.Name;
+        currentCity.Name = name;
         
         await marketTrackerDataContext.SaveChangesAsync();
         return MapCityEntity(currentCity);
     }
 
-    public async Task<CityData?> DeleteCityAsync(int id)
+    public async Task<CityDomain?> DeleteCityAsync(int id)
     {
         var cityEntity = await marketTrackerDataContext.City.FindAsync(id);
         
@@ -63,9 +62,9 @@ public class CityRepository(MarketTrackerDataContext marketTrackerDataContext) :
         return MapCityEntity(cityEntity);
     }
     
-    private static CityData MapCityEntity(CityEntity cityEntity)
+    private static CityDomain MapCityEntity(CityEntity cityEntity)
     {
-        return new CityData
+        return new CityDomain
         {
             Id = cityEntity.Id,
             Name = cityEntity.Name

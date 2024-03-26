@@ -1,19 +1,19 @@
-﻿using market_tracker_webapi.Application.Models;
+﻿using market_tracker_webapi.Application.Domain;
 
 namespace market_tracker_webapi.Application.Repositories.Store
 {
     public interface IStoreRepository
     {
-        Task<StoreData?> GetStoreByIdAsync(int id);
+        Task<StoreDomain?> GetStoreByIdAsync(int id);
 
-        Task<int?> AddStoreAsync(StoreData storeData);
+        Task<int> AddStoreAsync(string address, int cityId, int companyId);
 
-        Task<StoreData?> UpdateStoreAsync(StoreData storeData);
+        Task<StoreDomain?> UpdateStoreAsync(int id, string address, int cityId, int companyId);
         
-        Task<StoreData?> DeleteStoreAsync(int id);
+        Task<StoreDomain?> DeleteStoreAsync(int id);
 
-        Task<IEnumerable<StoreData>> GetStoresFromCompany(int id);
+        Task<IEnumerable<StoreDomain>> GetStoresFromCompany(int id);
         
-        Task<IEnumerable<StoreData>> GetStoresFromCityByName(string name);
+        Task<IEnumerable<StoreDomain>> GetStoresFromCityByName(string name);
     }
 }

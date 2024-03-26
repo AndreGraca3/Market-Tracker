@@ -1,6 +1,6 @@
-﻿namespace market_tracker_webapi.Application.Models.City;
+﻿namespace market_tracker_webapi.Application.Domain;
 
-public class CityData
+public class CityDomain
 {
     public int Id { get; set; }
     

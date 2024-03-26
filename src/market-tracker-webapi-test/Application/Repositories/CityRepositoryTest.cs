@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using market_tracker_webapi.Application.Models.City;
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Repositories.City;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
@@ -25,7 +25,7 @@ public class CityRepositoryTest
         var context = CreateDatabase(cityEntities);
         var cityRepository = new CityRepository(context);
         
-        var expectedCityData = new CityData
+        var expectedCityData = new CityDomain
         {
             Id = 1,
             Name = "City 1"
@@ -77,7 +77,7 @@ public class CityRepositoryTest
         var context = CreateDatabase(cityEntities);
         var cityRepository = new CityRepository(context);
         
-        var cityData = new CityAddInputData
+        var cityData = new CityCreation
         {
             Name = "City 2"
         };
@@ -105,7 +105,7 @@ public class CityRepositoryTest
         var context = CreateDatabase(cityEntities);
         var cityRepository = new CityRepository(context);
         
-        var updatedCityData = new CityUpdateInputData()
+        var updatedCityData = new CityUpdate()
         {
             Id = 1,
             Name = "City 2"
@@ -134,7 +134,7 @@ public class CityRepositoryTest
         var context = CreateDatabase(cityEntities);
         var cityRepository = new CityRepository(context);
         
-        var updatedCityData = new CityUpdateInputData()
+        var updatedCityData = new CityUpdate()
         {
             Id = 2,
             Name = "City 2"

@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Exceptions;
 using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Repositories.Store;
@@ -67,7 +68,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 }
             };
 
-            var expectedStore = new StoreData()
+            var expectedStore = new StoreDomain()
             {
                 Address = "Address1",
                 CityId = 1,
@@ -162,7 +163,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
             var storeRepository = new StoreRepository(context);
 
-            var storeData = new StoreData()
+            var storeData = new StoreDomain()
             {
                 Address = "Address4",
                 CityId = 1,
@@ -202,7 +203,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>(), cityMockEntities);
             var storeRepository = new StoreRepository(context);
             
-            var storeData = new StoreData()
+            var storeData = new StoreDomain()
             {
                 Address = "Address4",
                 CityId = 1,
@@ -236,7 +237,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             
             var storeRepository = new StoreRepository(context);
             
-            var storeData = new StoreData()
+            var storeData = new StoreDomain()
             {
                 Address = "Address4",
                 CityId = 1,
@@ -292,7 +293,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
             var storeRepository = new StoreRepository(context);
 
-            var storeData = new StoreData()
+            var storeData = new StoreDomain()
             {
                 Id = 1,
                 Address = "AddressA",
@@ -333,7 +334,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             var context = CreateDatabase(new List<StoreEntity>(), companyMockEntities, cityMockEntities);
             var storeRepository = new StoreRepository(context);
 
-            var storeData = new StoreData()
+            var storeData = new StoreDomain()
             {
                 Id = 1,
                 Address = "AddressA",
@@ -389,7 +390,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
             var storeRepository = new StoreRepository(context);
 
-            var storeData = new StoreData()
+            var storeData = new StoreDomain()
             {
                 Id = 1,
                 Address = "AddressA",
@@ -440,7 +441,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             
             var storeRepository = new StoreRepository(context);
             
-            var storeData = new StoreData()
+            var storeData = new StoreDomain()
             {
                 Id = 1,
                 Address = "AddressA",

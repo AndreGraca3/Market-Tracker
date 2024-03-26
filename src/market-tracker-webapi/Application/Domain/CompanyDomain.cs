@@ -1,6 +1,6 @@
-﻿namespace market_tracker_webapi.Application.Models.Company;
+﻿namespace market_tracker_webapi.Application.Domain;
 
-public class CompanyData
+public class CompanyDomain
 {
     public int Id { get; set; }
     

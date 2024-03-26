@@ -1,37 +1,36 @@
-﻿using market_tracker_webapi.Application.Models;
-using market_tracker_webapi.Application.Models.Company;
+﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Repositories.Store;
 
-namespace market_tracker_webapi.Application.Services.Store
+namespace market_tracker_webapi.Application.Services.Operations.Store
 {
    public class StoreService(IStoreRepository storeRepository) : IStoreService
    {
-      public Task<StoreData> GetStoreByIdAsync(int id)
+      public Task<Domain.StoreDomain> GetStoreByIdAsync(int id)
       {
          throw new NotImplementedException();
       }
 
-      public Task<int> AddStoreAsync(StoreData storeData)
+      public Task<int> AddStoreAsync(Domain.StoreDomain storeDomain)
       {
          throw new NotImplementedException();
       }
 
-      public Task<StoreData> UpdateStoreAsync(StoreData storeData)
+      public Task<Domain.StoreDomain> UpdateStoreAsync(Domain.StoreDomain storeDomain)
       {
          throw new NotImplementedException();
       }
 
-      public Task<StoreData> DeleteStoreAsync(int id)
+      public Task<Domain.StoreDomain> DeleteStoreAsync(int id)
       {
          throw new NotImplementedException();
       }
 
-      public Task<IEnumerable<StoreData>> GetStoresFromCompany(int id)
+      public Task<IEnumerable<Domain.StoreDomain>> GetStoresFromCompany(int id)
       {
          throw new NotImplementedException();
       }
 
-      public Task<CompanyData> GetCompanyAsync(int id)
+      public Task<CompanyDomain> GetCompanyAsync(int id)
       {
          throw new NotImplementedException();
       }
