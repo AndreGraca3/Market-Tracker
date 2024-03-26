@@ -1,9 +1,8 @@
 ﻿using market_tracker_webapi.Application.Models;
-using market_tracker_webapi.Application.Repository;
-using market_tracker_webapi.Application.Repository.Interfaces;
+using market_tracker_webapi.Application.Repository.Operations.User;
 using Microsoft.AspNetCore.Mvc;
 
-namespace market_tracker_webapi.Controllers
+namespace market_tracker_webapi.Application.Http.Controllers
 {
     [ApiController]
     [Route("users")]

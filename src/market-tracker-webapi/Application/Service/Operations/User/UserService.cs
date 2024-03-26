@@ -1,7 +1,6 @@
-﻿using market_tracker_webapi.Application.Repository;
-using market_tracker_webapi.Application.Repository.Interfaces;
+﻿using market_tracker_webapi.Application.Repository.Operations.User;
 
-namespace market_tracker_webapi.Application.Service
+namespace market_tracker_webapi.Application.Service.Operations.User
 {
     public class UserService
     {

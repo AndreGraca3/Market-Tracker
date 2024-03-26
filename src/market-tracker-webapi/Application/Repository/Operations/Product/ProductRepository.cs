@@ -1,15 +1,15 @@
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Repository.Interfaces;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi.Application.Repository.EntityFramework;
+namespace market_tracker_webapi.Application.Repository.Operations.Product;
+
+using Product = Domain.Product;
 
 public class ProductRepository(MarketTrackerDataContext dataContext) : IProductRepository
 {
-    public async Task<List<Product>> GetProductsAsync()
+    public async Task<IEnumerable<Product>> GetProductsAsync()
     {
         return await dataContext
             .Product.Select(product => new Product(
@@ -113,7 +113,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         );
     }
 
-    public async Task<List<ProductReview>> GetReviewsByProductIdAsync(int productId)
+    public async Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(int productId)
     {
         var reviews = await dataContext
             .ProductReview.Where(review => review.ProductId == productId)

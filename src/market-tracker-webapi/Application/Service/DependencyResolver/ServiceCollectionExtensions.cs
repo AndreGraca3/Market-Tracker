@@ -1,7 +1,11 @@
 ﻿using market_tracker_webapi.Application.Repository;
-using market_tracker_webapi.Application.Repository.EntityFramework;
-using market_tracker_webapi.Application.Repository.Interfaces;
+using market_tracker_webapi.Application.Repository.Operations.Brand;
+using market_tracker_webapi.Application.Repository.Operations.Category;
+using market_tracker_webapi.Application.Repository.Operations.Product;
+using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Application.Service.Core;
+using market_tracker_webapi.Application.Service.Operations.Category;
+using market_tracker_webapi.Application.Service.Operations.Product;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -28,8 +32,8 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
         {
             services.AddScoped<CategoryManager>(provider => new CategoryManager(3, 20));
             services.AddScoped<TransactionManager>();
-            services.AddScoped<ProductService>();
-            services.AddScoped<CategoryService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();

@@ -1,7 +1,7 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Models;
 
-namespace market_tracker_webapi.Application.Repository.Interfaces
+namespace market_tracker_webapi.Application.Repository.Operations.Client
 {
     public interface IClientRepository
     {
@@ -9,6 +9,6 @@ namespace market_tracker_webapi.Application.Repository.Interfaces
 
         Task<PostData> GetRecipeAsync(int recipeId);
         
-        Task<int> CreateRecipeAsync(List<IdOutputModel> products, string text);
+        Task<int> CreateRecipeAsync(IEnumerable<IdOutputModel> products, string text);
     }
 }

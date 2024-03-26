@@ -1,9 +1,8 @@
 ﻿using market_tracker_webapi.Application.Models;
-using market_tracker_webapi.Application.Repository.Interfaces;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
-namespace market_tracker_webapi.Application.Repository.EntityFramework
+namespace market_tracker_webapi.Application.Repository.Operations.User
 {
     public class UserRepository(MarketTrackerDataContext marketTrackerDataContext) : IUserRepository
     {

@@ -1,10 +1,15 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace market_tracker_webapi.Application.Http.Problem;
 
-// [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
-public class Problem(int status, string subtype, string title, string detail, object? data = null)
+public abstract class Problem(
+    int status,
+    string subtype,
+    string title,
+    string detail,
+    object? data = null
+)
 {
     public const string MediaType = "application/problem+json";
 
@@ -13,7 +18,7 @@ public class Problem(int status, string subtype, string title, string detail, ob
     public int Status { get; } = status;
     public string Detail { get; } = detail;
 
-    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public object? Data { get; } = data;
 
     public ActionResult ToActionResult()

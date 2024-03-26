@@ -1,10 +1,10 @@
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Repository.Interfaces;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi.Application.Repository.EntityFramework;
+namespace market_tracker_webapi.Application.Repository.Operations.Brand;
+
+using Brand = Domain.Brand;
 
 public class BrandRepository(MarketTrackerDataContext dataContext) : IBrandRepository
 {

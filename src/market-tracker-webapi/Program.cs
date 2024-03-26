@@ -1,3 +1,4 @@
+using market_tracker_webapi.Application.Middlewares;
 using market_tracker_webapi.Application.Service.DependencyResolver;
 
 namespace market_tracker_webapi;
@@ -36,6 +37,8 @@ static class Program
             options.RoutePrefix = "swagger";
         });
 
+        app.UseExceptionHandler(_ => { });
+
         app.UseAuthorization();
 
         app.MapControllers();
@@ -45,6 +48,8 @@ static class Program
 
     private static void ConfigureServices(WebApplicationBuilder builder)
     {
+        builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
         builder.Services.AddControllers(options =>
             options.SuppressAsyncSuffixInActionNames = false
         );

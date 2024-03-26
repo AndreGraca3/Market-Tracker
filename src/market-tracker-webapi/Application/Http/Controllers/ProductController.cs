@@ -3,14 +3,15 @@ using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Errors.Product;
+using market_tracker_webapi.Application.Service.Operations.Product;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers;
 
-public class ProductController(ProductService productService) : ControllerBase
+public class ProductController(IProductService productService) : ControllerBase
 {
     [HttpGet(Uris.Products.Base)]
-    public async Task<ActionResult<List<ProductOutputModel>>> GetProductsAsync()
+    public async Task<ActionResult<IEnumerable<ProductOutputModel>>> GetProductsAsync()
     {
         var products = await productService.GetProductsAsync();
         return Ok(products);

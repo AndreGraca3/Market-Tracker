@@ -1,18 +1,19 @@
-using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Repository.Interfaces;
+using market_tracker_webapi.Application.Repository.Operations.Category;
 using market_tracker_webapi.Application.Service.Core;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
 
-namespace market_tracker_webapi.Application.Service;
+namespace market_tracker_webapi.Application.Service.Operations.Category;
+
+using Category = market_tracker_webapi.Application.Domain.Category;
 
 public class CategoryService(
     CategoryManager categoryManager,
     ICategoryRepository categoryRepository,
     TransactionManager transactionManager
-)
+) : ICategoryService
 {
     public async Task<List<Category>> GetCategoriesAsync()
     {
@@ -52,9 +53,9 @@ public class CategoryService(
                 );
             }
 
-            var category = await categoryRepository.AddCategoryAsync(name);
+            var categoryId = await categoryRepository.AddCategoryAsync(name);
             return EitherExtensions.Success<ICategoryError, IdOutputModel>(
-                new IdOutputModel(category.Id)
+                new IdOutputModel(categoryId)
             );
         });
     }

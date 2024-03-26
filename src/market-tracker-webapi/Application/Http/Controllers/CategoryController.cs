@@ -3,15 +3,16 @@ using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service;
 using market_tracker_webapi.Application.Service.Errors.Category;
+using market_tracker_webapi.Application.Service.Operations.Category;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers;
 
-public class CategoryController(CategoryService categoryService) : ControllerBase
+public class CategoryController(ICategoryService categoryService) : ControllerBase
 {
     [HttpGet(Uris.Categories.Base)]
-    public async Task<ActionResult<List<Category>>> GetCategoriesAsync()
+    public async Task<ActionResult<IEnumerable<Category>>> GetCategoriesAsync()
     {
         var categories = await categoryService.GetCategoriesAsync();
         return Ok(categories);
