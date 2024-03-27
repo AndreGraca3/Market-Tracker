@@ -33,13 +33,13 @@ create table if not exists category
 create table if not exists product
 (
     id          decimal(13) primary key,
-    name        varchar(50) unique not null,
-    description varchar(100)       not null,
+    name        varchar(100)  not null,
+    description varchar(100) not null,
     image_url   TEXT,
-    quantity    int                         default 1,
-    unit        varchar(20)        not null default 'unidades' check (unit in ('unidades', 'kilogramas', 'gramas', 'litros', 'mililitros')),
-    views       int                not null default 0,
-    rate        float              not null default 0,
+    quantity    int                   default 1,
+    unit        varchar(20)  not null default 'unidades' check (unit in ('unidades', 'kilogramas', 'gramas', 'litros', 'mililitros')),
+    views       int          not null default 0,
+    rate        float        not null default 0,
     brand_id    int references brand (id) on delete cascade,
     category_id int references category (id) on delete cascade
 );
