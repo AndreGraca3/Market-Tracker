@@ -9,7 +9,7 @@ namespace market_tracker_webapi.Infrastructure.PostgreSQLTables
     {
         [Key]
         [Column("id")]
-        public int Id { get; set; }
+        public required int Id { get; set; }
 
         [Column("name")]
         public required string Name { get; set; }
@@ -25,7 +25,7 @@ namespace market_tracker_webapi.Infrastructure.PostgreSQLTables
 
         [DefaultValue("unidades")]
         [Column("unit")]
-        public string Unit { get; set; }
+        public required string Unit { get; set; }
 
         [DefaultValue(0)]
         [Column("views")]

@@ -1,5 +1,7 @@
-using market_tracker_webapi.Application.Middlewares;
+using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Pipeline;
 using market_tracker_webapi.Application.Service.DependencyResolver;
+using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi;
 
@@ -53,6 +55,16 @@ static class Program
         builder.Services.AddControllers(options =>
             options.SuppressAsyncSuffixInActionNames = false
         );
+
+        builder.Services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.InvalidModelStateResponseFactory = context =>
+                new BadRequestProblem.InvalidRequestContent(
+                    context.ModelState.AsEnumerable().First().Value?.Errors.First().ErrorMessage
+                        ?? "Invalid request content."
+                ).ToActionResult();
+        });
+
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();

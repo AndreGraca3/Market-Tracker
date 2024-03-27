@@ -27,15 +27,6 @@ public class CategoryProblem(
             "A category with that name already exists"
         );
 
-    public class InvalidName(CategoryCreationError.InvalidName data)
-        : CategoryProblem(
-            400,
-            "invalid-name",
-            "Invalid name",
-            $"Name must be between {data.MinCategoryNameLength} and {data.MaxCategoryNameLength} characters long",
-            data
-        );
-
     public class InvalidParentCategory(CategoryCreationError.InvalidParentCategory data)
         : CategoryProblem(
             400,

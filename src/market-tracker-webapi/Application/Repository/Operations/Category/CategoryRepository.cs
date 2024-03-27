@@ -38,6 +38,18 @@ public class CategoryRepository(MarketTrackerDataContext dataContext) : ICategor
         return category.Id;
     }
 
+    public async Task<Category?> UpdateCategoryAsync(int id, string name)
+    {
+        var category = await dataContext.Category.FindAsync(id);
+        if (category is null)
+        {
+            return null;
+        }
+        category.Name = name;
+        await dataContext.SaveChangesAsync();
+        return new Category(category.Id, category.Name);
+    }
+
     public async Task<Category?> RemoveCategoryAsync(int id)
     {
         var category = await dataContext.Category.FindAsync(id);

@@ -12,5 +12,7 @@ public interface ICategoryRepository
 
     public Task<int> AddCategoryAsync(string name);
 
+    public Task<Category?> UpdateCategoryAsync(int id, string name);
+
     public Task<Category?> RemoveCategoryAsync(int id);
 }

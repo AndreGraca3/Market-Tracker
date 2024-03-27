@@ -1,9 +1,7 @@
-﻿using market_tracker_webapi.Application.Repository;
-using market_tracker_webapi.Application.Repository.Operations.Brand;
+﻿using market_tracker_webapi.Application.Repository.Operations.Brand;
 using market_tracker_webapi.Application.Repository.Operations.Category;
 using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Repository.Operations.User;
-using market_tracker_webapi.Application.Service.Core;
 using market_tracker_webapi.Application.Service.Operations.Category;
 using market_tracker_webapi.Application.Service.Operations.Product;
 using market_tracker_webapi.Application.Service.Transaction;
@@ -30,7 +28,6 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
             this IServiceCollection services
         )
         {
-            services.AddScoped<CategoryManager>(provider => new CategoryManager(3, 20));
             services.AddScoped<TransactionManager>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();

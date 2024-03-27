@@ -9,7 +9,13 @@ using Product = Domain.Product;
 
 public class ProductRepository(MarketTrackerDataContext dataContext) : IProductRepository
 {
-    public async Task<IEnumerable<Product>> GetProductsAsync()
+    public async Task<IEnumerable<Product>> GetProductsAsync(
+        string? name = null,
+        int? brandId = null,
+        int? categoryId = null,
+        float? minPrice = null,
+        float? maxPrice = null
+    )
     {
         return await dataContext
             .Product.Select(product => new Product(

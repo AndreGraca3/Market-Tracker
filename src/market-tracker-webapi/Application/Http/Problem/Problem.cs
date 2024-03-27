@@ -17,6 +17,7 @@ public abstract class Problem(
     public string Title { get; } = title;
     public int Status { get; } = status;
     public string Detail { get; } = detail;
+    public DateTime Timestamp { get; } = DateTime.Now;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public object? Data { get; } = data;

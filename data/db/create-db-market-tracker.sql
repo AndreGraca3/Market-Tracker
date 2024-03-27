@@ -26,20 +26,20 @@ create table if not exists brand
 
 create table if not exists category
 (
-    id        int generated always as identity primary key,
-    name      varchar(50) unique not null
+    id   int generated always as identity primary key,
+    name varchar(50) unique not null
 );
 
 create table if not exists product
 (
     id          decimal(13) primary key,
-    name        TEXT unique not null,
-    description TEXT        not null,
+    name        varchar(50) unique not null,
+    description varchar(100)       not null,
     image_url   TEXT,
-    quantity    int                  default 1,
-    unit        varchar(20) not null default 'unidades' check (unit in ('unidades', 'kilogramas', 'gramas', 'litros', 'mililitros')),
-    views       int         not null default 0,
-    rate        float       not null default 0,
+    quantity    int                         default 1,
+    unit        varchar(20)        not null default 'unidades' check (unit in ('unidades', 'kilogramas', 'gramas', 'litros', 'mililitros')),
+    views       int                not null default 0,
+    rate        float              not null default 0,
     brand_id    int references brand (id) on delete cascade,
     category_id int references category (id) on delete cascade
 );
@@ -138,7 +138,7 @@ create table if not exists product_review
 (
     client_id  uuid references client (id) on delete cascade,
     product_id int references product (id) on delete cascade,
-    rate       int        not null check (rate between 1 and 5),
+    rate       int          not null check (rate between 1 and 5),
     text       varchar(255) not null,
     created_at date         not null default now(),
     primary key (client_id, product_id)
