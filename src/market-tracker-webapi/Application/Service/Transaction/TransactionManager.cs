@@ -1,8 +1,8 @@
 ﻿using market_tracker_webapi.Infrastructure;
 
-namespace market_tracker_webapi.Application.Service.Transaction;
+namespace market_tracker_webapi.Application.Services.Transaction;
 
-public class TransactionManager(MarketTrackerDataContext dataContext)
+public class TransactionManager(MarketTrackerDataContext dataContext) : ITransactionManager
 {
     public async Task<T> ExecuteAsync<T>(Func<Task<T>> action)
     {

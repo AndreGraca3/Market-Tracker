@@ -14,4 +14,10 @@ public class Uris
         public const string Base = $"{ApiBase}/products";
         public const string ProductById = $"{Base}/{{id}}";
     }
+    
+    public static class Companies
+    {
+        public const string Base = $"{ApiBase}/companies";
+        public const string CompanyById = $"{Base}/{{id}}";
+    }
 }
