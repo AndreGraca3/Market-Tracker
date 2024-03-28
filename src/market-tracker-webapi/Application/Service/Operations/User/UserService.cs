@@ -39,7 +39,7 @@ namespace market_tracker_webapi.Application.Service.Operations.User
         {
             return await transactionManager.ExecuteAsync(async () =>
             {
-                if (await userRepository.GetUserByEmail(email) is not null)
+                if (await userRepository.GetUserByEmailAsync(email) is not null)
                 {
                     return EitherExtensions.Failure<UserCreationError, IdOutputModel>(
                         new UserCreationError.EmailAlreadyInUse(email)

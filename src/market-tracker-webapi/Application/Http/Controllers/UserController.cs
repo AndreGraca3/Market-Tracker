@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace market_tracker_webapi.Application.Http.Controllers
 {
     [ApiController]
-    [Route("users")]
+    [Route(Uris.Users.Base)]
     public class UserController(IUserService userService, ILogger<UserController> logger)
         : ControllerBase
     {
-        [HttpGet("{id:Guid}")]
+        [HttpGet(Uris.Users.UserById)]
         public async Task<ActionResult<UserOutputModel>> GetUserAsync(Guid id)
         {
             logger.LogDebug($"Call {nameof(GetUserAsync)} with {id}");
@@ -53,12 +53,12 @@ namespace market_tracker_webapi.Application.Http.Controllers
                         UserCreationError.InvalidEmail invalidEmail => new UserProblem.InvalidEmail(invalidEmail)
                             .ToActionResult()
                     };
-                }
-                //, _ => new NotFoundObjectResult()
+                },
+                idOutputModel => new CreatedResult("", idOutputModel)
             );
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPut(Uris.Users.UserById)]
         public async Task<ActionResult<UserOutputModel>> UpdateUserAsync(
             Guid id,
             [FromBody] UserUpdateInputModel userInput
@@ -79,7 +79,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
             );
         }
 
-        [HttpDelete("{id:Guid}")]
+        [HttpDelete(Uris.Users.UserById)]
         public async Task<ActionResult<UserOutputModel>> DeleteUserAsync(Guid id)
         {
             logger.LogDebug($"Call {nameof(DeleteUserAsync)} with {id}");
@@ -93,7 +93,8 @@ namespace market_tracker_webapi.Application.Http.Controllers
                         UserFetchingError.UserByIdNotFound userByIdNotFound => new UserProblem.UserByIdNotFound(
                             userByIdNotFound).ToActionResult()
                     };
-                }
+                },
+                _ => new NoContentResult()
             );
         }
     }

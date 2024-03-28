@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace market_tracker_webapi.Application.Http;
 
 public class Uris
@@ -6,7 +8,8 @@ public class Uris
     
     public static class Users
     {
-        // TODO: Digo issue
+        public const string Base = $"{ApiBase}/users";
+        public const string UserById = $"{Base}/{{id}}";
     }
     
     public static class Products

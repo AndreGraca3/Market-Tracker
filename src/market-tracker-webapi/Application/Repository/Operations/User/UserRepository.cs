@@ -15,6 +15,16 @@ public class UserRepository(
         return MapUserEntity(await dataContext.User.FindAsync(id));
     }
 
+    public async Task<User?> GetUserByUsernameAsync(string username)
+    {
+        return MapUserEntity(await dataContext.User.FirstOrDefaultAsync(user => user.Username == username));
+    }
+
+    public async Task<User?> GetUserByEmailAsync(string email)
+    {
+        return MapUserEntity(await dataContext.User.FirstOrDefaultAsync(user => user.Email == email));
+    }
+
     public async Task<Guid> CreateUserAsync(string name, string username, string email, string password)
     {
         var newUser = new UserEntity
@@ -27,16 +37,6 @@ public class UserRepository(
         await dataContext.User.AddAsync(newUser);
         await dataContext.SaveChangesAsync();
         return newUser.Id;
-    }
-
-    public async Task<User?> GetUserByNameAsync(string name)
-    {
-        return MapUserEntity(await dataContext.User.FirstOrDefaultAsync(user => user.Name == name));
-    }
-
-    public async Task<User?> GetUserByEmail(string email)
-    {
-        return MapUserEntity(await dataContext.User.FirstOrDefaultAsync(user => user.Email == email));
     }
 
     public async Task<User?> UpdateUserAsync(Guid id, string? name, string? userName)
