@@ -1,14 +1,14 @@
 ﻿using FluentAssertions;
+using market_tracker_webapi.Application.Http.Controllers;
 using market_tracker_webapi.Application.Models;
-using market_tracker_webapi.Application.Repositories.User;
-using market_tracker_webapi.Controllers;
+using market_tracker_webapi.Application.Repository.Operations.User;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace market_tracker_webapi_test.Controllers
 {
-    public class UserControllerTest
+    /*public class UserControllerTest
     {
         private readonly Mock<IUserRepository> _userRepositoryMock;
         private readonly UserController _userController;
@@ -39,6 +39,6 @@ namespace market_tracker_webapi_test.Controllers
             OkObjectResult result = Assert.IsType<OkObjectResult>(actual.Result);
             UserData userData = Assert.IsAssignableFrom<UserData>(result.Value);
             userData.Should().BeEquivalentTo(expectedUser);
-        }*/
-    }
+        }
+    }*/
 }

@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Models;
 
 namespace market_tracker_webapi.Application.Repositories.Product
 {

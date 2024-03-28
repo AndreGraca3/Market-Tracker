@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Models;
-using market_tracker_webapi.Application.Repositories.User;
+using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +47,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             var userRepo = new UserRepository(context);
 
             // Act
-            var actualUser = await userRepo.GetUserAsync(expectedUser.Id);
+            var actualUser = await userRepo.GetUserByIdAsync(expectedUser.Id);
 
             // Assert
             actualUser.Should().BeEquivalentTo(expectedUser);
@@ -63,7 +63,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             var userRepo = new UserRepository(context);
 
             // Act
-            var actualUser = await userRepo.GetUserAsync(new Guid("11111111-1111-1111-1111-111111111111"));
+            var actualUser = await userRepo.GetUserByIdAsync(new Guid("11111111-1111-1111-1111-111111111111"));
 
             // Assert
             actualUser.Should().BeNull();
@@ -110,7 +110,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             var actualUserDetails = await userRepo.UpdateUserAsync(expectedUserId, "Diogo Santos", "DiogoFAS");
 
             // Assert
-            actualUserDetails.Should().BeEquivalentTo(await userRepo.GetUserAsync(expectedUserId));
+            actualUserDetails.Should().BeEquivalentTo(await userRepo.GetUserByIdAsync(expectedUserId));
         }
         
         [Fact]
