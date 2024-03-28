@@ -1,17 +1,19 @@
 package pt.isel.markettracker.ui.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Button
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import pt.isel.markettracker.navigation.Destination
 import pt.isel.markettracker.navigation.NavBar
-import pt.isel.markettracker.navigation.NavBarItem
+import pt.isel.markettracker.ui.screens.list.ListScreen
+import pt.isel.markettracker.ui.screens.products.ProductsScreen
+import pt.isel.markettracker.ui.screens.profile.ProfileScreen
 import pt.isel.markettracker.ui.theme.Grey
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 
@@ -20,23 +22,34 @@ import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 fun MainScreen(onLoginRequested: () -> Unit) {
     val navController = rememberNavController()
 
-    val navBarItem = listOf(
-        NavBarItem(icon = Icons.Default.Home, label = "Home"),
-        NavBarItem(icon = Icons.Default.ShoppingCart, label = "Profile"),
-        NavBarItem(icon = Icons.Default.Person, label = "Settings")
-    )
-
     MarkettrackerTheme {
-
         Scaffold(
             containerColor = Grey,
             bottomBar = {
-                NavBar(navBarItem)
+                NavBar(Destination.entries, onItemClick = { route ->
+                    navController.navigate(
+                        route,
+                    )
+                })
             }
         ) {
-            Text(text = "Hello Muleiro!")
-            Button(onClick = onLoginRequested) {
-                Text("Login")
+            NavHost(
+                navController = navController,
+                startDestination = Destination.HOME.route,
+                enterTransition = { fadeIn(tween(400)) },
+                exitTransition = { fadeOut(tween(200)) }
+            ) {
+                composable(Destination.HOME.route) {
+                    ProductsScreen(onLoginRequested)
+                }
+
+                composable(Destination.LIST.route) {
+                    ListScreen()
+                }
+
+                composable(Destination.PROFILE.route) {
+                    ProfileScreen()
+                }
             }
         }
     }

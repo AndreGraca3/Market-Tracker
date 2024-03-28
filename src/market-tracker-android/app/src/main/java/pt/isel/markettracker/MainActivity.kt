@@ -3,12 +3,7 @@ package pt.isel.markettracker
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.mutableStateOf
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.launch
 import pt.isel.markettracker.ui.screens.MainScreen
 import pt.isel.markettracker.ui.screens.auth.LoginActivity
 import pt.isel.markettracker.utils.NavigateAux
@@ -17,7 +12,7 @@ class MainActivity : ComponentActivity() {
 
     private val dependencies by lazy { application as MarketTrackerDependencyProvider }
 
-    // private val isFocus = mutableStateOf(false)
+    // this activity can have a container of all the view models and pass it down?
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
