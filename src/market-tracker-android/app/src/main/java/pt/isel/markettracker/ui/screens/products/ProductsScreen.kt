@@ -1,4 +1,8 @@
 package pt.isel.markettracker.ui.screens.products
 
-class ProductsScreen {
+import androidx.compose.runtime.Composable
+
+@Composable
+fun ProductsScreen() {
+
 }
