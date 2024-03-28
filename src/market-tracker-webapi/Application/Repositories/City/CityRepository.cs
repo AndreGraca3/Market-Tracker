@@ -7,6 +7,12 @@ namespace market_tracker_webapi.Application.Repositories.City;
 
 public class CityRepository(MarketTrackerDataContext marketTrackerDataContext) : ICityRepository
 {
+    public async Task<IEnumerable<CityDomain>> GetCitiesAsync()
+    {
+        var cityEntities = await marketTrackerDataContext.City.ToListAsync();
+        return cityEntities.Select(MapCityEntity);
+    }
+    
     public async Task<CityDomain?> GetCityByIdAsync(int id)
     {
         var cityEntity = await marketTrackerDataContext.City.FindAsync(id);

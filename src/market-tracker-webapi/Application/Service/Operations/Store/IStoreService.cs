@@ -1,6 +1,6 @@
 ﻿using market_tracker_webapi.Application.Domain;
 
-namespace market_tracker_webapi.Application.Services.Operations.Store
+namespace market_tracker_webapi.Application.Service.Operations.Store
 {
     public interface IStoreService
     {

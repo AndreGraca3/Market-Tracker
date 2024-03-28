@@ -5,9 +5,8 @@ using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Services.Errors.Company;
 using market_tracker_webapi.Application.Services.Transaction;
 using market_tracker_webapi.Application.Utils;
-using TransactionManager = market_tracker_webapi.Application.Services.Transaction.TransactionManager;
 
-namespace market_tracker_webapi.Application.Services.Operations.Company;
+namespace market_tracker_webapi.Application.Service.Operations.Company;
 
 public class CompanyService(ICompanyRepository companyRepository, ITransactionManager transactionManager) : ICompanyService
 {

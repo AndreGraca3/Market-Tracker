@@ -1,21 +1,21 @@
 ﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Repositories.Store;
 
-namespace market_tracker_webapi.Application.Services.Operations.Store
+namespace market_tracker_webapi.Application.Service.Operations.Store
 {
    public class StoreService(IStoreRepository storeRepository) : IStoreService
    {
-      public Task<Domain.StoreDomain> GetStoreByIdAsync(int id)
+      public Task<StoreDomain> GetStoreByIdAsync(int id)
       {
          throw new NotImplementedException();
       }
 
-      public Task<int> AddStoreAsync(Domain.StoreDomain storeDomain)
+      public Task<int> AddStoreAsync(StoreDomain storeDomain)
       {
          throw new NotImplementedException();
       }
 
-      public Task<Domain.StoreDomain> UpdateStoreAsync(Domain.StoreDomain storeDomain)
+      public Task<StoreDomain> UpdateStoreAsync(StoreDomain storeDomain)
       {
          throw new NotImplementedException();
       }
@@ -25,7 +25,7 @@ namespace market_tracker_webapi.Application.Services.Operations.Store
          throw new NotImplementedException();
       }
 
-      public Task<IEnumerable<Domain.StoreDomain>> GetStoresFromCompany(int id)
+      public Task<IEnumerable<StoreDomain>> GetStoresFromCompany(int id)
       {
          throw new NotImplementedException();
       }

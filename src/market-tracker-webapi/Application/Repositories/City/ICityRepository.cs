@@ -4,6 +4,7 @@ namespace market_tracker_webapi.Application.Repositories.City;
 
 public interface ICityRepository
 {
+    Task<IEnumerable<CityDomain>> GetCitiesAsync();
     Task<CityDomain?> GetCityByIdAsync(int id);
     
     Task<CityDomain?> GetCityByNameAsync(string name);

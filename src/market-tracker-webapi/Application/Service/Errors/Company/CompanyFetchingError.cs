@@ -1,4 +1,6 @@
-﻿namespace market_tracker_webapi.Application.Services.Errors.Company;
+﻿using market_tracker_webapi.Application.Services.Errors.Company;
+
+namespace market_tracker_webapi.Application.Service.Errors.Company;
 
 public class CompanyFetchingError : ICompanyError
 {
@@ -7,8 +9,8 @@ public class CompanyFetchingError : ICompanyError
         public int Id { get; } = id;
     }
     
-    public class CompanyByNameNotFound(string name) : CompanyFetchingError
+    public class CompanyByNameNotFound(string companyName) : CompanyFetchingError
     {
-        public string Name { get; } = name;
+        public string Name { get; } = companyName;
     }
 }

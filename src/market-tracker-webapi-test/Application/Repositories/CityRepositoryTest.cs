@@ -10,6 +10,48 @@ namespace market_tracker_webapi_test.Application.Repositories;
 public class CityRepositoryTest
 {
     [Fact]
+    public async Task GetCitiesAsync_WithExistingCities_ReturnsCityData()
+    {
+        // Arrange
+        var cityEntities = new List<CityEntity>
+        {
+            new ()
+            {
+                Id = 1, 
+                Name = "City 1"
+            },
+            new ()
+            {
+                Id = 2, 
+                Name = "City 2"
+            }
+        };
+
+        var context = CreateDatabase(cityEntities);
+        var cityRepository = new CityRepository(context);
+        
+        var expectedCityData = new List<CityDomain>
+        {
+            new ()
+            {
+                Id = 1, 
+                Name = "City 1"
+            },
+            new ()
+            {
+                Id = 2, 
+                Name = "City 2"
+            }
+        };
+        
+        // Act
+        var cityData = await cityRepository.GetCitiesAsync();
+        
+        // Assert
+        expectedCityData.Should().BeEquivalentTo(cityData);
+    }
+    
+    [Fact]
     public async Task GetCityByIdAsync_WithExistingCity_ReturnsCityData()
     {
         // Arrange

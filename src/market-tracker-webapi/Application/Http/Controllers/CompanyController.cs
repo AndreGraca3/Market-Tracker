@@ -3,8 +3,7 @@ using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Service.Errors.Company;
-using market_tracker_webapi.Application.Services.Errors.Company;
-using market_tracker_webapi.Application.Services.Operations.Company;
+using market_tracker_webapi.Application.Service.Operations.Company;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers;
