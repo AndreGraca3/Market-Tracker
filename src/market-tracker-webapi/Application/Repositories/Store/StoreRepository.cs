@@ -7,9 +7,24 @@ namespace market_tracker_webapi.Application.Repositories.Store
 {
     public class StoreRepository(MarketTrackerDataContext marketTrackerDataContext) : IStoreRepository
     {
+        
+        public async Task<IEnumerable<StoreDomain>> GetStoresAsync()
+        {
+            var storeEntities = await marketTrackerDataContext.Store.ToListAsync();
+            return storeEntities.Select(MapStoreEntity);
+        }
+        
         public async Task<StoreDomain?> GetStoreByIdAsync(int id)
         {
             var storeEntity = await marketTrackerDataContext.Store.FindAsync(id);
+            return storeEntity != null ? MapStoreEntity(storeEntity) : null;
+        }
+        
+        public async Task<StoreDomain?> GetStoreByAddressAsync(string address)
+        {
+            var storeEntity = await marketTrackerDataContext.Store
+                .FirstOrDefaultAsync(s => s.Address == address);
+            
             return storeEntity != null ? MapStoreEntity(storeEntity) : null;
         }
 

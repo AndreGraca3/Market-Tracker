@@ -1,23 +1,23 @@
 ﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Models;
+using market_tracker_webapi.Application.Service.Errors.Store;
+using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Store
 {
     public interface IStoreService
     {
-        Task<StoreDomain> GetStoreByIdAsync(int id);
+        Task<IEnumerable<StoreDomain>> GetStoresAsync();
+        Task<Either<StoreFetchingError, StoreDomain>> GetStoreByIdAsync(int id);
     
-        Task<int> AddStoreAsync(StoreDomain storeDomain);
+        Task<Either<IStoreError, IdOutputModel>> AddStoreAsync(string address, int cityId, int companyId);
     
-        Task<StoreDomain> UpdateStoreAsync(StoreDomain storeDomain);
+        Task<Either<StoreFetchingError, IdOutputModel>> UpdateStoreAsync(int id, string address, int cityId, int companyId);
         
-        Task<StoreDomain> DeleteStoreAsync(int id);
+        Task<Either<StoreFetchingError, IdOutputModel>> DeleteStoreAsync(int id);
     
-        Task<IEnumerable<StoreDomain>> GetStoresFromCompany(int id);
+        Task<Either<StoreFetchingError, IEnumerable<StoreDomain>>> GetStoresFromCompany(int companyId);
     
-        Task<CompanyDomain> GetCompanyAsync(int id);
-    
-        Task<int> AddCompanyAsync(string companyName);
-    
-        Task<int> DeleteCompanyAsync(int id);
+        Task<Either<StoreFetchingError, IEnumerable<StoreDomain>>> GetStoresFromCityByName(string cityName);
     }
 }

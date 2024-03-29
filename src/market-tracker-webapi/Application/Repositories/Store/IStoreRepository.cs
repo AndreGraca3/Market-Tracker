@@ -4,7 +4,11 @@ namespace market_tracker_webapi.Application.Repositories.Store
 {
     public interface IStoreRepository
     {
+        Task<IEnumerable<StoreDomain>> GetStoresAsync();
+        
         Task<StoreDomain?> GetStoreByIdAsync(int id);
+        
+        Task<StoreDomain?> GetStoreByAddressAsync(string address);
 
         Task<int> AddStoreAsync(string address, int cityId, int companyId);
 

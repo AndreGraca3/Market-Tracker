@@ -5,7 +5,6 @@ using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Service.Errors.City;
-using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Operations.City;
 using market_tracker_webapi.Application.Utils;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +14,13 @@ namespace market_tracker_webapi_test.Controllers;
 
 public class CityControllerTest
 {
-    private readonly Mock<ICityService> cityServiceMock;
-    private readonly CityController cityController;
+    private readonly Mock<ICityService> _cityServiceMock;
+    private readonly CityController _cityController;
     
     public CityControllerTest()
     {
-        cityServiceMock = new Mock<ICityService>();
-        cityController = new CityController(cityServiceMock.Object);
+        _cityServiceMock = new Mock<ICityService>();
+        _cityController = new CityController(_cityServiceMock.Object);
     }
     
     [Fact]
@@ -33,12 +32,12 @@ public class CityControllerTest
             new(){Id = 1, Name = "City 1"},
             new(){Id = 2, Name = "City 1"}
         };
-        cityServiceMock
+        _cityServiceMock
             .Setup(service => service.GetCitiesAsync())
             .ReturnsAsync(cities);
         
         // Act
-        var result = await cityController.GetCitiesAsync();
+        var result = await _cityController.GetCitiesAsync();
         
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -51,12 +50,12 @@ public class CityControllerTest
     {
         // Arrange
         var city = new CityDomain {Id = 1, Name = "City 1"};
-        cityServiceMock
+        _cityServiceMock
             .Setup(service => service.GetCityByIdAsync(1))
             .ReturnsAsync(EitherExtensions.Success<CityFetchingError, CityDomain>(city));
         
         // Act
-        var result = await cityController.GetCityByIdAsync(1);
+        var result = await _cityController.GetCityByIdAsync(1);
         
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -68,12 +67,12 @@ public class CityControllerTest
     public async Task GetCityByIdAsync_ShouldReturnNotFound()
     {
         // Arrange
-        cityServiceMock
+        _cityServiceMock
             .Setup(service => service.GetCityByIdAsync(1))
             .ReturnsAsync(EitherExtensions.Failure<CityFetchingError, CityDomain>(new CityFetchingError.CityByIdNotFound(It.IsAny<int>())));
         
         // Act
-        var actual = await cityController.GetCityByIdAsync(1);
+        var actual = await _cityController.GetCityByIdAsync(1);
         
         // Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
@@ -86,12 +85,12 @@ public class CityControllerTest
     {
         // Arrange
         var cityId = new IdOutputModel{ Id = 1 };
-        cityServiceMock
+        _cityServiceMock
             .Setup(service => service.AddCityAsync("City 1"))
             .ReturnsAsync(EitherExtensions.Success<ICityError, IdOutputModel>(cityId));
         
         // Act
-        var result = await cityController.AddCityAsync(new CityCreationInputModel {CityName = "City 1"});
+        var result = await _cityController.AddCityAsync(new CityCreationInputModel {CityName = "City 1"});
         
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -121,12 +120,12 @@ public class CityControllerTest
     {
         // Arrange
         var city = new CityDomain {Id = 1, Name = "City 1"};
-        cityServiceMock
+        _cityServiceMock
             .Setup(service => service.UpdateCityAsync(1, "City 1"))
             .ReturnsAsync(EitherExtensions.Success<ICityError, CityDomain>(city));
         
         // Act
-        var result = await cityController.UpdateCityAsync(1, new CityUpdateInputModel {CityName = "City 1"});
+        var result = await _cityController.UpdateCityAsync(1, new CityUpdateInputModel {CityName = "City 1"});
         
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -138,12 +137,12 @@ public class CityControllerTest
     public async Task UpdateCityAsync_ShouldReturnNotFound()
     {
         // Arrange
-        cityServiceMock
+        _cityServiceMock
             .Setup(service => service.UpdateCityAsync(1, "City 1"))
             .ReturnsAsync(EitherExtensions.Failure<ICityError, CityDomain>(new CityFetchingError.CityByIdNotFound(It.IsAny<int>())));
         
         // Act
-        var actual = await cityController.UpdateCityAsync(1, new CityUpdateInputModel {CityName = "City 1"});
+        var actual = await _cityController.UpdateCityAsync(1, new CityUpdateInputModel {CityName = "City 1"});
         
         // Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
@@ -174,12 +173,12 @@ public class CityControllerTest
         // Arrange
         var expectedId = new IdOutputModel { Id = 1 };
         
-        cityServiceMock
+        _cityServiceMock
             .Setup(service => service.DeleteCityAsync(1))
             .ReturnsAsync(EitherExtensions.Success<CityFetchingError, IdOutputModel>(expectedId));
         
         // Act
-        var result = await cityController.DeleteCityAsync(1);
+        var result = await _cityController.DeleteCityAsync(1);
         
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -191,12 +190,12 @@ public class CityControllerTest
     public async Task DeleteCityAsync_ShouldReturnNotFound()
     {
         // Arrange
-        cityServiceMock
+        _cityServiceMock
             .Setup(service => service.DeleteCityAsync(1))
             .ReturnsAsync(EitherExtensions.Failure<CityFetchingError, IdOutputModel>(new CityFetchingError.CityByIdNotFound(It.IsAny<int>())));
         
         // Act
-        var actual = await cityController.DeleteCityAsync(1);
+        var actual = await _cityController.DeleteCityAsync(1);
         
         // Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
