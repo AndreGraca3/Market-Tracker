@@ -28,7 +28,7 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
             this IServiceCollection services
         )
         {
-            services.AddScoped<TransactionManager>();
+            services.AddScoped<ITransactionManager, TransactionManager>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IUserRepository, UserRepository>();

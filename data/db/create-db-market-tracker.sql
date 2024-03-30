@@ -33,9 +33,8 @@ create table if not exists category
 create table if not exists product
 (
     id          decimal(13) primary key,
-    name        varchar(100)  not null,
-    description varchar(100) not null,
-    image_url   TEXT,
+    name        varchar(100) not null,
+    image_url   TEXT         not null,
     quantity    int                   default 1,
     unit        varchar(20)  not null default 'unidades' check (unit in ('unidades', 'kilogramas', 'gramas', 'litros', 'mililitros')),
     views       int          not null default 0,

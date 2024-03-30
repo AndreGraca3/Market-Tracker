@@ -14,54 +14,36 @@ public class ProductService(
     IProductRepository productRepository,
     IBrandRepository brandRepository,
     ICategoryRepository categoryRepository,
-    TransactionManager transactionManager
+    ITransactionManager transactionManager
 ) : IProductService
 {
     public async Task<IEnumerable<Domain.Product>> GetProductsAsync()
     {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            var products = await productRepository.GetProductsAsync();
-            return products;
-        });
+        var products = await productRepository.GetProductsAsync();
+        return products;
     }
 
     public async Task<Either<ProductFetchingError, ProductOutputModel>> GetProductAsync(int id)
     {
-        return await transactionManager.ExecuteAsync(async () =>
+        var product = await productRepository.GetProductByIdAsync(id);
+        if (product is null)
         {
-            var product = await productRepository.GetProductByIdAsync(id);
-            if (product is null)
-            {
-                return EitherExtensions.Failure<ProductFetchingError, ProductOutputModel>(
-                    new ProductFetchingError.ProductByIdNotFound(id)
-                );
-            }
-
-            var brand = (await brandRepository.GetBrandByIdAsync(product.BrandId))!;
-            var category = (await categoryRepository.GetCategoryByIdAsync(product.CategoryId))!;
-
-            return EitherExtensions.Success<ProductFetchingError, ProductOutputModel>(
-                new ProductOutputModel(
-                    product.Id,
-                    product.Name,
-                    product.Description,
-                    product.ImageUrl,
-                    product.Quantity,
-                    product.Unit,
-                    product.Views,
-                    product.Rate,
-                    new BrandOutputModel(brand.Id, brand.Name),
-                    new Domain.Category(category.Id, category.Name)
-                )
+            return EitherExtensions.Failure<ProductFetchingError, ProductOutputModel>(
+                new ProductFetchingError.ProductByIdNotFound(id)
             );
-        });
+        }
+
+        var brand = (await brandRepository.GetBrandByIdAsync(product.BrandId))!;
+        var category = (await categoryRepository.GetCategoryByIdAsync(product.CategoryId))!;
+
+        return EitherExtensions.Success<ProductFetchingError, ProductOutputModel>(
+            ProductOutputModel.ToProductOutputModel(product, brand, category)
+        );
     }
 
     public async Task<Either<IServiceError, IdOutputModel>> AddProductAsync(
         int productId,
         string name,
-        string description,
         string imageUrl,
         int quantity,
         string unit,
@@ -92,8 +74,7 @@ public class ProductService(
 
             await productRepository.AddProductAsync(
                 productId,
-                name,
-                description,
+                $"{brandName} {name} {quantity} {unit}",
                 imageUrl,
                 quantity,
                 unit,
@@ -110,7 +91,6 @@ public class ProductService(
     public async Task<Either<IServiceError, IdOutputModel>> UpdateProductAsync(
         int id,
         string? name,
-        string? description,
         string? imageUrl,
         int? quantity,
         string? unit,
@@ -132,6 +112,7 @@ public class ProductService(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
+
             return EitherExtensions.Success<ProductFetchingError, IdOutputModel>(
                 new IdOutputModel(removedProduct.Id)
             );

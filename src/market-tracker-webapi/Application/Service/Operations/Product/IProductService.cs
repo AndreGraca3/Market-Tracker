@@ -15,7 +15,6 @@ public interface IProductService
     public Task<Either<IServiceError, IdOutputModel>> AddProductAsync(
         int productId,
         string name,
-        string description,
         string imageUrl,
         int quantity,
         string unit,
@@ -26,7 +25,6 @@ public interface IProductService
     public Task<Either<IServiceError, IdOutputModel>> UpdateProductAsync(
         int id,
         string? name,
-        string? description,
         string? imageUrl,
         int? quantity,
         string? unit,

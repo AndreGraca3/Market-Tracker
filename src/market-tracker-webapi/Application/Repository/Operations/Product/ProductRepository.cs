@@ -17,20 +17,8 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         float? maxPrice = null
     )
     {
-        return await dataContext
-            .Product.Select(product => new Product(
-                product.Id,
-                product.Name,
-                product.Description,
-                product.ImageUrl,
-                product.Quantity,
-                product.Unit,
-                product.Views,
-                product.Rate,
-                product.BrandId,
-                product.CategoryId
-            ))
-            .ToListAsync();
+        // TODO: Implement get products
+        throw new NotImplementedException();
     }
 
     public async Task<Product?> GetProductByIdAsync(int productId)
@@ -41,7 +29,6 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
             : new Product(
                 productEntity.Id,
                 productEntity.Name,
-                productEntity.Description,
                 productEntity.ImageUrl,
                 productEntity.Quantity,
                 productEntity.Unit,
@@ -55,7 +42,6 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
     public async Task<int> AddProductAsync(
         int id,
         string name,
-        string description,
         string imageUrl,
         int quantity,
         string unit,
@@ -67,7 +53,6 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         {
             Id = id,
             Name = name,
-            Description = description,
             ImageUrl = imageUrl,
             Quantity = quantity,
             Unit = unit,
@@ -84,7 +69,6 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
     public async Task<Product> UpdateProductAsync(
         int productId,
         float? price = null,
-        string? description = null,
         string? imageUrl = null,
         int? quantity = null,
         string? unit = null,
@@ -93,6 +77,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         int? rate = null
     )
     {
+        // TODO: Implement update product
         throw new NotImplementedException();
     }
 
@@ -108,7 +93,6 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         return new Product(
             productEntity.Id,
             productEntity.Name,
-            productEntity.Description,
             productEntity.ImageUrl,
             productEntity.Quantity,
             productEntity.Unit,

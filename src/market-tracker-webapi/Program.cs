@@ -16,6 +16,7 @@ static class Program
     {
         WebApplication app = CreateWebHostBuilder(args).Build();
         Configure(app);
+        Console.WriteLine("Starting server...");
         app.Run();
     }
 
@@ -44,8 +45,6 @@ static class Program
         app.UseAuthorization();
 
         app.MapControllers();
-
-        app.Run();
     }
 
     private static void ConfigureServices(WebApplicationBuilder builder)

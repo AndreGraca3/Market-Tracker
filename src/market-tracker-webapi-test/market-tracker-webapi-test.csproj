@@ -34,8 +34,4 @@
 		<ProjectReference Include="..\market-tracker-webapi\market-tracker-webapi.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Application\Services\" />
-	</ItemGroup>
-
 </Project>

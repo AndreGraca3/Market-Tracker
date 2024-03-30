@@ -7,7 +7,7 @@ namespace market_tracker_webapi_test.Application.Repository;
 public class CategoryRepositoryTest
 {
     [Fact]
-    public async void GetCategoryAsync_ReturnsObjectAsync()
+    public async Task GetCategoryAsync_ReturnsObjectAsync()
     {
         // Arrange
         var expectedCategory = new CategoryEntity { Id = 1, Name = "Talho" };
@@ -30,7 +30,7 @@ public class CategoryRepositoryTest
     }
 
     [Fact]
-    public async void GetCategoryAsync_ReturnsNullAsync()
+    public async Task GetCategoryAsync_ReturnsNullAsync()
     {
         // Arrange
         var mockedEntities = new List<CategoryEntity>
@@ -51,7 +51,7 @@ public class CategoryRepositoryTest
     }
 
     [Fact]
-    public async void GetCategoriesAsync_ReturnsListAsync()
+    public async Task GetCategoriesAsync_ReturnsListAsync()
     {
         // Arrange
         var expectedCategories = new List<CategoryEntity>
@@ -72,7 +72,7 @@ public class CategoryRepositoryTest
     }
 
     [Fact]
-    public async void GetCategoriesAsync_ReturnsEmptyListAsync()
+    public async Task GetCategoriesAsync_ReturnsEmptyListAsync()
     {
         // Arrange
         var context = DbHelper.CreateDatabase<CategoryEntity>([]);
@@ -86,7 +86,7 @@ public class CategoryRepositoryTest
     }
 
     [Fact]
-    public async void AddCategoryAsync_ReturnsObjectAsync()
+    public async Task AddCategoryAsync_ReturnsObjectAsync()
     {
         // Arrange
         var expectedCategory = new CategoryEntity { Id = 1, Name = "Talho" };
@@ -102,7 +102,7 @@ public class CategoryRepositoryTest
     }
 
     [Fact]
-    public async void UpdateCategoryAsync_ReturnsObjectAsync()
+    public async Task UpdateCategoryAsync_ReturnsObjectAsync()
     {
         // Arrange
         var expectedCategory = new CategoryEntity { Id = 1, Name = "Talho" };
@@ -121,7 +121,7 @@ public class CategoryRepositoryTest
     }
 
     [Fact]
-    public async void DeleteCategoryAsync_ReturnsObjectAsync()
+    public async Task DeleteCategoryAsync_ReturnsObjectAsync()
     {
         // Arrange
         var expectedCategory = new CategoryEntity { Id = 1, Name = "Talho" };
@@ -137,7 +137,7 @@ public class CategoryRepositoryTest
     }
 
     [Fact]
-    public async void DeleteCategoryAsync_ReturnsNullAsync()
+    public async Task DeleteCategoryAsync_ReturnsNullAsync()
     {
         // Arrange
         var context = DbHelper.CreateDatabase<CategoryEntity>([]);

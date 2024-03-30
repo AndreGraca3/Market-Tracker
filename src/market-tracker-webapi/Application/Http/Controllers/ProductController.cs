@@ -43,7 +43,6 @@ public class ProductController(IProductService productService) : ControllerBase
         var res = await productService.AddProductAsync(
             productInput.Id,
             productInput.Name,
-            productInput.Description,
             productInput.ImageUrl,
             productInput.Quantity,
             productInput.Unit,
@@ -68,7 +67,8 @@ public class ProductController(IProductService productService) : ControllerBase
                             categoryNotFound
                         ).ToActionResult(),
                 };
-            }
+            },
+            outputModel => Created(Uris.Products.BuildProductByIdUri(outputModel.Id), outputModel)
         );
     }
 

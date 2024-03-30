@@ -8,7 +8,7 @@ using Category = market_tracker_webapi.Application.Domain.Category;
 
 public interface ICategoryService
 {
-    public Task<List<Category>> GetCategoriesAsync();
+    public Task<IEnumerable<Category>> GetCategoriesAsync();
 
     public Task<Either<CategoryFetchingError, Category>> GetCategoryAsync(int id);
 

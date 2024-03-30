@@ -61,7 +61,8 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
                             invalidParentCategoryIdError
                         ).ToActionResult()
                 };
-            }
+            },
+            outputModel => Created(Uris.Categories.BuildCategoryByIdUri(outputModel.Id), outputModel)
         );
     }
 

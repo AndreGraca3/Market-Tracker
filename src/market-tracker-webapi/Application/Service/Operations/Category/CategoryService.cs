@@ -10,13 +10,13 @@ using Category = market_tracker_webapi.Application.Domain.Category;
 
 public class CategoryService(
     ICategoryRepository categoryRepository,
-    TransactionManager transactionManager
+    ITransactionManager transactionManager
 ) : ICategoryService
 {
-    public async Task<List<Category>> GetCategoriesAsync()
+    public async Task<IEnumerable<Category>> GetCategoriesAsync()
     {
         var categories = await categoryRepository.GetCategoriesAsync();
-        return categories.Select(category => new Category(category.Id, category.Name)).ToList();
+        return categories;
     }
 
     public async Task<Either<CategoryFetchingError, Category>> GetCategoryAsync(int id)

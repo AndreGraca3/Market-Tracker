@@ -14,9 +14,6 @@ namespace market_tracker_webapi.Infrastructure.PostgreSQLTables
         [Column("name")]
         public required string Name { get; set; }
 
-        [Column("description")]
-        public required string Description { get; set; }
-
         [Column("image_url")]
         public required string ImageUrl { get; set; }
 

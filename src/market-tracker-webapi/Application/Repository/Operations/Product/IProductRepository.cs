@@ -12,14 +12,13 @@ public interface IProductRepository
         int? categoryId = null,
         float? minPrice = null,
         float? maxPrice = null
-        ); // TODO: pagination, sorting
+    ); // TODO: pagination, sorting
 
     Task<Product?> GetProductByIdAsync(int productId);
 
     Task<int> AddProductAsync(
         int id,
         string name,
-        string description,
         string imageUrl,
         int quantity,
         string unit,
@@ -30,7 +29,6 @@ public interface IProductRepository
     Task<Product> UpdateProductAsync(
         int productId,
         float? price = null,
-        string? description = null,
         string? imageUrl = null,
         int? quantity = null,
         string? unit = null,
