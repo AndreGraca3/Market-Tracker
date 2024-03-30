@@ -75,7 +75,7 @@ public class CategoryRepositoryTest
     public async Task GetCategoriesAsync_ReturnsEmptyListAsync()
     {
         // Arrange
-        var context = DbHelper.CreateDatabase<CategoryEntity>([]);
+        var context = DbHelper.CreateDatabase();
         var categoryRepo = new CategoryRepository(context);
 
         // Act
@@ -91,7 +91,7 @@ public class CategoryRepositoryTest
         // Arrange
         var expectedCategory = new CategoryEntity { Id = 1, Name = "Talho" };
 
-        var context = DbHelper.CreateDatabase<CategoryEntity>([]);
+        var context = DbHelper.CreateDatabase();
         var categoryRepo = new CategoryRepository(context);
 
         // Act
@@ -140,7 +140,7 @@ public class CategoryRepositoryTest
     public async Task DeleteCategoryAsync_ReturnsNullAsync()
     {
         // Arrange
-        var context = DbHelper.CreateDatabase<CategoryEntity>([]);
+        var context = DbHelper.CreateDatabase();
         var categoryRepo = new CategoryRepository(context);
 
         // Act

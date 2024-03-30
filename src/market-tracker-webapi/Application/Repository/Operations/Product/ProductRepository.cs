@@ -12,35 +12,14 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
     public async Task<IEnumerable<Product>> GetProductsAsync()
     {
         return await dataContext.Product
-            .Select(product => new Product(
-                product.Id,
-                product.Name,
-                product.ImageUrl,
-                product.Quantity,
-                product.Unit,
-                product.Views,
-                product.Rate,
-                product.BrandId,
-                product.CategoryId
-            )).ToListAsync();
+            .Select(productEntity => productEntity.ToProduct())
+            .ToListAsync();
     }
 
     public async Task<Product?> GetProductByIdAsync(int productId)
     {
         var productEntity = await dataContext.Product.FindAsync(productId);
-        return productEntity is null
-            ? null
-            : new Product(
-                productEntity.Id,
-                productEntity.Name,
-                productEntity.ImageUrl,
-                productEntity.Quantity,
-                productEntity.Unit,
-                productEntity.Views,
-                productEntity.Rate,
-                productEntity.BrandId,
-                productEntity.CategoryId
-            );
+        return productEntity?.ToProduct();
     }
 
     public async Task<int> AddProductAsync(
@@ -70,19 +49,29 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         return productEntity.Id;
     }
 
-    public async Task<Product> UpdateProductAsync(
+    public async Task<Product?> UpdateProductAsync(
         int productId,
-        float? price = null,
         string? imageUrl = null,
         int? quantity = null,
         string? unit = null,
         int? brandId = null,
-        int? categoryId = null,
-        int? rate = null
+        int? categoryId = null
     )
     {
-        // TODO: Implement update product
-        throw new NotImplementedException();
+        var productEntity = await dataContext.Product.FindAsync(productId);
+        if (productEntity is null)
+        {
+            return null;
+        }
+
+        productEntity.ImageUrl = imageUrl ?? productEntity.ImageUrl;
+        productEntity.Quantity = quantity ?? productEntity.Quantity;
+        productEntity.Unit = unit ?? productEntity.Unit;
+        productEntity.BrandId = brandId ?? productEntity.BrandId;
+        productEntity.CategoryId = categoryId ?? productEntity.CategoryId;
+
+        await dataContext.SaveChangesAsync();
+        return productEntity.ToProduct();
     }
 
     public async Task<Product?> RemoveProductAsync(int productId)
@@ -95,36 +84,20 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
 
         dataContext.Product.Remove(productEntity);
         await dataContext.SaveChangesAsync();
-        return new Product(
-            productEntity.Id,
-            productEntity.Name,
-            productEntity.ImageUrl,
-            productEntity.Quantity,
-            productEntity.Unit,
-            productEntity.Views,
-            productEntity.Rate,
-            productEntity.BrandId,
-            productEntity.CategoryId
-        );
+        return productEntity.ToProduct();
     }
 
-    public async Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(int productId)
+    public async Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(Guid clientId, int productId)
     {
-        var reviews = await dataContext
-            .ProductReview.Where(review => review.ProductId == productId)
+        return await dataContext.ProductReview
+            .Where(review => review.ProductId == productId)
+            .OrderByDescending(review => review.ClientId == clientId) // Client's review first
+            .ThenByDescending(review => review.CreatedAt)
+            .Select(productReviewEntity => productReviewEntity.ToProductReview())
             .ToListAsync();
-        return reviews
-            .Select(review => new ProductReview(
-                review.ClientId,
-                review.ProductId,
-                review.Rate,
-                review.Comment,
-                review.CreatedAt
-            ))
-            .ToList();
     }
 
-    public async Task<int> AddReviewAsync(Guid clientId, int productId, int rate, string comment)
+    public async Task AddReviewAsync(Guid clientId, int productId, int rate, string comment)
     {
         var reviewEntity = new ProductReviewEntity()
         {
@@ -135,21 +108,40 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
             CreatedAt = DateTime.Now
         };
         dataContext.ProductReview.Add(reviewEntity);
-        return await dataContext.SaveChangesAsync();
+        await dataContext.SaveChangesAsync();
     }
 
-    public Task<ProductReview> UpdateReviewAsync(
+    public async Task<ProductReview?> UpdateReviewAsync(
         Guid clientId,
         int productId,
         int rate,
         string comment
     )
     {
-        throw new NotImplementedException();
+        var reviewEntity = await dataContext.ProductReview.FindAsync(clientId, productId);
+        if (reviewEntity is null)
+        {
+            return null;
+        }
+
+        reviewEntity.Rate = rate;
+        reviewEntity.Comment = comment;
+
+        await dataContext.SaveChangesAsync();
+        return reviewEntity.ToProductReview();
     }
 
-    public Task RemoveReviewAsync(Guid clientId, int productId)
+    public async Task<ProductReview?> RemoveReviewAsync(Guid clientId, int productId)
     {
-        throw new NotImplementedException();
+        var reviewEntity = await dataContext.ProductReview.FindAsync(clientId, productId);
+        if (reviewEntity is null)
+        {
+            return null;
+        }
+
+        dataContext.ProductReview.Remove(reviewEntity);
+
+        await dataContext.SaveChangesAsync();
+        return reviewEntity.ToProductReview();
     }
 }

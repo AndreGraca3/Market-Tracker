@@ -20,24 +20,22 @@ public interface IProductRepository
         int categoryId
     );
 
-    Task<Product> UpdateProductAsync(
+    Task<Product?> UpdateProductAsync(
         int productId,
-        float? price = null,
         string? imageUrl = null,
         int? quantity = null,
         string? unit = null,
         int? brandId = null,
-        int? categoryId = null,
-        int? rate = null
+        int? categoryId = null
     );
 
     Task<Product?> RemoveProductAsync(int productId);
 
-    Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(int productId);
+    Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(Guid clientId, int productId);
 
-    Task<int> AddReviewAsync(Guid clientId, int productId, int rate, string comment);
+    Task AddReviewAsync(Guid clientId, int productId, int rate, string comment);
 
-    Task<ProductReview> UpdateReviewAsync(Guid clientId, int productId, int rate, string comment);
+    Task<ProductReview?> UpdateReviewAsync(Guid clientId, int productId, int rate, string comment);
 
-    Task RemoveReviewAsync(Guid clientId, int productId);
+    Task<ProductReview?> RemoveReviewAsync(Guid clientId, int productId);
 }
