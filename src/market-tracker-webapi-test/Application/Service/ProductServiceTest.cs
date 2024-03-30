@@ -1,24 +1,20 @@
 using FluentAssertions;
-using market_tracker_webapi_test.Application.Repository;
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.Brand;
 using market_tracker_webapi.Application.Repository.Operations.Category;
 using market_tracker_webapi.Application.Repository.Operations.Product;
-using market_tracker_webapi.Application.Service.Errors;
+using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Operations.Product;
-using market_tracker_webapi.Application.Service.Transaction;
-using market_tracker_webapi.Application.Utils;
 using Moq;
 
-namespace market_tracker_webapi_test.Application.Services;
+namespace market_tracker_webapi_test.Application.Service;
 
 public class ProductServiceTest
 {
     private readonly Mock<IProductRepository> _productRepositoryMock;
     private readonly Mock<IBrandRepository> _brandRepositoryMock;
     private readonly Mock<ICategoryRepository> _categoryRepositoryMock;
-    private readonly Mock<ITransactionManager> _transactionManagerMock;
 
     private readonly ProductService _productService;
 
@@ -27,7 +23,13 @@ public class ProductServiceTest
         _productRepositoryMock = new Mock<IProductRepository>();
         _brandRepositoryMock = new Mock<IBrandRepository>();
         _categoryRepositoryMock = new Mock<ICategoryRepository>();
-        _transactionManagerMock = new Mock<ITransactionManager>();
+
+        _productService = new ProductService(
+            _productRepositoryMock.Object,
+            _brandRepositoryMock.Object,
+            _categoryRepositoryMock.Object,
+            new MockedTransactionManager()
+        );
     }
 
     private readonly List<Product> _dummyProducts =
@@ -51,47 +53,49 @@ public class ProductServiceTest
         new Category(5, "dummy_category")
     ];
 
-    /*
     [Fact]
-    public async Task GetCitiesAsync_ShouldReturnCities() {
+    public async Task GetProductsAsync_ShouldReturnProducts()
+    {
         // Arrange
-        var expectedProducts = new List<Product>
-        {
-            new Product(1, "Filipinos", "dummy_image_url", 1, "unidades", 0, 0, 1, 12),
-            new Product(2, "Maça", "dummy_image_url", 1, "unidades", 0, 0, 2, 9),
-            new Product(3, "Gomas", "dummy_image_url", 1, "unidades", 0, 0, 3, 5)
-        };
-
         _productRepositoryMock
             .Setup(repo => repo.GetProductsAsync())
-            .ReturnsAsync(expectedProducts);
+            .ReturnsAsync(_dummyProducts);
+
+        _brandRepositoryMock
+            .Setup(repo => repo.GetBrandByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(_dummyBrands[0]);
+
+        _categoryRepositoryMock
+            .Setup(repo => repo.GetCategoryByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(_dummyCategories[0]);
 
         // Act
-        var actualProducts = await _productService.GetProductsAsync();
+        var productsResult = await _productService.GetProductsAsync();
 
         // Assert
-        actualProducts.Should().BeEquivalentTo(expectedProducts);
+        productsResult
+            .Should()
+            .BeEquivalentTo(_dummyProducts);
     }
-    */
 
     [Fact]
     public async Task GetProductAsync_ShouldReturnProduct()
     {
         // Arrange
         _productRepositoryMock
-            .Setup(repo => repo.GetProductByIdAsync(_dummyProducts[0].Id))
+            .Setup(repo => repo.GetProductByIdAsync(It.IsAny<int>()))
             .ReturnsAsync(_dummyProducts[0]);
 
         _brandRepositoryMock
-            .Setup(repo => repo.GetBrandByIdAsync(_dummyProducts[0].BrandId))
+            .Setup(repo => repo.GetBrandByIdAsync(It.IsAny<int>()))
             .ReturnsAsync(_dummyBrands[0]);
 
         _categoryRepositoryMock
-            .Setup(repo => repo.GetCategoryByIdAsync(_dummyProducts[0].CategoryId))
+            .Setup(repo => repo.GetCategoryByIdAsync(It.IsAny<int>()))
             .ReturnsAsync(_dummyCategories[0]);
 
         // Act
-        var productResult = await _productService.GetProductAsync(_dummyProducts[0].Id);
+        var productResult = await _productService.GetProductAsync(It.IsAny<int>());
 
         // Assert
         productResult
@@ -106,42 +110,53 @@ public class ProductServiceTest
     }
 
     [Fact]
+    public async Task GetProductAsync_ShouldReturnProductByIdNotFound()
+    {
+        // Arrange
+        _productRepositoryMock
+            .Setup(repo => repo.GetProductByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync((Product?)null);
+
+        // Act
+        var productResult = await _productService.GetProductAsync(It.IsAny<int>());
+
+        // Assert
+        productResult
+            .Error
+            .Should()
+            .BeEquivalentTo(new ProductFetchingError.ProductByIdNotFound(It.IsAny<int>()));
+    }
+
+    [Fact]
     public async Task AddProductAsync_ShouldReturnIdOutputModel()
     {
         // Arrange
-        var service = new ProductService(
-            _productRepositoryMock.Object,
-            _brandRepositoryMock.Object,
-            _categoryRepositoryMock.Object,
-            new TransactionManager(DbHelper.CreateDatabase(new List<Product>()))
-        );
-        
         _productRepositoryMock
             .Setup(repo => repo.GetProductByIdAsync(_dummyProducts[0].Id))
             .ReturnsAsync((Product?)null);
 
         _productRepositoryMock
             .Setup(repo => repo.AddProductAsync(
-               It.IsAny<int>(),
-               It.IsAny<string>(),
-               It.IsAny<string>(),
-               It.IsAny<int>(),
-               It.IsAny<string>(),
-               It.IsAny<int>(),
-               It.IsAny<int>()
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<int>()
             ))
             .ReturnsAsync(It.IsAny<int>());
 
         _brandRepositoryMock
             .Setup(repo => repo.GetBrandByNameAsync(It.IsAny<string>()))
             .ReturnsAsync(new Brand(It.IsAny<int>(), It.IsAny<string>()));
-        
+
         _categoryRepositoryMock
             .Setup(repo => repo.GetCategoryByIdAsync(It.IsAny<int>()))
             .ReturnsAsync(new Category(It.IsAny<int>(), It.IsAny<string>()));
 
         // Act
-        var productResult = await service.AddProductAsync(
+        var productResult = await _productService.AddProductAsync(
             _dummyProducts[0].Id,
             _dummyProducts[0].Name,
             _dummyProducts[0].ImageUrl,
