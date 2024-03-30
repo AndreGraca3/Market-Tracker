@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Models;
 
 namespace market_tracker_webapi.Application.Repository.Operations.User
 {
@@ -20,7 +21,7 @@ namespace market_tracker_webapi.Application.Repository.Operations.User
 
         Task<TokenData> CreateTokenAsync(string tokenValue, int userId);
 
-        Task<AuthenticatedUserData?> GetUserAndTokenByTokenValueAsync(string token);
+        Task<AuthenticatedUser?> GetUserAndTokenByTokenValueAsync(string token);
 
         Task<TokenData?> GetTokenByUserIdAsync(int userId);
 

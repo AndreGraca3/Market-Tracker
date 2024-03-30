@@ -6,13 +6,7 @@ using Product = Domain.Product;
 
 public interface IProductRepository
 {
-    Task<IEnumerable<Product>> GetProductsAsync(
-        string? name = null,
-        int? brandId = null,
-        int? categoryId = null,
-        float? minPrice = null,
-        float? maxPrice = null
-    ); // TODO: pagination, sorting
+    Task<IEnumerable<Product>> GetProductsAsync();
 
     Task<Product?> GetProductByIdAsync(int productId);
 

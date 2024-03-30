@@ -1,5 +1,6 @@
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Pipeline;
+using market_tracker_webapi.Application.Pipeline.authorization;
 using market_tracker_webapi.Application.Service.DependencyResolver;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,10 +30,7 @@ static class Program
 
     private static void Configure(WebApplication app)
     {
-        app.UseSwagger(c =>
-        {
-            c.RouteTemplate = "swagger/{documentName}/swagger.json";
-        });
+        app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
 
         app.UseSwaggerUI(options =>
         {
@@ -52,7 +50,10 @@ static class Program
         builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
         builder.Services.AddControllers(options =>
-            options.SuppressAsyncSuffixInActionNames = false
+            {
+                options.SuppressAsyncSuffixInActionNames = false;
+                options.ModelBinderProviders.Insert(0, new AuthUserBinderProvider());
+            }
         );
 
         builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -60,7 +61,7 @@ static class Program
             options.InvalidModelStateResponseFactory = context =>
                 new BadRequestProblem.InvalidRequestContent(
                     context.ModelState.AsEnumerable().First().Value?.Errors.First().ErrorMessage
-                        ?? "Invalid request content."
+                    ?? "Invalid request content."
                 ).ToActionResult();
         });
 

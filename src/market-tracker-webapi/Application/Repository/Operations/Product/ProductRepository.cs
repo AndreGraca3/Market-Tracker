@@ -9,16 +9,20 @@ using Product = Domain.Product;
 
 public class ProductRepository(MarketTrackerDataContext dataContext) : IProductRepository
 {
-    public async Task<IEnumerable<Product>> GetProductsAsync(
-        string? name = null,
-        int? brandId = null,
-        int? categoryId = null,
-        float? minPrice = null,
-        float? maxPrice = null
-    )
+    public async Task<IEnumerable<Product>> GetProductsAsync()
     {
-        // TODO: Implement get products
-        throw new NotImplementedException();
+        return await dataContext.Product
+            .Select(product => new Product(
+                product.Id,
+                product.Name,
+                product.ImageUrl,
+                product.Quantity,
+                product.Unit,
+                product.Views,
+                product.Rate,
+                product.BrandId,
+                product.CategoryId
+            )).ToListAsync();
     }
 
     public async Task<Product?> GetProductByIdAsync(int productId)
@@ -88,6 +92,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         {
             return null;
         }
+
         dataContext.Product.Remove(productEntity);
         await dataContext.SaveChangesAsync();
         return new Product(

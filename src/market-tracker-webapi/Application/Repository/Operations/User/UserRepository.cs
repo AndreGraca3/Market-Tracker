@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
@@ -72,7 +73,7 @@ namespace market_tracker_webapi.Application.Repository.Operations.User
             throw new NotImplementedException();
         }
 
-        Task<AuthenticatedUserData?> IUserRepository.GetUserAndTokenByTokenValueAsync(string token)
+        Task<AuthenticatedUser?> IUserRepository.GetUserAndTokenByTokenValueAsync(string token)
         {
             throw new NotImplementedException();
         }

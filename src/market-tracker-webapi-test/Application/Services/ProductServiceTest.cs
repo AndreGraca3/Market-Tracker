@@ -1,4 +1,5 @@
 using FluentAssertions;
+using market_tracker_webapi_test.Application.Repository;
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.Brand;
@@ -27,13 +28,6 @@ public class ProductServiceTest
         _brandRepositoryMock = new Mock<IBrandRepository>();
         _categoryRepositoryMock = new Mock<ICategoryRepository>();
         _transactionManagerMock = new Mock<ITransactionManager>();
-
-        _productService = new ProductService(
-            _productRepositoryMock.Object,
-            _brandRepositoryMock.Object,
-            _categoryRepositoryMock.Object,
-            _transactionManagerMock.Object
-        );
     }
 
     private readonly List<Product> _dummyProducts =
@@ -115,22 +109,39 @@ public class ProductServiceTest
     public async Task AddProductAsync_ShouldReturnIdOutputModel()
     {
         // Arrange
+        var service = new ProductService(
+            _productRepositoryMock.Object,
+            _brandRepositoryMock.Object,
+            _categoryRepositoryMock.Object,
+            new TransactionManager(DbHelper.CreateDatabase(new List<Product>()))
+        );
+        
         _productRepositoryMock
             .Setup(repo => repo.GetProductByIdAsync(_dummyProducts[0].Id))
             .ReturnsAsync((Product?)null);
 
-        _categoryRepositoryMock
-            .Setup(repo => repo.GetCategoryByIdAsync(_dummyProducts[0].CategoryId))
-            .ReturnsAsync(_dummyCategories[0]);
+        _productRepositoryMock
+            .Setup(repo => repo.AddProductAsync(
+               It.IsAny<int>(),
+               It.IsAny<string>(),
+               It.IsAny<string>(),
+               It.IsAny<int>(),
+               It.IsAny<string>(),
+               It.IsAny<int>(),
+               It.IsAny<int>()
+            ))
+            .ReturnsAsync(It.IsAny<int>());
 
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<IServiceError, IdOutputModel>>>>()))
-            .ReturnsAsync(EitherExtensions.Success<IServiceError, IdOutputModel>(
-                new IdOutputModel(1))
-            );
+        _brandRepositoryMock
+            .Setup(repo => repo.GetBrandByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync(new Brand(It.IsAny<int>(), It.IsAny<string>()));
+        
+        _categoryRepositoryMock
+            .Setup(repo => repo.GetCategoryByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(new Category(It.IsAny<int>(), It.IsAny<string>()));
 
         // Act
-        var productResult = await _productService.AddProductAsync(
+        var productResult = await service.AddProductAsync(
             _dummyProducts[0].Id,
             _dummyProducts[0].Name,
             _dummyProducts[0].ImageUrl,
