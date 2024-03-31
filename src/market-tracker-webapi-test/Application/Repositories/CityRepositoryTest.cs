@@ -104,6 +104,58 @@ public class CityRepositoryTest
     }
     
     [Fact]
+    public async Task GetCityByNameAsync_WithExistingCity_ReturnsCityData()
+    {
+        // Arrange
+        var cityEntities = new List<CityEntity>
+        {
+            new ()
+            {
+                Id = 1, 
+                Name = "City 1"
+            }
+        };
+
+        var context = CreateDatabase(cityEntities);
+        var cityRepository = new CityRepository(context);
+        
+        var expectedCityData = new CityDomain
+        {
+            Id = 1,
+            Name = "City 1"
+        };
+        
+        // Act
+        var cityData = await cityRepository.GetCityByNameAsync("City 1");
+        
+        // Assert
+        expectedCityData.Should().BeEquivalentTo(cityData);
+    }
+    
+    [Fact]
+    public async Task GetCityByNameAsync_WithNonExistingCity_ReturnsNull()
+    {
+        // Arrange
+        var cityEntities = new List<CityEntity>
+        {
+            new ()
+            {
+                Id = 1, 
+                Name = "City 1"
+            }
+        };
+
+        var context = CreateDatabase(cityEntities);
+        var cityRepository = new CityRepository(context);
+        
+        // Act
+        var cityData = await cityRepository.GetCityByNameAsync("City 2");
+        
+        // Assert
+        cityData.Should().BeNull();
+    }
+    
+    [Fact]
     public async Task AddCityAsync_WithCityData_ReturnsCityId()
     {
         // Arrange

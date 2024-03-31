@@ -1,7 +1,5 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Exceptions;
-using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Repositories.Store;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
@@ -48,13 +46,15 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new ()
                 {
                     Id = 1, 
+                    Name = "Store1",
                     Address = "Address1",
                     CityId = 1,
                     CompanyId = 1
                 },
                 new ()
                 {
-                    Id = 2, 
+                    Id = 2,
+                    Name = "Store2",
                     Address = "Address2",
                     CityId = 2,
                     CompanyId = 1
@@ -62,6 +62,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new ()
                 {
                     Id = 3, 
+                    Name = "Store3",
                     Address = "Address3",
                     CityId = 3,
                     CompanyId = 1
@@ -72,18 +73,21 @@ namespace market_tracker_webapi_test.Application.Repositories
             {
                 new StoreDomain()
                 {
+                    Name = "Store1",
                     Address = "Address1",
                     CityId = 1,
                     CompanyId = 1
                 },
                 new StoreDomain()
                 {
+                    Name = "Store2",
                     Address = "Address2",
                     CityId = 2,
                     CompanyId = 1
                 },
                 new StoreDomain()
                 {
+                    Name = "Store3",
                     Address = "Address3",
                     CityId = 3,
                     CompanyId = 1
@@ -155,6 +159,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new ()
                 {
                     Id = 1, 
+                    Name = "Store1",
                     Address = "Address1",
                     CityId = 1,
                     CompanyId = 1
@@ -162,6 +167,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new ()
                 {
                     Id = 2, 
+                    Name = "Store2",
                     Address = "Address2",
                     CityId = 2,
                     CompanyId = 1
@@ -169,6 +175,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new ()
                 {
                     Id = 3, 
+                    Name = "Store3",
                     Address = "Address3",
                     CityId = 3,
                     CompanyId = 1
@@ -177,6 +184,7 @@ namespace market_tracker_webapi_test.Application.Repositories
 
             var expectedStore = new StoreDomain()
             {
+                Name = "Store1",
                 Address = "Address1",
                 CityId = 1,
                 CompanyId = 1
@@ -247,6 +255,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new ()
                 {
                     Id = 1, 
+                    Name = "Store1",
                     Address = "Address1",
                     CityId = 1,
                     CompanyId = 1
@@ -254,6 +263,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new ()
                 {
                     Id = 2, 
+                    Name = "Store2",
                     Address = "Address2",
                     CityId = 2,
                     CompanyId = 1
@@ -261,6 +271,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new ()
                 {
                     Id = 3, 
+                    Name = "Store3",
                     Address = "Address3",
                     CityId = 3,
                     CompanyId = 1
@@ -269,6 +280,7 @@ namespace market_tracker_webapi_test.Application.Repositories
 
             var expectedStore = new StoreDomain()
             {
+                Name = "Store1",
                 Address = "Address1",
                 CityId = 1,
                 CompanyId = 1
@@ -300,6 +312,236 @@ namespace market_tracker_webapi_test.Application.Repositories
             
             // Assert
             storeData.Should().BeNull();
+        }
+        
+        [Fact]
+        public async Task GetStoreFromCompanyAsync_WhenStoreExists_ReturnsStoreData()
+        {
+            // Arrange
+            var companyMockEntities = new List<CompanyEntity>
+            {
+                new ()
+                {
+                    Id = 1,
+                    Name = "Company1"
+                }
+            };
+
+            var cityMockEntities = new List<CityEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Lisboa"
+                },
+                new()
+                {
+                    Id = 2,
+                    Name = "Amadora"
+                },
+                new()
+                {
+                    Id = 3,
+                    Name = "Oeiras"
+                }
+            };
+            
+            var storeMockEntities = new List<StoreEntity>
+            {
+                new ()
+                {
+                    Id = 1, 
+                    Name = "Store1",
+                    Address = "Address1",
+                    CityId = 1,
+                    CompanyId = 1
+                },
+                new ()
+                {
+                    Id = 2, 
+                    Name = "Store2",
+                    Address = "Address2",
+                    CityId = 2,
+                    CompanyId = 1
+                },
+                new ()
+                {
+                    Id = 3, 
+                    Name = "Store3",
+                    Address = "Address3",
+                    CityId = 3,
+                    CompanyId = 1
+                }
+            };
+
+            var expectedStores = new List<StoreDomain>
+            {
+                new StoreDomain()
+                {
+                    Name = "Store1",
+                    Address = "Address1",
+                    CityId = 1,
+                    CompanyId = 1
+                },
+                new StoreDomain()
+                {
+                    Name = "Store2",
+                    Address = "Address2",
+                    CityId = 2,
+                    CompanyId = 1
+                },
+                new StoreDomain()
+                {
+                    Name = "Store3",
+                    Address = "Address3",
+                    CityId = 3,
+                    CompanyId = 1
+                }
+            };
+            
+            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
+            var storeRepository = new StoreRepository(context);
+
+            // Act
+            var storeData = await storeRepository.GetStoresFromCompanyAsync(1);
+
+            // Assert
+            storeData.Should().BeEquivalentTo(expectedStores, options => options.Excluding(x => x.Id));
+        }
+        
+        [Fact]
+        public async Task GetStoreFromCompanyAsync_WhenStoreDoesNotExist_ReturnsEmptyList()
+        {
+            // Arrange
+            var context = CreateDatabase(
+                new List<StoreEntity>(), 
+                new List<CompanyEntity>(), 
+                new List<CityEntity>());
+            
+            var storeRepository = new StoreRepository(context);
+            
+            // Act
+            var storeData = await storeRepository.GetStoresFromCompanyAsync(1);
+            
+            // Assert
+            storeData.Should().BeEmpty();
+        }
+        
+        [Fact]
+        public async Task GetStoresByCityNameAsync_WhenStoresExist_ReturnsStoreData()
+        {
+            // Arrange
+            var companyMockEntities = new List<CompanyEntity>
+            {
+                new ()
+                {
+                    Id = 1,
+                    Name = "Company1"
+                }
+            };
+
+            var cityMockEntities = new List<CityEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Lisboa"
+                },
+                new()
+                {
+                    Id = 2,
+                    Name = "Amadora"
+                },
+                new()
+                {
+                    Id = 3,
+                    Name = "Oeiras"
+                }
+            };
+            
+            var storeMockEntities = new List<StoreEntity>
+            {
+                new ()
+                {
+                    Id = 1, 
+                    Name = "Store1",
+                    Address = "Address1",
+                    CityId = 1,
+                    CompanyId = 1
+                },
+                new ()
+                {
+                    Id = 2, 
+                    Name = "Store2",
+                    Address = "Address2",
+                    CityId = 2,
+                    CompanyId = 1
+                },
+                new ()
+                {
+                    Id = 3, 
+                    Name = "Store3",
+                    Address = "Address3",
+                    CityId = 3,
+                    CompanyId = 1
+                }
+            };
+
+            var expectedStores = new List<StoreDomain>
+            {
+                new StoreDomain()
+                {
+                    Name = "Store1",
+                    Address = "Address1",
+                    CityId = 1,
+                    CompanyId = 1
+                }
+            };
+            
+            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
+            var storeRepository = new StoreRepository(context);
+
+            // Act
+            var storeData = await storeRepository.GetStoresByCityNameAsync("Lisboa");
+
+            // Assert
+            storeData.Should().BeEquivalentTo(expectedStores, options => options.Excluding(x => x.Id));
+        }
+        
+        [Fact]
+        public async Task GetStoresByCityNameAsync_WhenStoresDoNotExist_ReturnsEmptyList()
+        {
+            // Arrange
+            var context = CreateDatabase(
+                new List<StoreEntity>(), 
+                new List<CompanyEntity>(), 
+                new List<CityEntity>());
+            
+            var storeRepository = new StoreRepository(context);
+            
+            // Act
+            var storeData = await storeRepository.GetStoresByCityNameAsync("Lisboa");
+            
+            // Assert
+            storeData.Should().BeEmpty();
+        }
+        
+        [Fact]
+        public async Task GetStoreByCityNameAsync_WhenCityDoesNotExist_ReturnsEmptyList()
+        {
+            // Arrange
+            var context = CreateDatabase(
+                new List<StoreEntity>(), 
+                new List<CompanyEntity>(), 
+                new List<CityEntity>());
+            
+            var storeRepository = new StoreRepository(context);
+            
+            // Act
+            var storeData = await storeRepository.GetStoresByCityNameAsync("Lisboa");
+            
+            // Assert
+            storeData.Should().BeEmpty();
         }
         
         [Fact]
@@ -339,6 +581,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new ()
                 {
                     Id = 1, 
+                    Name = "Store1",
                     Address = "Address1",
                     CityId = 1,
                     CompanyId = 1
@@ -346,6 +589,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new ()
                 {
                     Id = 2, 
+                    Name = "Store2",
                     Address = "Address2",
                     CityId = 2,
                     CompanyId = 1
@@ -353,6 +597,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new ()
                 {
                     Id = 3, 
+                    Name = "Store3",
                     Address = "Address3",
                     CityId = 3,
                     CompanyId = 1
@@ -364,16 +609,18 @@ namespace market_tracker_webapi_test.Application.Repositories
 
             var storeData = new StoreDomain()
             {
+                Name = "Store4",
                 Address = "Address4",
                 CityId = 1,
                 CompanyId = 1
             };
             
             // Act
-            var storeId = await storeRepository.AddStoreAsync("Address4", 1, 1);
+            var storeId = await storeRepository.AddStoreAsync("Store4", "Address4", 1, 1);
             
             var storeEntity = new StoreEntity()
             {
+                Name = storeData.Name,
                 Address = storeData.Address,
                 CityId = storeData.CityId,
                 CompanyId = storeData.CompanyId
@@ -385,36 +632,6 @@ namespace market_tracker_webapi_test.Application.Repositories
             context.Store.Should().BeEquivalentTo(storeMockEntities, options => options.Excluding(x => x.Id));
             storeId.Should().Be(4);
         }
-
-        // [Fact]
-        // public async Task AddStoreAsync_WhenCompanyDoesNotExist_ReturnsNull()
-        // {
-        //     // Arrange
-        //     var cityMockEntities = new List<CityEntity>
-        //     {
-        //         new()
-        //         {
-        //             Id = 1,
-        //             Name = "Lisboa"
-        //         }
-        //     };
-        //     
-        //     var context = CreateDatabase(new List<StoreEntity>(), new List<CompanyEntity>(), cityMockEntities);
-        //     var storeRepository = new StoreRepository(context);
-        //     
-        //     var storeData = new StoreDomain()
-        //     {
-        //         Address = "Address4",
-        //         CityId = 1,
-        //         CompanyId = 1
-        //     };
-        //     
-        //     // Act
-        //     var storeId = await storeRepository.AddStoreAsync("Address4", 1, 1);
-        //     
-        //     // Assert
-        //     storeId.Should().BeNull();
-        // }
 
         [Fact]
         public async Task AddStoreAsync_WhenCityIsNull_ReturnsStoreData()
@@ -436,15 +653,8 @@ namespace market_tracker_webapi_test.Application.Repositories
             
             var storeRepository = new StoreRepository(context);
             
-            var storeData = new StoreDomain()
-            {
-                Address = "Address4",
-                CityId = 1,
-                CompanyId = 1
-            };
-            
             // Act
-            var storeId = await storeRepository.AddStoreAsync("Address4", 1, 1);
+            var storeId = await storeRepository.AddStoreAsync("Store4","Address4", 1, 1);
             
             // Assert
             storeId.Should().Be(1);
@@ -483,6 +693,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new()
                 {
                     Id = 1,
+                    Name = "Store1",
                     Address = "Address1",
                     CityId = 1,
                     CompanyId = 1
@@ -495,10 +706,11 @@ namespace market_tracker_webapi_test.Application.Repositories
             var storeData = new StoreDomain()
             {
                 Id = 1,
+                Name = "Store1",
                 Address = "AddressA",
                 CityId = 2,
                 CompanyId = 1
-            };
+            }; 
 
             // Act
             var actualStore = await storeRepository.UpdateStoreAsync(1, "AddressA", 2, 1);
@@ -532,14 +744,6 @@ namespace market_tracker_webapi_test.Application.Repositories
             
             var context = CreateDatabase(new List<StoreEntity>(), companyMockEntities, cityMockEntities);
             var storeRepository = new StoreRepository(context);
-
-            var storeData = new StoreDomain()
-            {
-                Id = 1,
-                Address = "AddressA",
-                CityId = 1,
-                CompanyId = 1
-            };
             
             // Act
             var actualStore = await storeRepository.UpdateStoreAsync(1, "AddressA", 1, 1);
@@ -547,111 +751,6 @@ namespace market_tracker_webapi_test.Application.Repositories
             // Assert
             actualStore.Should().BeNull();
         }
-        
-        [Fact]
-        public async Task UpdateStoreAsync_WhenCompanyDoesNotExist_ReturnsNull()
-        {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Company1"
-                }
-            };
-            
-            var cityMockEntities = new List<CityEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Lisboa"
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Porto"
-                },
-            };
-
-            var storeMockEntities = new List<StoreEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                }
-            };
-            
-            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
-            var storeRepository = new StoreRepository(context);
-
-            var storeData = new StoreDomain()
-            {
-                Id = 1,
-                Address = "AddressA",
-                CityId = 2,
-                CompanyId = 2
-            };
-
-            // Act
-            var actualStore = await storeRepository.UpdateStoreAsync(1, "AddressA", 2, 2);
-            
-            // Assert
-            actualStore.Should().BeNull();
-        }
-
-        // [Fact]
-        // public async Task UpdateStoreAsync_WhenCityIsNull_ReturnsStoreData()
-        // {
-        //     var companyMockEntities = new List<CompanyEntity>
-        //     {
-        //         new()
-        //         {
-        //             Id = 1,
-        //             Name = "Company1"
-        //         }
-        //     };
-        //     
-        //     var cityMockEntities = new List<CityEntity>
-        //     {
-        //         new()
-        //         {
-        //             Id = 1,
-        //             Name = "Lisboa"
-        //         }
-        //     };
-        //     
-        //     var storeMockEntities = new List<StoreEntity>
-        //     {
-        //         new()
-        //         {
-        //             Id = 1,
-        //             Address = "Address1",
-        //             CityId = 1,
-        //             CompanyId = 1
-        //         }
-        //     };
-        //     
-        //     var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
-        //     
-        //     var storeRepository = new StoreRepository(context);
-        //     
-        //     var storeData = new StoreDomain()
-        //     {
-        //         Id = 1,
-        //         Address = "AddressA",
-        //         CityId = null,
-        //         CompanyId = 1
-        //     };
-        //     
-        //     var actualStore = await storeRepository.UpdateStoreAsync(1, "AddressA", null, 1);
-        //     
-        //     actualStore.Should().BeEquivalentTo(storeData);
-        // }
         
         [Fact]
         public async Task DeleteStoreAsync_WhenStoreExists_ReturnsDeletedStoreData()
@@ -680,6 +779,7 @@ namespace market_tracker_webapi_test.Application.Repositories
                 new()
                 {
                     Id = 1,
+                    Name = "Store1",
                     Address = "Address1",
                     CityId = 1,
                     CompanyId = 1

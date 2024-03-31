@@ -21,4 +21,9 @@ public class StoreFetchingError : IStoreError
     {
         public int CityId { get; } = cityId;
     }
+    
+    public class StoreByCityNameNotFound(string cityName) : StoreFetchingError
+    {
+        public string CityId { get; } = cityName;
+    }
 }

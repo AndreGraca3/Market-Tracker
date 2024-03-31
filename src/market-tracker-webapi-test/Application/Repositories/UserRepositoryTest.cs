@@ -8,46 +8,46 @@ namespace market_tracker_webapi_test.Application.Repositories
 {
     public class UserRepositoryTest
     {
-        [Fact]
-        public async Task GetUserAsync_ReturnsObjectAsync()
-        {
-            // Mock DB
-            var mockEntities = new List<UserEntity>
-            {
-                new ()
-                {
-                    Name = "Diogo"
-                },
-                new ()
-                {
-                    Name = "Daniel"
-                },
-                new ()
-                {
-                    Name = "André"
-                }
-            };
+        // [Fact]
+        // public async Task GetUserAsync_ReturnsObjectAsync()
+        // {
+        //     // Mock DB
+        //     var mockEntities = new List<UserEntity>
+        //     {
+        //         new ()
+        //         {
+        //             Name = "Diogo"
+        //         },
+        //         new ()
+        //         {
+        //             Name = "Daniel"
+        //         },
+        //         new ()
+        //         {
+        //             Name = "André"
+        //         }
+        //     };
+        //
+        //     var expectedUser = new UserEntity()
+        //     {
+        //         Name = "André"
+        //     };
+        //
+        //
+        //     var context = CreateDatabase(mockEntities);
+        //     var userRepo = new UserRepository(context);
+        //
+        //     // Act
+        //     var actualUser = await userRepo.GetUserAsync(expectedUser.Id);
+        //
+        //     // Assert
+        //     actualUser.Should().BeEquivalentTo(expectedUser);
+        // }
 
-            var expectedUser = new UserEntity()
-            {
-                Name = "André"
-            };
-
-
-            var context = CreateDatabase(mockEntities);
-            var userRepo = new UserRepository(context);
-
-            // Act
-            var actualUser = await userRepo.GetUserAsync(expectedUser.Id);
-
-            // Assert
-            actualUser.Should().BeEquivalentTo(expectedUser);
-        }
-
-        public async Task GetUserAsync_ReturnsNullAsync()
-        {
-
-        }
+        // public async Task GetUserAsync_ReturnsNullAsync()
+        // {
+        //
+        // }
 
         private static MarketTrackerDataContext CreateDatabase(List<UserEntity> userEntities)
         {

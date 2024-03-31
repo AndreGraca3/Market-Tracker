@@ -10,6 +10,9 @@ namespace market_tracker_webapi.Infrastructure.PostgreSQLTables
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
     
+        
+        public required string Name { get; set; }
+        
         [Required]
         [StringLength(200)]
         public required string Address { get; set; }
