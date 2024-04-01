@@ -13,7 +13,7 @@ public abstract class Problem(
 {
     public const string MediaType = "application/problem+json";
 
-    public string Type { get; } = "https://gomokuroyale.pt/probs/" + subtype;
+    public string Type { get; } = "https://markettracker.pt/probs/" + subtype;
     public string Title { get; } = title;
     public int Status { get; } = status;
     public string Detail { get; } = detail;

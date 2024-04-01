@@ -51,6 +51,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
 
     public async Task<Product?> UpdateProductAsync(
         int productId,
+        string? name,
         string? imageUrl = null,
         int? quantity = null,
         string? unit = null,
@@ -64,6 +65,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
             return null;
         }
 
+        productEntity.Name = name ?? productEntity.Name;
         productEntity.ImageUrl = imageUrl ?? productEntity.ImageUrl;
         productEntity.Quantity = quantity ?? productEntity.Quantity;
         productEntity.Unit = unit ?? productEntity.Unit;

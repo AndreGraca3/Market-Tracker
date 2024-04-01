@@ -5,11 +5,9 @@ using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Product;
 
-using Product = market_tracker_webapi.Application.Domain.Product;
-
 public interface IProductService
 {
-    public Task<IEnumerable<Product>> GetProductsAsync();
+    public Task<EnumerableOutputModel> GetProductsAsync();
     public Task<Either<ProductFetchingError, ProductOutputModel>> GetProductAsync(int id);
 
     public Task<Either<IServiceError, IdOutputModel>> AddProductAsync(
@@ -20,16 +18,17 @@ public interface IProductService
         string unit,
         string brandName,
         int categoryId
+    // int price
     );
 
-    public Task<Either<IServiceError, IdOutputModel>> UpdateProductAsync(
+    public Task<Either<IServiceError, ProductOutputModel>> UpdateProductAsync(
         int id,
-        string? name,
-        string? imageUrl,
-        int? quantity,
-        string? unit,
-        string? brandName,
-        int? categoryId
+        string name,
+        string imageUrl,
+        int quantity,
+        string unit,
+        string brandName,
+        int categoryId
     );
 
     public Task<Either<ProductFetchingError, IdOutputModel>> RemoveProductAsync(int productId);

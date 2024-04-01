@@ -19,15 +19,6 @@ public class ProductProblem(
             data
         );
 
-    public class InvalidBrand(ProductCreationError.InvalidBrand data)
-        : ProductProblem(
-            400,
-            "invalid-brand",
-            "Invalid brand",
-            $"Brand with name {data.BrandName} not found",
-            data
-        );
-
     public class ProductAlreadyExists(ProductCreationError.ProductAlreadyExists data)
         : ProductProblem(
             409,

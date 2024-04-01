@@ -4,7 +4,7 @@ namespace market_tracker_webapi.Application.Http;
 
 public static class Uris
 {
-    const string ApiBase = "/api";
+    public const string ApiBase = "/api";
 
     public static class Users
     {
@@ -14,7 +14,6 @@ public static class Uris
     public static class Products
     {
         public const string Base = $"{ApiBase}/products";
-        public const string Bundle = $"{Base}/bundles";
         public const string ProductById = $"{Base}/{{id}}";
 
         public static string BuildProductByIdUri(int id) => ProductById.ExpandUri(id);
@@ -24,7 +23,7 @@ public static class Uris
     {
         public const string Base = $"{ApiBase}/categories";
         public const string CategoryById = $"{Base}/{{id}}";
-        
+
         public static string BuildCategoryByIdUri(int id) => CategoryById.ExpandUri(id);
     }
 

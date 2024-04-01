@@ -2,11 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace market_tracker_webapi.Application.Http.Models;
 
-public record ProductCreationInputModel(
-    [Required] int Id,
+public record ProductUpdateInputModel(
     [Required] [MaxLength(50, ErrorMessage = "Name too long.")] string Name,
     [Required] string ImageUrl,
-    int Quantity,
+    [Required] int Quantity,
+    [Required]
     [RegularExpression(
         "^(unidades|kilogramas|gramas|litros|mililitros)$",
         ErrorMessage = "Wrong unit provided. Must be 'unidades', 'kilogramas', 'gramas', 'litros' or 'mililitros'."

@@ -59,9 +59,6 @@ public class ProductController(IProductService productService) : ControllerBase
                     ProductCreationError.ProductAlreadyExists alreadyExists
                         => new ProductProblem.ProductAlreadyExists(alreadyExists).ToActionResult(),
 
-                    ProductCreationError.InvalidBrand invalidBrand
-                        => new ProductProblem.InvalidBrand(invalidBrand).ToActionResult(),
-
                     CategoryFetchingError.CategoryByIdNotFound categoryNotFound
                         => new CategoryProblem.CategoryByIdNotFound(
                             categoryNotFound
@@ -75,10 +72,36 @@ public class ProductController(IProductService productService) : ControllerBase
     [HttpPut(Uris.Products.ProductById)]
     public async Task<ActionResult<ProductOutputModel>> UpdateProductAsync(
         int id,
-        [FromBody] ProductCreationInputModel productInput
+        [FromQuery] int pagin,
+        [FromBody] ProductUpdateInputModel productInput
     )
     {
-        throw new NotImplementedException();
+        var res = await productService.UpdateProductAsync(
+            id,
+            productInput.Name,
+            productInput.ImageUrl,
+            productInput.Quantity,
+            productInput.Unit,
+            productInput.BrandName,
+            productInput.CategoryId
+        );
+
+        return ResultHandler.Handle(
+            res,
+            error =>
+            {
+                return error switch
+                {
+                    ProductFetchingError.ProductByIdNotFound idNotFoundError
+                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+
+                    CategoryFetchingError.CategoryByIdNotFound categoryNotFound
+                        => new CategoryProblem.CategoryByIdNotFound(
+                            categoryNotFound
+                        ).ToActionResult(),
+                };
+            }
+        );
     }
 
     [HttpDelete(Uris.Products.ProductById)]

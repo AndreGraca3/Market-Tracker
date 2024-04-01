@@ -81,7 +81,6 @@ create table if not exists last_checked
 create table if not exists promotion
 (
     percentage int not null check (percentage between 0 and 100),
-    discount   int not null,
     product_id int,
     store_id   int,
     date       date,

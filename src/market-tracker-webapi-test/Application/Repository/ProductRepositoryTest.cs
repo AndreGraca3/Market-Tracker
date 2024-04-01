@@ -155,30 +155,67 @@ public class ProductRepositoryTest
         // Arrange
         var context = DbHelper.CreateDatabase(_dummyProducts);
         var productRepo = new ProductRepository(context);
-
-        // Act
-        var actualProduct = await productRepo.UpdateProductAsync(
+        var expectedProduct = new Product(
             _dummyProducts[0].Id,
+            "new_name",
             "new_image_url",
             2,
             "kg",
             2,
-            2
+            2,
+            0,
+            1
+        );
+
+        // Act
+        var actualProduct = await productRepo.UpdateProductAsync(
+            _dummyProducts[0].Id,
+            expectedProduct.Name,
+            expectedProduct.ImageUrl,
+            expectedProduct.Quantity,
+            expectedProduct.Unit,
+            expectedProduct.BrandId,
+            expectedProduct.CategoryId
         );
 
         // Assert
-        actualProduct.Should().BeEquivalentTo(
-            new ProductEntity
-            {
-                Id = 1,
-                Name = "Filipinos",
-                ImageUrl = "new_image_url",
-                Quantity = 2,
-                Unit = "kg",
-                BrandId = 2,
-                CategoryId = 2
-            }
+        Assert.NotNull(actualProduct);
+        actualProduct.Name.Should().Be(expectedProduct.Name);
+        actualProduct.ImageUrl.Should().Be(expectedProduct.ImageUrl);
+        actualProduct.Quantity.Should().Be(expectedProduct.Quantity);
+        actualProduct.Unit.Should().Be(expectedProduct.Unit);
+        actualProduct.BrandId.Should().Be(expectedProduct.BrandId);
+        actualProduct.CategoryId.Should().Be(expectedProduct.CategoryId);
+    }
+
+    [Fact]
+    public async Task UpdateProductImageAsync_ReturnsUpdatedProductAsync()
+    {
+        // Arrange
+        var context = DbHelper.CreateDatabase(_dummyProducts);
+        var productRepo = new ProductRepository(context);
+        var expectedProduct = new Product(
+            _dummyProducts[0].Id,
+            _dummyProducts[0].Name,
+            "new_image_url",
+            _dummyProducts[0].Quantity,
+            _dummyProducts[0].Unit,
+            _dummyProducts[0].Views,
+            _dummyProducts[0].Rate,
+            _dummyProducts[0].BrandId,
+            _dummyProducts[0].CategoryId
         );
+
+        // Act
+        var actualProduct = await productRepo.UpdateProductAsync(
+            _dummyProducts[0].Id,
+            null,
+            imageUrl: expectedProduct.ImageUrl
+        );
+
+        // Assert
+        Assert.NotNull(actualProduct);
+        actualProduct.Should().BeEquivalentTo(expectedProduct);
     }
 
     [Fact]
@@ -191,6 +228,7 @@ public class ProductRepositoryTest
         // Act
         var actualProduct = await productRepo.UpdateProductAsync(
             4,
+            "new_name",
             "new_image_url",
             2,
             "kg",
@@ -238,15 +276,17 @@ public class ProductRepositoryTest
         var productRepo = new ProductRepository(context);
 
         // Act
-        var actualReviews =
-            await productRepo.GetReviewsByProductIdAsync(_dummyReviews[1].ClientId, _dummyProducts[0].Id);
+        var actualReviews = await productRepo.GetReviewsByProductIdAsync(
+            _dummyReviews[1].ClientId,
+            _dummyProducts[0].Id
+        );
 
         // Assert
         actualReviews.First().ClientId.Should().Be(_dummyReviews[1].ClientId); // client's review first
         actualReviews.Skip(1).First().ClientId.Should().Be(_dummyReviews[2].ClientId); // ordered by date
         actualReviews.Skip(2).First().ClientId.Should().Be(_dummyReviews[0].ClientId); // ordered by date
     }
-    
+
     [Fact]
     public async Task AddReviewAsync_ReturnsObjectAsync()
     {
@@ -263,20 +303,25 @@ public class ProductRepositoryTest
         );
 
         // Assert
-        var actualReview = await context.ProductReview.FindAsync(_dummyReviews[1].ClientId, _dummyReviews[1].ProductId);
-        Assert.NotNull(actualReview);
-        actualReview.Should().BeEquivalentTo(
-            new ProductReviewEntity
-            {
-                ClientId = _dummyReviews[1].ClientId,
-                ProductId = _dummyReviews[1].ProductId,
-                Rate = 5,
-                Comment = "Great product",
-                CreatedAt = actualReview.CreatedAt
-            }
+        var actualReview = await context.ProductReview.FindAsync(
+            _dummyReviews[1].ClientId,
+            _dummyReviews[1].ProductId
         );
+        Assert.NotNull(actualReview);
+        actualReview
+            .Should()
+            .BeEquivalentTo(
+                new ProductReviewEntity
+                {
+                    ClientId = _dummyReviews[1].ClientId,
+                    ProductId = _dummyReviews[1].ProductId,
+                    Rate = 5,
+                    Comment = "Great product",
+                    CreatedAt = actualReview.CreatedAt
+                }
+            );
     }
-    
+
     [Fact]
     public async Task UpdateReviewAsync_ReturnsObjectAsync()
     {
@@ -293,18 +338,20 @@ public class ProductRepositoryTest
         );
 
         // Assert
-        actualReview.Should().BeEquivalentTo(
-            new ProductReviewEntity
-            {
-                ClientId = _dummyReviews[0].ClientId,
-                ProductId = _dummyReviews[0].ProductId,
-                Rate = 3,
-                Comment = "Great product",
-                CreatedAt = _dummyReviews[0].CreatedAt
-            }
-        );
+        actualReview
+            .Should()
+            .BeEquivalentTo(
+                new ProductReviewEntity
+                {
+                    ClientId = _dummyReviews[0].ClientId,
+                    ProductId = _dummyReviews[0].ProductId,
+                    Rate = 3,
+                    Comment = "Great product",
+                    CreatedAt = _dummyReviews[0].CreatedAt
+                }
+            );
     }
-    
+
     [Fact]
     public async Task UpdateReviewAsync_ReturnsNullAsync()
     {
@@ -323,7 +370,7 @@ public class ProductRepositoryTest
         // Assert
         actualReview.Should().BeNull();
     }
-    
+
     [Fact]
     public async Task RemoveReviewAsync_ReturnsObjectAsync()
     {
@@ -340,7 +387,7 @@ public class ProductRepositoryTest
         // Assert
         actualReview.Should().BeEquivalentTo(_dummyReviews[0]);
     }
-    
+
     [Fact]
     public async Task RemoveReviewAsync_ReturnsNullAsync()
     {

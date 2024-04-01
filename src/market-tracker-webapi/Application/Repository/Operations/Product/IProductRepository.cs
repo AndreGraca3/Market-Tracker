@@ -22,6 +22,7 @@ public interface IProductRepository
 
     Task<Product?> UpdateProductAsync(
         int productId,
+        string? name = null,
         string? imageUrl = null,
         int? quantity = null,
         string? unit = null,

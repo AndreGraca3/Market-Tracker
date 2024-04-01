@@ -13,10 +13,10 @@ public class CategoryService(
     ITransactionManager transactionManager
 ) : ICategoryService
 {
-    public async Task<IEnumerable<Category>> GetCategoriesAsync()
+    public async Task<EnumerableOutputModel> GetCategoriesAsync()
     {
         var categories = await categoryRepository.GetCategoriesAsync();
-        return categories;
+        return new EnumerableOutputModel(categories);
     }
 
     public async Task<Either<CategoryFetchingError, Category>> GetCategoryAsync(int id)

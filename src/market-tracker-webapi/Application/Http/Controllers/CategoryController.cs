@@ -3,7 +3,6 @@ using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Operations.Category;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers;
@@ -63,7 +62,8 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
                         ).ToActionResult()
                 };
             },
-            outputModel => Created(Uris.Categories.BuildCategoryByIdUri(outputModel.Id), outputModel)
+            outputModel =>
+                Created(Uris.Categories.BuildCategoryByIdUri(outputModel.Id), outputModel)
         );
     }
 
