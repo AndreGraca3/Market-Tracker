@@ -8,7 +8,15 @@ public static class Uris
 
     public static class Users
     {
-        // TODO: Digo issue
+        public const string Base = $"{ApiBase}/users";
+        public const string UserById = $"{Base}/{{id}}";
+
+        public static string BuildUserByIdUri(Guid id) => $"{Base}/{id}";
+    }
+
+    public static class Tokens
+    {
+        public const string Base = $"{ApiBase}/tokens";
     }
 
     public static class Products

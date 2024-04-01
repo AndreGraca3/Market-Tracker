@@ -24,6 +24,6 @@ public class AuthenticationFilter(ICategoryService categoryService) : IAsyncAuth
         var c = await categoryService.GetCategoriesAsync();
         Console.WriteLine("Categories");
 
-        context.HttpContext.Items["User"] = new AuthenticatedUser(token);
+        //context.HttpContext.Items["User"] = new AuthenticatedUser(token);
     }
 }
