@@ -15,14 +15,16 @@ public class ProductProblem(
             404,
             "product-not-found",
             "Product not found",
-            $"Product with id {data.Id} not found"
-        ) { }
-    
-    public class ProductByBrandNotFound(ProductFetchingError.ProductByBrandNotFound data)
+            $"Product with id {data.Id} not found",
+            data
+        );
+
+    public class ProductAlreadyExists(ProductCreationError.ProductAlreadyExists data)
         : ProductProblem(
-            404,
-            "product-not-found",
-            "Product not found",
-            $"Product with brand id {data.BrandId} not found"
-        ) { }
+            409,
+            "product-already-exists",
+            "Product already exists",
+            $"Product with id {data.ProductId} already exists",
+            data
+        );
 }

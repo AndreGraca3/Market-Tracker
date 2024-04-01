@@ -1,15 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables
 {
     [Table("user", Schema = "MarketTracker")]
     public class UserEntity
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] [Column("id")]
-        public readonly int Id;
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid Id { get; set; }
 
-        [Column("name")]
-        public required string Name { get; set; }
+        [Column("name")] public required string Name { get; set; }
 
         // public required string Password { get; set; }
 
