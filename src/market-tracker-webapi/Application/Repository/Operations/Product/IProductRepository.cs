@@ -1,31 +1,42 @@
-﻿using market_tracker_webapi.Application.Models;
+﻿using market_tracker_webapi.Application.Domain;
 
-namespace market_tracker_webapi.Application.Repositories.Product
+namespace market_tracker_webapi.Application.Repository.Operations.Product;
+
+using Product = Domain.Product;
+
+public interface IProductRepository
 {
-    public interface IProductRepository
-    {
-        Task<ProductData> GetProductAsync(int productId);
+    Task<IEnumerable<Product>> GetProductsAsync();
 
-        Task<int> AddProductAsync(int productId, string description, string imageUrl, int quantity, float price, string unit);
+    Task<Product?> GetProductByIdAsync(int productId);
 
-        Task<ProductData> UpdateProductAsync(int productId, float? price = null, string? description = null);
+    Task<int> AddProductAsync(
+        int id,
+        string name,
+        string imageUrl,
+        int quantity,
+        string unit,
+        int brandId,
+        int categoryId
+    );
 
-        Task DeleteProductAsync(int productId);
+    Task<Product?> UpdateProductAsync(
+        int productId,
+        string? name = null,
+        string? imageUrl = null,
+        int? quantity = null,
+        string? unit = null,
+        int? brandId = null,
+        int? categoryId = null
+    );
 
-        Task<List<ProductData>> GetProductsAsync(string filter, Pagination pagination);
+    Task<Product?> RemoveProductAsync(int productId);
 
-        Task<BrandData> GetBrandAsync(int brandId);
+    Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(Guid clientId, int productId);
 
-        Task<int> AddBrandAsync(string name);
+    Task AddReviewAsync(Guid clientId, int productId, int rate, string comment);
 
-        Task DeleteBrandAsync(int brandId);
+    Task<ProductReview?> UpdateReviewAsync(Guid clientId, int productId, int rate, string comment);
 
-        Task<List<Comment>> GetReviewFromProduct(int commentId);
-
-        Task<int> CreateReviewAsync(int productId, int userId, Comment comment);
-
-        Task<Comment> UpdateReviewAsync(int commentId);
-
-        Task DeleteReviewAsync(int commentId);
-    }
+    Task<ProductReview?> RemoveReviewAsync(Guid clientId, int productId);
 }

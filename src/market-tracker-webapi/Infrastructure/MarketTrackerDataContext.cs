@@ -3,46 +3,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Infrastructure
 {
-    public class MarketTrackerDataContext : DbContext
+    public class MarketTrackerDataContext(DbContextOptions options) : DbContext(options)
     {
-                public DbSet<UserEntity> User { get; set; }
-                
-                public DbSet<StoreEntity> Store { get; set; }
-                
-                public DbSet<CompanyEntity> Company { get; set; }
-                
-                public DbSet<CityEntity> City { get; set; }
-                
-        public MarketTrackerDataContext(DbContextOptions options) : base(options) { }
+        public DbSet<UserEntity> User { get; set; }
         
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
+        public DbSet<TokenEntity> Token { get; set; }
 
-            modelBuilder.Entity<UserEntity>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-            });
+        public DbSet<ProductEntity> Product { get; set; }
 
-            modelBuilder.Entity<StoreEntity>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-            });
-
-            modelBuilder.Entity<CompanyEntity>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-            });
-
-            modelBuilder.Entity<ProductEntity>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-            });
-            
-            modelBuilder.Entity<CityEntity>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-            });
-        }
+        public DbSet<CategoryEntity> Category { get; set; }
+        
+        public DbSet<BrandEntity> Brand { get; set; }
+        
+        public DbSet<ProductReviewEntity> ProductReview { get; set; }
+                
+        public DbSet<StoreEntity> Store { get; set; }
+                
+        public DbSet<CompanyEntity> Company { get; set; }
+                
+        public DbSet<CityEntity> City { get; set; }
     }
 }

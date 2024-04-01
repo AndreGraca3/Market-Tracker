@@ -1,6 +1,3 @@
-﻿namespace market_tracker_webapi.Application.Models;
+namespace market_tracker_webapi.Application.Http.Models;
 
-public class IdOutputModel
-{
-    public required int Id { get; set; }
-}
+public record IdOutputModel(int Id);
