@@ -1,3 +1,3 @@
 ﻿namespace market_tracker_webapi.Application.Domain;
 
-public record Token(string TokenValue, DateTime CreatedAt, DateTime ExpiresAt, Guid UserId);
+public record Token(Guid TokenValue, DateTime CreatedAt, DateTime ExpiresAt, Guid UserId);
