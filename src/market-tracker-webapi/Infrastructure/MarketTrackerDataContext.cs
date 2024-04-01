@@ -3,12 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Infrastructure
 {
-    public class MarketTrackerDataContext : DbContext
+    public class MarketTrackerDataContext(DbContextOptions options) : DbContext(options)
     {
-        public MarketTrackerDataContext(DbContextOptions options) : base(options) { }
-
         public DbSet<UserEntity> User { get; set; }
         
         public DbSet<TokenEntity> Token { get; set; }
+
+        public DbSet<ProductEntity> Product { get; set; }
+
+        public DbSet<CategoryEntity> Category { get; set; }
+        
+        public DbSet<BrandEntity> Brand { get; set; }
+        
+        public DbSet<ProductReviewEntity> ProductReview { get; set; }
     }
 }

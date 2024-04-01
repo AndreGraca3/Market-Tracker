@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Problem;
 
-public class Problem(
+public abstract class Problem(
     int status,
     string subtype,
     string title,
@@ -13,10 +13,11 @@ public class Problem(
 {
     public const string MediaType = "application/problem+json";
 
-    public string Type { get; } = "https://gomokuroyale.pt/probs/" + status;
+    public string Type { get; } = "https://markettracker.pt/probs/" + subtype;
     public string Title { get; } = title;
     public int Status { get; } = status;
     public string Detail { get; } = detail;
+    public DateTime Timestamp { get; } = DateTime.Now;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public object? Data { get; } = data;

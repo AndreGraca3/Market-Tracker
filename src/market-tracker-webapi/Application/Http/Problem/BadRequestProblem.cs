@@ -1,4 +1,4 @@
-﻿namespace market_tracker_webapi.Application.Http.Problem;
+namespace market_tracker_webapi.Application.Http.Problem;
 
 public abstract class BadRequestProblem(
     int status,

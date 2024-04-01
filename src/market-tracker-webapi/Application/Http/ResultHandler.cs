@@ -1,4 +1,4 @@
-﻿using market_tracker_webapi.Application.Utils;
+using market_tracker_webapi.Application.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http;

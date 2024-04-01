@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Repository.Operations.User;

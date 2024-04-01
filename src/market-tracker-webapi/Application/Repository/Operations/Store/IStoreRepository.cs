@@ -1,6 +1,6 @@
 ﻿using market_tracker_webapi.Application.Models;
 
-namespace market_tracker_webapi.Application.Repositories.Store
+namespace market_tracker_webapi.Application.Repository.Operations.Store
 {
     public interface IStoreRepository
     {
