@@ -1,4 +1,7 @@
-﻿using market_tracker_webapi.Application.Repository.Operations.User;
+﻿using market_tracker_webapi.Application.Pipeline.Authorization;
+using market_tracker_webapi.Application.Repository.Operations.Token;
+using market_tracker_webapi.Application.Repository.Operations.User;
+using market_tracker_webapi.Application.Service.Operations.Token;
 using market_tracker_webapi.Application.Service.Operations.User;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Infrastructure;
@@ -26,8 +29,10 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
         {
             services.AddScoped<TransactionManager>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<ITokenRepository, TokenRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
-            
+
             return services;
         }
     }

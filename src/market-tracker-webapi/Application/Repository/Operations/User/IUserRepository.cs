@@ -4,6 +4,9 @@ using User = Domain.User;
 
 public interface IUserRepository
 {
+
+    Task<IEnumerable<User>> GetUsersAsync(string? username, int skip, int limit);
+    
     Task<User?> GetUserByIdAsync(Guid id);
 
     Task<User?> GetUserByUsernameAsync(string username);

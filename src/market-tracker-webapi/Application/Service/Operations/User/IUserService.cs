@@ -7,13 +7,18 @@ namespace market_tracker_webapi.Application.Service.Operations.User;
 
 public interface IUserService
 {
+    Task<UsersOutputModel> GetUsersAsync(string? username, Pagination pagination);
+    
     Task<Either<UserFetchingError, UserOutputModel>> GetUserAsync(Guid id);
 
-    Task<Either<UserCreationError, IdOutputModel>> CreateUserAsync(
+    Task<AuthenticatedUser?> GetUserByToken(Guid tokenValue);
+    
+    Task<Either<UserCreationError, UserCreationOutputModel>> CreateUserAsync(
         string username,
         string name,
         string email,
-        string password
+        string password,
+        int? code = null
     );
 
     Task<Either<UserFetchingError, UserOutputModel>> UpdateUserAsync(

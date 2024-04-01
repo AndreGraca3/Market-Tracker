@@ -1,17 +1,14 @@
-﻿using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Models;
+﻿namespace market_tracker_webapi.Application.Repository.Operations.Token;
 
-namespace market_tracker_webapi.Application.Repositories.Token;
+using Token = Domain.Token;
 
 public interface ITokenRepository
 {
-    Task<TokenData> CreateTokenAsync(string tokenValue, int userId);
+    Task<Token?> GetTokenByTokenValueAsync(Guid tokenValue);
 
-    Task<AuthenticatedUserData?> GetUserAndTokenByTokenValueAsync(string token);
+    Task<Guid> CreateTokenAsync(Guid userId);
 
-    Task<TokenData?> GetTokenByUserIdAsync(Guid userId);
-
-    Task UpdateTokenLastUsedAsync(TokenData tokenData, DateTime now);
-
-    Task DeleteTokenAsync(string token);
+    Task<Token?> GetTokenByUserIdAsync(Guid userId);
+    
+    Task<Token?> DeleteTokenAsync(Guid tokenValue);
 }

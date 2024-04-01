@@ -12,6 +12,18 @@ namespace market_tracker_webapi.Application.Http.Controllers
     public class UserController(IUserService userService, ILogger<UserController> logger)
         : ControllerBase
     {
+        [HttpGet]
+        public async Task<ActionResult<UsersOutputModel>> GetUsersAsync(
+            [FromQuery] Pagination pagination,
+            [FromQuery] string? username
+        )
+        {
+            logger.LogDebug($"Call {nameof(GetUsersAsync)} with {username}");
+            
+            return Ok(await userService.GetUsersAsync(username, pagination));
+        }
+
+
         [HttpGet(Uris.Users.UserById)]
         public async Task<ActionResult<UserOutputModel>> GetUserAsync(Guid id)
         {
@@ -24,14 +36,15 @@ namespace market_tracker_webapi.Application.Http.Controllers
                     return error switch
                     {
                         UserFetchingError.UserByIdNotFound idNotFoundError
-                            => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult(),
+                            => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult()
                     };
                 }
             );
         }
 
         [HttpPost]
-        public async Task<ActionResult<IdOutputModel>> CreateUserAsync(
+        public async Task<ActionResult<UserCreationOutputModel>> CreateUserAsync(
+            [FromQuery] int? code,
             [FromBody] UserCreationInputModel userInput
         )
         {
@@ -39,7 +52,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
                 $"Call {nameof(CreateUserAsync)} with {userInput.Username}, {userInput.Name}, {userInput.Email}, {userInput.Password}");
 
             var res = await userService.CreateUserAsync(userInput.Username, userInput.Name, userInput.Email,
-                userInput.Password);
+                userInput.Password, code);
 
             return ResultHandler.Handle(
                 res,
@@ -54,7 +67,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
                             .ToActionResult()
                     };
                 },
-                idOutputModel => new CreatedResult("", idOutputModel)
+                idOutputModel => Created(Uris.Users.BuildUserByIdUri(idOutputModel.Id), idOutputModel)
             );
         }
 
@@ -80,7 +93,9 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpDelete(Uris.Users.UserById)]
-        public async Task<ActionResult<UserOutputModel>> DeleteUserAsync(Guid id)
+        public async Task<ActionResult<UserOutputModel>> DeleteUserAsync(
+            Guid id
+        )
         {
             logger.LogDebug($"Call {nameof(DeleteUserAsync)} with {id}");
 
@@ -91,10 +106,10 @@ namespace market_tracker_webapi.Application.Http.Controllers
                     return error switch
                     {
                         UserFetchingError.UserByIdNotFound userByIdNotFound => new UserProblem.UserByIdNotFound(
-                            userByIdNotFound).ToActionResult()
+                            userByIdNotFound).ToActionResult(),
                     };
                 },
-                _ => new NoContentResult()
+                _ => NoContent()
             );
         }
     }

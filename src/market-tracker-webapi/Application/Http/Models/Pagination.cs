@@ -1,6 +1,6 @@
-﻿namespace market_tracker_webapi.Application.Models
+﻿namespace market_tracker_webapi.Application.Http.Models;
+
+public record Pagination(int Skip, int Limit)
 {
-    public class Pagination
-    {
-    }
-}
+    public const int MaxLimit = 50;
+};

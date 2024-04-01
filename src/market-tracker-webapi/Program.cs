@@ -1,4 +1,5 @@
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.DependencyResolver;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,9 +50,13 @@ namespace market_tracker_webapi
         private static void ConfigureServices(WebApplicationBuilder builder)
         {
             builder.Services.AddControllers(
-                options => options.SuppressAsyncSuffixInActionNames = false
+                options =>
+                {
+                    options.SuppressAsyncSuffixInActionNames = false;
+                    options.ModelBinderProviders.Insert(0, new AuthUserBinderProvider());
+                }
             );
-            
+
             builder.Services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.InvalidModelStateResponseFactory = context =>
