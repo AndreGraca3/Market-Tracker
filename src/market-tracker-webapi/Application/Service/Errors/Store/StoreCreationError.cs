@@ -2,9 +2,14 @@
 
 public class StoreCreationError : IStoreError
 {
-    public class StoreAddressAlreadyExists(string storeName) : StoreCreationError
+    public class StoreAddressAlreadyExists(string address) : StoreCreationError
     {
-        public string Name { get; } = storeName;
+        public string Address { get; } = address;
+    }
+    
+    public class StoreNameAlreadyExists(string storeName) : StoreCreationError
+    {
+        public string StoreName { get; } = storeName;
     }
     
 }

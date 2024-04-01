@@ -107,24 +107,24 @@ public class CompanyControllerTest
         idOutputModel.Should().BeEquivalentTo(expectedId);
     }
     
-    //[Fact]
-    // public async Task AddCompanyAsync_RespondsWith_Conflict_ReturnsObjectAsync()
-    // {
-    //     // Service Arrange
-    //     _companyServiceMock
-    //         .Setup(service => service.AddCompanyAsync(It.IsAny<string>()))
-    //         .ReturnsAsync(EitherExtensions.Failure<ICompanyError, IdOutputModel>(
-    //             new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>())
-    //         ));
-    //     
-    //     // Act
-    //     var actual = await _companyController.AddCompanyAsync(new CompanyCreationInputModel { CompanyName = It.IsAny<string>() });
-    //     
-    //     // Assert
-    //     ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
-    //     CompanyProblem.CompanyNameAlreadyExists problem = Assert.IsAssignableFrom<CompanyProblem.CompanyNameAlreadyExists>(result.Value);
-    //     problem.Data.Should().BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>()));
-    // }
+    [Fact]
+     public async Task AddCompanyAsync_RespondsWith_Conflict_ReturnsObjectAsync()
+     {
+         // Service Arrange
+         _companyServiceMock
+             .Setup(service => service.AddCompanyAsync(It.IsAny<string>()))
+             .ReturnsAsync(EitherExtensions.Failure<ICompanyError, IdOutputModel>(
+                 new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>())
+             ));
+         
+         // Act
+         var actual = await _companyController.AddCompanyAsync(new CompanyCreationInputModel { CompanyName = It.IsAny<string>() });
+         
+         // Assert
+         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
+         CompanyProblem.CompanyNameAlreadyExists problem = Assert.IsAssignableFrom<CompanyProblem.CompanyNameAlreadyExists>(result.Value);
+         problem.Data.Should().BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>()));
+     }
     
     [Fact]
     public async Task UpdateCompanyAsync_RespondsWith_Ok_ReturnsObjectAsync()
@@ -165,24 +165,24 @@ public class CompanyControllerTest
         problem.Data.Should().BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(It.IsAny<int>()));
     }
     
-    // [Fact]
-    // public async Task UpdateCompanyAsync_RespondsWith_Conflict_ReturnsObjectAsync() // Ok -> Conflict
-    // {
-    //     // Service Arrange
-    //     _companyServiceMock
-    //         .Setup(service => service.UpdateCompanyAsync(It.IsAny<int>(), It.IsAny<string>()))
-    //         .ReturnsAsync(EitherExtensions.Failure<ICompanyError, CompanyDomain>(
-    //             new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>())
-    //         ));
-    //     
-    //     // Act
-    //     var actual = await _companyController.UpdateCompanyAsync(It.IsAny<int>(), new CompanyUpdateInputModel { CompanyName = It.IsAny<string>() });
-    //     
-    //     // Assert
-    //     ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
-    //     CompanyProblem.CompanyNameAlreadyExists problem = Assert.IsAssignableFrom<CompanyProblem.CompanyNameAlreadyExists>(result.Value);
-    //     problem.Data.Should().BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>()));
-    // }
+    [Fact]
+    public async Task UpdateCompanyAsync_RespondsWith_Conflict_ReturnsObjectAsync() // Ok -> Conflict
+    {
+        // Service Arrange
+        _companyServiceMock
+            .Setup(service => service.UpdateCompanyAsync(It.IsAny<int>(), It.IsAny<string>()))
+            .ReturnsAsync(EitherExtensions.Failure<ICompanyError, CompanyDomain>(
+                new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>())
+            ));
+        
+        // Act
+        var actual = await _companyController.UpdateCompanyAsync(It.IsAny<int>(), new CompanyUpdateInputModel { CompanyName = It.IsAny<string>() });
+        
+        // Assert
+        ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
+        CompanyProblem.CompanyNameAlreadyExists problem = Assert.IsAssignableFrom<CompanyProblem.CompanyNameAlreadyExists>(result.Value);
+        problem.Data.Should().BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>()));
+    }
     
     [Fact]
     public async Task DeleteCompanyAsync_RespondsWith_Ok_ReturnsObjectAsync()

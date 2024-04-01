@@ -26,4 +26,12 @@ public class Uris
         public const string Base = $"{ApiBase}/cities";
         public const string CityById = $"{Base}/{{id}}";
     }
+    
+    public static class Stores
+    {
+        public const string Base = $"{ApiBase}/stores";
+        public const string StoreById = $"{Base}/{{id}}";
+        public const string StoresFromCompany = $"{Base}/company/{{companyId}}";
+        public const string StoresByCityName = $"{Base}/city/{{cityName}}";
+    }
 }

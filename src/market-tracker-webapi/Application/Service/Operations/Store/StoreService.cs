@@ -31,7 +31,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
             : EitherExtensions.Success<StoreFetchingError, StoreDomain>(store);
       }
       
-      public async Task<Either<StoreFetchingError, IEnumerable<StoreDomain>>> GetStoresFromCompany(int companyId)
+      public async Task<Either<StoreFetchingError, IEnumerable<StoreDomain>>> GetStoresFromCompanyAsync(int companyId)
       {
          return await transactionManager.ExecuteAsync(async () =>
          {
@@ -48,7 +48,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
          });
       }
 
-      public async Task<Either<StoreFetchingError, IEnumerable<StoreDomain>>> GetStoresFromCityByName(string cityName)
+      public async Task<Either<StoreFetchingError, IEnumerable<StoreDomain>>> GetStoresByCityNameAsync(string cityName)
       {
          return await transactionManager.ExecuteAsync(async () =>
          {
@@ -73,6 +73,13 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
             {
                return EitherExtensions.Failure<IStoreError, IdOutputModel>(
                   new StoreCreationError.StoreAddressAlreadyExists(address)
+               );
+            }
+            
+            if (await storeRepository.GetStoreByNameAsync(name) is not null)
+            {
+               return EitherExtensions.Failure<IStoreError, IdOutputModel>(
+                  new StoreCreationError.StoreNameAlreadyExists(name)
                );
             }
 
@@ -100,38 +107,52 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
          });
       }
 
-      public async Task<Either<StoreFetchingError, IdOutputModel>> UpdateStoreAsync(int id, string address, int cityId, int companyId)
+      public async Task<Either<IStoreError, IdOutputModel>> UpdateStoreAsync(int id, string name, string address, int cityId, int companyId)
       {
          return await transactionManager.ExecuteAsync(async () =>
          {
             var store = await storeRepository.GetStoreByIdAsync(id);
             if (store is null)
             {
-               return EitherExtensions.Failure<StoreFetchingError, IdOutputModel>(
+               return EitherExtensions.Failure<IStoreError, IdOutputModel>(
                   new StoreFetchingError.StoreByIdNotFound(id)
+               );
+            }
+            
+            if (await storeRepository.GetStoreByNameAsync(name) is not null)
+            {
+               return EitherExtensions.Failure<IStoreError, IdOutputModel>(
+                  new StoreCreationError.StoreNameAlreadyExists(name)
+               );
+            }
+            
+            if (await storeRepository.GetStoreByAddressAsync(address) is not null)
+            {
+               return EitherExtensions.Failure<IStoreError, IdOutputModel>(
+                  new StoreCreationError.StoreAddressAlreadyExists(address)
                );
             }
    
             if (await cityRepository.GetCityByIdAsync(cityId) is null)
             {
-               return EitherExtensions.Failure<StoreFetchingError, IdOutputModel>(
+               return EitherExtensions.Failure<IStoreError, IdOutputModel>(
                   new StoreFetchingError.StoreByCityIdNotFound(cityId)
                );
             }
    
             if (await companyRepository.GetCompanyByIdAsync(companyId) is null)
             {
-               return EitherExtensions.Failure<StoreFetchingError, IdOutputModel>(
+               return EitherExtensions.Failure<IStoreError, IdOutputModel>(
                   new StoreFetchingError.StoreByCompanyIdNotFound(companyId)
                );
             }
    
             var updatedStore = await storeRepository.UpdateStoreAsync(id, address, cityId, companyId);
             return updatedStore is null
-               ? EitherExtensions.Failure<StoreFetchingError, IdOutputModel>(
+               ? EitherExtensions.Failure<IStoreError, IdOutputModel>(
                   new StoreFetchingError.StoreByIdNotFound(id)
                )
-               : EitherExtensions.Success<StoreFetchingError, IdOutputModel>(
+               : EitherExtensions.Success<IStoreError, IdOutputModel>(
                   new IdOutputModel
                   {
                      Id = updatedStore.Id

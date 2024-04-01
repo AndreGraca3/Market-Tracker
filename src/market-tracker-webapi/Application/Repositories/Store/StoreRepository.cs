@@ -20,6 +20,14 @@ public class StoreRepository(MarketTrackerDataContext marketTrackerDataContext) 
         return storeEntity != null ? MapStoreEntity(storeEntity) : null;
     }
     
+    public async Task<StoreDomain?> GetStoreByNameAsync(string name)
+    {
+        var storeEntity = await marketTrackerDataContext.Store
+            .FirstOrDefaultAsync(s => s.Name == name);
+        
+        return storeEntity != null ? MapStoreEntity(storeEntity) : null;
+    }
+    
     public async Task<StoreDomain?> GetStoreByAddressAsync(string address)
     {
         var storeEntity = await marketTrackerDataContext.Store

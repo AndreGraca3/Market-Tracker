@@ -7,11 +7,6 @@ public class StoreFetchingError : IStoreError
         public int Id { get; } = id;
     }
     
-    public class StoreByNameNotFound(string companyName) : StoreFetchingError
-    {
-        public string Name { get; } = companyName;
-    }
-    
     public class StoreByCompanyIdNotFound(int companyId) : StoreFetchingError
     {
         public int CompanyId { get; } = companyId;
@@ -24,6 +19,6 @@ public class StoreFetchingError : IStoreError
     
     public class StoreByCityNameNotFound(string cityName) : StoreFetchingError
     {
-        public string CityId { get; } = cityName;
+        public string CityName { get; } = cityName;
     }
 }

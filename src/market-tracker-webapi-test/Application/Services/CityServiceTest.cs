@@ -15,15 +15,13 @@ public class CityServiceTest
 {
     private readonly Mock<ICityRepository> _cityRepositoryMock;
     
-    private readonly Mock<ITransactionManager> _transactionManagerMock;
-    
     private readonly CityService _cityService;
     
     public CityServiceTest()
     {
         _cityRepositoryMock = new Mock<ICityRepository>();
-        _transactionManagerMock = new Mock<ITransactionManager>();
-        _cityService = new CityService(_cityRepositoryMock.Object, _transactionManagerMock.Object);
+
+        _cityService = new CityService(_cityRepositoryMock.Object, new MockedTransactionManager());
     }
     
     [Fact]
@@ -134,20 +132,12 @@ public class CityServiceTest
         _cityRepositoryMock
             .Setup(c => c.GetCityByNameAsync(It.IsAny<string>()))
             .ReturnsAsync((CityDomain?)null);
-
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<ICityError, IdOutputModel>>>>()))
-            .ReturnsAsync(EitherExtensions.Success<ICityError, IdOutputModel>(
-                new IdOutputModel
-                {
-                    Id = 1,
-                }));
         
         // Act
         var result = await _cityService.AddCityAsync("City 1");
         
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel { Id = 1 });
+        result.Value.Should().BeEquivalentTo(new IdOutputModel { Id = 0 });
     }
     
     [Fact]
@@ -163,11 +153,6 @@ public class CityServiceTest
         _cityRepositoryMock
             .Setup(c => c.GetCityByNameAsync(It.IsAny<string>()))
             .ReturnsAsync(city);
-        
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<ICityError, IdOutputModel>>>>()))
-            .ReturnsAsync(EitherExtensions.Failure<ICityError, IdOutputModel>(
-                new CityCreationError.CityNameAlreadyExists("City 1")));
         
         // Act
         var result = await _cityService.AddCityAsync("City 1");
@@ -189,19 +174,10 @@ public class CityServiceTest
         _cityRepositoryMock
             .Setup(c => c.GetCityByNameAsync(It.IsAny<string>()))
             .ReturnsAsync((CityDomain)null!);
-        
+
         _cityRepositoryMock
-            .Setup(c => c.GetCityByIdAsync(It.IsAny<int>()))
+            .Setup(c => c.UpdateCityAsync(It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync(city);
-        
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<ICityError, CityDomain>>>>()))
-            .ReturnsAsync(EitherExtensions.Success<ICityError, CityDomain>(
-                new CityDomain
-                {
-                    Id = 1,
-                    Name = "City 1"
-                }));
         
         // Act
         var result = await _cityService.UpdateCityAsync(1, "City 1");
@@ -217,11 +193,6 @@ public class CityServiceTest
         _cityRepositoryMock
             .Setup(c => c.GetCityByIdAsync(It.IsAny<int>()))
             .ReturnsAsync((CityDomain?)null);
-        
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<ICityError, CityDomain>>>>()))
-            .ReturnsAsync(EitherExtensions.Failure<ICityError, CityDomain>(
-                new CityFetchingError.CityByIdNotFound(1)));
         
         // Act
         var result = await _cityService.UpdateCityAsync(1, "City 1");
@@ -244,11 +215,6 @@ public class CityServiceTest
             .Setup(c => c.GetCityByNameAsync(It.IsAny<string>()))
             .ReturnsAsync(city);
         
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<ICityError, CityDomain>>>>()))
-            .ReturnsAsync(EitherExtensions.Failure<ICityError, CityDomain>(
-                new CityCreationError.CityNameAlreadyExists("City 1")));
-        
         // Act
         var result = await _cityService.UpdateCityAsync(1, "City 1");
         
@@ -270,14 +236,6 @@ public class CityServiceTest
             .Setup(c => c.GetCityByIdAsync(It.IsAny<int>()))
             .ReturnsAsync(city);
         
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<CityFetchingError, IdOutputModel>>>>()))
-            .ReturnsAsync(EitherExtensions.Success<CityFetchingError, IdOutputModel>(
-                new IdOutputModel
-                {
-                    Id = 1
-                }));
-        
         // Act
         var result = await _cityService.DeleteCityAsync(1);
         
@@ -292,11 +250,6 @@ public class CityServiceTest
         _cityRepositoryMock
             .Setup(c => c.GetCityByIdAsync(It.IsAny<int>()))
             .ReturnsAsync((CityDomain?)null);
-        
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<CityFetchingError, IdOutputModel>>>>()))
-            .ReturnsAsync(EitherExtensions.Failure<CityFetchingError, IdOutputModel>(
-                new CityFetchingError.CityByIdNotFound(1)));
         
         // Act
         var result = await _cityService.DeleteCityAsync(1);

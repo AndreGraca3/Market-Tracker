@@ -8,6 +8,8 @@ namespace market_tracker_webapi.Application.Repositories.Store
         
         Task<StoreDomain?> GetStoreByIdAsync(int id);
         
+        Task<StoreDomain?> GetStoreByNameAsync(string name);
+        
         Task<StoreDomain?> GetStoreByAddressAsync(string address);
         
         Task<IEnumerable<StoreDomain>> GetStoresFromCompanyAsync(int id);

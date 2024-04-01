@@ -20,11 +20,12 @@ public class CompanyProblem(
             data
         );
 
-    public class CompanyNameAlreadyExists()
+    public class CompanyNameAlreadyExists(CompanyCreationError.CompanyNameAlreadyExists data)
         : CompanyProblem(
             409,
             "company-name-already-exists",
             "Company name already exists",
-            "A company with that name already exists"
+            "A company with that name already exists",
+            data
         );
 }

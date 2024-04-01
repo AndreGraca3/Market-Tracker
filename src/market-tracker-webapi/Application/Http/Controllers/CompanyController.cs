@@ -48,8 +48,8 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
             {
                 return error switch
                 {
-                    CompanyCreationError.CompanyNameAlreadyExists _
-                        => new CompanyProblem.CompanyNameAlreadyExists().ToActionResult(),
+                    CompanyCreationError.CompanyNameAlreadyExists companyError
+                        => new CompanyProblem.CompanyNameAlreadyExists(companyError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError(nameof(CompanyController)).ToActionResult()
                 };
             }
@@ -70,8 +70,8 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
                         => new CompanyProblem.CompanyByIdNotFound(
                             idNotFoundError
                         ).ToActionResult(),
-                    CompanyCreationError.CompanyNameAlreadyExists _
-                        => new CompanyProblem.CompanyNameAlreadyExists().ToActionResult(),
+                    CompanyCreationError.CompanyNameAlreadyExists companyError
+                        => new CompanyProblem.CompanyNameAlreadyExists(companyError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError(nameof(CompanyController)).ToActionResult()
                 };
             }

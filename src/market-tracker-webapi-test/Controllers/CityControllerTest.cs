@@ -98,22 +98,22 @@ public class CityControllerTest
         actualCity.Should().BeEquivalentTo(cityId);
     }
     
-    // [Fact]
-    // public async Task AddCityAsync_ShouldReturnConflict()
-    // {
-    //     // Arrange
-    //     cityServiceMock
-    //         .Setup(service => service.AddCityAsync("City 1"))
-    //         .ReturnsAsync(EitherExtensions.Failure<ICityError, IdOutputModel>(new CityCreationError.CityNameAlreadyExists()));
-    //     
-    //     // Act
-    //     var actual = await cityController.AddCityAsync(new CityCreationInputModel {CityName = "City 1"});
-    //     
-    //     // Assert
-    //     ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
-    //     var problem = Assert.IsType<CityProblem.CityNameAlreadyExists>(result.Value);
-    //     problem.Data.Should().BeEquivalentTo(new CityCreationError.CityNameAlreadyExists());
-    // }
+    [Fact]
+    public async Task AddCityAsync_ShouldReturnConflict()
+    {
+        // Arrange
+        _cityServiceMock
+            .Setup(service => service.AddCityAsync("City 1"))
+            .ReturnsAsync(EitherExtensions.Failure<ICityError, IdOutputModel>(new CityCreationError.CityNameAlreadyExists("City 1")));
+        
+        // Act
+        var actual = await _cityController.AddCityAsync(new CityCreationInputModel {CityName = "City 1"});
+        
+        // Assert
+        ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
+        var problem = Assert.IsType<CityProblem.CityNameAlreadyExists>(result.Value);
+        problem.Data.Should().BeEquivalentTo(new CityCreationError.CityNameAlreadyExists("City 1"));
+    }
     
     [Fact]
     public async Task UpdateCityAsync_ShouldReturnOk()
@@ -150,22 +150,22 @@ public class CityControllerTest
         problem.Data.Should().BeEquivalentTo(new CityFetchingError.CityByIdNotFound(It.IsAny<int>()));
     }
     
-    // [Fact]
-    // public async Task UpdateCityAsync_ShouldReturnConflict()
-    // {
-    //     // Arrange
-    //     cityServiceMock
-    //         .Setup(service => service.UpdateCityAsync(1, "City 1"))
-    //         .ReturnsAsync(EitherExtensions.Failure<ICityError, CityDomain>(new CityCreationError.CityNameAlreadyExists()));
-    //     
-    //     // Act
-    //     var actual = await cityController.UpdateCityAsync(1, new CityUpdateInputModel {CityName = "City 1"});
-    //     
-    //     // Assert
-    //     ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
-    //     var problem = Assert.IsType<CityProblem.CityNameAlreadyExists>(result.Value);
-    //     problem.Data.Should().BeEquivalentTo(new CityCreationError.CityNameAlreadyExists());
-    // }
+    [Fact]
+    public async Task UpdateCityAsync_ShouldReturnConflict()
+    {
+        // Arrange
+        _cityServiceMock
+            .Setup(service => service.UpdateCityAsync(1, "City 1"))
+            .ReturnsAsync(EitherExtensions.Failure<ICityError, CityDomain>(new CityCreationError.CityNameAlreadyExists("City 1")));
+        
+        // Act
+        var actual = await _cityController.UpdateCityAsync(1, new CityUpdateInputModel {CityName = "City 1"});
+        
+        // Assert
+        ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
+        var problem = Assert.IsType<CityProblem.CityNameAlreadyExists>(result.Value);
+        problem.Data.Should().BeEquivalentTo(new CityCreationError.CityNameAlreadyExists("City 1"));
+    }
     
     [Fact]
     public async Task DeleteCityAsync_ShouldReturnOk()

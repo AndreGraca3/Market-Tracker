@@ -48,8 +48,8 @@ public class CityController(ICityService cityService) : ControllerBase
             {
                 return error switch
                 {
-                    CityCreationError.CityNameAlreadyExists _
-                        => new CityProblem.CityNameAlreadyExists().ToActionResult(),
+                    CityCreationError.CityNameAlreadyExists cityNameError
+                        => new CityProblem.CityNameAlreadyExists(cityNameError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError(nameof(CityController)).ToActionResult()
                 };
             }
@@ -70,8 +70,8 @@ public class CityController(ICityService cityService) : ControllerBase
                         => new CityProblem.CityByIdNotFound(
                             idNotFoundError
                         ).ToActionResult(),
-                    CityCreationError.CityNameAlreadyExists _
-                        => new CityProblem.CityNameAlreadyExists().ToActionResult(),
+                    CityCreationError.CityNameAlreadyExists cityNameError
+                        => new CityProblem.CityNameAlreadyExists(cityNameError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError(nameof(CityController)).ToActionResult()
                 };
             }

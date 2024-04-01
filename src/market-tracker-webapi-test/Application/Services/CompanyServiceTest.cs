@@ -15,15 +15,12 @@ public class CompanyServiceTest
 {
     private readonly Mock<ICompanyRepository> _companyRepositoryMock;
     
-    private readonly Mock<ITransactionManager> _transactionManagerMock;
-    
     private readonly CompanyService _companyService;
     
     public CompanyServiceTest()
     {
         _companyRepositoryMock = new Mock<ICompanyRepository>();
-        _transactionManagerMock = new Mock<ITransactionManager>();
-        _companyService = new CompanyService(_companyRepositoryMock.Object, _transactionManagerMock.Object);
+        _companyService = new CompanyService(_companyRepositoryMock.Object, new MockedTransactionManager());
     }
     
     [Fact]
@@ -93,19 +90,47 @@ public class CompanyServiceTest
     }
     
     [Fact]
+    public async Task GetCompanyByNameAsync_ReturnsCompany()
+    {
+        // Arrange
+        var company = new CompanyDomain
+        {
+            Id = 1,
+            Name = "Company 1",
+            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
+        };
+        
+        _companyRepositoryMock
+            .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync(company);
+        
+        // Act
+        var result = await _companyService.GetCompanyByNameAsync("Company 1");
+        
+        // Assert
+        result.Value.Should().BeEquivalentTo(company);
+    }
+    
+    [Fact]
+    public async Task GetCompanyByNameAsync_ReturnsCompanyByNameNotFound()
+    {
+        // Arrange
+        _companyRepositoryMock
+            .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync((CompanyDomain)null!);
+        
+        // Act
+        var result = await _companyService.GetCompanyByNameAsync("Company 1");
+        
+        // Assert
+        result.Error.Should().BeEquivalentTo(new CompanyFetchingError.CompanyByNameNotFound("Company 1"));
+    }
+    
+    [Fact]
     public async Task AddCompanyAsync_ReturnsIdOutputModel()
     {
         // Arrange
         var companyName = "Company 1";
-
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<ICompanyError, IdOutputModel>>>>()))
-            .ReturnsAsync(EitherExtensions.Success<ICompanyError, IdOutputModel>(
-                new IdOutputModel
-                {
-                    Id = 1
-                }
-            ));
         
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
@@ -127,12 +152,6 @@ public class CompanyServiceTest
     {
         // Arrange
         var companyName = "Company 1";
-
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<ICompanyError, IdOutputModel>>>>()))
-            .ReturnsAsync(EitherExtensions.Failure<ICompanyError, IdOutputModel>(
-                new CompanyCreationError.CompanyNameAlreadyExists(companyName)
-            ));
         
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
@@ -155,15 +174,6 @@ public class CompanyServiceTest
     {
         // Arrange
         var id = 1;
-
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<CompanyFetchingError, IdOutputModel>>>>()))
-            .ReturnsAsync(EitherExtensions.Success<CompanyFetchingError, IdOutputModel>(
-                new IdOutputModel
-                {
-                    Id = 1
-                }
-            ));
         
         _companyRepositoryMock
             .Setup(x => x.DeleteCompanyAsync(It.IsAny<int>()))
@@ -186,12 +196,6 @@ public class CompanyServiceTest
     {
         // Arrange
         var id = 1;
-
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<CompanyFetchingError, IdOutputModel>>>>()))
-            .ReturnsAsync(EitherExtensions.Failure<CompanyFetchingError, IdOutputModel>(
-                new CompanyFetchingError.CompanyByIdNotFound(id)
-            ));
         
         _companyRepositoryMock
             .Setup(x => x.DeleteCompanyAsync(It.IsAny<int>()))
@@ -210,17 +214,6 @@ public class CompanyServiceTest
         // Arrange
         var id = 1;
         var companyName = "Company 1";
-
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<ICompanyError, CompanyDomain>>>>()))
-            .ReturnsAsync(EitherExtensions.Success<ICompanyError, CompanyDomain>(
-                new CompanyDomain
-                {
-                    Id = 1,
-                    Name = "Company 1",
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-                }
-            ));
         
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
@@ -248,12 +241,6 @@ public class CompanyServiceTest
         // Arrange
         var id = 1;
         var companyName = "Company 1";
-
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<ICompanyError, CompanyDomain>>>>()))
-            .ReturnsAsync(EitherExtensions.Failure<ICompanyError, CompanyDomain>(
-                new CompanyCreationError.CompanyNameAlreadyExists(companyName)
-            ));
         
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
@@ -277,12 +264,6 @@ public class CompanyServiceTest
         // Arrange
         var id = 1;
         var companyName = "Company 1";
-
-        _transactionManagerMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<Func<Task<Either<ICompanyError, CompanyDomain>>>>()))
-            .ReturnsAsync(EitherExtensions.Failure<ICompanyError, CompanyDomain>(
-                new CompanyFetchingError.CompanyByIdNotFound(id)
-            ));
         
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))

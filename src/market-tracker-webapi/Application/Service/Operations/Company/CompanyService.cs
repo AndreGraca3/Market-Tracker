@@ -34,9 +34,7 @@ public class CompanyService(ICompanyRepository companyRepository, ITransactionMa
             )
             : EitherExtensions.Success<CompanyFetchingError, CompanyDomain>(company);
     }
-
-
-    // may change TL to CompanyCreationError
+    
     public async Task<Either<ICompanyError, IdOutputModel>> AddCompanyAsync(string companyName)
     {
         return await transactionManager.ExecuteAsync(async () =>

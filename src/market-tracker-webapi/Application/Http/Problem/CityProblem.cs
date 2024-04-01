@@ -19,11 +19,12 @@ public class CityProblem(
             data
         );
 
-    public class CityNameAlreadyExists()
+    public class CityNameAlreadyExists(CityCreationError.CityNameAlreadyExists data)
         : CompanyProblem(
             409,
             "city-name-already-exists",
             "City name already exists",
-            "A city with that name already exists"
+            "A city with that name already exists",
+            data
         );
 }

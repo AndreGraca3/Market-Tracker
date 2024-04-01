@@ -58,21 +58,23 @@ public class CityService(ICityRepository cityRepository, ITransactionManager tra
 
     public async Task<Either<CityFetchingError, IdOutputModel>> DeleteCityAsync(int id)
     {
-        var city = await cityRepository.GetCityByIdAsync(id);
-        if (city is null)
-        {
-            return EitherExtensions.Failure<CityFetchingError, IdOutputModel>(
-                new CityFetchingError.CityByIdNotFound(id)
-            );
-        }
-
-        await cityRepository.DeleteCityAsync(id);
-        return EitherExtensions.Success<CityFetchingError, IdOutputModel>(
-            new IdOutputModel
+        return await transactionManager.ExecuteAsync(async () => {
+            var city = await cityRepository.GetCityByIdAsync(id);
+            if (city is null)
             {
-                Id = id
+                return EitherExtensions.Failure<CityFetchingError, IdOutputModel>(
+                    new CityFetchingError.CityByIdNotFound(id)
+                );
             }
-        );
+
+            await cityRepository.DeleteCityAsync(id);
+            return EitherExtensions.Success<CityFetchingError, IdOutputModel>(
+                new IdOutputModel
+                {
+                    Id = id
+                }
+            );
+        });
     }
 
     public async Task<Either<ICityError, CityDomain>> UpdateCityAsync(int id, string cityName)

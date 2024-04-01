@@ -219,6 +219,102 @@ namespace market_tracker_webapi_test.Application.Repositories
         }
         
         [Fact]
+        public async Task GetStoreByNameAsync_WhenStoreExists_ReturnsStoreData()
+        {
+            // Arrange
+            var companyMockEntities = new List<CompanyEntity>
+            {
+                new ()
+                {
+                    Id = 1,
+                    Name = "Company1"
+                }
+            };
+
+            var cityMockEntities = new List<CityEntity>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Lisboa"
+                },
+                new()
+                {
+                    Id = 2,
+                    Name = "Amadora"
+                },
+                new()
+                {
+                    Id = 3,
+                    Name = "Oeiras"
+                }
+            };
+            
+            var storeMockEntities = new List<StoreEntity>
+            {
+                new ()
+                {
+                    Id = 1, 
+                    Name = "Store1",
+                    Address = "Address1",
+                    CityId = 1,
+                    CompanyId = 1
+                },
+                new ()
+                {
+                    Id = 2, 
+                    Name = "Store2",
+                    Address = "Address2",
+                    CityId = 2,
+                    CompanyId = 1
+                },
+                new ()
+                {
+                    Id = 3, 
+                    Name = "Store3",
+                    Address = "Address3",
+                    CityId = 3,
+                    CompanyId = 1
+                }
+            };
+
+            var expectedStore = new StoreDomain()
+            {
+                Name = "Store1",
+                Address = "Address1",
+                CityId = 1,
+                CompanyId = 1
+            };
+            
+            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
+            var storeRepository = new StoreRepository(context);
+
+            // Act
+            var storeData = await storeRepository.GetStoreByNameAsync("Store1");
+
+            // Assert
+            storeData.Should().BeEquivalentTo(expectedStore, options => options.Excluding(x => x.Id));
+        }
+        
+        [Fact]
+        public async Task GetStoreByNameAsync_WhenStoreDoesNotExist_ReturnNull()
+        {
+            // Arrange
+            var context = CreateDatabase(
+                new List<StoreEntity>(), 
+                new List<CompanyEntity>(), 
+                new List<CityEntity>());
+            
+            var storeRepository = new StoreRepository(context);
+            
+            // Act
+            var storeData = await storeRepository.GetStoreByNameAsync("Store1");
+            
+            // Assert
+            storeData.Should().BeNull();
+        }
+        
+        [Fact]
         public async Task GetStoreByAddressAsync_WhenStoreExists_ReturnsStoreData()
         {
             // Arrange
