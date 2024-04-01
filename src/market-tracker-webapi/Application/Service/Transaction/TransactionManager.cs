@@ -1,7 +1,7 @@
 ﻿using market_tracker_webapi.Application.Utils;
 using market_tracker_webapi.Infrastructure;
 
-namespace market_tracker_webapi.Application.Services.Transaction;
+namespace market_tracker_webapi.Application.Service.Transaction;
 
 public class TransactionManager(MarketTrackerDataContext dataContext) : ITransactionManager
 {

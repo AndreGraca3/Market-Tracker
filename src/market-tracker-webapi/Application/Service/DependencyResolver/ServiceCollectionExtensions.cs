@@ -11,7 +11,6 @@ using market_tracker_webapi.Application.Service.Operations.Store;
 using market_tracker_webapi.Application.Service.Operations.Token;
 using market_tracker_webapi.Application.Service.Operations.User;
 using market_tracker_webapi.Application.Service.Transaction;
-using market_tracker_webapi.Application.Services.Transaction;
 using market_tracker_webapi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 

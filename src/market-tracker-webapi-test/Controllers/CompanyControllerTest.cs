@@ -91,7 +91,7 @@ public class CompanyControllerTest
     public async Task AddCompanyAsync_RespondsWith_Created_ReturnsObjectAsync() // Ok -> Created
     {
         // Expected Arrange
-        var expectedId = new IdOutputModel { Id = 1 };
+        var expectedId = new IdOutputModel(1);
         
         // Service Arrange
         _companyServiceMock
@@ -188,7 +188,7 @@ public class CompanyControllerTest
     public async Task DeleteCompanyAsync_RespondsWith_Ok_ReturnsObjectAsync()
     {
         // Expected Arrange
-        var expectedId = new IdOutputModel { Id = 1 };
+        var expectedId = new IdOutputModel(1);
         
         // Service Arrange
         _companyServiceMock

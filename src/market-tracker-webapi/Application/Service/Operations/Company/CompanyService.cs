@@ -1,9 +1,10 @@
 ﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Repository.Operations.Company;
 using market_tracker_webapi.Application.Service.Errors.Company;
+using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Services.Errors.Company;
-using market_tracker_webapi.Application.Services.Transaction;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Company;
@@ -48,10 +49,7 @@ public class CompanyService(ICompanyRepository companyRepository, ITransactionMa
             
             var companyId = await companyRepository.AddCompanyAsync(companyName);
             return EitherExtensions.Success<ICompanyError, IdOutputModel>(
-                new IdOutputModel
-                {
-                    Id = companyId
-                }
+                new IdOutputModel(companyId)
             );
         });
     }
@@ -66,10 +64,7 @@ public class CompanyService(ICompanyRepository companyRepository, ITransactionMa
                     new CompanyFetchingError.CompanyByIdNotFound(id)
                 )
                 : EitherExtensions.Success<CompanyFetchingError, IdOutputModel>(
-                    new IdOutputModel
-                    {
-                        Id = company.Id
-                    }
+                    new IdOutputModel(company.Id)
                 );
         });
     }

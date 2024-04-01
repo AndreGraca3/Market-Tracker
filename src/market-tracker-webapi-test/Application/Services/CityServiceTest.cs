@@ -1,11 +1,11 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Repository.Operations.City;
 using market_tracker_webapi.Application.Service.Errors.City;
 using market_tracker_webapi.Application.Service.Operations.City;
 using market_tracker_webapi.Application.Services.Errors.Company;
-using market_tracker_webapi.Application.Services.Transaction;
 using market_tracker_webapi.Application.Utils;
 using Moq;
 
@@ -137,7 +137,7 @@ public class CityServiceTest
         var result = await _cityService.AddCityAsync("City 1");
         
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel { Id = 0 });
+        result.Value.Should().BeEquivalentTo(new IdOutputModel(0));
     }
     
     [Fact]
@@ -183,7 +183,7 @@ public class CityServiceTest
         var result = await _cityService.UpdateCityAsync(1, "City 1");
         
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel { Id = 1 });
+        result.Value.Should().BeEquivalentTo(new IdOutputModel(1));
     }
     
     [Fact]
@@ -240,7 +240,7 @@ public class CityServiceTest
         var result = await _cityService.DeleteCityAsync(1);
         
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel { Id = 1 });
+        result.Value.Should().BeEquivalentTo(new IdOutputModel(1));
     }
     
     [Fact]

@@ -16,15 +16,12 @@ namespace market_tracker_webapi.Application.Service.Operations.User
     {
         public async Task<UsersOutputModel> GetUsersAsync(string? username, Pagination pagination)
         {
-            return await transactionManager.ExecuteAsync(async () =>
-            {
-                var users = (await userRepository.GetUsersAsync(username, pagination.Skip, pagination.Limit)).Select(
-                    it =>
-                        new UserOutputModel(it.Id, it.Username, it.Name, it.CreatedAt)
-                ).ToArray();
+            var users = (await userRepository.GetUsersAsync(username, pagination.Skip, pagination.Limit)).Select(
+                it =>
+                    new UserOutputModel(it.Id, it.Username, it.Name, it.CreatedAt)
+            ).ToArray();
 
-                return new UsersOutputModel(users, users.Length);
-            });
+            return new UsersOutputModel(users, users.Length);
         }
 
         public async Task<Either<UserFetchingError, UserOutputModel>> GetUserAsync(Guid id)
@@ -48,19 +45,16 @@ namespace market_tracker_webapi.Application.Service.Operations.User
         // Helper function, does not return Either
         public async Task<AuthenticatedUser?> GetUserByToken(Guid tokenValue)
         {
-            return await transactionManager.ExecuteAsync(async () =>
+            var token = await tokenRepository.GetTokenByTokenValueAsync(tokenValue);
+
+            if (token is null || token.ExpiresAt <= DateTime.Now)
             {
-                var token = await tokenRepository.GetTokenByTokenValueAsync(tokenValue);
+                return null;
+            }
 
-                if (token is null || token.ExpiresAt <= DateTime.Now)
-                {
-                    return null;
-                }
+            var user = await userRepository.GetUserByIdAsync(token.UserId);
 
-                var user = await userRepository.GetUserByIdAsync(token.UserId);
-
-                return new AuthenticatedUser(user!, token);
-            });
+            return new AuthenticatedUser(user!, token);
         }
 
         public async Task<Either<UserCreationError, UserCreationOutputModel>> CreateUserAsync(

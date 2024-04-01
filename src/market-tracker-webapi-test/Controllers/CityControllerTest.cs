@@ -84,7 +84,7 @@ public class CityControllerTest
     public async Task AddCityAsync_ShouldReturnOk()
     {
         // Arrange
-        var cityId = new IdOutputModel{ Id = 1 };
+        var cityId = new IdOutputModel(1);
         _cityServiceMock
             .Setup(service => service.AddCityAsync("City 1"))
             .ReturnsAsync(EitherExtensions.Success<ICityError, IdOutputModel>(cityId));
@@ -171,7 +171,7 @@ public class CityControllerTest
     public async Task DeleteCityAsync_ShouldReturnOk()
     {
         // Arrange
-        var expectedId = new IdOutputModel { Id = 1 };
+        var expectedId = new IdOutputModel(1);
         
         _cityServiceMock
             .Setup(service => service.DeleteCityAsync(1))

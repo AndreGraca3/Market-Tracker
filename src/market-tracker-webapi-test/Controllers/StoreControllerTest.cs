@@ -215,7 +215,7 @@ public class StoreControllerTest
     public async Task AddStoreAsync_ReturnsOk()
     {
         // Arrange
-        var idOutputModel = new IdOutputModel { Id = 1 };
+        var idOutputModel = new IdOutputModel(1);
         _storeServiceMock
             .Setup(service => service.AddStoreAsync("Store", "Address", 1, 1))
             .ReturnsAsync(EitherExtensions.Success<IStoreError, IdOutputModel>(idOutputModel));
@@ -339,7 +339,7 @@ public class StoreControllerTest
     public async Task UpdateStoreAsync_ReturnsOk()
     {
         // Arrange
-        var idOutputModel = new IdOutputModel { Id = 1 };
+        var idOutputModel = new IdOutputModel(1);
         _storeServiceMock
             .Setup(service => service.UpdateStoreAsync(1, "Store", "Address", 1, 1))
             .ReturnsAsync(EitherExtensions.Success<IStoreError, IdOutputModel>(idOutputModel));
@@ -464,7 +464,7 @@ public class StoreControllerTest
     public async Task DeleteStoreAsync_ReturnsOk()
     {
         // Arrange
-        var idOutputModel = new IdOutputModel { Id = 1 };
+        var idOutputModel = new IdOutputModel(1);
         _storeServiceMock
             .Setup(service => service.DeleteStoreAsync(1))
             .ReturnsAsync(EitherExtensions.Success<StoreFetchingError, IdOutputModel>(idOutputModel));

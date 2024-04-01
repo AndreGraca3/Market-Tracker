@@ -1,8 +1,9 @@
 ﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Repository.Operations.City;
 using market_tracker_webapi.Application.Service.Errors.City;
-using market_tracker_webapi.Application.Services.Transaction;
+using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.City;
@@ -48,10 +49,7 @@ public class CityService(ICityRepository cityRepository, ITransactionManager tra
             
             var cityId = await cityRepository.AddCityAsync(cityName);
             return EitherExtensions.Success<ICityError, IdOutputModel>(
-                new IdOutputModel
-                {
-                    Id = cityId
-                }
+                new IdOutputModel(cityId)
             );
         });
     }
@@ -69,10 +67,7 @@ public class CityService(ICityRepository cityRepository, ITransactionManager tra
 
             await cityRepository.DeleteCityAsync(id);
             return EitherExtensions.Success<CityFetchingError, IdOutputModel>(
-                new IdOutputModel
-                {
-                    Id = id
-                }
+                new IdOutputModel(id)
             );
         });
     }

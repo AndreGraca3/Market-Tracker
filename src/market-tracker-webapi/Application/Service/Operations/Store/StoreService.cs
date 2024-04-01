@@ -1,10 +1,11 @@
 ﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Repository.Operations.City;
 using market_tracker_webapi.Application.Repository.Operations.Company;
 using market_tracker_webapi.Application.Repository.Operations.Store;
 using market_tracker_webapi.Application.Service.Errors.Store;
-using market_tracker_webapi.Application.Services.Transaction;
+using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Store
@@ -99,10 +100,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
 
             var storeId = await storeRepository.AddStoreAsync(name, address, cityId, companyId);
             return EitherExtensions.Success<IStoreError, IdOutputModel>(
-               new IdOutputModel
-               {
-                  Id = storeId
-               }
+               new IdOutputModel(storeId)
             );
          });
       }
@@ -153,10 +151,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
                   new StoreFetchingError.StoreByIdNotFound(id)
                )
                : EitherExtensions.Success<IStoreError, IdOutputModel>(
-                  new IdOutputModel
-                  {
-                     Id = updatedStore.Id
-                  }
+                  new IdOutputModel(updatedStore.Id)
                );
          });
          
@@ -173,10 +168,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
          
          await storeRepository.DeleteStoreAsync(id);
          return EitherExtensions.Success<StoreFetchingError, IdOutputModel>(
-            new IdOutputModel
-            {
-               Id = id
-            }
+            new IdOutputModel(id)
          );
       }
    } 

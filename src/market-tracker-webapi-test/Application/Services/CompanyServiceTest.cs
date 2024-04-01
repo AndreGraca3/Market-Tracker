@@ -5,7 +5,6 @@ using market_tracker_webapi.Application.Repository.Operations.Company;
 using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Operations.Company;
 using market_tracker_webapi.Application.Services.Errors.Company;
-using market_tracker_webapi.Application.Services.Transaction;
 using market_tracker_webapi.Application.Utils;
 using Moq;
 
