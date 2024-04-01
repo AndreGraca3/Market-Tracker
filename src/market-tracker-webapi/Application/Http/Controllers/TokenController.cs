@@ -8,7 +8,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
 {
     [ApiController]
     [Route(Uris.Tokens.Base)]
-    public class TokenController(ITokenService tokenService, ILogger<UserController> logger) : ControllerBase
+    public class TokenController(ITokenService tokenService, ILogger<TokenController> logger) : ControllerBase
     {
         [HttpPut]
         public async Task<ActionResult<TokenOutputModel>> CreateTokenAsync(

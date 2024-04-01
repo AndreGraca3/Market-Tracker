@@ -16,7 +16,6 @@
   <ItemGroup>
     <Folder Include="Application\Repository\Dto\" />
     <Folder Include="Application\Repository\Operations\" />
-    <Folder Include="Application\Service\Core\" />
   </ItemGroup>
 
 </Project>
