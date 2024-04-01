@@ -1,23 +1,25 @@
-﻿using market_tracker_webapi.Application.Models;
+﻿using market_tracker_webapi.Application.Domain;
 
 namespace market_tracker_webapi.Application.Repository.Operations.Store
 {
     public interface IStoreRepository
     {
-        Task<Models.StoreData> GetStoreAsync(int id);
-
-        Task<int> AddStoreAsync(string address, string city, DateTime openTime, DateTime closeTime, int companyId);
-
-        Task<Models.StoreData> UpdateStoreAsync(int id, DateTime? openTime, DateTime? closeTime);
+        Task<IEnumerable<StoreDomain>> GetStoresAsync();
         
-        Task DeleteStoreAsync(int id);
+        Task<StoreDomain?> GetStoreByIdAsync(int id);
+        
+        Task<StoreDomain?> GetStoreByNameAsync(string name);
+        
+        Task<StoreDomain?> GetStoreByAddressAsync(string address);
+        
+        Task<IEnumerable<StoreDomain>> GetStoresFromCompanyAsync(int id);
+        
+        Task<IEnumerable<StoreDomain>> GetStoresByCityNameAsync(string cityName);
 
-        Task<List<Models.StoreData>> GetStoresFromCompany(int id);
+        Task<int> AddStoreAsync(string name, string address, int cityId, int companyId);
 
-        Task<CompanyData> GetCompanyAsync(int id);
-
-        Task<int> AddCompanyAsync(string companyName);
-
-        Task<int> DeleteCompanyAsync(int id);
+        Task<StoreDomain?> UpdateStoreAsync(int id, string address, int cityId, int companyId);
+        
+        Task<StoreDomain?> DeleteStoreAsync(int id);
     }
 }

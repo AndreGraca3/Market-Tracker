@@ -16,5 +16,11 @@ namespace market_tracker_webapi.Infrastructure
         public DbSet<BrandEntity> Brand { get; set; }
         
         public DbSet<ProductReviewEntity> ProductReview { get; set; }
+                
+        public DbSet<StoreEntity> Store { get; set; }
+                
+        public DbSet<CompanyEntity> Company { get; set; }
+                
+        public DbSet<CityEntity> City { get; set; }
     }
 }
