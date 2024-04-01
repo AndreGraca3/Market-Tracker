@@ -1,6 +1,4 @@
-﻿using market_tracker_webapi.Application.Models;
-
-namespace market_tracker_webapi.Application.Repositories.List   
+﻿namespace market_tracker_webapi.Application.Repository.Operations.List   
 {
     public interface IListRepository
     {

@@ -1,6 +1,6 @@
 ﻿using market_tracker_webapi.Application.Domain;
 
-namespace market_tracker_webapi.Application.Repositories.City;
+namespace market_tracker_webapi.Application.Repository.Operations.City;
 
 public interface ICityRepository
 {

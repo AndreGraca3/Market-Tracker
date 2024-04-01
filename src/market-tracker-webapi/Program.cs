@@ -1,4 +1,4 @@
-using market_tracker_webapi.Application.Services.DependencyResolver;
+using market_tracker_webapi.Application.Service.DependencyResolver;
 
 namespace MarketTracker
 {

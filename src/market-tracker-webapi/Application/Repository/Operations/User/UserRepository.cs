@@ -2,7 +2,7 @@
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
-namespace market_tracker_webapi.Application.Repositories.User
+namespace market_tracker_webapi.Application.Repository.Operations.User
 {
     public class UserRepository: IUserRepository
     {

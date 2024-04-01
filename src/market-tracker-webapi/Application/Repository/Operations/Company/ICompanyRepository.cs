@@ -1,6 +1,6 @@
 ﻿using market_tracker_webapi.Application.Domain;
 
-namespace market_tracker_webapi.Application.Repositories.Company;
+namespace market_tracker_webapi.Application.Repository.Operations.Company;
 
 public interface ICompanyRepository
 {

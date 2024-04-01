@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using market_tracker_webapi.Application.Repositories.User;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;

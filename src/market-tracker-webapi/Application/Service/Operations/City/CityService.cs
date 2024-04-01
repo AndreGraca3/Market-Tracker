@@ -1,6 +1,6 @@
 ﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Models;
-using market_tracker_webapi.Application.Repositories.City;
+using market_tracker_webapi.Application.Repository.Operations.City;
 using market_tracker_webapi.Application.Service.Errors.City;
 using market_tracker_webapi.Application.Services.Transaction;
 using market_tracker_webapi.Application.Utils;

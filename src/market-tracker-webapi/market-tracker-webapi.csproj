@@ -14,7 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Service\Core\" />
+    <Folder Include="Application\Repository\Dto\" />
+    <Folder Include="Application\Repository\Operations\" />
   </ItemGroup>
 
 </Project>

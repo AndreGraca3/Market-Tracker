@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
+using market_tracker_webapi.Application.Http.Controllers;
 using market_tracker_webapi.Application.Models;
-using market_tracker_webapi.Application.Repositories.User;
-using market_tracker_webapi.Controllers;
+using market_tracker_webapi.Application.Repository.Operations.User;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;

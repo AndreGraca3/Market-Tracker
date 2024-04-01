@@ -1,6 +1,6 @@
 ﻿using market_tracker_webapi.Application.Models;
 
-namespace market_tracker_webapi.Application.Repositories.Client
+namespace market_tracker_webapi.Application.Repository.Operations.Client
 {
     public interface IClientRepository
     {

@@ -3,7 +3,7 @@ using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi.Application.Repositories.City;
+namespace market_tracker_webapi.Application.Repository.Operations.City;
 
 public class CityRepository(MarketTrackerDataContext marketTrackerDataContext) : ICityRepository
 {
