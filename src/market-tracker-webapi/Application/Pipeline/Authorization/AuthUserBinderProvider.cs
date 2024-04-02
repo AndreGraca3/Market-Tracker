@@ -1,5 +1,4 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Pipeline.authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 

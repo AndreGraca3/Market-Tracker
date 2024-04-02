@@ -1,8 +1,7 @@
-﻿using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Service.Operations.User;
+﻿using market_tracker_webapi.Application.Service.Operations.User;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace market_tracker_webapi.Application.Pipeline.authorization;
+namespace market_tracker_webapi.Application.Pipeline.Authorization;
 
 public class AuthUserModelBinder : IModelBinder
 {

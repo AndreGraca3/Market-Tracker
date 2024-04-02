@@ -1,7 +1,7 @@
 ﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Store;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Operations.Store;
 using Microsoft.AspNetCore.Mvc;
@@ -87,7 +87,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
 
     [HttpPost(Uris.Stores.Base)]
     public async Task<ActionResult<IdOutputModel>> AddStoreAsync(
-        [FromBody] AddStoreInputModel model
+        [FromBody] StoreCreationInputModel model
     )
     {
         var res = await storeService.AddStoreAsync(
@@ -130,7 +130,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     [HttpPut(Uris.Stores.StoreById)]
     public async Task<ActionResult<IdOutputModel>> UpdateStoreAsync(
         int id,
-        [FromBody] UpdateStoreInputModel model
+        [FromBody] StoreUpdateInputModel model
     )
     {
         var res = await storeService.UpdateStoreAsync(

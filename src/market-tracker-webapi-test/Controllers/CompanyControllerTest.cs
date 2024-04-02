@@ -3,10 +3,8 @@ using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Controllers;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Operations.Company;
-using market_tracker_webapi.Application.Services.Errors.Company;
 using market_tracker_webapi.Application.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -129,8 +127,8 @@ public class CompanyControllerTest
         );
 
         // Assert
-        OkObjectResult result = Assert.IsType<OkObjectResult>(actual.Result);
-        IdOutputModel idOutputModel = Assert.IsAssignableFrom<IdOutputModel>(result.Value);
+        var result = Assert.IsType<CreatedResult>(actual.Result);
+        var idOutputModel = Assert.IsAssignableFrom<IdOutputModel>(result.Value);
         idOutputModel.Should().BeEquivalentTo(expectedId);
     }
 

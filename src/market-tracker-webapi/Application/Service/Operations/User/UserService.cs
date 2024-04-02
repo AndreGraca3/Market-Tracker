@@ -14,7 +14,10 @@ namespace market_tracker_webapi.Application.Service.Operations.User
         ITransactionManager transactionManager
     ) : IUserService
     {
-        public async Task<UsersOutputModel> GetUsersAsync(string? username, Pagination pagination)
+        public async Task<UsersOutputModel> GetUsersAsync(
+            string? username,
+            PaginationInputModel pagination
+        )
         {
             var users = (
                 await userRepository.GetUsersAsync(username, pagination.Skip, pagination.Limit)

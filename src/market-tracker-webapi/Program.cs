@@ -1,7 +1,7 @@
 using market_tracker_webapi.Application.Http;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Pipeline;
-using market_tracker_webapi.Application.Pipeline.authorization;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.DependencyResolver;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;

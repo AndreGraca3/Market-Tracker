@@ -14,15 +14,14 @@ namespace market_tracker_webapi.Application.Http.Controllers
     {
         [HttpGet]
         public async Task<ActionResult<UsersOutputModel>> GetUsersAsync(
-            [FromQuery] Pagination pagination,
+            [FromQuery] PaginationInputModel pagination,
             [FromQuery] string? username
         )
         {
             logger.LogDebug($"Call {nameof(GetUsersAsync)} with {username}");
-            
+
             return Ok(await userService.GetUsersAsync(username, pagination));
         }
-
 
         [HttpGet(Uris.Users.UserById)]
         public async Task<ActionResult<UserOutputModel>> GetUserAsync(Guid id)
@@ -49,10 +48,16 @@ namespace market_tracker_webapi.Application.Http.Controllers
         )
         {
             logger.LogDebug(
-                $"Call {nameof(CreateUserAsync)} with {userInput.Username}, {userInput.Name}, {userInput.Email}, {userInput.Password}");
+                $"Call {nameof(CreateUserAsync)} with {userInput.Username}, {userInput.Name}, {userInput.Email}, {userInput.Password}"
+            );
 
-            var res = await userService.CreateUserAsync(userInput.Username, userInput.Name, userInput.Email,
-                userInput.Password, code);
+            var res = await userService.CreateUserAsync(
+                userInput.Username,
+                userInput.Name,
+                userInput.Email,
+                userInput.Password,
+                code
+            );
 
             return ResultHandler.Handle(
                 res,
@@ -60,14 +65,17 @@ namespace market_tracker_webapi.Application.Http.Controllers
                 {
                     return error switch
                     {
-                        UserCreationError.EmailAlreadyInUse emailAlreadyInUse => new UserProblem.UserAlreadyExists(
-                            emailAlreadyInUse).ToActionResult(),
+                        UserCreationError.EmailAlreadyInUse emailAlreadyInUse
+                            => new UserProblem.UserAlreadyExists(
+                                emailAlreadyInUse
+                            ).ToActionResult(),
 
-                        UserCreationError.InvalidEmail invalidEmail => new UserProblem.InvalidEmail(invalidEmail)
-                            .ToActionResult()
+                        UserCreationError.InvalidEmail invalidEmail
+                            => new UserProblem.InvalidEmail(invalidEmail).ToActionResult()
                     };
                 },
-                idOutputModel => Created(Uris.Users.BuildUserByIdUri(idOutputModel.Id), idOutputModel)
+                idOutputModel =>
+                    Created(Uris.Users.BuildUserByIdUri(idOutputModel.Id), idOutputModel)
             );
         }
 
@@ -85,17 +93,15 @@ namespace market_tracker_webapi.Application.Http.Controllers
                 {
                     return error switch
                     {
-                        UserFetchingError.UserByIdNotFound userByIdNotFound => new UserProblem
-                            .UserByIdNotFound(userByIdNotFound).ToActionResult()
+                        UserFetchingError.UserByIdNotFound userByIdNotFound
+                            => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult()
                     };
                 }
             );
         }
 
         [HttpDelete(Uris.Users.UserById)]
-        public async Task<ActionResult<UserOutputModel>> DeleteUserAsync(
-            Guid id
-        )
+        public async Task<ActionResult<UserOutputModel>> DeleteUserAsync(Guid id)
         {
             logger.LogDebug($"Call {nameof(DeleteUserAsync)} with {id}");
 
@@ -105,8 +111,8 @@ namespace market_tracker_webapi.Application.Http.Controllers
                 {
                     return error switch
                     {
-                        UserFetchingError.UserByIdNotFound userByIdNotFound => new UserProblem.UserByIdNotFound(
-                            userByIdNotFound).ToActionResult(),
+                        UserFetchingError.UserByIdNotFound userByIdNotFound
+                            => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
                     };
                 },
                 _ => NoContent()

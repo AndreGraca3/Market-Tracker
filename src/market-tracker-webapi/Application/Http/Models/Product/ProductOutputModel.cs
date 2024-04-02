@@ -11,13 +11,13 @@ public record ProductOutputModel(
     int Views,
     float Rate,
     Brand Brand,
-    Category Category
+    Domain.Category Category
 )
 {
     public static ProductOutputModel ToProductOutputModel(
         Product product,
         Brand brand,
-        Category category
+        Domain.Category category
     )
     {
         return new ProductOutputModel(

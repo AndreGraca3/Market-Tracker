@@ -2,8 +2,8 @@
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Controllers;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Store;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Operations.Store;
 using market_tracker_webapi.Application.Utils;
@@ -237,7 +237,7 @@ public class StoreControllerTest
 
         // Act
         var result = await _storeController.AddStoreAsync(
-            new AddStoreInputModel
+            new StoreCreationInputModel
             {
                 Name = "Store",
                 Address = "Address",
@@ -266,7 +266,7 @@ public class StoreControllerTest
 
         //Act
         var actual = await _storeController.AddStoreAsync(
-            new AddStoreInputModel
+            new StoreCreationInputModel
             {
                 Name = "Store",
                 Address = "Address",
@@ -295,7 +295,7 @@ public class StoreControllerTest
 
         //Act
         var actual = await _storeController.AddStoreAsync(
-            new AddStoreInputModel
+            new StoreCreationInputModel
             {
                 Name = "Store",
                 Address = "Address",
@@ -326,7 +326,7 @@ public class StoreControllerTest
 
         //Act
         var actual = await _storeController.AddStoreAsync(
-            new AddStoreInputModel
+            new StoreCreationInputModel
             {
                 Name = "Store",
                 Address = "Address",
@@ -355,7 +355,7 @@ public class StoreControllerTest
 
         //Act
         var actual = await _storeController.AddStoreAsync(
-            new AddStoreInputModel
+            new StoreCreationInputModel
             {
                 Name = "Store",
                 Address = "Address",
@@ -384,7 +384,7 @@ public class StoreControllerTest
         // Act
         var result = await _storeController.UpdateStoreAsync(
             1,
-            new UpdateStoreInputModel
+            new StoreUpdateInputModel
             {
                 Name = "Store",
                 Address = "Address",
@@ -414,7 +414,7 @@ public class StoreControllerTest
         //Act
         var actual = await _storeController.UpdateStoreAsync(
             1,
-            new UpdateStoreInputModel
+            new StoreUpdateInputModel
             {
                 Name = "Store",
                 Address = "Address",
@@ -444,7 +444,7 @@ public class StoreControllerTest
         //Act
         var actual = await _storeController.UpdateStoreAsync(
             1,
-            new UpdateStoreInputModel
+            new StoreUpdateInputModel
             {
                 Name = "Store",
                 Address = "Address",
@@ -476,7 +476,7 @@ public class StoreControllerTest
         //Act
         var actual = await _storeController.UpdateStoreAsync(
             1,
-            new UpdateStoreInputModel
+            new StoreUpdateInputModel
             {
                 Name = "Store",
                 Address = "Address",
@@ -506,7 +506,7 @@ public class StoreControllerTest
         //Act
         var actual = await _storeController.UpdateStoreAsync(
             1,
-            new UpdateStoreInputModel
+            new StoreUpdateInputModel
             {
                 Name = "Store",
                 Address = "Address",

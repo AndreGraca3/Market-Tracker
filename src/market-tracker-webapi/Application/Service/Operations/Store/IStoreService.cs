@@ -1,6 +1,5 @@
 ﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Utils;
 

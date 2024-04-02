@@ -4,7 +4,6 @@ using market_tracker_webapi.Application.Http.Controllers;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.User;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Models;
 using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.User;
@@ -54,7 +53,7 @@ namespace market_tracker_webapi_test.Controllers
                 )
             };
 
-            // Service Arrange 
+            // Service Arrange
             _userServiceMock
                 .Setup(service =>
                     service.GetUsersAsync(It.IsAny<string>(), new Pagination(It.IsAny<int>, It.IsAny<int>())))
@@ -82,7 +81,7 @@ namespace market_tracker_webapi_test.Controllers
                 DateTime.Now
             );
 
-            // Service Arrange 
+            // Service Arrange
             _userServiceMock
                 .Setup(service => service.GetUserAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(
@@ -101,7 +100,7 @@ namespace market_tracker_webapi_test.Controllers
         [Fact]
         public async Task GetUserAsync_RespondsWith_NotFound_ReturnsUserProblem()
         {
-            // Service Arrange 
+            // Service Arrange
             _userServiceMock
                 .Setup(service => service.GetUserAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(
@@ -125,7 +124,7 @@ namespace market_tracker_webapi_test.Controllers
             // Expected Arrange
             var expectedId = new IdOutputModel(new Guid("11111111-1111-1111-1111-111111111111"));
 
-            // Service Arrange 
+            // Service Arrange
             _userServiceMock
                 .Setup(service => service.CreateUserAsync(
                     It.IsAny<string>(),
@@ -156,7 +155,7 @@ namespace market_tracker_webapi_test.Controllers
         [Fact]
         public async Task CreateUserAsync_RespondsWith_BadRequest_ReturnsUserProblem()
         {
-            // Service Arrange 
+            // Service Arrange
             _userServiceMock
                 .Setup(service => service.CreateUserAsync(
                     It.IsAny<string>(),
@@ -188,7 +187,7 @@ namespace market_tracker_webapi_test.Controllers
         [Fact]
         public async Task CreateUserAsync_RespondsWith_Conflict_ReturnsUserProblem()
         {
-            // Service Arrange 
+            // Service Arrange
             _userServiceMock
                 .Setup(service => service.CreateUserAsync(
                     It.IsAny<string>(),
@@ -227,7 +226,7 @@ namespace market_tracker_webapi_test.Controllers
                 "Diogo"
             );
 
-            // Service Arrange 
+            // Service Arrange
             _userServiceMock
                 .Setup(service => service.UpdateUserAsync(
                     It.IsAny<Guid>(),
@@ -255,7 +254,7 @@ namespace market_tracker_webapi_test.Controllers
         [Fact]
         public async Task UpdateUserAsync_RespondsWith_NotFound_ReturnsUserProblem()
         {
-            // Service Arrange 
+            // Service Arrange
             _userServiceMock
                 .Setup(service => service.UpdateUserAsync(
                     It.IsAny<Guid>(),
@@ -294,7 +293,7 @@ namespace market_tracker_webapi_test.Controllers
                 "Diogo"
             );
 
-            // Service Arrange 
+            // Service Arrange
             _userServiceMock
                 .Setup(service => service.DeleteUserAsync(
                     It.IsAny<Guid>()
@@ -317,7 +316,7 @@ namespace market_tracker_webapi_test.Controllers
         [Fact]
         public async Task DeleteUserAsync_RespondsWith_NotFound_ReturnsUserProblem()
         {
-            // Service Arrange 
+            // Service Arrange
             _userServiceMock
                 .Setup(service => service.DeleteUserAsync(
                     It.IsAny<Guid>()

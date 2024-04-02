@@ -1,6 +1,6 @@
 using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Models;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
@@ -285,33 +285,24 @@ namespace market_tracker_webapi_test.Application.Repository
         public async Task DeleteUserAsync_ReturnsObjectAsync()
         {
             // Mock DB
-            var expectedDeletedUserData = new DeletedUserData
+            var expectedDeletedUser = new UserEntity
             {
                 Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                CreatedAt = default
+                Name = "Diogo",
+                Username = "Digo",
+                Email = "digo@gmail.com",
+                Password = "123"
             };
 
-            var mockEntities = new List<UserEntity>
-            {
-                new()
-                {
-                    Id = expectedDeletedUserData.Id,
-                    Name = "Diogo",
-                    Username = "Digo",
-                    Email = "Diogo@gmail.com",
-                    Password = "123"
-                }
-            };
-
-            var context = CreateDatabase(mockEntities);
+            var context = CreateDatabase([expectedDeletedUser]);
             var userRepo = new UserRepository(context);
 
             // Act
-            var actualDeletedUserData = await userRepo.DeleteUserAsync(expectedDeletedUserData.Id);
+            var actualDeletedUserData = await userRepo.DeleteUserAsync(expectedDeletedUser.Id);
 
             // Assert
             actualDeletedUserData.Should().NotBeNull();
-            actualDeletedUserData.Should().BeEquivalentTo(expectedDeletedUserData);
+            actualDeletedUserData.Should().BeEquivalentTo(expectedDeletedUser);
         }
 
         [Fact]

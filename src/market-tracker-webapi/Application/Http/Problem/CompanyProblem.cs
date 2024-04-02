@@ -1,5 +1,4 @@
 ﻿using market_tracker_webapi.Application.Service.Errors.Company;
-using market_tracker_webapi.Application.Services.Errors.Company;
 
 namespace market_tracker_webapi.Application.Http.Problem;
 
