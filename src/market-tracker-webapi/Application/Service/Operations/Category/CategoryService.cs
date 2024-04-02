@@ -13,10 +13,10 @@ public class CategoryService(
     ITransactionManager transactionManager
 ) : ICategoryService
 {
-    public async Task<EnumerableOutputModel> GetCategoriesAsync()
+    public async Task<CollectionOutputModel> GetCategoriesAsync()
     {
         var categories = await categoryRepository.GetCategoriesAsync();
-        return new EnumerableOutputModel(categories);
+        return new CollectionOutputModel(categories);
     }
 
     public async Task<Either<CategoryFetchingError, Category>> GetCategoryAsync(int id)
@@ -47,30 +47,27 @@ public class CategoryService(
         });
     }
 
-    public async Task<Either<ICategoryError, IdOutputModel>> UpdateCategoryAsync(
-        int id,
-        string name
-    )
+    public async Task<Either<ICategoryError, Category>> UpdateCategoryAsync(int id, string name)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var category = await categoryRepository.GetCategoryByIdAsync(id);
-            if (category is null)
-            {
-                return EitherExtensions.Failure<ICategoryError, IdOutputModel>(
-                    new CategoryFetchingError.CategoryByIdNotFound(id)
-                );
-            }
-
             if (await categoryRepository.GetCategoryByNameAsync(name) is not null)
             {
-                return EitherExtensions.Failure<ICategoryError, IdOutputModel>(
+                return EitherExtensions.Failure<ICategoryError, Category>(
                     new CategoryCreationError.CategoryNameAlreadyExists(name)
                 );
             }
 
-            await categoryRepository.UpdateCategoryAsync(id, name);
-            return EitherExtensions.Success<ICategoryError, IdOutputModel>(new IdOutputModel(id));
+            var newCategory = await categoryRepository.UpdateCategoryAsync(id, name);
+
+            if (newCategory is null)
+            {
+                return EitherExtensions.Failure<ICategoryError, Category>(
+                    new CategoryFetchingError.CategoryByIdNotFound(id)
+                );
+            }
+
+            return EitherExtensions.Success<ICategoryError, Category>(newCategory);
         });
     }
 

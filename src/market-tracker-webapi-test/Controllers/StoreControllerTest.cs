@@ -27,9 +27,9 @@ public class StoreControllerTest
     public async Task GetStoresAsync_ReturnsOk()
     {
         // Arrange
-        var stores = new List<StoreDomain>
+        var stores = new List<Store>
         {
-            new StoreDomain
+            new Store
             {
                 Id = 1,
                 Name = "Store 1",
@@ -37,7 +37,7 @@ public class StoreControllerTest
                 CityId = 1,
                 CompanyId = 1
             },
-            new StoreDomain
+            new Store
             {
                 Id = 2,
                 Name = "Store 2",
@@ -46,22 +46,25 @@ public class StoreControllerTest
                 CompanyId = 2
             }
         };
-        _storeServiceMock.Setup(service => service.GetStoresAsync()).ReturnsAsync(stores);
+        _storeServiceMock
+            .Setup(service => service.GetStoresAsync())
+            .ReturnsAsync(new CollectionOutputModel(stores));
 
         // Act
         var result = await _storeController.GetStoresAsync();
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var actualStores = Assert.IsType<List<StoreDomain>>(okResult.Value);
-        actualStores.Should().BeEquivalentTo(stores);
+        var actualStoresCollection = Assert.IsType<CollectionOutputModel>(okResult.Value);
+        actualStoresCollection.Should().BeEquivalentTo(new CollectionOutputModel(stores));
+        actualStoresCollection.Results.Should().BeEquivalentTo(stores);
     }
 
     [Fact]
     public async Task GetStoreByIdAsync_RespondsWith_Ok_ReturnsObjectAsync()
     {
         // Arrange
-        var store = new StoreDomain
+        var store = new Store
         {
             Id = 1,
             Name = "Store 1",
@@ -71,14 +74,14 @@ public class StoreControllerTest
         };
         _storeServiceMock
             .Setup(service => service.GetStoreByIdAsync(1))
-            .ReturnsAsync(EitherExtensions.Success<StoreFetchingError, StoreDomain>(store));
+            .ReturnsAsync(EitherExtensions.Success<StoreFetchingError, Store>(store));
 
         // Act
         var result = await _storeController.GetStoreByIdAsync(1);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var actualStore = Assert.IsType<StoreDomain>(okResult.Value);
+        var actualStore = Assert.IsType<Store>(okResult.Value);
         actualStore.Should().BeEquivalentTo(store);
     }
 
@@ -89,8 +92,10 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.GetStoreByIdAsync(It.IsAny<int>()))
             .ReturnsAsync(
-                EitherExtensions.Failure<StoreFetchingError, StoreDomain>(
-                    new StoreFetchingError.StoreByIdNotFound(It.IsAny<int>())));
+                EitherExtensions.Failure<StoreFetchingError, Store>(
+                    new StoreFetchingError.StoreByIdNotFound(It.IsAny<int>())
+                )
+            );
 
         // Act
         var actual = await _storeController.GetStoreByIdAsync(It.IsAny<int>());
@@ -98,16 +103,18 @@ public class StoreControllerTest
         // Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
         var problem = Assert.IsAssignableFrom<StoreProblem.StoreByIdNotFound>(result.Value);
-        problem.Data.Should().BeEquivalentTo(new StoreFetchingError.StoreByIdNotFound(It.IsAny<int>()));
+        problem
+            .Data.Should()
+            .BeEquivalentTo(new StoreFetchingError.StoreByIdNotFound(It.IsAny<int>()));
     }
 
     [Fact]
     public async Task GetStoresFromCompanyAsync_ReturnsOk()
     {
         // Arrange
-        var stores = new List<StoreDomain>
+        var stores = new List<Store>
         {
-            new StoreDomain
+            new Store
             {
                 Id = 1,
                 Name = "Store 1",
@@ -115,7 +122,7 @@ public class StoreControllerTest
                 CityId = 1,
                 CompanyId = 1
             },
-            new StoreDomain
+            new Store
             {
                 Id = 2,
                 Name = "Store 2",
@@ -126,14 +133,14 @@ public class StoreControllerTest
         };
         _storeServiceMock
             .Setup(service => service.GetStoresFromCompanyAsync(1))
-            .ReturnsAsync(EitherExtensions.Success<StoreFetchingError, IEnumerable<StoreDomain>>(stores));
+            .ReturnsAsync(EitherExtensions.Success<StoreFetchingError, IEnumerable<Store>>(stores));
 
         // Act
         var result = await _storeController.GetStoresFromCompanyAsync(1);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var actualStores = Assert.IsType<List<StoreDomain>>(okResult.Value);
+        var actualStores = Assert.IsType<List<Store>>(okResult.Value);
         actualStores.Should().BeEquivalentTo(stores);
     }
 
@@ -144,8 +151,10 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.GetStoresFromCompanyAsync(It.IsAny<int>()))
             .ReturnsAsync(
-                EitherExtensions.Failure<StoreFetchingError, IEnumerable<StoreDomain>>(
-                    new StoreFetchingError.StoreByCompanyIdNotFound(It.IsAny<int>())));
+                EitherExtensions.Failure<StoreFetchingError, IEnumerable<Store>>(
+                    new StoreFetchingError.StoreByCompanyIdNotFound(It.IsAny<int>())
+                )
+            );
 
         // Act
         var actual = await _storeController.GetStoresFromCompanyAsync(It.IsAny<int>());
@@ -153,16 +162,18 @@ public class StoreControllerTest
         // Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
         var problem = Assert.IsAssignableFrom<StoreProblem.StoreByCompanyIdNotFound>(result.Value);
-        problem.Data.Should().BeEquivalentTo(new StoreFetchingError.StoreByCompanyIdNotFound(It.IsAny<int>()));
+        problem
+            .Data.Should()
+            .BeEquivalentTo(new StoreFetchingError.StoreByCompanyIdNotFound(It.IsAny<int>()));
     }
 
     [Fact]
     public async Task GetStoresByCityNameAsync_ReturnsOk()
     {
         // Arrange
-        var stores = new List<StoreDomain>
+        var stores = new List<Store>
         {
-            new StoreDomain
+            new Store
             {
                 Id = 1,
                 Name = "Store 1",
@@ -170,7 +181,7 @@ public class StoreControllerTest
                 CityId = 1,
                 CompanyId = 1
             },
-            new StoreDomain
+            new Store
             {
                 Id = 2,
                 Name = "Store 2",
@@ -181,14 +192,14 @@ public class StoreControllerTest
         };
         _storeServiceMock
             .Setup(service => service.GetStoresByCityNameAsync("City"))
-            .ReturnsAsync(EitherExtensions.Success<StoreFetchingError, IEnumerable<StoreDomain>>(stores));
+            .ReturnsAsync(EitherExtensions.Success<StoreFetchingError, IEnumerable<Store>>(stores));
 
         // Act
         var result = await _storeController.GetStoresByCityNameAsync("City");
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var actualStores = Assert.IsType<List<StoreDomain>>(okResult.Value);
+        var actualStores = Assert.IsType<List<Store>>(okResult.Value);
         actualStores.Should().BeEquivalentTo(stores);
     }
 
@@ -199,8 +210,10 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.GetStoresByCityNameAsync(It.IsAny<string>()))
             .ReturnsAsync(
-                EitherExtensions.Failure<StoreFetchingError, IEnumerable<StoreDomain>>(
-                    new StoreFetchingError.StoreByCityNameNotFound(It.IsAny<string>())));
+                EitherExtensions.Failure<StoreFetchingError, IEnumerable<Store>>(
+                    new StoreFetchingError.StoreByCityNameNotFound(It.IsAny<string>())
+                )
+            );
 
         // Act
         var actual = await _storeController.GetStoresByCityNameAsync(It.IsAny<string>());
@@ -208,7 +221,9 @@ public class StoreControllerTest
         // Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
         var problem = Assert.IsAssignableFrom<StoreProblem.StoreByCityNameNotFound>(result.Value);
-        problem.Data.Should().BeEquivalentTo(new StoreFetchingError.StoreByCityNameNotFound(It.IsAny<string>()));
+        problem
+            .Data.Should()
+            .BeEquivalentTo(new StoreFetchingError.StoreByCityNameNotFound(It.IsAny<string>()));
     }
 
     [Fact]
@@ -221,13 +236,15 @@ public class StoreControllerTest
             .ReturnsAsync(EitherExtensions.Success<IStoreError, IdOutputModel>(idOutputModel));
 
         // Act
-        var result = await _storeController.AddStoreAsync(new AddStoreInputModel
-        {
-            Name = "Store",
-            Address = "Address",
-            CityId = 1,
-            CompanyId = 1
-        });
+        var result = await _storeController.AddStoreAsync(
+            new AddStoreInputModel
+            {
+                Name = "Store",
+                Address = "Address",
+                CityId = 1,
+                CompanyId = 1
+            }
+        );
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -243,16 +260,20 @@ public class StoreControllerTest
             .Setup(service => service.AddStoreAsync("Store", "Address", 1, 1))
             .ReturnsAsync(
                 EitherExtensions.Failure<IStoreError, IdOutputModel>(
-                    new StoreFetchingError.StoreByCityIdNotFound(1)));
+                    new StoreFetchingError.StoreByCityIdNotFound(1)
+                )
+            );
 
         //Act
-        var actual = await _storeController.AddStoreAsync(new AddStoreInputModel
-        {
-            Name = "Store",
-            Address = "Address",
-            CityId = 1,
-            CompanyId = 1
-        });
+        var actual = await _storeController.AddStoreAsync(
+            new AddStoreInputModel
+            {
+                Name = "Store",
+                Address = "Address",
+                CityId = 1,
+                CompanyId = 1
+            }
+        );
 
         //Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
@@ -268,21 +289,27 @@ public class StoreControllerTest
             .Setup(service => service.AddStoreAsync("Store", "Address", 1, 1))
             .ReturnsAsync(
                 EitherExtensions.Failure<IStoreError, IdOutputModel>(
-                    new StoreCreationError.StoreNameAlreadyExists("Store")));
+                    new StoreCreationError.StoreNameAlreadyExists("Store")
+                )
+            );
 
         //Act
-        var actual = await _storeController.AddStoreAsync(new AddStoreInputModel
-        {
-            Name = "Store",
-            Address = "Address",
-            CityId = 1,
-            CompanyId = 1
-        });
+        var actual = await _storeController.AddStoreAsync(
+            new AddStoreInputModel
+            {
+                Name = "Store",
+                Address = "Address",
+                CityId = 1,
+                CompanyId = 1
+            }
+        );
 
         //Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
         var problem = Assert.IsAssignableFrom<StoreProblem.StoreNameAlreadyExists>(result.Value);
-        problem.Data.Should().BeEquivalentTo(new StoreCreationError.StoreNameAlreadyExists("Store"));
+        problem
+            .Data.Should()
+            .BeEquivalentTo(new StoreCreationError.StoreNameAlreadyExists("Store"));
     }
 
     [Fact]
@@ -293,16 +320,20 @@ public class StoreControllerTest
             .Setup(service => service.AddStoreAsync("Store", "Address", 1, 1))
             .ReturnsAsync(
                 EitherExtensions.Failure<IStoreError, IdOutputModel>(
-                    new StoreFetchingError.StoreByCompanyIdNotFound(1)));
+                    new StoreFetchingError.StoreByCompanyIdNotFound(1)
+                )
+            );
 
         //Act
-        var actual = await _storeController.AddStoreAsync(new AddStoreInputModel
-        {
-            Name = "Store",
-            Address = "Address",
-            CityId = 1,
-            CompanyId = 1
-        });
+        var actual = await _storeController.AddStoreAsync(
+            new AddStoreInputModel
+            {
+                Name = "Store",
+                Address = "Address",
+                CityId = 1,
+                CompanyId = 1
+            }
+        );
 
         //Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
@@ -318,21 +349,27 @@ public class StoreControllerTest
             .Setup(service => service.AddStoreAsync("Store", "Address", 1, 1))
             .ReturnsAsync(
                 EitherExtensions.Failure<IStoreError, IdOutputModel>(
-                    new StoreCreationError.StoreAddressAlreadyExists("Address")));
+                    new StoreCreationError.StoreAddressAlreadyExists("Address")
+                )
+            );
 
         //Act
-        var actual = await _storeController.AddStoreAsync(new AddStoreInputModel
-        {
-            Name = "Store",
-            Address = "Address",
-            CityId = 1,
-            CompanyId = 1
-        });
+        var actual = await _storeController.AddStoreAsync(
+            new AddStoreInputModel
+            {
+                Name = "Store",
+                Address = "Address",
+                CityId = 1,
+                CompanyId = 1
+            }
+        );
 
         //Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
         var problem = Assert.IsAssignableFrom<StoreProblem.StoreAddressAlreadyExists>(result.Value);
-        problem.Data.Should().BeEquivalentTo(new StoreCreationError.StoreAddressAlreadyExists("Address"));
+        problem
+            .Data.Should()
+            .BeEquivalentTo(new StoreCreationError.StoreAddressAlreadyExists("Address"));
     }
 
     [Fact]
@@ -345,13 +382,16 @@ public class StoreControllerTest
             .ReturnsAsync(EitherExtensions.Success<IStoreError, IdOutputModel>(idOutputModel));
 
         // Act
-        var result = await _storeController.UpdateStoreAsync(1, new UpdateStoreInputModel
-        {
-            Name = "Store",
-            Address = "Address",
-            CityId = 1,
-            CompanyId = 1
-        });
+        var result = await _storeController.UpdateStoreAsync(
+            1,
+            new UpdateStoreInputModel
+            {
+                Name = "Store",
+                Address = "Address",
+                CityId = 1,
+                CompanyId = 1
+            }
+        );
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -367,16 +407,21 @@ public class StoreControllerTest
             .Setup(service => service.UpdateStoreAsync(1, "Store", "Address", 1, 1))
             .ReturnsAsync(
                 EitherExtensions.Failure<IStoreError, IdOutputModel>(
-                    new StoreFetchingError.StoreByCityIdNotFound(1)));
+                    new StoreFetchingError.StoreByCityIdNotFound(1)
+                )
+            );
 
         //Act
-        var actual = await _storeController.UpdateStoreAsync(1, new UpdateStoreInputModel
-        {
-            Name = "Store",
-            Address = "Address",
-            CityId = 1,
-            CompanyId = 1
-        });
+        var actual = await _storeController.UpdateStoreAsync(
+            1,
+            new UpdateStoreInputModel
+            {
+                Name = "Store",
+                Address = "Address",
+                CityId = 1,
+                CompanyId = 1
+            }
+        );
 
         //Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
@@ -392,21 +437,28 @@ public class StoreControllerTest
             .Setup(service => service.UpdateStoreAsync(1, "Store", "Address", 1, 1))
             .ReturnsAsync(
                 EitherExtensions.Failure<IStoreError, IdOutputModel>(
-                    new StoreCreationError.StoreNameAlreadyExists("Store")));
+                    new StoreCreationError.StoreNameAlreadyExists("Store")
+                )
+            );
 
         //Act
-        var actual = await _storeController.UpdateStoreAsync(1, new UpdateStoreInputModel
-        {
-            Name = "Store",
-            Address = "Address",
-            CityId = 1,
-            CompanyId = 1
-        });
+        var actual = await _storeController.UpdateStoreAsync(
+            1,
+            new UpdateStoreInputModel
+            {
+                Name = "Store",
+                Address = "Address",
+                CityId = 1,
+                CompanyId = 1
+            }
+        );
 
         //Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
         var problem = Assert.IsAssignableFrom<StoreProblem.StoreNameAlreadyExists>(result.Value);
-        problem.Data.Should().BeEquivalentTo(new StoreCreationError.StoreNameAlreadyExists("Store"));
+        problem
+            .Data.Should()
+            .BeEquivalentTo(new StoreCreationError.StoreNameAlreadyExists("Store"));
     }
 
     [Fact]
@@ -417,22 +469,26 @@ public class StoreControllerTest
             .Setup(service => service.UpdateStoreAsync(1, "Store", "Address", 1, 1))
             .ReturnsAsync(
                 EitherExtensions.Failure<IStoreError, IdOutputModel>(
-                    new StoreFetchingError.StoreByCompanyIdNotFound(1)));
+                    new StoreFetchingError.StoreByCompanyIdNotFound(1)
+                )
+            );
 
         //Act
-        var actual = await _storeController.UpdateStoreAsync(1, new UpdateStoreInputModel
-        {
-            Name = "Store",
-            Address = "Address",
-            CityId = 1,
-            CompanyId = 1
-        });
+        var actual = await _storeController.UpdateStoreAsync(
+            1,
+            new UpdateStoreInputModel
+            {
+                Name = "Store",
+                Address = "Address",
+                CityId = 1,
+                CompanyId = 1
+            }
+        );
 
         //Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
         var problem = Assert.IsAssignableFrom<StoreProblem.StoreByCompanyIdNotFound>(result.Value);
         problem.Data.Should().BeEquivalentTo(new StoreFetchingError.StoreByCompanyIdNotFound(1));
-
     }
 
     [Fact]
@@ -443,23 +499,28 @@ public class StoreControllerTest
             .Setup(service => service.UpdateStoreAsync(1, "Store", "Address", 1, 1))
             .ReturnsAsync(
                 EitherExtensions.Failure<IStoreError, IdOutputModel>(
-                    new StoreFetchingError.StoreByIdNotFound(1)));
+                    new StoreFetchingError.StoreByIdNotFound(1)
+                )
+            );
 
         //Act
-        var actual = await _storeController.UpdateStoreAsync(1, new UpdateStoreInputModel
-        {
-            Name = "Store",
-            Address = "Address",
-            CityId = 1,
-            CompanyId = 1
-        });
+        var actual = await _storeController.UpdateStoreAsync(
+            1,
+            new UpdateStoreInputModel
+            {
+                Name = "Store",
+                Address = "Address",
+                CityId = 1,
+                CompanyId = 1
+            }
+        );
 
         //Assert
         ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
         var problem = Assert.IsAssignableFrom<StoreProblem.StoreByIdNotFound>(result.Value);
         problem.Data.Should().BeEquivalentTo(new StoreFetchingError.StoreByIdNotFound(1));
     }
-    
+
     [Fact]
     public async Task DeleteStoreAsync_ReturnsOk()
     {
@@ -467,7 +528,9 @@ public class StoreControllerTest
         var idOutputModel = new IdOutputModel(1);
         _storeServiceMock
             .Setup(service => service.DeleteStoreAsync(1))
-            .ReturnsAsync(EitherExtensions.Success<StoreFetchingError, IdOutputModel>(idOutputModel));
+            .ReturnsAsync(
+                EitherExtensions.Success<StoreFetchingError, IdOutputModel>(idOutputModel)
+            );
 
         // Act
         var result = await _storeController.DeleteStoreAsync(1);
@@ -477,7 +540,7 @@ public class StoreControllerTest
         var actualIdOutputModel = Assert.IsType<IdOutputModel>(okResult.Value);
         actualIdOutputModel.Should().BeEquivalentTo(idOutputModel);
     }
-    
+
     [Fact]
     public async Task DeleteStoreAsync_WithInvalidStoreId_ReturnsNotFound()
     {
@@ -486,7 +549,9 @@ public class StoreControllerTest
             .Setup(service => service.DeleteStoreAsync(1))
             .ReturnsAsync(
                 EitherExtensions.Failure<StoreFetchingError, IdOutputModel>(
-                    new StoreFetchingError.StoreByIdNotFound(1)));
+                    new StoreFetchingError.StoreByIdNotFound(1)
+                )
+            );
 
         //Act
         var actual = await _storeController.DeleteStoreAsync(1);

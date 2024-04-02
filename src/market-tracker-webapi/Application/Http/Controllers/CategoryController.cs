@@ -11,10 +11,10 @@ namespace market_tracker_webapi.Application.Http.Controllers;
 public class CategoryController(ICategoryService categoryService) : ControllerBase
 {
     [HttpGet(Uris.Categories.Base)]
-    public async Task<ActionResult<IEnumerable<Category>>> GetCategoriesAsync()
+    public async Task<ActionResult<CollectionOutputModel>> GetCategoriesAsync()
     {
-        var categories = await categoryService.GetCategoriesAsync();
-        return Ok(categories);
+        var categoriesCollection = await categoryService.GetCategoriesAsync();
+        return Ok(categoriesCollection);
     }
 
     [HttpGet(Uris.Categories.CategoryById)]
@@ -68,7 +68,7 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
     }
 
     [HttpPut(Uris.Categories.CategoryById)]
-    public async Task<ActionResult<IdOutputModel>> UpdateCategoryAsync(
+    public async Task<ActionResult<Category>> UpdateCategoryAsync(
         int id,
         [FromBody] CategoryInputModel categoryInput
     )

@@ -12,14 +12,14 @@ namespace market_tracker_webapi.Application.Http.Controllers;
 public class StoreController(IStoreService storeService) : ControllerBase
 {
     [HttpGet(Uris.Stores.Base)]
-    public async Task<ActionResult<IEnumerable<StoreDomain>>> GetStoresAsync()
+    public async Task<ActionResult<CollectionOutputModel>> GetStoresAsync()
     {
-        var stores = await storeService.GetStoresAsync();
-        return Ok(stores);
+        var storesCollection = await storeService.GetStoresAsync();
+        return Ok(storesCollection);
     }
-    
+
     [HttpGet(Uris.Stores.StoreById)]
-    public async Task<ActionResult<StoreDomain>> GetStoreByIdAsync(int id)
+    public async Task<ActionResult<Store>> GetStoreByIdAsync(int id)
     {
         var res = await storeService.GetStoreByIdAsync(id);
         return ResultHandler.Handle(
@@ -29,17 +29,18 @@ public class StoreController(IStoreService storeService) : ControllerBase
                 return error switch
                 {
                     StoreFetchingError.StoreByIdNotFound idNotFoundError
-                        => new StoreProblem.StoreByIdNotFound(
-                            idNotFoundError
-                        ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError(nameof(StoreController)).ToActionResult()
+                        => new StoreProblem.StoreByIdNotFound(idNotFoundError).ToActionResult(),
+                    _
+                        => new ServerProblem.InternalServerError(
+                            nameof(StoreController)
+                        ).ToActionResult()
                 };
             }
         );
     }
-    
+
     [HttpGet(Uris.Stores.StoresFromCompany)]
-    public async Task<ActionResult<IEnumerable<StoreDomain>>> GetStoresFromCompanyAsync(int companyId)
+    public async Task<ActionResult<IEnumerable<Store>>> GetStoresFromCompanyAsync(int companyId)
     {
         var res = await storeService.GetStoresFromCompanyAsync(companyId);
         return ResultHandler.Handle(
@@ -52,14 +53,17 @@ public class StoreController(IStoreService storeService) : ControllerBase
                         => new StoreProblem.StoreByCompanyIdNotFound(
                             companyIdNotFoundError
                         ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError(nameof(StoreController)).ToActionResult()
+                    _
+                        => new ServerProblem.InternalServerError(
+                            nameof(StoreController)
+                        ).ToActionResult()
                 };
             }
         );
     }
-    
+
     [HttpGet(Uris.Stores.StoresByCityName)]
-    public async Task<ActionResult<IEnumerable<StoreDomain>>> GetStoresByCityNameAsync(string cityName)
+    public async Task<ActionResult<IEnumerable<Store>>> GetStoresByCityNameAsync(string cityName)
     {
         var res = await storeService.GetStoresByCityNameAsync(cityName);
         return ResultHandler.Handle(
@@ -72,14 +76,19 @@ public class StoreController(IStoreService storeService) : ControllerBase
                         => new StoreProblem.StoreByCityNameNotFound(
                             cityNotFoundError
                         ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError(nameof(StoreController)).ToActionResult()
+                    _
+                        => new ServerProblem.InternalServerError(
+                            nameof(StoreController)
+                        ).ToActionResult()
                 };
             }
         );
     }
-    
+
     [HttpPost(Uris.Stores.Base)]
-    public async Task<ActionResult<IdOutputModel>> AddStoreAsync([FromBody] AddStoreInputModel model)
+    public async Task<ActionResult<IdOutputModel>> AddStoreAsync(
+        [FromBody] AddStoreInputModel model
+    )
     {
         var res = await storeService.AddStoreAsync(
             model.Name,
@@ -109,14 +118,20 @@ public class StoreController(IStoreService storeService) : ControllerBase
                         => new StoreProblem.StoreByCompanyIdNotFound(
                             companyIdNotFoundError
                         ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError(nameof(StoreController)).ToActionResult()
+                    _
+                        => new ServerProblem.InternalServerError(
+                            nameof(StoreController)
+                        ).ToActionResult()
                 };
             }
         );
     }
-    
+
     [HttpPut(Uris.Stores.StoreById)]
-    public async Task<ActionResult<IdOutputModel>> UpdateStoreAsync(int id, [FromBody] UpdateStoreInputModel model)
+    public async Task<ActionResult<IdOutputModel>> UpdateStoreAsync(
+        int id,
+        [FromBody] UpdateStoreInputModel model
+    )
     {
         var res = await storeService.UpdateStoreAsync(
             id,
@@ -132,9 +147,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
                 return error switch
                 {
                     StoreFetchingError.StoreByIdNotFound idNotFoundError
-                        => new StoreProblem.StoreByIdNotFound(
-                            idNotFoundError
-                        ).ToActionResult(),
+                        => new StoreProblem.StoreByIdNotFound(idNotFoundError).ToActionResult(),
                     StoreCreationError.StoreNameAlreadyExists nameAlreadyExistsError
                         => new StoreProblem.StoreNameAlreadyExists(
                             nameAlreadyExistsError
@@ -147,12 +160,15 @@ public class StoreController(IStoreService storeService) : ControllerBase
                         => new StoreProblem.StoreByCompanyIdNotFound(
                             companyIdNotFoundError
                         ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError(nameof(StoreController)).ToActionResult()
+                    _
+                        => new ServerProblem.InternalServerError(
+                            nameof(StoreController)
+                        ).ToActionResult()
                 };
             }
         );
     }
-    
+
     [HttpDelete(Uris.Stores.StoreById)]
     public async Task<ActionResult<IdOutputModel>> DeleteStoreAsync(int id)
     {
@@ -164,10 +180,11 @@ public class StoreController(IStoreService storeService) : ControllerBase
                 return error switch
                 {
                     StoreFetchingError.StoreByIdNotFound idNotFoundError
-                        => new StoreProblem.StoreByIdNotFound(
-                            idNotFoundError
-                        ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError(nameof(StoreController)).ToActionResult()
+                        => new StoreProblem.StoreByIdNotFound(idNotFoundError).ToActionResult(),
+                    _
+                        => new ServerProblem.InternalServerError(
+                            nameof(StoreController)
+                        ).ToActionResult()
                 };
             }
         );

@@ -8,8 +8,10 @@ public class CityEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Column("id")]
     public int Id { get; set; }
-    
+
     [Required]
+    [Column("name")]
     public required string Name { get; set; }
 }

@@ -22,7 +22,7 @@ static class Program
     {
         WebApplication app = CreateWebHostBuilder(args).Build();
         Configure(app);
-        Console.WriteLine("Starting server...");
+        Console.WriteLine("Started server...");
         app.Run();
     }
 
@@ -61,6 +61,9 @@ static class Program
     {
         builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
+        var batchHandler = new DefaultODataBatchHandler();
+        batchHandler.MessageQuotas.MaxOperationsPerChangeset = 10;
+        batchHandler.MessageQuotas.MaxPartsPerBatch = 1000;
         builder
             .Services.AddControllers(options =>
             {
@@ -70,10 +73,6 @@ static class Program
             })
             .AddOData(options =>
             {
-                var batchHandler = new DefaultODataBatchHandler
-                {
-                    MessageQuotas = { MaxPartsPerBatch = 20 } // TODO: find a way to change this value
-                };
                 options.AddRouteComponents(Uris.ApiBase, GetEdmModel(), batchHandler);
             });
 

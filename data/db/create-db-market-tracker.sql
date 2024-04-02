@@ -13,6 +13,7 @@ drop table if exists promotion;
 drop table if exists price_history;
 drop table if exists last_checked;
 drop table if exists store;
+drop table if exists city;
 drop table if exists product;
 drop table if exists brand;
 drop table if exists category;
@@ -50,11 +51,18 @@ create table if not exists company
     created_at date               not null default now()
 );
 
+create table if not exists city
+(
+    id   int generated always as identity primary key,
+    name varchar(30) unique not null
+);
+
 create table if not exists store
 (
     id         int generated always as identity primary key,
+    name         varchar(30) not null,
     address    varchar(200) unique not null,
-    city       varchar(30)         not null,
+    city_id       int references city (id) on delete cascade,
     open_time  date,
     close_time date,
     company_id int references company (id) on delete cascade

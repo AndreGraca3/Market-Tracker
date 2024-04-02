@@ -11,15 +11,16 @@ namespace market_tracker_webapi.Application.Service.Operations.User
     public class UserService(
         IUserRepository userRepository,
         ITokenRepository tokenRepository,
-        TransactionManager transactionManager
+        ITransactionManager transactionManager
     ) : IUserService
     {
         public async Task<UsersOutputModel> GetUsersAsync(string? username, Pagination pagination)
         {
-            var users = (await userRepository.GetUsersAsync(username, pagination.Skip, pagination.Limit)).Select(
-                it =>
-                    new UserOutputModel(it.Id, it.Username, it.Name, it.CreatedAt)
-            ).ToArray();
+            var users = (
+                await userRepository.GetUsersAsync(username, pagination.Skip, pagination.Limit)
+            )
+                .Select(it => new UserOutputModel(it.Id, it.Username, it.Name, it.CreatedAt))
+                .ToArray();
 
             return new UsersOutputModel(users, users.Length);
         }
@@ -76,9 +77,7 @@ namespace market_tracker_webapi.Application.Service.Operations.User
 
                 // if(!code?.isValid) { return Failure<UserCreationError, > }
 
-                var userId = await userRepository.CreateUserAsync(
-                    username, name, email, password
-                );
+                var userId = await userRepository.CreateUserAsync(username, name, email, password);
 
                 return EitherExtensions.Success<UserCreationError, UserCreationOutputModel>(
                     new UserCreationOutputModel(userId, UserCreationOutputModel.Client)
@@ -86,13 +85,19 @@ namespace market_tracker_webapi.Application.Service.Operations.User
             });
         }
 
-        public async Task<Either<UserFetchingError, UserOutputModel>> UpdateUserAsync(Guid id, string? name,
-            string? username)
+        public async Task<Either<UserFetchingError, UserOutputModel>> UpdateUserAsync(
+            Guid id,
+            string? name,
+            string? username
+        )
         {
             return await transactionManager.ExecuteAsync(async () =>
             {
-                var user = await userRepository.UpdateUserAsync(id, name == "" ? null : name,
-                    username == "" ? null : username);
+                var user = await userRepository.UpdateUserAsync(
+                    id,
+                    name == "" ? null : name,
+                    username == "" ? null : username
+                );
 
                 if (user is null)
                 {
@@ -102,9 +107,7 @@ namespace market_tracker_webapi.Application.Service.Operations.User
                 }
 
                 return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
-                    new UserOutputModel(
-                        id, user.Username, user.Name, user.CreatedAt
-                    )
+                    new UserOutputModel(id, user.Username, user.Name, user.CreatedAt)
                 );
             });
         }
@@ -122,12 +125,7 @@ namespace market_tracker_webapi.Application.Service.Operations.User
                 }
 
                 return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
-                    new UserOutputModel(
-                        id,
-                        user.Username,
-                        user.Name,
-                        user.CreatedAt
-                    )
+                    new UserOutputModel(id, user.Username, user.Name, user.CreatedAt)
                 );
             });
         }

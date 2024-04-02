@@ -4,14 +4,14 @@ namespace market_tracker_webapi.Application.Repository.Operations.Company;
 
 public interface ICompanyRepository
 {
-    Task<IEnumerable<CompanyDomain>> GetCompaniesAsync();
-    Task<CompanyDomain?> GetCompanyByIdAsync(int id);
-    
-    Task<CompanyDomain?> GetCompanyByNameAsync(string name);
-    
+    Task<IEnumerable<Domain.Company>> GetCompaniesAsync();
+    Task<Domain.Company?> GetCompanyByIdAsync(int id);
+
+    Task<Domain.Company?> GetCompanyByNameAsync(string name);
+
     Task<int> AddCompanyAsync(string name);
-    
-    Task<CompanyDomain?> UpdateCompanyAsync(int id, string name);
-    
-    Task<CompanyDomain?> DeleteCompanyAsync(int id);
+
+    Task<Domain.Company?> UpdateCompanyAsync(int id, string name);
+
+    Task<Domain.Company?> DeleteCompanyAsync(int id);
 }

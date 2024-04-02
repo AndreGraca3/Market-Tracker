@@ -6,7 +6,7 @@ using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi_test.Application.Repositories
+namespace market_tracker_webapi_test.Application.Repository
 {
     public class UserRepositoryTest
     {
@@ -76,8 +76,7 @@ namespace market_tracker_webapi_test.Application.Repositories
         public async Task GetUserByUsername_ReturnsObjectAsync()
         {
             // Mock DB
-            var expectedUser = new User
-            (
+            var expectedUser = new User(
                 new Guid("33333333-3333-3333-3333-333333333333"),
                 "André",
                 "Graca",
@@ -144,8 +143,7 @@ namespace market_tracker_webapi_test.Application.Repositories
         public async Task GetUserByEmailAsync_ReturnsObjectAsync()
         {
             // Mock DB
-            var expectedUser = new User
-            (
+            var expectedUser = new User(
                 new Guid("33333333-3333-3333-3333-333333333333"),
                 "André",
                 "Graca",
@@ -191,7 +189,7 @@ namespace market_tracker_webapi_test.Application.Repositories
             // Assert
             actualUser.Should().BeEquivalentTo(expectedUser);
         }
-        
+
         [Fact]
         public async Task GetUserByEmailAsync_ReturnsNullAsync()
         {
@@ -258,7 +256,9 @@ namespace market_tracker_webapi_test.Application.Repositories
             );
 
             // Assert
-            actualUserDetails.Should().BeEquivalentTo(await userRepo.GetUserByIdAsync(expectedUserId));
+            actualUserDetails
+                .Should()
+                .BeEquivalentTo(await userRepo.GetUserByIdAsync(expectedUserId));
         }
 
         [Fact]
@@ -324,8 +324,9 @@ namespace market_tracker_webapi_test.Application.Repositories
             var userRepo = new UserRepository(context);
 
             // Act
-            var actualDeletedUserData =
-                await userRepo.DeleteUserAsync(new Guid("11111111-1111-1111-1111-111111111111"));
+            var actualDeletedUserData = await userRepo.DeleteUserAsync(
+                new Guid("11111111-1111-1111-1111-111111111111")
+            );
 
             // Assert
             actualDeletedUserData.Should().BeNull();
@@ -333,9 +334,10 @@ namespace market_tracker_webapi_test.Application.Repositories
 
         private static MarketTrackerDataContext CreateDatabase(List<UserEntity> userEntities)
         {
-            DbContextOptions<MarketTrackerDataContext> options = new DbContextOptionsBuilder<MarketTrackerDataContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
+            DbContextOptions<MarketTrackerDataContext> options =
+                new DbContextOptionsBuilder<MarketTrackerDataContext>()
+                    .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                    .Options;
 
             var databaseContext = new MarketTrackerDataContext(options);
             databaseContext.User.AddRange(userEntities);

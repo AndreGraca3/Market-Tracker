@@ -34,19 +34,23 @@ public static class Uris
 
         public static string BuildCategoryByIdUri(int id) => CategoryById.ExpandUri(id);
     }
-    
+
     public static class Companies
     {
         public const string Base = $"{ApiBase}/companies";
         public const string CompanyById = $"{Base}/{{id}}";
+
+        public static string BuildCompanyByIdUri(int id) => CompanyById.ExpandUri(id);
     }
-    
+
     public static class Cities
     {
         public const string Base = $"{ApiBase}/cities";
         public const string CityById = $"{Base}/{{id}}";
+
+        public static string BuildCategoryByIdUri(int id) => CityById.ExpandUri(id);
     }
-    
+
     public static class Stores
     {
         public const string Base = $"{ApiBase}/stores";

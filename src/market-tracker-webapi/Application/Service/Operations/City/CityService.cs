@@ -8,32 +8,33 @@ using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.City;
 
-public class CityService(ICityRepository cityRepository, ITransactionManager transactionManager) : ICityService
+public class CityService(ICityRepository cityRepository, ITransactionManager transactionManager)
+    : ICityService
 {
-    public Task<IEnumerable<CityDomain>> GetCitiesAsync()
+    public async Task<CollectionOutputModel> GetCitiesAsync()
     {
-        var cities = cityRepository.GetCitiesAsync();
-        return cities;
+        var cities = await cityRepository.GetCitiesAsync();
+        return new CollectionOutputModel(cities);
     }
 
-    public async Task<Either<CityFetchingError, CityDomain>> GetCityByIdAsync(int id)
+    public async Task<Either<CityFetchingError, Domain.City>> GetCityByIdAsync(int id)
     {
         var city = await cityRepository.GetCityByIdAsync(id);
         return city is null
-            ? EitherExtensions.Failure<CityFetchingError, CityDomain>(
+            ? EitherExtensions.Failure<CityFetchingError, Domain.City>(
                 new CityFetchingError.CityByIdNotFound(id)
             )
-            : EitherExtensions.Success<CityFetchingError, CityDomain>(city);
+            : EitherExtensions.Success<CityFetchingError, Domain.City>(city);
     }
 
-    public async Task<Either<CityFetchingError, CityDomain>> GetCityByNameAsync(string cityName)
+    public async Task<Either<CityFetchingError, Domain.City>> GetCityByNameAsync(string cityName)
     {
         var city = await cityRepository.GetCityByNameAsync(cityName);
         return city is null
-            ? EitherExtensions.Failure<CityFetchingError, CityDomain>(
+            ? EitherExtensions.Failure<CityFetchingError, Domain.City>(
                 new CityFetchingError.CityByNameNotFound(cityName)
             )
-            : EitherExtensions.Success<CityFetchingError, CityDomain>(city);
+            : EitherExtensions.Success<CityFetchingError, Domain.City>(city);
     }
 
     public async Task<Either<ICityError, IdOutputModel>> AddCityAsync(string cityName)
@@ -46,17 +47,16 @@ public class CityService(ICityRepository cityRepository, ITransactionManager tra
                     new CityCreationError.CityNameAlreadyExists(cityName)
                 );
             }
-            
+
             var cityId = await cityRepository.AddCityAsync(cityName);
-            return EitherExtensions.Success<ICityError, IdOutputModel>(
-                new IdOutputModel(cityId)
-            );
+            return EitherExtensions.Success<ICityError, IdOutputModel>(new IdOutputModel(cityId));
         });
     }
 
     public async Task<Either<CityFetchingError, IdOutputModel>> DeleteCityAsync(int id)
     {
-        return await transactionManager.ExecuteAsync(async () => {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
             var city = await cityRepository.GetCityByIdAsync(id);
             if (city is null)
             {
@@ -72,23 +72,23 @@ public class CityService(ICityRepository cityRepository, ITransactionManager tra
         });
     }
 
-    public async Task<Either<ICityError, CityDomain>> UpdateCityAsync(int id, string cityName)
+    public async Task<Either<ICityError, Domain.City>> UpdateCityAsync(int id, string cityName)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await cityRepository.GetCityByNameAsync(cityName) is not null)
             {
-                return EitherExtensions.Failure<ICityError, CityDomain>(
+                return EitherExtensions.Failure<ICityError, Domain.City>(
                     new CityCreationError.CityNameAlreadyExists(cityName)
                 );
             }
-            
+
             var city = await cityRepository.UpdateCityAsync(id, cityName);
             return city is null
-                ? EitherExtensions.Failure<ICityError, CityDomain>(
+                ? EitherExtensions.Failure<ICityError, Domain.City>(
                     new CityFetchingError.CityByIdNotFound(id)
                 )
-                : EitherExtensions.Success<ICityError, CityDomain>(city);
+                : EitherExtensions.Success<ICityError, Domain.City>(city);
         });
     }
 }

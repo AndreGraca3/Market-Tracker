@@ -5,7 +5,7 @@ using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi_test.Application.Repositories;
+namespace market_tracker_webapi_test.Application.Repository;
 
 public class CompanyRepositoryTest
 {
@@ -15,97 +15,85 @@ public class CompanyRepositoryTest
         // Arrange
         var companyEntities = new List<CompanyEntity>
         {
-            new ()
-            {
-                Id = 1, 
-                Name = "Company 1"
-            }
+            new() { Id = 1, Name = "Company 1" }
         };
 
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
-        
-        var expectedCompanyData = new CompanyDomain
+
+        var expectedCompanyData = new Company
         {
             Id = 1,
             Name = "Company 1",
             CreatedAt = DateTime.Now
         };
-        
+
         // Act
         var companyData = await companyRepository.GetCompanyByIdAsync(1);
-        
+
         // Assert
-        expectedCompanyData.Should().BeEquivalentTo(companyData, options => options.Excluding(x => x!.CreatedAt));
+        expectedCompanyData
+            .Should()
+            .BeEquivalentTo(companyData, options => options.Excluding(x => x!.CreatedAt));
     }
-    
+
     [Fact]
     public async Task GetCompanyByIdAsync_WithNonExistingCompany_ReturnsNull()
     {
         // Arrange
         var companyEntities = new List<CompanyEntity>
         {
-            new ()
-            {
-                Id = 1, 
-                Name = "Company 1"
-            }
+            new() { Id = 1, Name = "Company 1" }
         };
 
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
-        
+
         // Act
         var companyData = await companyRepository.GetCompanyByIdAsync(2);
-        
+
         // Assert
         companyData.Should().BeNull();
     }
-    
+
     [Fact]
     public async Task GetCompaniesAsync_WithExistingCompanies_ReturnsCompanyData()
     {
         // Arrange
         var companyEntities = new List<CompanyEntity>
         {
-            new ()
-            {
-                Id = 1, 
-                Name = "Company 1"
-            },
-            new ()
-            {
-                Id = 2, 
-                Name = "Company 2"
-            }
+            new() { Id = 1, Name = "Company 1" },
+            new() { Id = 2, Name = "Company 2" }
         };
 
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
-        
-        var expectedCompanyData = new List<CompanyDomain>
+
+        var expectedCompanyData = new List<Company>
         {
-            new ()
+            new()
             {
-                Id = 1, 
+                Id = 1,
                 Name = "Company 1",
                 CreatedAt = DateTime.Now
             },
-            new ()
+            new()
             {
-                Id = 2, 
+                Id = 2,
                 Name = "Company 2",
                 CreatedAt = DateTime.Now
             }
         };
-        
+
         // Act
         var companyData = await companyRepository.GetCompaniesAsync();
-        
+
         // Assert
-        expectedCompanyData.Should().BeEquivalentTo(companyData, options => options.Excluding(p => p.CreatedAt));
+        expectedCompanyData
+            .Should()
+            .BeEquivalentTo(companyData, options => options.Excluding(p => p.CreatedAt));
     }
-    
+
     [Fact]
     public async Task GetCompaniesAsync_WithNoCompanies_ReturnsEmptyList()
     {
@@ -114,200 +102,185 @@ public class CompanyRepositoryTest
 
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
-        
+
         // Act
         var companyData = await companyRepository.GetCompaniesAsync();
-        
+
         // Assert
         companyData.Should().BeEmpty();
     }
-    
+
     [Fact]
     public async Task GetCompanyByNameAsync_WithExistingCompany_ReturnsCompanyData()
     {
         // Arrange
         var companyEntities = new List<CompanyEntity>
         {
-            new ()
-            {
-                Id = 1, 
-                Name = "Company 1"
-            }
+            new() { Id = 1, Name = "Company 1" }
         };
 
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
-        
-        var expectedCompanyData = new CompanyDomain
+
+        var expectedCompanyData = new Company
         {
             Id = 1,
             Name = "Company 1",
             CreatedAt = DateTime.Now
         };
-        
+
         // Act
         var companyData = await companyRepository.GetCompanyByNameAsync("Company 1");
-        
+
         // Assert
-        expectedCompanyData.Should().BeEquivalentTo(companyData, options => options.Excluding(x => x!.CreatedAt));
+        expectedCompanyData
+            .Should()
+            .BeEquivalentTo(companyData, options => options.Excluding(x => x!.CreatedAt));
     }
-    
+
     [Fact]
     public async Task GetCompanyByNameAsync_WithNonExistingCompany_ReturnsNull()
     {
         // Arrange
         var companyEntities = new List<CompanyEntity>
         {
-            new ()
-            {
-                Id = 1, 
-                Name = "Company 1"
-            }
+            new() { Id = 1, Name = "Company 1" }
         };
 
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
-        
+
         // Act
         var companyData = await companyRepository.GetCompanyByNameAsync("Company 2");
-        
+
         // Assert
         companyData.Should().BeNull();
     }
-    
+
     [Fact]
     public async Task AddCompanyAsync_WithValidCompany_ReturnsCompanyId()
     {
         // Arrange
         var companyEntities = new List<CompanyEntity>
         {
-            new ()
-            {
-                Id = 1, 
-                Name = "Company1"
-            }
+            new() { Id = 1, Name = "Company1" }
         };
 
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
-        
+
         // Act
         var companyId = await companyRepository.AddCompanyAsync("Company 2");
-        
+
         // Assert
         companyId.Should().Be(2);
     }
-    
+
     [Fact]
     public async Task UpdateCompanyAsync_WithExistingCompany_ReturnsUpdatedCompanyData()
     {
         // Arrange
         var companyEntities = new List<CompanyEntity>
         {
-            new ()
-            {
-                Id = 1, 
-                Name = "Company 1"
-            }
+            new() { Id = 1, Name = "Company 1" }
         };
 
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
-        
-        var updatedCompanyData = new CompanyDomain
+
+        var updatedCompanyData = new Company
         {
             Id = 1,
             Name = "Company 2",
             CreatedAt = DateTime.Now
         };
         // Act
-        var companyData = await companyRepository.UpdateCompanyAsync(updatedCompanyData.Id, updatedCompanyData.Name);
-        
+        var companyData = await companyRepository.UpdateCompanyAsync(
+            updatedCompanyData.Id,
+            updatedCompanyData.Name
+        );
+
         // Assert
-        updatedCompanyData.Should().BeEquivalentTo(companyData, options => options.Excluding(x => x!.CreatedAt));
+        updatedCompanyData
+            .Should()
+            .BeEquivalentTo(companyData, options => options.Excluding(x => x!.CreatedAt));
     }
-    
+
     [Fact]
     public async Task UpdateCompanyAsync_WithNonExistingCompany_ReturnsNull()
     {
         // Arrange
         var companyEntities = new List<CompanyEntity>
         {
-            new ()
-            {
-                Id = 1, 
-                Name = "Company 1"
-            }
+            new() { Id = 1, Name = "Company 1" }
         };
 
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
-        
-        var updatedCompanyData = new CompanyDomain()
+
+        var updatedCompanyData = new Company()
         {
             Id = 2,
             Name = "Company 2",
             CreatedAt = DateTime.Now
         };
-        
+
         // Act
-        var companyData = await companyRepository.UpdateCompanyAsync(updatedCompanyData.Id, updatedCompanyData.Name);
-        
+        var companyData = await companyRepository.UpdateCompanyAsync(
+            updatedCompanyData.Id,
+            updatedCompanyData.Name
+        );
+
         // Assert
         companyData.Should().BeNull();
     }
-    
+
     [Fact]
     public async Task DeleteCompanyAsync_WithExistingCompany_ReturnsDeletedCompanyData()
     {
         // Arrange
         var companyEntities = new List<CompanyEntity>
         {
-            new ()
-            {
-                Id = 1, 
-                Name = "Company 1"
-            }
+            new() { Id = 1, Name = "Company 1" }
         };
 
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
-        
+
         // Act
         var companyData = await companyRepository.DeleteCompanyAsync(1);
-        
+
         // Assert
         companyData.Should().NotBeNull();
     }
-    
+
     [Fact]
     public async Task DeleteCompanyAsync_WithNonExistingCompany_ReturnsNull()
     {
         // Arrange
         var companyEntities = new List<CompanyEntity>
         {
-            new ()
-            {
-                Id = 1, 
-                Name = "Company 1"
-            }
+            new() { Id = 1, Name = "Company 1" }
         };
 
         var context = CreateDatabase(companyEntities);
         var companyRepository = new CompanyRepository(context);
-        
+
         // Act
         var companyData = await companyRepository.DeleteCompanyAsync(2);
-        
+
         // Assert
         companyData.Should().BeNull();
     }
-    
-    private static MarketTrackerDataContext CreateDatabase(IEnumerable<CompanyEntity> companyEntities)
+
+    private static MarketTrackerDataContext CreateDatabase(
+        IEnumerable<CompanyEntity> companyEntities
+    )
     {
-        DbContextOptions<MarketTrackerDataContext> options = new DbContextOptionsBuilder<MarketTrackerDataContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
+        DbContextOptions<MarketTrackerDataContext> options =
+            new DbContextOptionsBuilder<MarketTrackerDataContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
 
         var databaseContext = new MarketTrackerDataContext(options);
         databaseContext.Company.AddRange(companyEntities);

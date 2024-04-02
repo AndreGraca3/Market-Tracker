@@ -9,15 +9,15 @@ namespace market_tracker_webapi.Application.Service.Operations.Company;
 
 public interface ICompanyService
 {
-    Task<IEnumerable<CompanyDomain>> GetCompaniesAsync();
-    
-    Task<Either<CompanyFetchingError, CompanyDomain>> GetCompanyByIdAsync(int id);
-    
-    Task<Either<CompanyFetchingError, CompanyDomain>> GetCompanyByNameAsync(string companyName);
-    
+    Task<CollectionOutputModel> GetCompaniesAsync();
+
+    Task<Either<CompanyFetchingError, Domain.Company>> GetCompanyByIdAsync(int id);
+
+    Task<Either<CompanyFetchingError, Domain.Company>> GetCompanyByNameAsync(string companyName);
+
     Task<Either<ICompanyError, IdOutputModel>> AddCompanyAsync(string companyName);
-    
+
     Task<Either<CompanyFetchingError, IdOutputModel>> DeleteCompanyAsync(int id);
-    
-    Task<Either<ICompanyError, CompanyDomain>> UpdateCompanyAsync(int id, string companyName);
+
+    Task<Either<ICompanyError, Domain.Company>> UpdateCompanyAsync(int id, string companyName);
 }

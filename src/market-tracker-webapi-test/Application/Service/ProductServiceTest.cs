@@ -72,7 +72,7 @@ public class ProductServiceTest
         var productsResult = await _productService.GetProductsAsync();
 
         // Assert
-        productsResult.Should().BeEquivalentTo(new EnumerableOutputModel(_dummyProducts));
+        productsResult.Should().BeEquivalentTo(new CollectionOutputModel(_dummyProducts));
     }
 
     [Fact]

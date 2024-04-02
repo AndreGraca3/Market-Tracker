@@ -17,10 +17,10 @@ public class ProductService(
     ITransactionManager transactionManager
 ) : IProductService
 {
-    public async Task<EnumerableOutputModel> GetProductsAsync()
+    public async Task<CollectionOutputModel> GetProductsAsync()
     {
         var products = await productRepository.GetProductsAsync();
-        return new EnumerableOutputModel(products);
+        return new CollectionOutputModel(products);
     }
 
     public async Task<Either<ProductFetchingError, ProductOutputModel>> GetProductAsync(int id)

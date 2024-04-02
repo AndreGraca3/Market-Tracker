@@ -8,15 +8,15 @@ namespace market_tracker_webapi.Application.Service.Operations.City;
 
 public interface ICityService
 {
-    Task<IEnumerable<CityDomain>> GetCitiesAsync();
-    
-    Task<Either<CityFetchingError, CityDomain>> GetCityByIdAsync(int id);
-    
-    Task<Either<CityFetchingError, CityDomain>> GetCityByNameAsync(string cityName);
-    
+    Task<CollectionOutputModel> GetCitiesAsync();
+
+    Task<Either<CityFetchingError, Domain.City>> GetCityByIdAsync(int id);
+
+    Task<Either<CityFetchingError, Domain.City>> GetCityByNameAsync(string cityName);
+
     Task<Either<ICityError, IdOutputModel>> AddCityAsync(string cityName);
-    
+
     Task<Either<CityFetchingError, IdOutputModel>> DeleteCityAsync(int id);
-    
-    Task<Either<ICityError, CityDomain>> UpdateCityAsync(int id, string cityName);
+
+    Task<Either<ICityError, Domain.City>> UpdateCityAsync(int id, string cityName);
 }

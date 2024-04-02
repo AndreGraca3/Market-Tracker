@@ -12,14 +12,14 @@ namespace market_tracker_webapi.Application.Http.Controllers;
 public class CompanyController(ICompanyService companyService) : ControllerBase
 {
     [HttpGet(Uris.Companies.Base)]
-    public async Task<ActionResult<IEnumerable<CompanyDomain>>> GetCompaniesAsync()
+    public async Task<ActionResult<CollectionOutputModel>> GetCompaniesAsync()
     {
-        var companies = await companyService.GetCompaniesAsync();
-        return Ok(companies);
+        var companiesCollection = await companyService.GetCompaniesAsync();
+        return Ok(companiesCollection);
     }
-    
+
     [HttpGet(Uris.Companies.CompanyById)]
-    public async Task<ActionResult<CompanyDomain>> GetCompanyByIdAsync(int id)
+    public async Task<ActionResult<Company>> GetCompanyByIdAsync(int id)
     {
         var res = await companyService.GetCompanyByIdAsync(id);
         return ResultHandler.Handle(
@@ -29,17 +29,20 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
                 return error switch
                 {
                     CompanyFetchingError.CompanyByIdNotFound idNotFoundError
-                        => new CompanyProblem.CompanyByIdNotFound(
-                            idNotFoundError
-                        ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError(nameof(CompanyController)).ToActionResult()
+                        => new CompanyProblem.CompanyByIdNotFound(idNotFoundError).ToActionResult(),
+                    _
+                        => new ServerProblem.InternalServerError(
+                            nameof(CompanyController)
+                        ).ToActionResult()
                 };
             }
         );
     }
-    
+
     [HttpPost(Uris.Companies.Base)]
-    public async Task<ActionResult<IdOutputModel>> AddCompanyAsync([FromBody] CompanyCreationInputModel companyInput)
+    public async Task<ActionResult<IdOutputModel>> AddCompanyAsync(
+        [FromBody] CompanyCreationInputModel companyInput
+    )
     {
         var res = await companyService.AddCompanyAsync(companyInput.CompanyName);
         return ResultHandler.Handle(
@@ -49,15 +52,24 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
                 return error switch
                 {
                     CompanyCreationError.CompanyNameAlreadyExists companyError
-                        => new CompanyProblem.CompanyNameAlreadyExists(companyError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError(nameof(CompanyController)).ToActionResult()
+                        => new CompanyProblem.CompanyNameAlreadyExists(
+                            companyError
+                        ).ToActionResult(),
+                    _
+                        => new ServerProblem.InternalServerError(
+                            nameof(CompanyController)
+                        ).ToActionResult()
                 };
-            }
+            },
+            outputModel => Created(Uris.Companies.BuildCompanyByIdUri(outputModel.Id), outputModel)
         );
     }
-    
+
     [HttpPut(Uris.Companies.CompanyById)]
-    public async Task<ActionResult<CompanyDomain>> UpdateCompanyAsync(int id, [FromBody] CompanyUpdateInputModel companyInput)
+    public async Task<ActionResult<Company>> UpdateCompanyAsync(
+        int id,
+        [FromBody] CompanyUpdateInputModel companyInput
+    )
     {
         var res = await companyService.UpdateCompanyAsync(id, companyInput.CompanyName);
         return ResultHandler.Handle(
@@ -67,17 +79,20 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
                 return error switch
                 {
                     CompanyFetchingError.CompanyByIdNotFound idNotFoundError
-                        => new CompanyProblem.CompanyByIdNotFound(
-                            idNotFoundError
-                        ).ToActionResult(),
+                        => new CompanyProblem.CompanyByIdNotFound(idNotFoundError).ToActionResult(),
                     CompanyCreationError.CompanyNameAlreadyExists companyError
-                        => new CompanyProblem.CompanyNameAlreadyExists(companyError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError(nameof(CompanyController)).ToActionResult()
+                        => new CompanyProblem.CompanyNameAlreadyExists(
+                            companyError
+                        ).ToActionResult(),
+                    _
+                        => new ServerProblem.InternalServerError(
+                            nameof(CompanyController)
+                        ).ToActionResult()
                 };
             }
         );
     }
-    
+
     [HttpDelete(Uris.Companies.CompanyById)]
     public async Task<ActionResult<IdOutputModel>> DeleteCompanyAsync(int id)
     {
@@ -89,10 +104,11 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
                 return error switch
                 {
                     CompanyFetchingError.CompanyByIdNotFound idNotFoundError
-                        => new CompanyProblem.CompanyByIdNotFound(
-                            idNotFoundError
-                        ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError(nameof(CompanyController)).ToActionResult()
+                        => new CompanyProblem.CompanyByIdNotFound(idNotFoundError).ToActionResult(),
+                    _
+                        => new ServerProblem.InternalServerError(
+                            nameof(CompanyController)
+                        ).ToActionResult()
                 };
             }
         );

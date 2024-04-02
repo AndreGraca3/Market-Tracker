@@ -7,7 +7,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Product;
 
 public interface IProductService
 {
-    public Task<EnumerableOutputModel> GetProductsAsync();
+    public Task<CollectionOutputModel> GetProductsAsync();
     public Task<Either<ProductFetchingError, ProductOutputModel>> GetProductAsync(int id);
 
     public Task<Either<IServiceError, IdOutputModel>> AddProductAsync(
