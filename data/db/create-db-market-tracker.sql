@@ -1,10 +1,12 @@
 drop table if exists post_comment;
 drop table if exists post;
-drop table if exists favorite;
+drop table if exists product_favorite;
 drop table if exists list_product;
 drop table if exists list;
 drop table if exists token;
 drop table if exists product_review;
+drop table if exists price_alert;
+drop table if exists fcm_registration;
 drop table if exists moderator;
 drop table if exists operator;
 drop table if exists client;
@@ -60,9 +62,9 @@ create table if not exists city
 create table if not exists store
 (
     id         int generated always as identity primary key,
-    name         varchar(30) not null,
+    name       varchar(30)         not null,
     address    varchar(200) unique not null,
-    city_id       int references city (id) on delete cascade,
+    city_id    int references city (id) on delete cascade,
     open_time  date,
     close_time date,
     company_id int references company (id) on delete cascade
@@ -140,28 +142,44 @@ create table if not exists token
     user_id     uuid references "user" (id) on delete cascade
 );
 
+create table if not exists fcm_registration
+(
+    client_id uuid references client (id) on delete cascade,
+    token     varchar(255) not null,
+    primary key (client_id, token)
+);
+
 create table if not exists product_review
 (
+    id         int generated always as identity,
     client_id  uuid references client (id) on delete cascade,
     product_id int references product (id) on delete cascade,
-    rate       int          not null check (rate between 1 and 5),
-    text       varchar(255) not null,
-    created_at date         not null default now(),
+    rating     int     not null check (rating between 1 and 5),
+    text       varchar(255),
+    created_at date    not null default now(),
     primary key (client_id, product_id)
 );
 
-create table if not exists favorite
+create table if not exists product_favorite
 (
     client_id  uuid references client (id) on delete cascade,
     product_id int references product (id) on delete cascade,
-    date       date not null default now(),
+    primary key (client_id, product_id)
+);
+
+create table if not exists price_alert
+(
+    client_id       uuid references client (id) on delete cascade,
+    product_id      int references product (id) on delete cascade,
+    price_threshold int       not null,
+    created_at      timestamp not null default now(),
     primary key (client_id, product_id)
 );
 
 create table if not exists list
 (
     id          int generated always as identity primary key,
-    client_id   uuid references client (id),
+    client_id   uuid references client (id) on delete cascade,
     archived_at date not null
 );
 

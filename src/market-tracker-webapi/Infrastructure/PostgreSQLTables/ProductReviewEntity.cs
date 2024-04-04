@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using market_tracker_webapi.Application.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -8,18 +9,32 @@ namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 [PrimaryKey(nameof(ClientId), nameof(ProductId))]
 public class ProductReviewEntity
 {
-    [Column("client_id")] public Guid ClientId { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Column("id")]
+    public int Id { get; set; }
 
-    [Column("product_id")] public int ProductId { get; set; }
+    [Column("product_id")]
+    public required int ProductId { get; set; }
 
-    [Column("rate")] public int Rate { get; set; }
+    [Column("client_id")]
+    public required Guid ClientId { get; set; }
 
-    [Column("comment")] public string Comment { get; set; }
+    [Column("moderated")]
+    public bool Moderated { get; set; }
 
-    [Column("created_at")] public DateTime CreatedAt { get; set; }
+    [Column("rating")]
+    public required int Rating { get; set; }
+
+    [Column("text")]
+    [MaxLength(255)]
+    public string? Text { get; set; }
+
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; }
 
     public ProductReview ToProductReview()
     {
-        return new ProductReview(ClientId, ProductId, Rate, Comment, CreatedAt);
+        return new ProductReview(Id, ClientId, ProductId, Moderated, Rating, Text, CreatedAt);
     }
 }

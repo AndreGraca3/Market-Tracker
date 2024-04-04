@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace market_tracker_webapi.Application.Http.Models;
+namespace market_tracker_webapi.Application.Http.Models.Product;
 
 public record ProductUpdateInputModel(
     [Required] [MaxLength(50, ErrorMessage = "Name too long.")] string Name,
     [Required] string ImageUrl,
-    [Required] int Quantity,
+    [Required] int? Quantity,
     [Required]
     [RegularExpression(
         "^(unidades|kilogramas|gramas|litros|mililitros)$",
@@ -13,5 +13,5 @@ public record ProductUpdateInputModel(
     )]
         string Unit,
     [Required] string BrandName,
-    [Required] int CategoryId
+    [Required] int? CategoryId
 );

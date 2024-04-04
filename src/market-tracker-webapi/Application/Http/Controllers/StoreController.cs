@@ -1,5 +1,4 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Store;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.Store;
@@ -19,7 +18,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpGet(Uris.Stores.StoreById)]
-    public async Task<ActionResult<Store>> GetStoreByIdAsync(int id)
+    public async Task<ActionResult<Domain.Store>> GetStoreByIdAsync(int id)
     {
         var res = await storeService.GetStoreByIdAsync(id);
         return ResultHandler.Handle(
@@ -40,7 +39,9 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpGet(Uris.Stores.StoresFromCompany)]
-    public async Task<ActionResult<IEnumerable<Store>>> GetStoresFromCompanyAsync(int companyId)
+    public async Task<ActionResult<IEnumerable<Domain.Store>>> GetStoresFromCompanyAsync(
+        int companyId
+    )
     {
         var res = await storeService.GetStoresFromCompanyAsync(companyId);
         return ResultHandler.Handle(
@@ -63,7 +64,9 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpGet(Uris.Stores.StoresByCityName)]
-    public async Task<ActionResult<IEnumerable<Store>>> GetStoresByCityNameAsync(string cityName)
+    public async Task<ActionResult<IEnumerable<Domain.Store>>> GetStoresByCityNameAsync(
+        string cityName
+    )
     {
         var res = await storeService.GetStoresByCityNameAsync(cityName);
         return ResultHandler.Handle(

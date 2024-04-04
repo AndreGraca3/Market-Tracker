@@ -50,32 +50,32 @@ public class ProductRepositoryTest
         {
             ClientId = Guid.NewGuid(),
             ProductId = _dummyProducts[0].Id,
-            Rate = 5,
-            Comment = "Great product",
+            Rating = 5,
+            Text = "Great product",
             CreatedAt = DateTime.Now - TimeSpan.FromDays(3)
         },
         new ProductReviewEntity
         {
             ClientId = Guid.NewGuid(),
             ProductId = _dummyProducts[0].Id,
-            Rate = 4,
-            Comment = "Good product",
+            Rating = 4,
+            Text = "Good product",
             CreatedAt = DateTime.Now - TimeSpan.FromDays(2)
         },
         new ProductReviewEntity
         {
             ClientId = Guid.NewGuid(),
             ProductId = _dummyProducts[0].Id,
-            Rate = 2,
-            Comment = "Bad product",
+            Rating = 2,
+            Text = "Bad product",
             CreatedAt = DateTime.Now - TimeSpan.FromDays(1)
         },
         new ProductReviewEntity
         {
             ClientId = Guid.NewGuid(),
             ProductId = _dummyProducts[1].Id,
-            Rate = 3,
-            Comment = "Ok product",
+            Rating = 3,
+            Text = "Ok product",
             CreatedAt = DateTime.Now
         }
     ];
@@ -315,8 +315,8 @@ public class ProductRepositoryTest
                 {
                     ClientId = _dummyReviews[1].ClientId,
                     ProductId = _dummyReviews[1].ProductId,
-                    Rate = 5,
-                    Comment = "Great product",
+                    Rating = 5,
+                    Text = "Great product",
                     CreatedAt = actualReview.CreatedAt
                 }
             );
@@ -345,8 +345,8 @@ public class ProductRepositoryTest
                 {
                     ClientId = _dummyReviews[0].ClientId,
                     ProductId = _dummyReviews[0].ProductId,
-                    Rate = 3,
-                    Comment = "Great product",
+                    Rating = 3,
+                    Text = "Great product",
                     CreatedAt = _dummyReviews[0].CreatedAt
                 }
             );

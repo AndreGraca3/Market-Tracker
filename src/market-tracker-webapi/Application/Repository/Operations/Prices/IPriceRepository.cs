@@ -6,10 +6,5 @@ public interface IPriceRepository
 {
     public Task<IEnumerable<PriceEntry>> GetPricesAsync();
 
-    public Task AddPriceAsync(
-        int productId,
-        int price,
-        DateTime date,
-        int? promotionPercentage
-    );
+    public Task AddPriceAsync(int productId, int price, DateTime date, int? promotionPercentage);
 }

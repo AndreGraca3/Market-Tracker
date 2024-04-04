@@ -1,11 +1,12 @@
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Operations.Product;
 using Microsoft.AspNetCore.Mvc;
 
-namespace market_tracker_webapi.Application.Http.Controllers;
+namespace market_tracker_webapi.Application.Http.Controllers.Product;
 
 [ApiController]
 public class ProductController(IProductService productService) : ControllerBase
@@ -18,9 +19,9 @@ public class ProductController(IProductService productService) : ControllerBase
     }
 
     [HttpGet(Uris.Products.ProductById)]
-    public async Task<ActionResult<ProductOutputModel>> GetProductAsync(int id)
+    public async Task<ActionResult<ProductOutputModel>> GetProductAsync(int productId)
     {
-        var res = await productService.GetProductAsync(id);
+        var res = await productService.GetProductByIdAsync(productId);
 
         return ResultHandler.Handle(
             res,
@@ -41,13 +42,13 @@ public class ProductController(IProductService productService) : ControllerBase
     )
     {
         var res = await productService.AddProductAsync(
-            productInput.Id,
+            productInput.Id!.Value,
             productInput.Name,
             productInput.ImageUrl,
-            productInput.Quantity,
+            productInput.Quantity!.Value,
             productInput.Unit,
             productInput.BrandName,
-            productInput.CategoryId
+            productInput.CategoryId!.Value
         );
 
         return ResultHandler.Handle(
@@ -71,19 +72,18 @@ public class ProductController(IProductService productService) : ControllerBase
 
     [HttpPut(Uris.Products.ProductById)]
     public async Task<ActionResult<ProductOutputModel>> UpdateProductAsync(
-        int id,
-        [FromQuery] int pagin,
+        int productId,
         [FromBody] ProductUpdateInputModel productInput
     )
     {
         var res = await productService.UpdateProductAsync(
-            id,
+            productId,
             productInput.Name,
             productInput.ImageUrl,
-            productInput.Quantity,
+            productInput.Quantity!.Value,
             productInput.Unit,
             productInput.BrandName,
-            productInput.CategoryId
+            productInput.CategoryId!.Value
         );
 
         return ResultHandler.Handle(
@@ -105,9 +105,9 @@ public class ProductController(IProductService productService) : ControllerBase
     }
 
     [HttpDelete(Uris.Products.ProductById)]
-    public async Task<ActionResult<IdOutputModel>> RemoveProductAsync(int id)
+    public async Task<ActionResult<IdOutputModel>> RemoveProductAsync(int productId)
     {
-        var res = await productService.RemoveProductAsync(id);
+        var res = await productService.RemoveProductAsync(productId);
 
         return ResultHandler.Handle(
             res,

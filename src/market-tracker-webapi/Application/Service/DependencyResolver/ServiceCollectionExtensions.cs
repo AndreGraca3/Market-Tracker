@@ -39,8 +39,10 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
         {
             services.AddScoped<ITransactionManager, TransactionManager>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProductFeedbackService, ProductFeedbackService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IProductFeedbackRepository, ProductFeedbackRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IBrandRepository, BrandRepository>();
             services.AddScoped<IUserService, UserService>();

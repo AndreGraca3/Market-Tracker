@@ -31,12 +31,4 @@ public interface IProductRepository
     );
 
     Task<Product?> RemoveProductAsync(int productId);
-
-    Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(Guid clientId, int productId);
-
-    Task AddReviewAsync(Guid clientId, int productId, int rate, string comment);
-
-    Task<ProductReview?> UpdateReviewAsync(Guid clientId, int productId, int rate, string comment);
-
-    Task<ProductReview?> RemoveReviewAsync(Guid clientId, int productId);
 }

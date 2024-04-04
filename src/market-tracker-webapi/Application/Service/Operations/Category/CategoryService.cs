@@ -1,5 +1,6 @@
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.Category;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
@@ -13,20 +14,28 @@ public class CategoryService(
     ITransactionManager transactionManager
 ) : ICategoryService
 {
-    public async Task<CollectionOutputModel> GetCategoriesAsync()
+    public async Task<Either<IServiceError, CollectionOutputModel>> GetCategoriesAsync()
     {
-        var categories = await categoryRepository.GetCategoriesAsync();
-        return new CollectionOutputModel(categories);
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var categories = await categoryRepository.GetCategoriesAsync();
+            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(
+                new CollectionOutputModel(categories)
+            );
+        });
     }
 
     public async Task<Either<CategoryFetchingError, Category>> GetCategoryAsync(int id)
     {
-        var category = await categoryRepository.GetCategoryByIdAsync(id);
-        return category is null
-            ? EitherExtensions.Failure<CategoryFetchingError, Category>(
-                new CategoryFetchingError.CategoryByIdNotFound(id)
-            )
-            : EitherExtensions.Success<CategoryFetchingError, Category>(category);
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var category = await categoryRepository.GetCategoryByIdAsync(id);
+            return category is null
+                ? EitherExtensions.Failure<CategoryFetchingError, Category>(
+                    new CategoryFetchingError.CategoryByIdNotFound(id)
+                )
+                : EitherExtensions.Success<CategoryFetchingError, Category>(category);
+        });
     }
 
     public async Task<Either<ICategoryError, IdOutputModel>> AddCategoryAsync(string name)

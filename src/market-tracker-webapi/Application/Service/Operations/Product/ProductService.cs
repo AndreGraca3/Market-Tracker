@@ -1,4 +1,5 @@
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Repository.Operations.Brand;
 using market_tracker_webapi.Application.Repository.Operations.Category;
 using market_tracker_webapi.Application.Repository.Operations.Product;
@@ -17,28 +18,36 @@ public class ProductService(
     ITransactionManager transactionManager
 ) : IProductService
 {
-    public async Task<CollectionOutputModel> GetProductsAsync()
+    public async Task<Either<IServiceError, CollectionOutputModel>> GetProductsAsync()
     {
-        var products = await productRepository.GetProductsAsync();
-        return new CollectionOutputModel(products);
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var products = await productRepository.GetProductsAsync();
+            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(
+                new CollectionOutputModel(products)
+            );
+        });
     }
 
-    public async Task<Either<ProductFetchingError, ProductOutputModel>> GetProductAsync(int id)
+    public async Task<Either<ProductFetchingError, ProductOutputModel>> GetProductByIdAsync(int id)
     {
-        var product = await productRepository.GetProductByIdAsync(id);
-        if (product is null)
+        return await transactionManager.ExecuteAsync(async () =>
         {
-            return EitherExtensions.Failure<ProductFetchingError, ProductOutputModel>(
-                new ProductFetchingError.ProductByIdNotFound(id)
+            var product = await productRepository.GetProductByIdAsync(id);
+            if (product is null)
+            {
+                return EitherExtensions.Failure<ProductFetchingError, ProductOutputModel>(
+                    new ProductFetchingError.ProductByIdNotFound(id)
+                );
+            }
+
+            var brand = (await brandRepository.GetBrandByIdAsync(product.BrandId))!;
+            var category = (await categoryRepository.GetCategoryByIdAsync(product.CategoryId))!;
+
+            return EitherExtensions.Success<ProductFetchingError, ProductOutputModel>(
+                ProductOutputModel.ToProductOutputModel(product, brand, category)
             );
-        }
-
-        var brand = (await brandRepository.GetBrandByIdAsync(product.BrandId))!;
-        var category = (await categoryRepository.GetCategoryByIdAsync(product.CategoryId))!;
-
-        return EitherExtensions.Success<ProductFetchingError, ProductOutputModel>(
-            ProductOutputModel.ToProductOutputModel(product, brand, category)
-        );
+        });
     }
 
     public async Task<Either<IServiceError, IdOutputModel>> AddProductAsync(
@@ -92,7 +101,7 @@ public class ProductService(
     }
 
     public async Task<Either<IServiceError, ProductOutputModel>> UpdateProductAsync(
-        int id,
+        int productId,
         string name,
         string imageUrl,
         int quantity,
@@ -117,7 +126,7 @@ public class ProductService(
             }
 
             var updatedProduct = await productRepository.UpdateProductAsync(
-                id,
+                productId,
                 name,
                 imageUrl,
                 quantity,
@@ -129,7 +138,7 @@ public class ProductService(
             if (updatedProduct is null)
             {
                 return EitherExtensions.Failure<IServiceError, ProductOutputModel>(
-                    new ProductFetchingError.ProductByIdNotFound(id)
+                    new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
 

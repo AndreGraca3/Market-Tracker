@@ -1,6 +1,6 @@
 using market_tracker_webapi.Application.Domain;
 
-namespace market_tracker_webapi.Application.Http.Models;
+namespace market_tracker_webapi.Application.Http.Models.Product;
 
 public record ProductOutputModel(
     int Id,
@@ -15,7 +15,7 @@ public record ProductOutputModel(
 )
 {
     public static ProductOutputModel ToProductOutputModel(
-        Product product,
+        Domain.Product product,
         Brand brand,
         Domain.Category category
     )

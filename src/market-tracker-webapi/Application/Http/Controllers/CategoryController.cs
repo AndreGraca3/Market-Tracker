@@ -1,4 +1,3 @@
-using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Category;
 using market_tracker_webapi.Application.Http.Problem;
@@ -19,9 +18,9 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
     }
 
     [HttpGet(Uris.Categories.CategoryById)]
-    public async Task<ActionResult<Category>> GetCategoryAsync(int id)
+    public async Task<ActionResult<Domain.Category>> GetCategoryAsync(int categoryId)
     {
-        var res = await categoryService.GetCategoryAsync(id);
+        var res = await categoryService.GetCategoryAsync(categoryId);
         return ResultHandler.Handle(
             res,
             error =>
@@ -69,12 +68,12 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
     }
 
     [HttpPut(Uris.Categories.CategoryById)]
-    public async Task<ActionResult<Category>> UpdateCategoryAsync(
-        int id,
+    public async Task<ActionResult<Domain.Category>> UpdateCategoryAsync(
+        int categoryId,
         [FromBody] CategoryInputModel categoryInput
     )
     {
-        var res = await categoryService.UpdateCategoryAsync(id, categoryInput.Name);
+        var res = await categoryService.UpdateCategoryAsync(categoryId, categoryInput.Name);
         return ResultHandler.Handle(
             res,
             error =>
@@ -99,9 +98,9 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
     }
 
     [HttpDelete(Uris.Categories.CategoryById)]
-    public async Task<ActionResult<IdOutputModel>> RemoveCategoryAsync(int id)
+    public async Task<ActionResult<IdOutputModel>> RemoveCategoryAsync(int categoryId)
     {
-        var res = await categoryService.RemoveCategoryAsync(id);
+        var res = await categoryService.RemoveCategoryAsync(categoryId);
         return ResultHandler.Handle(
             res,
             error =>

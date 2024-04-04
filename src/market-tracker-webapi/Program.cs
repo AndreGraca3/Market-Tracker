@@ -6,6 +6,7 @@ using market_tracker_webapi.Application.Service.DependencyResolver;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Batch;
+using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 
@@ -48,6 +49,14 @@ static class Program
 
         app.UseODataBatching();
 
+        app.Use(
+            async (context, next) =>
+            {
+                Console.WriteLine($"Request: {context.Request.Method} {context.Request.Path}");
+                await next();
+            }
+        );
+
         app.UseExceptionHandler(_ => { });
 
         app.UseAuthorization();
@@ -73,6 +82,9 @@ static class Program
             })
             .AddOData(options =>
             {
+                options.Conventions.Remove(
+                    options.Conventions.OfType<MetadataRoutingConvention>().First()
+                );
                 options.AddRouteComponents(Uris.ApiBase, GetEdmModel(), batchHandler);
             });
 
@@ -81,7 +93,7 @@ static class Program
             options.InvalidModelStateResponseFactory = context =>
             {
                 return new BadRequestProblem.InvalidRequestContent(
-                    context.ModelState.AsEnumerable().Last().Value?.Errors.First().ErrorMessage
+                    context.ModelState.AsEnumerable().Last().Value?.Errors.First().ErrorMessage // TODO: fix exception marota
                         ?? "Invalid request content."
                 ).ToActionResult();
             };

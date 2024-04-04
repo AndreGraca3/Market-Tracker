@@ -1,6 +1,7 @@
 using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Repository.Operations.Brand;
 using market_tracker_webapi.Application.Repository.Operations.Category;
 using market_tracker_webapi.Application.Repository.Operations.Product;
@@ -92,7 +93,7 @@ public class ProductServiceTest
             .ReturnsAsync(_dummyCategories[0]);
 
         // Act
-        var productResult = await _productService.GetProductAsync(It.IsAny<int>());
+        var productResult = await _productService.GetProductByIdAsync(It.IsAny<int>());
 
         // Assert
         productResult
@@ -115,7 +116,7 @@ public class ProductServiceTest
             .ReturnsAsync((Product?)null);
 
         // Act
-        var productResult = await _productService.GetProductAsync(It.IsAny<int>());
+        var productResult = await _productService.GetProductByIdAsync(It.IsAny<int>());
 
         // Assert
         productResult

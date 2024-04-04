@@ -1,4 +1,5 @@
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Utils;
 
@@ -8,7 +9,7 @@ using Category = market_tracker_webapi.Application.Domain.Category;
 
 public interface ICategoryService
 {
-    public Task<CollectionOutputModel> GetCategoriesAsync();
+    public Task<Either<IServiceError, CollectionOutputModel>> GetCategoriesAsync();
 
     public Task<Either<CategoryFetchingError, Category>> GetCategoryAsync(int id);
 
