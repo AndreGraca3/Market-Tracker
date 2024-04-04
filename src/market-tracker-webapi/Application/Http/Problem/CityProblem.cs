@@ -27,4 +27,13 @@ public class CityProblem(
             "A city with that name already exists",
             data
         );
+    
+    public class CityNameNotFound(CityFetchingError.CityByNameNotFound data)
+        : CompanyProblem(
+            404,
+            "city-name-not-found",
+            "City name not found",
+            $"City with name {data.Name} not found",
+            data
+        );
 }

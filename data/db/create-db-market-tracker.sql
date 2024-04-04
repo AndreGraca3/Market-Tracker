@@ -63,8 +63,6 @@ create table if not exists store
     name         varchar(30) not null,
     address    varchar(200) unique not null,
     city_id       int references city (id) on delete cascade,
-    open_time  date,
-    close_time date,
     company_id int references company (id) on delete cascade
 );
 

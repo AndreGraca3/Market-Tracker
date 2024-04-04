@@ -28,24 +28,6 @@ public class StoreProblem(
             data
         );
     
-    public class StoreByCompanyIdNotFound(StoreFetchingError.StoreByCompanyIdNotFound data)
-        : CompanyProblem(
-            404,
-            "store-not-found",
-            "Store not found",
-            $"Store with company id {data.CompanyId} not found",
-            data
-        );
-    
-    public class StoreByCityNameNotFound(StoreFetchingError.StoreByCityNameNotFound data)
-        : CompanyProblem(
-            404,
-            "store-not-found",
-            "Store not found",
-            $"Store with city name {data.CityName} not found",
-            data
-        );
-    
     public class StoreAddressAlreadyExists(StoreCreationError.StoreAddressAlreadyExists data)
         : CompanyProblem(
             400,
@@ -55,12 +37,4 @@ public class StoreProblem(
             data
         );
     
-    public class StoreByCityIdNotFound(StoreFetchingError.StoreByCityIdNotFound data)
-        : CompanyProblem(
-            404,
-            "store-not-found",
-            "Store not found",
-            $"Store with city id {data.CityId} not found",
-            data
-        );
 }
