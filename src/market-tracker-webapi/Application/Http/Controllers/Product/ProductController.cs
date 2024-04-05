@@ -45,7 +45,7 @@ public class ProductController(IProductService productService) : ControllerBase
             productInput.Id!.Value,
             productInput.Name,
             productInput.ImageUrl,
-            productInput.Quantity!.Value,
+            productInput.Quantity,
             productInput.Unit,
             productInput.BrandName,
             productInput.CategoryId!.Value

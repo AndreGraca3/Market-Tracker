@@ -15,7 +15,7 @@ public class PriceAlertEntity
     [Column("product_id")]
     public required int ProductId { get; set; }
 
-    [Column("price")]
+    [Column("price_threshold")]
     public required int PriceThreshold { get; set; }
 
     [Column("created_at")]

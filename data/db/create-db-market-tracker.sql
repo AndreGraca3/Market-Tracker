@@ -1,11 +1,12 @@
 drop table if exists post_comment;
 drop table if exists post;
-drop table if exists product_favorite;
+drop table if exists product_favourite;
 drop table if exists list_product;
 drop table if exists list;
 drop table if exists token;
 drop table if exists product_review;
 drop table if exists price_alert;
+drop table if exists product_stats_counts;
 drop table if exists fcm_registration;
 drop table if exists moderator;
 drop table if exists operator;
@@ -154,13 +155,13 @@ create table if not exists product_review
     id         int generated always as identity,
     client_id  uuid references client (id) on delete cascade,
     product_id int references product (id) on delete cascade,
-    rating     int     not null check (rating between 1 and 5),
+    rating     int  not null check (rating between 1 and 5),
     text       varchar(255),
-    created_at date    not null default now(),
+    created_at date not null default now(),
     primary key (client_id, product_id)
 );
 
-create table if not exists product_favorite
+create table if not exists product_favourite
 (
     client_id  uuid references client (id) on delete cascade,
     product_id int references product (id) on delete cascade,
@@ -174,6 +175,14 @@ create table if not exists price_alert
     price_threshold int       not null,
     created_at      timestamp not null default now(),
     primary key (client_id, product_id)
+);
+
+create table if not exists product_stats_counts
+(
+    product_id int primary key references product (id) on delete cascade,
+    favourites int not null default 0,
+    ratings    int not null default 0,
+    lists      int not null default 0
 );
 
 create table if not exists list

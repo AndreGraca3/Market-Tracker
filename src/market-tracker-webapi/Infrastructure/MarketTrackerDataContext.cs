@@ -19,6 +19,8 @@ namespace market_tracker_webapi.Infrastructure
 
         public DbSet<ProductFavouriteEntity> ProductFavorite { get; set; }
 
+        public DbSet<ProductStatsCountsEntity> ProductStatsCounts { get; set; }
+
         public DbSet<PriceAlertEntity> PriceAlert { get; set; }
 
         public DbSet<StoreEntity> Store { get; set; }

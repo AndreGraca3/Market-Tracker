@@ -13,4 +13,6 @@ public interface IProductFeedbackRepository
     Task<ProductReview?> RemoveReviewAsync(Guid clientId, int productId);
 
     Task<ProductPreferences> GetUserFeedbackByProductId(Guid clientId, int productId);
+
+    public Task<ProductStats?> GetProductStatsByIdAsync(int productId);
 }

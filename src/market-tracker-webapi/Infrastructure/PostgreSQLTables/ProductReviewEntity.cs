@@ -20,9 +20,6 @@ public class ProductReviewEntity
     [Column("client_id")]
     public required Guid ClientId { get; set; }
 
-    [Column("moderated")]
-    public bool Moderated { get; set; }
-
     [Column("rating")]
     public required int Rating { get; set; }
 
@@ -35,6 +32,6 @@ public class ProductReviewEntity
 
     public ProductReview ToProductReview()
     {
-        return new ProductReview(Id, ClientId, ProductId, Moderated, Rating, Text, CreatedAt);
+        return new ProductReview(Id, ClientId, ProductId, Rating, Text, CreatedAt);
     }
 }

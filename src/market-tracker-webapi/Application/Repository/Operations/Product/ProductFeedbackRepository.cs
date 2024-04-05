@@ -85,4 +85,16 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext)
 
         return new ProductPreferences(isFavourite, priceAlert, productReview);
     }
+
+    public async Task<ProductStats?> GetProductStatsByIdAsync(int productId)
+    {
+        return await dataContext
+            .ProductStatsCounts.Where(stats => stats.ProductId == productId)
+            .Select(stats => new ProductStats(
+                productId,
+                new ProductStatsCounts(stats.Favourites, stats.Ratings, stats.Lists),
+                0
+            ))
+            .FirstOrDefaultAsync();
+    }
 }
