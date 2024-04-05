@@ -1,10 +1,10 @@
-package pt.isel.markettracker
+package pt.isel.markettracker.ui.screens
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import pt.isel.markettracker.ui.screens.MainScreen
+import pt.isel.markettracker.MarketTrackerDependencyProvider
 import pt.isel.markettracker.ui.screens.auth.LoginActivity
 import pt.isel.markettracker.utils.NavigateAux
 

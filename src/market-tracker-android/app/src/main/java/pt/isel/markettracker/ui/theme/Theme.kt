@@ -32,8 +32,6 @@ fun MarkettrackerTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = White.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
         }
     }
 

@@ -4,8 +4,12 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -23,32 +27,37 @@ fun MainScreen(onLoginRequested: () -> Unit) {
     val navController = rememberNavController()
 
     MarkettrackerTheme {
-        Scaffold(
-            containerColor = Grey,
-            bottomBar = {
-                NavBar(Destination.entries, onItemClick = { route ->
-                    navController.navigate(
-                        route,
-                    )
-                })
-            }
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
         ) {
-            NavHost(
-                navController = navController,
-                startDestination = Destination.HOME.route,
-                enterTransition = { fadeIn(tween(400)) },
-                exitTransition = { fadeOut(tween(200)) }
+            Scaffold(
+                containerColor = Grey,
+                bottomBar = {
+                    NavBar(Destination.entries, onItemClick = { route ->
+                        navController.navigate(
+                            route,
+                        )
+                    })
+                }
             ) {
-                composable(Destination.HOME.route) {
-                    ProductsScreen(onLoginRequested)
-                }
+                NavHost(
+                    navController = navController,
+                    startDestination = Destination.HOME.route,
+                    enterTransition = { fadeIn(tween(400)) },
+                    exitTransition = { fadeOut(tween(200)) }
+                ) {
+                    composable(Destination.HOME.route) {
+                        ProductsScreen()
+                    }
 
-                composable(Destination.LIST.route) {
-                    ListScreen()
-                }
+                    composable(Destination.LIST.route) {
+                        ListScreen()
+                    }
 
-                composable(Destination.PROFILE.route) {
-                    ProfileScreen()
+                    composable(Destination.PROFILE.route) {
+                        ProfileScreen()
+                    }
                 }
             }
         }
