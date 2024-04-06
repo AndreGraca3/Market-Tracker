@@ -20,8 +20,8 @@ namespace market_tracker_webapi.Application.Service.Operations.User
         )
         {
             var users = (
-                await userRepository.GetUsersAsync(username, pagination.Skip, pagination.Limit)
-            )
+                    await userRepository.GetUsersAsync(username, pagination.Skip, pagination.Limit)
+                )
                 .Select(it => new UserOutputModel(it.Id, it.Username, it.Name, it.CreatedAt))
                 .ToArray();
 
@@ -51,7 +51,7 @@ namespace market_tracker_webapi.Application.Service.Operations.User
         {
             var token = await tokenRepository.GetTokenByTokenValueAsync(tokenValue);
 
-            if (token is null || token.ExpiresAt <= DateTime.Now)
+            if (token is null /*|| token.ExpiresAt <= DateTime.Now*/)
             {
                 return null;
             }

@@ -6,4 +6,9 @@ public class UserFetchingError: UserError
     {
         public Guid Id { get; } = id;
     }
+
+    public class UserByTokenValueNotFound(Guid tokenValue) : UserFetchingError
+    {
+        public Guid TokenValue { get; } = tokenValue;
+    }
 }

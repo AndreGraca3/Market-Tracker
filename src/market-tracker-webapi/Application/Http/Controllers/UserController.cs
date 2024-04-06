@@ -1,6 +1,7 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.User;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.User;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,13 @@ namespace market_tracker_webapi.Application.Http.Controllers
         : ControllerBase
     {
         [HttpGet]
+        [Authenticated]
         public async Task<ActionResult<UsersOutputModel>> GetUsersAsync(
             [FromQuery] PaginationInputModel pagination,
             [FromQuery] string? username
         )
         {
+            Console.Write(HttpContext.Items[AuthenticationFilter.KeyUser]);
             logger.LogDebug($"Call {nameof(GetUsersAsync)} with {username}");
 
             return Ok(await userService.GetUsersAsync(username, pagination));

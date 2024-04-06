@@ -56,5 +56,19 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
 
             return services;
         }
+
+        public static IServiceCollection AddGoogleAuthAuthentication(
+            this IServiceCollection services,
+            IConfiguration configuration
+        )
+        {
+            services.AddAuthentication().AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
+                googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+            });
+
+            return services;
+        }
     }
 }
