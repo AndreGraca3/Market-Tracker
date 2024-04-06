@@ -2,6 +2,8 @@
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Store;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Service.Errors.City;
+using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Operations.Store;
 using Microsoft.AspNetCore.Mvc;
@@ -49,8 +51,8 @@ public class StoreController(IStoreService storeService) : ControllerBase
             {
                 return error switch
                 {
-                    StoreFetchingError.StoreByCompanyIdNotFound companyIdNotFoundError
-                        => new StoreProblem.StoreByCompanyIdNotFound(
+                    CompanyFetchingError.CompanyByIdNotFound companyIdNotFoundError
+                        => new CompanyProblem.CompanyByIdNotFound(
                             companyIdNotFoundError
                         ).ToActionResult(),
                     _
@@ -72,8 +74,8 @@ public class StoreController(IStoreService storeService) : ControllerBase
             {
                 return error switch
                 {
-                    StoreFetchingError.StoreByCityNameNotFound cityNotFoundError
-                        => new StoreProblem.StoreByCityNameNotFound(
+                    CityFetchingError.CityByNameNotFound cityNotFoundError
+                        => new CityProblem.CityNameNotFound(
                             cityNotFoundError
                         ).ToActionResult(),
                     _
@@ -110,12 +112,12 @@ public class StoreController(IStoreService storeService) : ControllerBase
                         => new StoreProblem.StoreNameAlreadyExists(
                             nameAlreadyExistsError
                         ).ToActionResult(),
-                    StoreFetchingError.StoreByCityIdNotFound cityIdNotFoundError
-                        => new StoreProblem.StoreByCityIdNotFound(
+                    CityFetchingError.CityByIdNotFound cityIdNotFoundError
+                        => new CityProblem.CityByIdNotFound(
                             cityIdNotFoundError
                         ).ToActionResult(),
-                    StoreFetchingError.StoreByCompanyIdNotFound companyIdNotFoundError
-                        => new StoreProblem.StoreByCompanyIdNotFound(
+                    CompanyFetchingError.CompanyByIdNotFound companyIdNotFoundError
+                        => new CompanyProblem.CompanyByIdNotFound(
                             companyIdNotFoundError
                         ).ToActionResult(),
                     _
@@ -152,12 +154,12 @@ public class StoreController(IStoreService storeService) : ControllerBase
                         => new StoreProblem.StoreNameAlreadyExists(
                             nameAlreadyExistsError
                         ).ToActionResult(),
-                    StoreFetchingError.StoreByCityIdNotFound cityIdNotFoundError
-                        => new StoreProblem.StoreByCityIdNotFound(
+                    CityFetchingError.CityByIdNotFound cityIdNotFoundError
+                        => new CityProblem.CityByIdNotFound(
                             cityIdNotFoundError
                         ).ToActionResult(),
-                    StoreFetchingError.StoreByCompanyIdNotFound companyIdNotFoundError
-                        => new StoreProblem.StoreByCompanyIdNotFound(
+                    CompanyFetchingError.CompanyByIdNotFound companyIdNotFoundError
+                        => new CompanyProblem.CompanyByIdNotFound(
                             companyIdNotFoundError
                         ).ToActionResult(),
                     _

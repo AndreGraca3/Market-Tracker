@@ -3,6 +3,7 @@ using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Controllers;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Operations.Company;
 using market_tracker_webapi.Application.Utils;
@@ -45,20 +46,21 @@ public class CompanyControllerTest
         // Service Arrange
         _companyServiceMock
             .Setup(service => service.GetCompaniesAsync())
-            .ReturnsAsync(new CollectionOutputModel(expectedCompanies));
+            .ReturnsAsync(EitherExtensions.Success<IServiceError, CollectionOutputModel>(
+                new CollectionOutputModel(expectedCompanies)
+            ));
 
         // Act
         var actual = await _companyController.GetCompaniesAsync();
 
         // Assert
         var result = Assert.IsType<OkObjectResult>(actual.Result);
-        var actualCompaniesCollection = Assert.IsAssignableFrom<CollectionOutputModel>(
+        var actualCompaniesCollection = Assert.IsAssignableFrom<Either<IServiceError, CollectionOutputModel>>(
             result.Value
         );
-        actualCompaniesCollection
+        actualCompaniesCollection.Value
             .Should()
             .BeEquivalentTo(new CollectionOutputModel(expectedCompanies));
-        actualCompaniesCollection.Results.Should().BeEquivalentTo(expectedCompanies);
     }
 
     [Fact]
