@@ -37,7 +37,7 @@ public class CityServiceTest
         var result = await _cityService.GetCitiesAsync();
 
         // Assert
-        result.Should().BeEquivalentTo(new CollectionOutputModel(cities));
+        result.Value.Should().BeEquivalentTo(new CollectionOutputModel(cities));
     }
 
     [Fact]

@@ -49,7 +49,7 @@ public class CompanyServiceTest
         var result = await _companyService.GetCompaniesAsync();
 
         // Assert
-        result.Should().BeEquivalentTo(new CollectionOutputModel(companies));
+        result.Value.Should().BeEquivalentTo(new CollectionOutputModel(companies));
     }
 
     [Fact]
