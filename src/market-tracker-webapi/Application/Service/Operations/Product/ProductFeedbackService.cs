@@ -16,10 +16,13 @@ public class ProductFeedbackService(
     ITransactionManager transactionManager
 ) : IProductFeedbackService
 {
+    private IProductFeedbackService _productFeedbackServiceImplementation;
+
     public async Task<
         Either<ProductFetchingError, CollectionOutputModel>
     > GetReviewsByProductIdAsync(int productId)
     {
+        throw new NotImplementedException();
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await productRepository.GetProductByIdAsync(productId) is null)
@@ -32,26 +35,30 @@ public class ProductFeedbackService(
             var reviews = await productFeedbackRepository.GetReviewsByProductIdAsync(productId);
 
             return EitherExtensions.Success<ProductFetchingError, CollectionOutputModel>(
-                new CollectionOutputModel(reviews.Select(review =>
-                {
-                    
-                    var user = new UserInfoOutputModel(review.ClientId);
-                    return ProductReviewOutputModel.ToProductReviewOutputModel(review)))
-                }
+                new CollectionOutputModel(
+                    reviews.Select(review =>
+                    {
+                        // TODO: decide if its preferable to build this in repo
+                        // TODO: get actual user
+                        var user = new UserInfoOutputModel(review.ClientId, "dummy", "dummy");
+                        return ProductReviewOutputModel.ToProductReviewOutputModel(user, review);
+                    })
+                )
             );
         });
     }
 
-    public async Task<Either<IServiceError, IdOutputModel>> UpsertReviewAsync(
+    public async Task<Either<IServiceError, IdOutputModel>> UpsertProductPreferencesAsync(
         Guid clientId,
         int productId,
-        int rate,
-        string? comment
+        Optional<bool> isFavorite,
+        Optional<PriceAlertInputModel?> priceAlert,
+        Optional<ProductReviewInputModel?> review
     )
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            throw new NotImplementedException(); // TODO: search if client exists
+            // TODO: search if client exists
 
             if (await productRepository.GetProductByIdAsync(productId) is null)
             {
@@ -63,8 +70,8 @@ public class ProductFeedbackService(
             var updatedReview = await productFeedbackRepository.UpdateReviewAsync(
                 clientId,
                 productId,
-                rate,
-                comment
+                1,
+                "comment"
             );
             if (updatedReview is not null)
             {
@@ -76,8 +83,8 @@ public class ProductFeedbackService(
             var newReviewId = await productFeedbackRepository.AddReviewAsync(
                 clientId,
                 productId,
-                rate,
-                comment
+                1,
+                "comment"
             );
             return EitherExtensions.Success<IServiceError, IdOutputModel>(
                 new IdOutputModel(newReviewId)

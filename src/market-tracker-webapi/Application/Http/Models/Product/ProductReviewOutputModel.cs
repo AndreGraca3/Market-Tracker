@@ -3,7 +3,7 @@ using market_tracker_webapi.Application.Http.Models.User;
 
 namespace market_tracker_webapi.Application.Http.Models.Product;
 
-public record ProductReviewOutputModel(UserInfoOutputModel user, ProductReview review)
+public record ProductReviewOutputModel(UserInfoOutputModel User, ProductReview Review)
 {
     public static ProductReviewOutputModel ToProductReviewOutputModel(
         UserInfoOutputModel user,

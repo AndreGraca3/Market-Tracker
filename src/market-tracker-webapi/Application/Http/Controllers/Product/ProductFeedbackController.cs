@@ -29,35 +29,6 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
         );
     }
 
-    [HttpPut(Uris.Products.ReviewsByProductId)]
-    public async Task<ActionResult<IdOutputModel>> AddReviewAsync(
-        int productId,
-        [FromBody] ProductReviewInputModel productReviewInput
-    )
-    {
-        var clientId = Guid.NewGuid(); // TODO: Implement authorization
-        var res = await productFeedbackService.UpsertReviewAsync(
-            clientId,
-            productId,
-            productReviewInput.Rating,
-            productReviewInput.Comment
-        );
-
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
-                };
-            },
-            outputModel =>
-                Created(Uris.Products.BuildReviewsByProductIdUri(outputModel.Id), outputModel)
-        );
-    }
-
     [HttpGet(Uris.Products.ProductPreferencesById)]
     public async Task<ActionResult<ProductPreferences>> GetUserFeedbackByProductId(int productId)
     {
@@ -73,6 +44,46 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
                         => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult()
                 };
             }
+        );
+    }
+
+    [HttpPatch(Uris.Products.ProductPreferencesById)]
+    public async Task<ActionResult<IdOutputModel>> AddUserFeedbackByProductId(
+        int productId,
+        [FromBody] ProductPreferencesInputModel productPreferencesInput
+    )
+    {
+        var clientId = Guid.NewGuid(); // TODO: Implement authorization
+
+        Console.WriteLine("isFavourite: " + productPreferencesInput.IsFavourite.HasValue);
+        Console.WriteLine("isFavourite: " + productPreferencesInput.IsFavourite.Value);
+        Console.WriteLine("priceAlert: " + productPreferencesInput.PriceAlert.HasValue);
+        Console.WriteLine("priceAlert: " + productPreferencesInput.PriceAlert.Value);
+        Console.WriteLine("review: " + productPreferencesInput.Review.HasValue);
+        Console.WriteLine("review: " + productPreferencesInput.Review.Value);
+
+        throw new NotImplementedException();
+
+        var res = await productFeedbackService.UpsertProductPreferencesAsync(
+            clientId,
+            productId,
+            productPreferencesInput.IsFavourite,
+            productPreferencesInput.PriceAlert,
+            productPreferencesInput.Review
+        );
+
+        return ResultHandler.Handle(
+            res,
+            error =>
+            {
+                return error switch
+                {
+                    ProductFetchingError.ProductByIdNotFound idNotFoundError
+                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                };
+            },
+            outputModel =>
+                Created(Uris.Products.BuildReviewsByProductIdUri(outputModel.Id), outputModel)
         );
     }
 

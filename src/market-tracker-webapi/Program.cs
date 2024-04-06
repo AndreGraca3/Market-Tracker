@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using market_tracker_webapi.Application.Http;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Pipeline;
@@ -80,6 +81,11 @@ static class Program
                 options.Filters.Add<AuthenticationFilter>();
                 // options.ModelBinderProviders.Insert(0, new AuthUserBinderProvider());
             })
+            .AddJsonOptions(o =>
+                o.JsonSerializerOptions.DefaultIgnoreCondition =
+                    JsonIgnoreCondition.WhenWritingDefault
+            )
+            .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new OptionalConverter()))
             .AddOData(options =>
             {
                 options.Conventions.Remove(
@@ -88,6 +94,7 @@ static class Program
                 options.AddRouteComponents(Uris.ApiBase, GetEdmModel(), batchHandler);
             });
 
+        /*
         builder.Services.Configure<ApiBehaviorOptions>(options =>
         {
             options.InvalidModelStateResponseFactory = context =>
@@ -97,7 +104,7 @@ static class Program
                         ?? "Invalid request content."
                 ).ToActionResult();
             };
-        });
+        });*/
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();

@@ -1,5 +1,6 @@
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Utils;
@@ -12,11 +13,12 @@ public interface IProductFeedbackService
         int productId
     );
 
-    Task<Either<IServiceError, IdOutputModel>> UpsertReviewAsync(
+    Task<Either<IServiceError, IdOutputModel>> UpsertProductPreferencesAsync(
         Guid clientId,
         int productId,
-        int rate,
-        string? comment
+        Optional<bool> isFavorite,
+        Optional<PriceAlertInputModel?> priceAlert,
+        Optional<ProductReviewInputModel?> review
     );
 
     Task<Either<IServiceError, ProductPreferences>> GetUserFeedbackByProductId(
