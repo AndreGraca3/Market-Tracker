@@ -16,8 +16,6 @@ public class ProductFeedbackService(
     ITransactionManager transactionManager
 ) : IProductFeedbackService
 {
-    private IProductFeedbackService _productFeedbackServiceImplementation;
-
     public async Task<
         Either<ProductFetchingError, CollectionOutputModel>
     > GetReviewsByProductIdAsync(int productId)
@@ -48,7 +46,7 @@ public class ProductFeedbackService(
         });
     }
 
-    public async Task<Either<IServiceError, IdOutputModel>> UpsertProductPreferencesAsync(
+    public async Task<Either<IServiceError, ProductPreferences>> UpsertProductPreferencesAsync(
         Guid clientId,
         int productId,
         Optional<bool> isFavorite,
@@ -62,32 +60,68 @@ public class ProductFeedbackService(
 
             if (await productRepository.GetProductByIdAsync(productId) is null)
             {
-                return EitherExtensions.Failure<IServiceError, IdOutputModel>(
+                return EitherExtensions.Failure<IServiceError, ProductPreferences>(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
 
-            var updatedReview = await productFeedbackRepository.UpdateReviewAsync(
+            var oldPreferences = await productFeedbackRepository.GetUserFeedbackByProductId(
                 clientId,
-                productId,
-                1,
-                "comment"
+                productId
             );
-            if (updatedReview is not null)
+
+            var updatedReview = oldPreferences.Review;
+
+            if (review.HasValue)
             {
-                return EitherExtensions.Success<IServiceError, IdOutputModel>(
-                    new IdOutputModel(updatedReview.Id)
+                if (review.Value is not null)
+                {
+                    updatedReview = await productFeedbackRepository.UpsertReviewAsync(
+                        clientId,
+                        productId,
+                        review.Value.Rating,
+                        review.Value.Comment
+                    );
+                }
+                else
+                {
+                    await productFeedbackRepository.RemoveReviewAsync(clientId, productId);
+                    updatedReview = null;
+                }
+            }
+
+            var updatedPriceAlert = oldPreferences.PriceAlert;
+
+            if (priceAlert.HasValue)
+            {
+                if (priceAlert.Value is not null)
+                {
+                    updatedPriceAlert = await productFeedbackRepository.UpsertPriceAlertAsync(
+                        clientId,
+                        productId,
+                        priceAlert.Value.PriceThreshold
+                    );
+                }
+                else
+                {
+                    await productFeedbackRepository.RemovePriceAlertAsync(clientId, productId);
+                    updatedPriceAlert = null;
+                }
+            }
+
+            var updatedIsFavourite = oldPreferences.IsFavourite;
+
+            if (isFavorite.HasValue)
+            {
+                updatedIsFavourite = await productFeedbackRepository.UpdateProductFavouriteAsync(
+                    clientId,
+                    productId,
+                    isFavorite.Value
                 );
             }
 
-            var newReviewId = await productFeedbackRepository.AddReviewAsync(
-                clientId,
-                productId,
-                1,
-                "comment"
-            );
-            return EitherExtensions.Success<IServiceError, IdOutputModel>(
-                new IdOutputModel(newReviewId)
+            return EitherExtensions.Success<IServiceError, ProductPreferences>(
+                new ProductPreferences(updatedIsFavourite, updatedPriceAlert, updatedReview)
             );
         });
     }

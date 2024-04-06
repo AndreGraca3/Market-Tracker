@@ -13,7 +13,7 @@ public interface IProductFeedbackService
         int productId
     );
 
-    Task<Either<IServiceError, IdOutputModel>> UpsertProductPreferencesAsync(
+    Task<Either<IServiceError, ProductPreferences>> UpsertProductPreferencesAsync(
         Guid clientId,
         int productId,
         Optional<bool> isFavorite,

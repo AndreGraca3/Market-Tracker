@@ -48,21 +48,12 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     }
 
     [HttpPatch(Uris.Products.ProductPreferencesById)]
-    public async Task<ActionResult<IdOutputModel>> AddUserFeedbackByProductId(
+    public async Task<ActionResult<ProductPreferences>> AddUserFeedbackByProductId(
         int productId,
         [FromBody] ProductPreferencesInputModel productPreferencesInput
     )
     {
         var clientId = Guid.NewGuid(); // TODO: Implement authorization
-
-        Console.WriteLine("isFavourite: " + productPreferencesInput.IsFavourite.HasValue);
-        Console.WriteLine("isFavourite: " + productPreferencesInput.IsFavourite.Value);
-        Console.WriteLine("priceAlert: " + productPreferencesInput.PriceAlert.HasValue);
-        Console.WriteLine("priceAlert: " + productPreferencesInput.PriceAlert.Value);
-        Console.WriteLine("review: " + productPreferencesInput.Review.HasValue);
-        Console.WriteLine("review: " + productPreferencesInput.Review.Value);
-
-        throw new NotImplementedException();
 
         var res = await productFeedbackService.UpsertProductPreferencesAsync(
             clientId,
@@ -81,9 +72,7 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
                         => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
                 };
-            },
-            outputModel =>
-                Created(Uris.Products.BuildReviewsByProductIdUri(outputModel.Id), outputModel)
+            }
         );
     }
 

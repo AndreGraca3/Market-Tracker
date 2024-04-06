@@ -6,11 +6,15 @@ public interface IProductFeedbackRepository
 {
     Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(int productId);
 
-    Task<int> AddReviewAsync(Guid clientId, int productId, int rate, string? comment);
-
-    Task<ProductReview?> UpdateReviewAsync(Guid clientId, int productId, int rate, string? comment);
+    Task<ProductReview?> UpsertReviewAsync(Guid clientId, int productId, int rate, string? comment);
 
     Task<ProductReview?> RemoveReviewAsync(Guid clientId, int productId);
+
+    Task<PriceAlert> UpsertPriceAlertAsync(Guid clientId, int productId, int priceThreshold);
+
+    Task<PriceAlert?> RemovePriceAlertAsync(Guid clientId, int productId);
+
+    Task<bool> UpdateProductFavouriteAsync(Guid clientId, int productId, bool isFavourite);
 
     Task<ProductPreferences> GetUserFeedbackByProductId(Guid clientId, int productId);
 

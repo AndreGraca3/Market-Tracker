@@ -31,7 +31,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext)
         return productReviewEntity.Id;
     }
 
-    public async Task<ProductReview?> UpdateReviewAsync(
+    public async Task<ProductReview?> UpsertReviewAsync(
         Guid clientId,
         int productId,
         int rate,
@@ -65,6 +65,21 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext)
         return reviewEntity.ToProductReview();
     }
 
+    public Task<PriceAlert> UpsertPriceAlertAsync(Guid clientId, int productId, int priceThreshold)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<PriceAlert?> RemovePriceAlertAsync(Guid clientId, int productId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> UpdateProductFavouriteAsync(Guid clientId, int productId, bool isFavourite)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<ProductPreferences> GetUserFeedbackByProductId(Guid clientId, int productId)
     {
         var isFavourite = await dataContext.ProductFavorite.AnyAsync(favourite =>
@@ -93,7 +108,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext)
             .Select(stats => new ProductStats(
                 productId,
                 new ProductStatsCounts(stats.Favourites, stats.Ratings, stats.Lists),
-                0
+                0 // TODO: leave on product table or in stats table?
             ))
             .FirstOrDefaultAsync();
     }
