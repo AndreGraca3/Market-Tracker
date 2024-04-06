@@ -61,6 +61,7 @@ public class ProductService(
     // int price
     )
     {
+        // TODO: Add price in the name of operator who is adding the product
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await productRepository.GetProductByIdAsync(productId) is not null)
@@ -91,8 +92,6 @@ public class ProductService(
                 brand.Id,
                 categoryId
             );
-
-            // await pricesRepository.AddPriceAsync(productId, price);
 
             return EitherExtensions.Success<IServiceError, IdOutputModel>(
                 new IdOutputModel(productId)

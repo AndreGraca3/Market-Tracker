@@ -38,15 +38,14 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext)
         string? comment
     )
     {
-        var reviewEntity = await dataContext.ProductReview.FindAsync(clientId, productId);
-        if (reviewEntity is null)
+        var reviewEntity = new ProductReviewEntity()
         {
-            return null;
-        }
-
-        reviewEntity.Rating = rate;
-        reviewEntity.Text = comment;
-
+            ProductId = productId,
+            ClientId = clientId,
+            Rating = rate,
+            Text = comment
+        };
+        await dataContext.ProductReview.Upsert(reviewEntity).RunAsync();
         await dataContext.SaveChangesAsync();
         return reviewEntity.ToProductReview();
     }
@@ -65,19 +64,58 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext)
         return reviewEntity.ToProductReview();
     }
 
-    public Task<PriceAlert> UpsertPriceAlertAsync(Guid clientId, int productId, int priceThreshold)
+    public async Task<PriceAlert> UpsertPriceAlertAsync(
+        Guid clientId,
+        int productId,
+        int priceThreshold
+    )
     {
-        throw new NotImplementedException();
+        var priceAlertEntity = new PriceAlertEntity()
+        {
+            ProductId = productId,
+            ClientId = clientId,
+            PriceThreshold = priceThreshold
+        };
+        await dataContext.PriceAlert.Upsert(priceAlertEntity).RunAsync();
+        await dataContext.SaveChangesAsync();
+        return priceAlertEntity.ToPriceAlert();
     }
 
-    public Task<PriceAlert?> RemovePriceAlertAsync(Guid clientId, int productId)
+    public async Task<PriceAlert?> RemovePriceAlertAsync(Guid clientId, int productId)
     {
-        throw new NotImplementedException();
+        var priceAlertEntity = dataContext.PriceAlert.Find(clientId, productId);
+        if (priceAlertEntity is null)
+        {
+            return null;
+        }
+
+        dataContext.PriceAlert.Remove(priceAlertEntity);
+        await dataContext.SaveChangesAsync();
+        return priceAlertEntity.ToPriceAlert();
     }
 
-    public Task<bool> UpdateProductFavouriteAsync(Guid clientId, int productId, bool isFavourite)
+    public async Task<bool> UpdateProductFavouriteAsync(
+        Guid clientId,
+        int productId,
+        bool isFavourite
+    )
     {
-        throw new NotImplementedException();
+        var productFavoriteEntity = new ProductFavouriteEntity()
+        {
+            ProductId = productId,
+            ClientId = clientId
+        };
+        if (isFavourite)
+        {
+            await dataContext.ProductFavorite.AddAsync(productFavoriteEntity);
+        }
+        else
+        {
+            dataContext.ProductFavorite.Remove(productFavoriteEntity);
+        }
+
+        await dataContext.SaveChangesAsync();
+        return isFavourite;
     }
 
     public async Task<ProductPreferences> GetUserFeedbackByProductId(Guid clientId, int productId)

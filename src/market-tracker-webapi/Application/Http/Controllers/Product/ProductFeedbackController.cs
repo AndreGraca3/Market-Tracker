@@ -30,7 +30,9 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     }
 
     [HttpGet(Uris.Products.ProductPreferencesById)]
-    public async Task<ActionResult<ProductPreferences>> GetUserFeedbackByProductId(int productId)
+    public async Task<ActionResult<ProductPreferences>> GetUserFeedbackByProductIdAsync(
+        int productId
+    )
     {
         var clientId = Guid.NewGuid(); // TODO: Implement authorization
         var res = await productFeedbackService.GetUserFeedbackByProductId(clientId, productId);
@@ -48,7 +50,7 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     }
 
     [HttpPatch(Uris.Products.ProductPreferencesById)]
-    public async Task<ActionResult<ProductPreferences>> AddUserFeedbackByProductId(
+    public async Task<ActionResult<ProductPreferences>> AddUserFeedbackByProductIdAsync(
         int productId,
         [FromBody] ProductPreferencesInputModel productPreferencesInput
     )
