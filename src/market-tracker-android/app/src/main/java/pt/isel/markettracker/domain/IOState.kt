@@ -38,7 +38,7 @@ data class Saved<T>(val value: Result<T>) : IOState<T>()
 /**
  * The fail state, i.e. the state after the load operation has failed.
  */
-data class Fail(val message: Throwable) : IOState<Nothing>()
+data class Fail(val exception: Throwable) : IOState<Nothing>()
 
 /**
  * Returns a new [IOState] in the idle state.

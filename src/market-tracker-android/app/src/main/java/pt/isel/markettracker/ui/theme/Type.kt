@@ -10,7 +10,9 @@ import androidx.compose.ui.unit.sp
 import com.example.markettracker.R
 
 val mainFont = FontFamily(
-    Font(R.font.outfit_medium, FontWeight.Normal),
+    Font(R.font.outfit_medium),
+    Font(R.font.outfit_bold, FontWeight.W600),
+    Font(R.font.outfit_extrabold, FontWeight.W700)
 )
 
 // Set of Material typography styles to start with
@@ -22,21 +24,21 @@ val Typography = Typography(
         color = Color.Black,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = mainFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
+        color = Color.Black,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
+    ),
+    labelSmall = TextStyle(
+        fontFamily = mainFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        color = Color.Black,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
     )
-    /* Other default text styles to override
-titleLarge = TextStyle(
-    fontFamily = FontFamily.Default,
-    fontWeight = FontWeight.Normal,
-    fontSize = 22.sp,
-    lineHeight = 28.sp,
-    letterSpacing = 0.sp
-),
-labelSmall = TextStyle(
-    fontFamily = FontFamily.Default,
-    fontWeight = FontWeight.Medium,
-    fontSize = 11.sp,
-    lineHeight = 16.sp,
-    letterSpacing = 0.5.sp
-)
-*/
 )

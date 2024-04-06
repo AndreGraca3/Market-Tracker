@@ -3,31 +3,38 @@ package pt.isel.markettracker.ui.screens
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import pt.isel.markettracker.MarketTrackerDependencyProvider
-import pt.isel.markettracker.ui.screens.auth.LoginActivity
-import pt.isel.markettracker.utils.NavigateAux
+import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
+import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val dependencies by lazy { application as MarketTrackerDependencyProvider }
+    private val mainScreenViewModel by viewModels<MainScreenViewModel> {
+        val app = (application as MarketTrackerDependencyProvider)
+        MainScreenViewModel.factory()
+    }
 
-    // this activity can have a container of all the view models and pass it down?
+    private val productsScreenViewModel by viewModels<ProductsScreenViewModel> {
+        val app = (application as MarketTrackerDependencyProvider)
+        ProductsScreenViewModel.factory()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         installSplashScreen().setKeepOnScreenCondition {
-            // go to data store get token, if token is valid return false to remove splash screen
-            // else go to login activity, not sure if its possible to do this here
+            // upload FCM token to server
             false
         }
+        super.onCreate(savedInstanceState)
 
         setContent {
-            MainScreen(
-                onLoginRequested = {
-                    NavigateAux.navigateTo<LoginActivity>(this)
-                }
-            )
+            MarkettrackerTheme {
+                MainScreen(
+                    mainScreenViewModel = mainScreenViewModel,
+                    productsScreenViewModel = productsScreenViewModel
+                )
+            }
         }
     }
 }

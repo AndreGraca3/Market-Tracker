@@ -19,5 +19,4 @@ interface MarketTrackerDependencyProvider {
      * The service used to fetch users
      */
     val userService: IUserService
-
 }

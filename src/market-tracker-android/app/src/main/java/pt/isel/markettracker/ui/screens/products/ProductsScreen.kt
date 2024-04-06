@@ -1,55 +1,57 @@
 package pt.isel.markettracker.ui.screens.products
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import pt.isel.markettracker.ui.components.PullToRefreshLazyColumn
+import pt.isel.markettracker.domain.Loading
+import pt.isel.markettracker.domain.idle
+import pt.isel.markettracker.ui.components.common.IOResourceLoader
+import pt.isel.markettracker.ui.components.common.PullToRefreshLazyColumn
 
 @Composable
-fun ProductsScreen() {
-    val products = remember {
-        (1..100).map { "Product $it" }
+fun ProductsScreen(productsScreenViewModel: ProductsScreenViewModel) {
+
+    LaunchedEffect(Unit) {
+        productsScreenViewModel.fetchProducts()
     }
+
     var isRefreshing by remember { mutableStateOf(false) }
+
+    val productsState by productsScreenViewModel.products.collectAsState(initial = idle())
 
     val scope = rememberCoroutineScope()
 
     PullToRefreshLazyColumn(
-        items = products,
-        content = { ProductItem(it) },
         isRefreshing = isRefreshing,
         onRefresh = {
             scope.launch {
                 isRefreshing = true
-                delay(3000L) // Simulated API call
-                isRefreshing = false
+                productsScreenViewModel.fetchProducts()
+                productsScreenViewModel.products.collect() {
+                    if (it !is Loading) {
+                        isRefreshing = false
+                    }
+                }
             }
         }
-    )
-}
-
-@Composable
-fun ProductItem(product: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
     ) {
-        Text(
-            text = product,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        IOResourceLoader(resource = productsState, errorContent = {
+            Text(text = "Error loading products")
+        }) { products ->
+            LazyVerticalGrid(columns = GridCells.Fixed(ProductsScreenViewModel.MAX_GRID_COLUMNS)) {
+                items(products.size) { index ->
+                    ProductCard(product = products[index])
+                }
+            }
+        }
     }
 }
