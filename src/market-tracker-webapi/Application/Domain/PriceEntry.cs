@@ -5,5 +5,5 @@ public record PriceEntry(
     int StoreId,
     int Price,
     Promotion Promotion,
-    DateTime Date
+    DateTime CreatedAt
 );

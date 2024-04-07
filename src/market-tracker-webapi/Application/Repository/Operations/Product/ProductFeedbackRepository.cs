@@ -17,13 +17,13 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext)
             .ToListAsync();
     }
 
-    public async Task<int> AddReviewAsync(Guid clientId, int productId, int rate, string? comment)
+    public async Task<int> AddReviewAsync(Guid clientId, int productId, int rating, string? comment)
     {
         var productReviewEntity = new ProductReviewEntity()
         {
             ProductId = productId,
             ClientId = clientId,
-            Rating = rate,
+            Rating = rating,
             Text = comment
         };
         await dataContext.ProductReview.AddAsync(productReviewEntity);
@@ -34,7 +34,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext)
     public async Task<ProductReview?> UpsertReviewAsync(
         Guid clientId,
         int productId,
-        int rate,
+        int rating,
         string? comment
     )
     {
@@ -42,7 +42,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext)
         {
             ProductId = productId,
             ClientId = clientId,
-            Rating = rate,
+            Rating = rating,
             Text = comment
         };
         await dataContext.ProductReview.Upsert(reviewEntity).RunAsync();
@@ -143,11 +143,17 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext)
     {
         return await dataContext
             .ProductStatsCounts.Where(stats => stats.ProductId == productId)
-            .Select(stats => new ProductStats(
-                productId,
-                new ProductStatsCounts(stats.Favourites, stats.Ratings, stats.Lists),
-                0 // TODO: leave on product table or in stats table?
-            ))
+            .Join(
+                dataContext.Product,
+                stats => stats.ProductId,
+                product => product.Id,
+                (stats, product) =>
+                    new ProductStats(
+                        productId,
+                        new ProductStatsCounts(stats.Favourites, stats.Ratings, stats.Lists),
+                        product.Rating
+                    )
+            )
             .FirstOrDefaultAsync();
     }
 }

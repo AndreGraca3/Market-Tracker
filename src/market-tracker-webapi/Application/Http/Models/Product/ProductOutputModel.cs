@@ -1,35 +1,36 @@
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Http.Models.Price;
 
 namespace market_tracker_webapi.Application.Http.Models.Product;
 
 public record ProductOutputModel(
-    int Id,
-    string Name,
-    string ImageUrl,
-    int Quantity,
-    string Unit,
-    int Views,
-    float Rate,
-    Brand Brand,
-    Domain.Category Category
+    ProductInfoOutputModel Product,
+    List<CompanyPricesOutputModel> Companies,
+    int MinPrice,
+    int MaxPrice
 )
 {
     public static ProductOutputModel ToProductOutputModel(
         Domain.Product product,
         Brand brand,
-        Domain.Category category
+        Domain.Category category,
+        List<CompanyPricesOutputModel> companies,
+        int minPrice,
+        int maxPrice
     )
     {
         return new ProductOutputModel(
-            product.Id,
-            product.Name,
-            product.ImageUrl,
-            product.Quantity,
-            product.Unit,
-            product.Views,
-            product.Rate,
-            brand,
-            category
+            new ProductInfoOutputModel(
+                product.Id,
+                product.Name,
+                product.Quantity,
+                product.Unit,
+                brand,
+                category
+            ),
+            companies,
+            minPrice,
+            maxPrice
         );
     }
 }

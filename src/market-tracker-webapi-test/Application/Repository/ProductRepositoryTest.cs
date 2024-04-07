@@ -201,7 +201,7 @@ public class ProductRepositoryTest
             _dummyProducts[0].Quantity,
             _dummyProducts[0].Unit,
             _dummyProducts[0].Views,
-            _dummyProducts[0].Rate,
+            _dummyProducts[0].Rating,
             _dummyProducts[0].BrandId,
             _dummyProducts[0].CategoryId
         );

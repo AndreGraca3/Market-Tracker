@@ -7,7 +7,7 @@ public record Product(
     int Quantity,
     string Unit,
     int Views,
-    float Rate,
+    double Rating,
     int BrandId,
     int CategoryId
 );

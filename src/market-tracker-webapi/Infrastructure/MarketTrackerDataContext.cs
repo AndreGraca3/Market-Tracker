@@ -23,6 +23,10 @@ namespace market_tracker_webapi.Infrastructure
 
         public DbSet<PriceAlertEntity> PriceAlert { get; set; }
 
+        public DbSet<PriceEntryEntity> PriceEntry { get; set; }
+
+        public DbSet<PromotionEntity> Promotion { get; set; }
+
         public DbSet<StoreEntity> Store { get; set; }
 
         public DbSet<CompanyEntity> Company { get; set; }

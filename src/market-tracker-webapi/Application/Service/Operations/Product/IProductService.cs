@@ -24,7 +24,7 @@ public interface IProductService
     // int price
     );
 
-    public Task<Either<IServiceError, ProductOutputModel>> UpdateProductAsync(
+    public Task<Either<IServiceError, ProductInfoOutputModel>> UpdateProductAsync(
         int productId,
         string name,
         string imageUrl,

@@ -71,7 +71,7 @@ public class ProductController(IProductService productService) : ControllerBase
     }
 
     [HttpPut(Uris.Products.ProductById)]
-    public async Task<ActionResult<ProductOutputModel>> UpdateProductAsync(
+    public async Task<ActionResult<ProductInfoOutputModel>> UpdateProductAsync(
         int productId,
         [FromBody] ProductUpdateInputModel productInput
     )

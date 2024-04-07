@@ -236,7 +236,7 @@ public class ProductServiceTest
             _dummyProducts[1].Quantity,
             _dummyProducts[1].Unit,
             _dummyProducts[0].Views,
-            _dummyProducts[0].Rate,
+            _dummyProducts[0].Rating,
             _dummyProducts[1].BrandId,
             _dummyProducts[1].CategoryId
         );

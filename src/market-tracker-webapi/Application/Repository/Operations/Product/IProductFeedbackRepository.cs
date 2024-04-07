@@ -6,7 +6,12 @@ public interface IProductFeedbackRepository
 {
     Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(int productId);
 
-    Task<ProductReview?> UpsertReviewAsync(Guid clientId, int productId, int rate, string? comment);
+    Task<ProductReview?> UpsertReviewAsync(
+        Guid clientId,
+        int productId,
+        int rating,
+        string? comment
+    );
 
     Task<ProductReview?> RemoveReviewAsync(Guid clientId, int productId);
 

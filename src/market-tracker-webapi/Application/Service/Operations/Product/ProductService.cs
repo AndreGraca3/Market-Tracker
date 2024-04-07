@@ -66,6 +66,7 @@ public class ProductService(
         {
             if (await productRepository.GetProductByIdAsync(productId) is not null)
             {
+                // TODO: Add new price entry and return
                 return EitherExtensions.Failure<IServiceError, IdOutputModel>(
                     new ProductCreationError.ProductAlreadyExists(productId)
                 );
@@ -99,7 +100,7 @@ public class ProductService(
         });
     }
 
-    public async Task<Either<IServiceError, ProductOutputModel>> UpdateProductAsync(
+    public async Task<Either<IServiceError, ProductInfoOutputModel>> UpdateProductAsync(
         int productId,
         string name,
         string imageUrl,
@@ -119,7 +120,7 @@ public class ProductService(
             var category = await categoryRepository.GetCategoryByIdAsync(categoryId);
             if (category is null)
             {
-                return EitherExtensions.Failure<IServiceError, ProductOutputModel>(
+                return EitherExtensions.Failure<IServiceError, ProductInfoOutputModel>(
                     new CategoryFetchingError.CategoryByIdNotFound(categoryId)
                 );
             }
@@ -136,13 +137,13 @@ public class ProductService(
 
             if (updatedProduct is null)
             {
-                return EitherExtensions.Failure<IServiceError, ProductOutputModel>(
+                return EitherExtensions.Failure<IServiceError, ProductInfoOutputModel>(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
 
-            return EitherExtensions.Success<IServiceError, ProductOutputModel>(
-                ProductOutputModel.ToProductOutputModel(updatedProduct, brand, category)
+            return EitherExtensions.Success<IServiceError, ProductInfoOutputModel>(
+                ProductInfoOutputModel.ToProductInfoOutputModel(updatedProduct, brand, category)
             );
         });
     }
