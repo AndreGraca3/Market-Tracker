@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using market_tracker_webapi.Application.Domain;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
@@ -14,4 +15,9 @@ public class CityEntity
     [Required]
     [Column("name")]
     public required string Name { get; set; }
+
+    public City ToCity()
+    {
+        return new City { Id = Id, Name = Name };
+    }
 }

@@ -94,17 +94,16 @@ static class Program
                 options.AddRouteComponents(Uris.ApiBase, GetEdmModel(), batchHandler);
             });
 
-        /*
         builder.Services.Configure<ApiBehaviorOptions>(options =>
         {
             options.InvalidModelStateResponseFactory = context =>
-            {
-                return new BadRequestProblem.InvalidRequestContent(
-                    context.ModelState.AsEnumerable().Last().Value?.Errors.First().ErrorMessage // TODO: fix exception marota
-                        ?? "Invalid request content."
+                new BadRequestProblem.InvalidRequestContent(
+                    context
+                        .ModelState.Values.SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .FirstOrDefault() ?? "Invalid request content"
                 ).ToActionResult();
-            };
-        });*/
+        });
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();

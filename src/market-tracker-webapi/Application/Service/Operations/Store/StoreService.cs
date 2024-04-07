@@ -77,7 +77,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
         public async Task<Either<IStoreError, IdOutputModel>> AddStoreAsync(
             string name,
             string address,
-            int cityId,
+            int? cityId,
             int companyId
         )
         {
@@ -97,10 +97,13 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
                     );
                 }
 
-                if (await cityRepository.GetCityByIdAsync(cityId) is null)
+                if (
+                    cityId is not null
+                    && await cityRepository.GetCityByIdAsync(cityId.Value) is null
+                )
                 {
                     return EitherExtensions.Failure<IStoreError, IdOutputModel>(
-                        new StoreFetchingError.StoreByCityIdNotFound(cityId)
+                        new StoreFetchingError.StoreByCityIdNotFound(cityId.Value)
                     );
                 }
 

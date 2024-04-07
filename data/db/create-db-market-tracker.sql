@@ -66,8 +66,6 @@ create table if not exists store
     name       varchar(30)         not null,
     address    varchar(200) unique not null,
     city_id    int references city (id) on delete cascade,
-    open_time  timestamp,
-    close_time timestamp,
     company_id int references company (id) on delete cascade
 );
 
@@ -137,7 +135,8 @@ create table if not exists fcm_registration
 (
     client_id uuid references client (id) on delete cascade,
     token     varchar(255) not null,
-    primary key (client_id, token)
+    device_id varchar(255) not null,
+    primary key (client_id, token, device_id)
 );
 
 create table if not exists product_review
@@ -179,7 +178,7 @@ create table if not exists list
 (
     id          int generated always as identity primary key,
     client_id   uuid references client (id) on delete cascade,
-    archived_at timestamp not null
+    archived_at timestamp
 );
 
 create table if not exists list_product

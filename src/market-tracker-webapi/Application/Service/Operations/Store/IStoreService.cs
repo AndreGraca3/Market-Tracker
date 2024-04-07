@@ -21,7 +21,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
         Task<Either<IStoreError, IdOutputModel>> AddStoreAsync(
             string name,
             string address,
-            int cityId,
+            int? cityId,
             int companyId
         );
 

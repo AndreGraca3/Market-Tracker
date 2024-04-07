@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using market_tracker_webapi.Application.Domain;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
@@ -13,4 +14,9 @@ public class PromotionEntity
 
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
+
+    public Promotion ToPromotion()
+    {
+        return new Promotion(Id, percentage, CreatedAt);
+    }
 }

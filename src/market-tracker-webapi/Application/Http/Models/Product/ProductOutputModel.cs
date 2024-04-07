@@ -23,6 +23,7 @@ public record ProductOutputModel(
             new ProductInfoOutputModel(
                 product.Id,
                 product.Name,
+                product.ImageUrl,
                 product.Quantity,
                 product.Unit,
                 brand,
