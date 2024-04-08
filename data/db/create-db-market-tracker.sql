@@ -160,6 +160,7 @@ create table if not exists list
 (
     id          int generated always as identity primary key,
     client_id   uuid references client (id),
+    name        varchar(20) NOT NULL,
     archived_at date not null
 );
 

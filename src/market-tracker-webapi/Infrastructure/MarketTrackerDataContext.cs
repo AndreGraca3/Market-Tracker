@@ -22,5 +22,9 @@ namespace market_tracker_webapi.Infrastructure
         public DbSet<CompanyEntity> Company { get; set; }
                 
         public DbSet<CityEntity> City { get; set; }
+        
+        public DbSet<ListEntity> List { get; set; }
+        
+        public DbSet<ProductInListEntity> ProductInList { get; set; }
     }
 }
