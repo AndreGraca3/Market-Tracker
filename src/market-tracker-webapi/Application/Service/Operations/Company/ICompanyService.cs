@@ -13,9 +13,9 @@ public interface ICompanyService
 
     Task<Either<CompanyFetchingError, Domain.Company>> GetCompanyByNameAsync(string companyName);
 
-    Task<Either<ICompanyError, IdOutputModel>> AddCompanyAsync(string companyName);
+    Task<Either<ICompanyError, IntIdOutputModel>> AddCompanyAsync(string companyName);
 
-    Task<Either<CompanyFetchingError, IdOutputModel>> DeleteCompanyAsync(int id);
+    Task<Either<CompanyFetchingError, IntIdOutputModel>> DeleteCompanyAsync(int id);
 
     Task<Either<ICompanyError, Domain.Company>> UpdateCompanyAsync(int id, string companyName);
 }

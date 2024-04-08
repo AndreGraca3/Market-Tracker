@@ -10,11 +10,11 @@ public interface IProductService
 {
     public Task<Either<IServiceError, CollectionOutputModel>> GetProductsAsync();
     public Task<Either<ProductFetchingError, ProductOutputModel>> GetProductByIdAsync(
-        int productId
+        string productId
     );
 
-    public Task<Either<IServiceError, IdOutputModel>> AddProductAsync(
-        int productId,
+    public Task<Either<IServiceError, StringIdOutputModel>> AddProductAsync(
+        string productId,
         string name,
         string imageUrl,
         int quantity,
@@ -25,7 +25,7 @@ public interface IProductService
     );
 
     public Task<Either<IServiceError, ProductInfoOutputModel>> UpdateProductAsync(
-        int productId,
+        string productId,
         string name,
         string imageUrl,
         int quantity,
@@ -34,5 +34,7 @@ public interface IProductService
         int categoryId
     );
 
-    public Task<Either<ProductFetchingError, IdOutputModel>> RemoveProductAsync(int productId);
+    public Task<Either<ProductFetchingError, StringIdOutputModel>> RemoveProductAsync(
+        string productId
+    );
 }

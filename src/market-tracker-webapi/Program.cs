@@ -17,6 +17,7 @@ static class Program
 {
     public static void Main(string[] args)
     {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         Run(args);
     }
 
@@ -53,8 +54,12 @@ static class Program
         app.Use(
             async (context, next) =>
             {
+                var startTime = DateTime.Now;
                 Console.WriteLine($"Request: {context.Request.Method} {context.Request.Path}");
                 await next();
+                Console.WriteLine(
+                    $"Response: {context.Response.StatusCode} in {(DateTime.Now - startTime).TotalMilliseconds}ms"
+                );
             }
         );
 
@@ -81,10 +86,10 @@ static class Program
                 options.Filters.Add<AuthenticationFilter>();
                 // options.ModelBinderProviders.Insert(0, new AuthUserBinderProvider());
             })
-            .AddJsonOptions(o =>
+            /*.AddJsonOptions(o =>
                 o.JsonSerializerOptions.DefaultIgnoreCondition =
                     JsonIgnoreCondition.WhenWritingDefault
-            )
+            )*/
             .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new OptionalConverter()))
             .AddOData(options =>
             {

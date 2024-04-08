@@ -18,14 +18,14 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
             string cityName
         );
 
-        Task<Either<IStoreError, IdOutputModel>> AddStoreAsync(
+        Task<Either<IStoreError, IntIdOutputModel>> AddStoreAsync(
             string name,
             string address,
             int? cityId,
             int companyId
         );
 
-        Task<Either<IStoreError, IdOutputModel>> UpdateStoreAsync(
+        Task<Either<IStoreError, IntIdOutputModel>> UpdateStoreAsync(
             int id,
             string name,
             string address,
@@ -33,6 +33,6 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
             int companyId
         );
 
-        Task<Either<StoreFetchingError, IdOutputModel>> DeleteStoreAsync(int id);
+        Task<Either<StoreFetchingError, IntIdOutputModel>> DeleteStoreAsync(int id);
     }
 }

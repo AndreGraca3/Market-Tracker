@@ -6,8 +6,8 @@ namespace market_tracker_webapi.Application.Http.Models.Product;
 public record ProductOutputModel(
     ProductInfoOutputModel Product,
     List<CompanyPricesOutputModel> Companies,
-    int MinPrice,
-    int MaxPrice
+    int? MinPrice,
+    int? MaxPrice
 )
 {
     public static ProductOutputModel ToProductOutputModel(
@@ -15,8 +15,8 @@ public record ProductOutputModel(
         Brand brand,
         Domain.Category category,
         List<CompanyPricesOutputModel> companies,
-        int minPrice,
-        int maxPrice
+        int? minPrice,
+        int? maxPrice
     )
     {
         return new ProductOutputModel(

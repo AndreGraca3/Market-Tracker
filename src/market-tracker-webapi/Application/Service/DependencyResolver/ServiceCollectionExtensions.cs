@@ -2,6 +2,7 @@
 using market_tracker_webapi.Application.Repository.Operations.Category;
 using market_tracker_webapi.Application.Repository.Operations.City;
 using market_tracker_webapi.Application.Repository.Operations.Company;
+using market_tracker_webapi.Application.Repository.Operations.Prices;
 using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Repository.Operations.Store;
 using market_tracker_webapi.Application.Repository.Operations.Token;
@@ -43,6 +44,7 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductFeedbackRepository, ProductFeedbackRepository>();
+            services.AddScoped<IPriceRepository, PriceRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IBrandRepository, BrandRepository>();
             services.AddScoped<IUserService, UserService>();

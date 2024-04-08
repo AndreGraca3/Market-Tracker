@@ -230,10 +230,10 @@ public class StoreControllerTest
     public async Task AddStoreAsync_ReturnsOk()
     {
         // Arrange
-        var idOutputModel = new IdOutputModel(1);
+        var idOutputModel = new IntIdOutputModel(1);
         _storeServiceMock
             .Setup(service => service.AddStoreAsync("Store", "Address", 1, 1))
-            .ReturnsAsync(EitherExtensions.Success<IStoreError, IdOutputModel>(idOutputModel));
+            .ReturnsAsync(EitherExtensions.Success<IStoreError, IntIdOutputModel>(idOutputModel));
 
         // Act
         var result = await _storeController.AddStoreAsync(
@@ -248,7 +248,7 @@ public class StoreControllerTest
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var actualIdOutputModel = Assert.IsType<IdOutputModel>(okResult.Value);
+        var actualIdOutputModel = Assert.IsType<IntIdOutputModel>(okResult.Value);
         actualIdOutputModel.Should().BeEquivalentTo(idOutputModel);
     }
 
@@ -259,7 +259,7 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.AddStoreAsync("Store", "Address", 1, 1))
             .ReturnsAsync(
-                EitherExtensions.Failure<IStoreError, IdOutputModel>(
+                EitherExtensions.Failure<IStoreError, IntIdOutputModel>(
                     new StoreFetchingError.StoreByCityIdNotFound(1)
                 )
             );
@@ -288,7 +288,7 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.AddStoreAsync("Store", "Address", 1, 1))
             .ReturnsAsync(
-                EitherExtensions.Failure<IStoreError, IdOutputModel>(
+                EitherExtensions.Failure<IStoreError, IntIdOutputModel>(
                     new StoreCreationError.StoreNameAlreadyExists("Store")
                 )
             );
@@ -319,7 +319,7 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.AddStoreAsync("Store", "Address", 1, 1))
             .ReturnsAsync(
-                EitherExtensions.Failure<IStoreError, IdOutputModel>(
+                EitherExtensions.Failure<IStoreError, IntIdOutputModel>(
                     new StoreFetchingError.StoreByCompanyIdNotFound(1)
                 )
             );
@@ -348,7 +348,7 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.AddStoreAsync("Store", "Address", 1, 1))
             .ReturnsAsync(
-                EitherExtensions.Failure<IStoreError, IdOutputModel>(
+                EitherExtensions.Failure<IStoreError, IntIdOutputModel>(
                     new StoreCreationError.StoreAddressAlreadyExists("Address")
                 )
             );
@@ -376,10 +376,10 @@ public class StoreControllerTest
     public async Task UpdateStoreAsync_ReturnsOk()
     {
         // Arrange
-        var idOutputModel = new IdOutputModel(1);
+        var idOutputModel = new IntIdOutputModel(1);
         _storeServiceMock
             .Setup(service => service.UpdateStoreAsync(1, "Store", "Address", 1, 1))
-            .ReturnsAsync(EitherExtensions.Success<IStoreError, IdOutputModel>(idOutputModel));
+            .ReturnsAsync(EitherExtensions.Success<IStoreError, IntIdOutputModel>(idOutputModel));
 
         // Act
         var result = await _storeController.UpdateStoreAsync(
@@ -395,7 +395,7 @@ public class StoreControllerTest
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var actualIdOutputModel = Assert.IsType<IdOutputModel>(okResult.Value);
+        var actualIdOutputModel = Assert.IsType<IntIdOutputModel>(okResult.Value);
         actualIdOutputModel.Should().BeEquivalentTo(idOutputModel);
     }
 
@@ -406,7 +406,7 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.UpdateStoreAsync(1, "Store", "Address", 1, 1))
             .ReturnsAsync(
-                EitherExtensions.Failure<IStoreError, IdOutputModel>(
+                EitherExtensions.Failure<IStoreError, IntIdOutputModel>(
                     new StoreFetchingError.StoreByCityIdNotFound(1)
                 )
             );
@@ -436,7 +436,7 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.UpdateStoreAsync(1, "Store", "Address", 1, 1))
             .ReturnsAsync(
-                EitherExtensions.Failure<IStoreError, IdOutputModel>(
+                EitherExtensions.Failure<IStoreError, IntIdOutputModel>(
                     new StoreCreationError.StoreNameAlreadyExists("Store")
                 )
             );
@@ -468,7 +468,7 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.UpdateStoreAsync(1, "Store", "Address", 1, 1))
             .ReturnsAsync(
-                EitherExtensions.Failure<IStoreError, IdOutputModel>(
+                EitherExtensions.Failure<IStoreError, IntIdOutputModel>(
                     new StoreFetchingError.StoreByCompanyIdNotFound(1)
                 )
             );
@@ -498,7 +498,7 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.UpdateStoreAsync(1, "Store", "Address", 1, 1))
             .ReturnsAsync(
-                EitherExtensions.Failure<IStoreError, IdOutputModel>(
+                EitherExtensions.Failure<IStoreError, IntIdOutputModel>(
                     new StoreFetchingError.StoreByIdNotFound(1)
                 )
             );
@@ -525,11 +525,11 @@ public class StoreControllerTest
     public async Task DeleteStoreAsync_ReturnsOk()
     {
         // Arrange
-        var idOutputModel = new IdOutputModel(1);
+        var idOutputModel = new IntIdOutputModel(1);
         _storeServiceMock
             .Setup(service => service.DeleteStoreAsync(1))
             .ReturnsAsync(
-                EitherExtensions.Success<StoreFetchingError, IdOutputModel>(idOutputModel)
+                EitherExtensions.Success<StoreFetchingError, IntIdOutputModel>(idOutputModel)
             );
 
         // Act
@@ -537,7 +537,7 @@ public class StoreControllerTest
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var actualIdOutputModel = Assert.IsType<IdOutputModel>(okResult.Value);
+        var actualIdOutputModel = Assert.IsType<IntIdOutputModel>(okResult.Value);
         actualIdOutputModel.Should().BeEquivalentTo(idOutputModel);
     }
 
@@ -548,7 +548,7 @@ public class StoreControllerTest
         _storeServiceMock
             .Setup(service => service.DeleteStoreAsync(1))
             .ReturnsAsync(
-                EitherExtensions.Failure<StoreFetchingError, IdOutputModel>(
+                EitherExtensions.Failure<StoreFetchingError, IntIdOutputModel>(
                     new StoreFetchingError.StoreByIdNotFound(1)
                 )
             );

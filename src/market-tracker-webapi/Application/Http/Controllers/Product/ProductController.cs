@@ -19,7 +19,7 @@ public class ProductController(IProductService productService) : ControllerBase
     }
 
     [HttpGet(Uris.Products.ProductById)]
-    public async Task<ActionResult<ProductOutputModel>> GetProductAsync(int productId)
+    public async Task<ActionResult<ProductOutputModel>> GetProductAsync(string productId)
     {
         var res = await productService.GetProductByIdAsync(productId);
 
@@ -37,12 +37,12 @@ public class ProductController(IProductService productService) : ControllerBase
     }
 
     [HttpPost(Uris.Products.Base)]
-    public async Task<ActionResult<IdOutputModel>> AddProductAsync(
+    public async Task<ActionResult<StringIdOutputModel>> AddProductAsync(
         [FromBody] ProductCreationInputModel productInput
     )
     {
         var res = await productService.AddProductAsync(
-            productInput.Id!.Value,
+            productInput.Id,
             productInput.Name,
             productInput.ImageUrl,
             productInput.Quantity,
@@ -72,7 +72,7 @@ public class ProductController(IProductService productService) : ControllerBase
 
     [HttpPut(Uris.Products.ProductById)]
     public async Task<ActionResult<ProductInfoOutputModel>> UpdateProductAsync(
-        int productId,
+        string productId,
         [FromBody] ProductUpdateInputModel productInput
     )
     {
@@ -105,7 +105,7 @@ public class ProductController(IProductService productService) : ControllerBase
     }
 
     [HttpDelete(Uris.Products.ProductById)]
-    public async Task<ActionResult<IdOutputModel>> RemoveProductAsync(int productId)
+    public async Task<ActionResult<StringIdOutputModel>> RemoveProductAsync(string productId)
     {
         var res = await productService.RemoveProductAsync(productId);
 

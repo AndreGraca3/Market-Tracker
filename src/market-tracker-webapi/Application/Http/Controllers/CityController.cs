@@ -39,7 +39,7 @@ public class CityController(ICityService cityService) : ControllerBase
     }
 
     [HttpPost(Uris.Cities.Base)]
-    public async Task<ActionResult<IdOutputModel>> AddCityAsync(
+    public async Task<ActionResult<IntIdOutputModel>> AddCityAsync(
         [FromBody] CityCreationInputModel cityInput
     )
     {
@@ -89,7 +89,7 @@ public class CityController(ICityService cityService) : ControllerBase
     }
 
     [HttpDelete(Uris.Cities.CityById)]
-    public async Task<ActionResult<IdOutputModel>> DeleteCityAsync(int id)
+    public async Task<ActionResult<IntIdOutputModel>> DeleteCityAsync(int id)
     {
         var res = await cityService.DeleteCityAsync(id);
         return ResultHandler.Handle(

@@ -27,6 +27,8 @@ namespace market_tracker_webapi.Infrastructure
 
         public DbSet<PromotionEntity> Promotion { get; set; }
 
+        public DbSet<ProductAvailabilityEntity> ProductAvailability { get; set; }
+
         public DbSet<StoreEntity> Store { get; set; }
 
         public DbSet<CompanyEntity> Company { get; set; }

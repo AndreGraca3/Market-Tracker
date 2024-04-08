@@ -40,20 +40,20 @@ public class CompanyService(
             : EitherExtensions.Success<CompanyFetchingError, Domain.Company>(company);
     }
 
-    public async Task<Either<ICompanyError, IdOutputModel>> AddCompanyAsync(string companyName)
+    public async Task<Either<ICompanyError, IntIdOutputModel>> AddCompanyAsync(string companyName)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await companyRepository.GetCompanyByNameAsync(companyName) is not null)
             {
-                return EitherExtensions.Failure<ICompanyError, IdOutputModel>(
+                return EitherExtensions.Failure<ICompanyError, IntIdOutputModel>(
                     new CompanyCreationError.CompanyNameAlreadyExists(companyName)
                 );
             }
 
             var companyId = await companyRepository.AddCompanyAsync(companyName);
-            return EitherExtensions.Success<ICompanyError, IdOutputModel>(
-                new IdOutputModel(companyId)
+            return EitherExtensions.Success<ICompanyError, IntIdOutputModel>(
+                new IntIdOutputModel(companyId)
             );
         });
     }
@@ -88,17 +88,17 @@ public class CompanyService(
         });
     }
 
-    public async Task<Either<CompanyFetchingError, IdOutputModel>> DeleteCompanyAsync(int id)
+    public async Task<Either<CompanyFetchingError, IntIdOutputModel>> DeleteCompanyAsync(int id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var company = await companyRepository.DeleteCompanyAsync(id);
             return company is null
-                ? EitherExtensions.Failure<CompanyFetchingError, IdOutputModel>(
+                ? EitherExtensions.Failure<CompanyFetchingError, IntIdOutputModel>(
                     new CompanyFetchingError.CompanyByIdNotFound(id)
                 )
-                : EitherExtensions.Success<CompanyFetchingError, IdOutputModel>(
-                    new IdOutputModel(company.Id)
+                : EitherExtensions.Success<CompanyFetchingError, IntIdOutputModel>(
+                    new IntIdOutputModel(company.Id)
                 );
         });
     }

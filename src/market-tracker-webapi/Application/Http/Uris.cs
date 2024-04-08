@@ -27,9 +27,10 @@ public static class Uris
         public const string StatsByProductId = $"{ProductById}/stats";
         public const string ProductPreferencesById = $"{ProductById}/me";
 
-        public static string BuildProductByIdUri(int id) => ProductById.ExpandUri(id);
+        public static string BuildProductByIdUri(string id) => ProductById.ExpandUri(id);
 
-        public static string BuildReviewsByProductIdUri(int id) => ReviewsByProductId.ExpandUri(id);
+        public static string BuildReviewsByProductIdUri(string id) =>
+            ReviewsByProductId.ExpandUri(id);
     }
 
     public static class Categories

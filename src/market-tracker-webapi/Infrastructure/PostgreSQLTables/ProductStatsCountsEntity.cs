@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
-[Table("product_stats_counts")]
+[Table("product_stats_counts", Schema = "MarketTracker")]
 public class ProductStatsCountsEntity
 {
     [Key]
     [Column("product_id")]
-    public int ProductId { get; set; }
+    public string ProductId { get; set; }
 
     [Column("favourites")]
     public int Favourites { get; set; }

@@ -5,7 +5,7 @@ namespace market_tracker_webapi.Application.Http.Models.Product;
 public class ProductCreationInputModel
 {
     [Required]
-    public int? Id { get; set; }
+    public string Id { get; set; }
 
     [Required]
     [MaxLength(50, ErrorMessage = "Name too long.")]

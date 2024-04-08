@@ -12,8 +12,9 @@ drop table if exists moderator;
 drop table if exists operator;
 drop table if exists client;
 drop table if exists "user";
-drop table if exists price_entry;
 drop table if exists promotion;
+drop index if exists price_entry_index;
+drop table if exists price_entry;
 drop table if exists product_availability;
 drop table if exists store;
 drop table if exists city;
@@ -36,7 +37,7 @@ create table if not exists category
 
 create table if not exists product
 (
-    id          decimal(13) primary key,
+    id          varchar(18) primary key,
     name        varchar(100) not null,
     image_url   TEXT         not null,
     quantity    int                   default 1,
@@ -69,28 +70,29 @@ create table if not exists store
     company_id int references company (id) on delete cascade
 );
 
-create table if not exists promotion
-(
-    id         int generated always as identity primary key,
-    percentage int not null check (percentage between 0 and 100),
-    created_at timestamp
-);
-
 create table if not exists price_entry
 (
-    price        integer   not null,
-    created_at   timestamp not null default now(),
-    store_id     int references store (id) on delete cascade,
-    product_id   int references product (id) on delete cascade,
-    promotion_id int references promotion (id) on delete cascade,
-    primary key (product_id, store_id, created_at)
+    id         varchar(25) primary key default substr(md5(random()::text), 1, 10),
+    price      integer   not null,
+    created_at timestamp not null      default now(),
+    store_id   int references store (id) on delete cascade,
+    product_id varchar(18) references product (id) on delete cascade
+);
+
+create index if not exists price_entry_index on price_entry (product_id, store_id);
+
+create table if not exists promotion
+(
+    percentage     int       not null check (percentage between 0 and 100),
+    created_at     timestamp not null default now(),
+    price_entry_id varchar(25) primary key references price_entry (id) on delete cascade
 );
 
 create table if not exists product_availability
 (
     is_available boolean   not null default true,
-    checked_at   timestamp not null default now(),
-    product_id   int references product (id) on delete cascade,
+    last_checked timestamp not null default now(),
+    product_id   varchar(18) references product (id) on delete cascade,
     store_id     int references store (id) on delete cascade,
     primary key (product_id, store_id)
 );
@@ -143,7 +145,7 @@ create table if not exists product_review
 (
     id         int generated always as identity,
     client_id  uuid references client (id) on delete cascade,
-    product_id int references product (id) on delete cascade,
+    product_id varchar(18) references product (id) on delete cascade,
     rating     int       not null check (rating between 1 and 5),
     text       varchar(255),
     created_at timestamp not null default now(),
@@ -153,14 +155,14 @@ create table if not exists product_review
 create table if not exists product_favourite
 (
     client_id  uuid references client (id) on delete cascade,
-    product_id int references product (id) on delete cascade,
+    product_id varchar(18) references product (id) on delete cascade,
     primary key (client_id, product_id)
 );
 
 create table if not exists price_alert
 (
     client_id       uuid references client (id) on delete cascade,
-    product_id      int references product (id) on delete cascade,
+    product_id      varchar(18) references product (id) on delete cascade,
     price_threshold int       not null,
     created_at      timestamp not null default now(),
     primary key (client_id, product_id)
@@ -168,7 +170,7 @@ create table if not exists price_alert
 
 create table if not exists product_stats_counts
 (
-    product_id int primary key references product (id) on delete cascade,
+    product_id varchar(18) primary key references product (id) on delete cascade,
     favourites int not null default 0,
     ratings    int not null default 0,
     lists      int not null default 0
@@ -184,7 +186,7 @@ create table if not exists list
 create table if not exists list_product
 (
     list_id    int references list (id) on delete cascade,
-    product_id int references product (id) on delete cascade,
+    product_id varchar(18) references product (id) on delete cascade,
     store_id   int references store (id) on delete cascade,
     quantity   int not null,
     primary key (list_id, product_id, store_id)

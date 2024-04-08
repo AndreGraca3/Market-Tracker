@@ -37,7 +37,7 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
     }
 
     [HttpPost(Uris.Categories.Base)]
-    public async Task<ActionResult<IdOutputModel>> AddCategoryAsync(
+    public async Task<ActionResult<IntIdOutputModel>> AddCategoryAsync(
         [FromBody] CategoryInputModel categoryInput
     )
     {
@@ -98,7 +98,7 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
     }
 
     [HttpDelete(Uris.Categories.CategoryById)]
-    public async Task<ActionResult<IdOutputModel>> RemoveCategoryAsync(int categoryId)
+    public async Task<ActionResult<IntIdOutputModel>> RemoveCategoryAsync(int categoryId)
     {
         var res = await categoryService.RemoveCategoryAsync(categoryId);
         return ResultHandler.Handle(

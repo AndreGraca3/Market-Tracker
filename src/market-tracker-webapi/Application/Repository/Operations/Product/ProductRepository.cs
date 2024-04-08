@@ -1,4 +1,3 @@
-using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
@@ -16,14 +15,14 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
             .ToListAsync();
     }
 
-    public async Task<Product?> GetProductByIdAsync(int productId)
+    public async Task<Product?> GetProductByIdAsync(string productId)
     {
         var productEntity = await dataContext.Product.FindAsync(productId);
         return productEntity?.ToProduct();
     }
 
-    public async Task<int> AddProductAsync(
-        int id,
+    public async Task<string> AddProductAsync(
+        string productId,
         string name,
         string imageUrl,
         int quantity,
@@ -34,7 +33,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
     {
         var productEntity = new ProductEntity()
         {
-            Id = id,
+            Id = productId,
             Name = name,
             ImageUrl = imageUrl,
             Quantity = quantity,
@@ -48,7 +47,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
     }
 
     public async Task<Product?> UpdateProductAsync(
-        int productId,
+        string productId,
         string? name,
         string? imageUrl = null,
         int? quantity = null,
@@ -74,7 +73,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         return productEntity.ToProduct();
     }
 
-    public async Task<Product?> RemoveProductAsync(int productId)
+    public async Task<Product?> RemoveProductAsync(string productId)
     {
         var productEntity = await dataContext.Product.FindAsync(productId);
         if (productEntity is null)

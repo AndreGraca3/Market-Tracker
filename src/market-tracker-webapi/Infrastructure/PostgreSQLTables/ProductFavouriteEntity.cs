@@ -11,5 +11,5 @@ public class ProductFavouriteEntity
     public Guid ClientId { get; set; }
 
     [Column("product_id")]
-    public int ProductId { get; set; }
+    public string ProductId { get; set; }
 }

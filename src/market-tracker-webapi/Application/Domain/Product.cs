@@ -1,7 +1,7 @@
 namespace market_tracker_webapi.Application.Domain;
 
 public record Product(
-    int Id,
+    string Id,
     string Name,
     string ImageUrl,
     int Quantity,

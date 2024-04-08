@@ -15,7 +15,7 @@ public class ProductReviewEntity
     public int Id { get; set; }
 
     [Column("product_id")]
-    public required int ProductId { get; set; }
+    public required string ProductId { get; set; }
 
     [Column("client_id")]
     public required Guid ClientId { get; set; }

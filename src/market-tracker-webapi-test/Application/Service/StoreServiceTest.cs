@@ -310,7 +310,7 @@ public class StoreServiceTest
         var result = await _storeService.AddStoreAsync("Store 1", "Address 1", 1, 1);
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel(1));
+        result.Value.Should().BeEquivalentTo(new IntIdOutputModel(1));
     }
 
     [Fact]
@@ -431,7 +431,7 @@ public class StoreServiceTest
         var result = await _storeService.UpdateStoreAsync(1, "Store 1", "Address 1", 1, 1);
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel(1));
+        result.Value.Should().BeEquivalentTo(new IntIdOutputModel(1));
     }
 
     [Fact]
@@ -481,6 +481,6 @@ public class StoreServiceTest
         var result = await _storeService.DeleteStoreAsync(1);
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel(1));
+        result.Value.Should().BeEquivalentTo(new IntIdOutputModel(1));
     }
 }

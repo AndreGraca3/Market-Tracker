@@ -1,6 +1,9 @@
-﻿namespace market_tracker_webapi.Application.Http.Models.Company;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace market_tracker_webapi.Application.Http.Models.Company;
 
 public class CompanyCreationInputModel
 {
-    public required string CompanyName { get; set; }
+    [Required]
+    public string CompanyName { get; set; }
 }

@@ -39,7 +39,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     }
 
     [HttpPost(Uris.Companies.Base)]
-    public async Task<ActionResult<IdOutputModel>> AddCompanyAsync(
+    public async Task<ActionResult<IntIdOutputModel>> AddCompanyAsync(
         [FromBody] CompanyCreationInputModel companyInput
     )
     {
@@ -93,7 +93,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     }
 
     [HttpDelete(Uris.Companies.CompanyById)]
-    public async Task<ActionResult<IdOutputModel>> DeleteCompanyAsync(int id)
+    public async Task<ActionResult<IntIdOutputModel>> DeleteCompanyAsync(int id)
     {
         var res = await companyService.DeleteCompanyAsync(id);
         return ResultHandler.Handle(

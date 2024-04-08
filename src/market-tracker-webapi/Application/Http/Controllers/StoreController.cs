@@ -89,7 +89,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpPost(Uris.Stores.Base)]
-    public async Task<ActionResult<IdOutputModel>> AddStoreAsync(
+    public async Task<ActionResult<IntIdOutputModel>> AddStoreAsync(
         [FromBody] StoreCreationInputModel model
     )
     {
@@ -131,7 +131,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpPut(Uris.Stores.StoreById)]
-    public async Task<ActionResult<IdOutputModel>> UpdateStoreAsync(
+    public async Task<ActionResult<IntIdOutputModel>> UpdateStoreAsync(
         int id,
         [FromBody] StoreUpdateInputModel model
     )
@@ -173,7 +173,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpDelete(Uris.Stores.StoreById)]
-    public async Task<ActionResult<IdOutputModel>> DeleteStoreAsync(int id)
+    public async Task<ActionResult<IntIdOutputModel>> DeleteStoreAsync(int id)
     {
         var res = await storeService.DeleteStoreAsync(id);
         return ResultHandler.Handle(

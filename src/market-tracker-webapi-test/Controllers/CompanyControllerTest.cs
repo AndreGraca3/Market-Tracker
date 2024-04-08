@@ -115,12 +115,12 @@ public class CompanyControllerTest
     public async Task AddCompanyAsync_RespondsWith_Created_ReturnsObjectAsync() // Ok -> Created
     {
         // Expected Arrange
-        var expectedId = new IdOutputModel(1);
+        var expectedId = new IntIdOutputModel(1);
 
         // Service Arrange
         _companyServiceMock
             .Setup(service => service.AddCompanyAsync(It.IsAny<string>()))
-            .ReturnsAsync(EitherExtensions.Success<ICompanyError, IdOutputModel>(expectedId));
+            .ReturnsAsync(EitherExtensions.Success<ICompanyError, IntIdOutputModel>(expectedId));
 
         // Act
         var actual = await _companyController.AddCompanyAsync(
@@ -129,7 +129,7 @@ public class CompanyControllerTest
 
         // Assert
         var result = Assert.IsType<CreatedResult>(actual.Result);
-        var idOutputModel = Assert.IsAssignableFrom<IdOutputModel>(result.Value);
+        var idOutputModel = Assert.IsAssignableFrom<IntIdOutputModel>(result.Value);
         idOutputModel.Should().BeEquivalentTo(expectedId);
     }
 
@@ -140,7 +140,7 @@ public class CompanyControllerTest
         _companyServiceMock
             .Setup(service => service.AddCompanyAsync(It.IsAny<string>()))
             .ReturnsAsync(
-                EitherExtensions.Failure<ICompanyError, IdOutputModel>(
+                EitherExtensions.Failure<ICompanyError, IntIdOutputModel>(
                     new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>())
                 )
             );
@@ -245,13 +245,13 @@ public class CompanyControllerTest
     public async Task DeleteCompanyAsync_RespondsWith_Ok_ReturnsObjectAsync()
     {
         // Expected Arrange
-        var expectedId = new IdOutputModel(1);
+        var expectedId = new IntIdOutputModel(1);
 
         // Service Arrange
         _companyServiceMock
             .Setup(service => service.DeleteCompanyAsync(It.IsAny<int>()))
             .ReturnsAsync(
-                EitherExtensions.Success<CompanyFetchingError, IdOutputModel>(expectedId)
+                EitherExtensions.Success<CompanyFetchingError, IntIdOutputModel>(expectedId)
             );
 
         // Act
@@ -259,7 +259,7 @@ public class CompanyControllerTest
 
         // Assert
         OkObjectResult result = Assert.IsType<OkObjectResult>(actual.Result);
-        IdOutputModel idOutputModel = Assert.IsAssignableFrom<IdOutputModel>(result.Value);
+        IntIdOutputModel idOutputModel = Assert.IsAssignableFrom<IntIdOutputModel>(result.Value);
         idOutputModel.Should().BeEquivalentTo(expectedId);
     }
 
@@ -270,7 +270,7 @@ public class CompanyControllerTest
         _companyServiceMock
             .Setup(service => service.DeleteCompanyAsync(It.IsAny<int>()))
             .ReturnsAsync(
-                EitherExtensions.Failure<CompanyFetchingError, IdOutputModel>(
+                EitherExtensions.Failure<CompanyFetchingError, IntIdOutputModel>(
                     new CompanyFetchingError.CompanyByIdNotFound(It.IsAny<int>())
                 )
             );

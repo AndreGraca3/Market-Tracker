@@ -166,7 +166,7 @@ public class ProductServiceTest
         );
 
         // Assert
-        productResult.Value.Should().BeEquivalentTo(new IdOutputModel(_dummyProducts[0].Id));
+        productResult.Value.Should().BeEquivalentTo(new IntIdOutputModel(_dummyProducts[0].Id));
     }
 
     [Fact]
@@ -302,7 +302,7 @@ public class ProductServiceTest
         var productResult = await _productService.RemoveProductAsync(_dummyProducts[0].Id);
 
         // Assert
-        productResult.Value.Should().BeEquivalentTo(new IdOutputModel(_dummyProducts[0].Id));
+        productResult.Value.Should().BeEquivalentTo(new IntIdOutputModel(_dummyProducts[0].Id));
     }
 
     [Fact]

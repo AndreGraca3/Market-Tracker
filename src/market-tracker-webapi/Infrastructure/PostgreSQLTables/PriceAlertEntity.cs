@@ -13,7 +13,7 @@ public class PriceAlertEntity
     public required Guid ClientId { get; set; }
 
     [Column("product_id")]
-    public required int ProductId { get; set; }
+    public required string ProductId { get; set; }
 
     [Column("price_threshold")]
     public required int PriceThreshold { get; set; }

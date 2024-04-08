@@ -10,12 +10,12 @@ namespace market_tracker_webapi.Application.Service.Operations.Product;
 public interface IProductFeedbackService
 {
     Task<Either<ProductFetchingError, CollectionOutputModel>> GetReviewsByProductIdAsync(
-        int productId
+        string productId
     );
 
     Task<Either<IServiceError, ProductPreferences>> UpsertProductPreferencesAsync(
         Guid clientId,
-        int productId,
+        string productId,
         Optional<bool> isFavorite,
         Optional<PriceAlertInputModel?> priceAlert,
         Optional<ProductReviewInputModel?> review
@@ -23,8 +23,8 @@ public interface IProductFeedbackService
 
     Task<Either<IServiceError, ProductPreferences>> GetUserFeedbackByProductId(
         Guid clientId,
-        int productId
+        string productId
     );
 
-    Task<Either<ProductFetchingError, ProductStats>> GetProductStatsByIdAsync(int productId);
+    Task<Either<ProductFetchingError, ProductStats>> GetProductStatsByIdAsync(string productId);
 }

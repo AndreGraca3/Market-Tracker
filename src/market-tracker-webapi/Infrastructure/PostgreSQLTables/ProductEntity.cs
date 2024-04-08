@@ -10,7 +10,7 @@ namespace market_tracker_webapi.Infrastructure.PostgreSQLTables
     {
         [Key]
         [Column("id")]
-        public required int Id { get; set; }
+        public required string Id { get; set; }
 
         [Column("name")]
         public required string Name { get; set; }

@@ -13,9 +13,9 @@ public interface ICityService
 
     Task<Either<CityFetchingError, Domain.City>> GetCityByNameAsync(string cityName);
 
-    Task<Either<ICityError, IdOutputModel>> AddCityAsync(string cityName);
+    Task<Either<ICityError, IntIdOutputModel>> AddCityAsync(string cityName);
 
-    Task<Either<CityFetchingError, IdOutputModel>> DeleteCityAsync(int id);
+    Task<Either<CityFetchingError, IntIdOutputModel>> DeleteCityAsync(int id);
 
     Task<Either<ICityError, Domain.City>> UpdateCityAsync(int id, string cityName);
 }

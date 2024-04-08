@@ -20,7 +20,6 @@ public class StoreEntity
     [Column("address")]
     public required string Address { get; set; }
 
-    [Required]
     [StringLength(30)]
     [ForeignKey("city")]
     [Column("city_id")]

@@ -18,7 +18,7 @@ public class ProductFeedbackService(
 {
     public async Task<
         Either<ProductFetchingError, CollectionOutputModel>
-    > GetReviewsByProductIdAsync(int productId)
+    > GetReviewsByProductIdAsync(string productId)
     {
         throw new NotImplementedException();
         return await transactionManager.ExecuteAsync(async () =>
@@ -48,7 +48,7 @@ public class ProductFeedbackService(
 
     public async Task<Either<IServiceError, ProductPreferences>> UpsertProductPreferencesAsync(
         Guid clientId,
-        int productId,
+        string productId,
         Optional<bool> isFavorite,
         Optional<PriceAlertInputModel?> priceAlert,
         Optional<ProductReviewInputModel?> review
@@ -128,7 +128,7 @@ public class ProductFeedbackService(
 
     public async Task<Either<IServiceError, ProductPreferences>> GetUserFeedbackByProductId(
         Guid clientId,
-        int productId
+        string productId
     )
     {
         return await transactionManager.ExecuteAsync(async () =>
@@ -152,7 +152,7 @@ public class ProductFeedbackService(
     }
 
     public async Task<Either<ProductFetchingError, ProductStats>> GetProductStatsByIdAsync(
-        int productId
+        string productId
     )
     {
         return await transactionManager.ExecuteAsync(async () =>

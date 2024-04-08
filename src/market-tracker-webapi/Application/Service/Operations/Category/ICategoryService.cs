@@ -13,9 +13,9 @@ public interface ICategoryService
 
     public Task<Either<CategoryFetchingError, Category>> GetCategoryAsync(int id);
 
-    public Task<Either<ICategoryError, IdOutputModel>> AddCategoryAsync(string name);
+    public Task<Either<ICategoryError, IntIdOutputModel>> AddCategoryAsync(string name);
 
     public Task<Either<ICategoryError, Category>> UpdateCategoryAsync(int id, string name);
 
-    public Task<Either<CategoryFetchingError, IdOutputModel>> RemoveCategoryAsync(int id);
+    public Task<Either<CategoryFetchingError, IntIdOutputModel>> RemoveCategoryAsync(int id);
 }

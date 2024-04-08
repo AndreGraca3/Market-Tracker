@@ -8,10 +8,10 @@ public interface IProductRepository
 {
     Task<IEnumerable<Product>> GetProductsAsync();
 
-    Task<Product?> GetProductByIdAsync(int productId);
+    Task<Product?> GetProductByIdAsync(string productId);
 
-    Task<int> AddProductAsync(
-        int id,
+    Task<string> AddProductAsync(
+        string productId,
         string name,
         string imageUrl,
         int quantity,
@@ -21,7 +21,7 @@ public interface IProductRepository
     );
 
     Task<Product?> UpdateProductAsync(
-        int productId,
+        string productId,
         string? name = null,
         string? imageUrl = null,
         int? quantity = null,
@@ -30,5 +30,5 @@ public interface IProductRepository
         int? categoryId = null
     );
 
-    Task<Product?> RemoveProductAsync(int productId);
+    Task<Product?> RemoveProductAsync(string productId);
 }

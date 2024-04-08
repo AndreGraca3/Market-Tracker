@@ -3,7 +3,7 @@ using market_tracker_webapi.Application.Domain;
 namespace market_tracker_webapi.Application.Http.Models.Product;
 
 public record ProductInfoOutputModel(
-    int Id,
+    string ProductId,
     string Name,
     string ImageUrl,
     int Quantity,

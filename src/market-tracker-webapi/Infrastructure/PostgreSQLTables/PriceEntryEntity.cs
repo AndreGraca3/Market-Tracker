@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
-[Table("price_entry")]
-[PrimaryKey("ProductId", "StoreId", "CreatedAt")]
+[Table("price_entry", Schema = "MarketTracker")]
 public class PriceEntryEntity
 {
+    [Column("id")]
+    public string Id { get; set; }
+
     [Column("price")]
     public int Price { get; set; }
 
@@ -17,8 +19,5 @@ public class PriceEntryEntity
     public int StoreId { get; set; }
 
     [Column("product_id")]
-    public int ProductId { get; set; }
-
-    [Column("promotion_id")]
-    public int? PromotionId { get; set; }
+    public string ProductId { get; set; }
 }
