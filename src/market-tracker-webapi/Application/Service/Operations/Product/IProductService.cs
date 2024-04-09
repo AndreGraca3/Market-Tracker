@@ -1,4 +1,7 @@
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Product;
+using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Utils;
@@ -7,11 +10,16 @@ namespace market_tracker_webapi.Application.Service.Operations.Product;
 
 public interface IProductService
 {
-    public Task<CollectionOutputModel> GetProductsAsync();
-    public Task<Either<ProductFetchingError, ProductOutputModel>> GetProductAsync(int id);
+    public Task<Either<IServiceError, CollectionOutputModel>> GetProductsAsync(
+        string? searchName,
+        int? minRating,
+        int? maxRating
+    );
 
-    public Task<Either<IServiceError, IdOutputModel>> AddProductAsync(
-        int productId,
+    public Task<Either<ProductFetchingError, ProductInfo>> GetProductByIdAsync(string productId);
+
+    public Task<Either<IServiceError, StringIdOutputModel>> AddProductAsync(
+        string productId,
         string name,
         string imageUrl,
         int quantity,
@@ -21,8 +29,8 @@ public interface IProductService
     // int price
     );
 
-    public Task<Either<IServiceError, ProductOutputModel>> UpdateProductAsync(
-        int id,
+    public Task<Either<IServiceError, ProductInfoOutputModel>> UpdateProductAsync(
+        string productId,
         string name,
         string imageUrl,
         int quantity,
@@ -31,5 +39,7 @@ public interface IProductService
         int categoryId
     );
 
-    public Task<Either<ProductFetchingError, IdOutputModel>> RemoveProductAsync(int productId);
+    public Task<Either<ProductFetchingError, StringIdOutputModel>> RemoveProductAsync(
+        string productId
+    );
 }

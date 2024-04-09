@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using market_tracker_webapi.Application.Http;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Pipeline;
@@ -6,6 +7,7 @@ using market_tracker_webapi.Application.Service.DependencyResolver;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Batch;
+using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 
@@ -15,6 +17,7 @@ static class Program
 {
     public static void Main(string[] args)
     {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         Run(args);
     }
 
@@ -48,6 +51,18 @@ static class Program
 
         app.UseODataBatching();
 
+        app.Use(
+            async (context, next) =>
+            {
+                var startTime = DateTime.Now;
+                Console.WriteLine($"Request: {context.Request.Method} {context.Request.Path}");
+                await next();
+                Console.WriteLine(
+                    $"Response: {context.Response.StatusCode} in {(DateTime.Now - startTime).TotalMilliseconds}ms"
+                );
+            }
+        );
+
         app.UseExceptionHandler(_ => { });
 
         app.UseAuthorization();
@@ -71,20 +86,28 @@ static class Program
                 options.Filters.Add<AuthenticationFilter>();
                 // options.ModelBinderProviders.Insert(0, new AuthUserBinderProvider());
             })
+            /*.AddJsonOptions(o =>
+                o.JsonSerializerOptions.DefaultIgnoreCondition =
+                    JsonIgnoreCondition.WhenWritingDefault
+            )*/
+            .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new OptionalConverter()))
             .AddOData(options =>
             {
+                options.Conventions.Remove(
+                    options.Conventions.OfType<MetadataRoutingConvention>().First()
+                );
                 options.AddRouteComponents(Uris.ApiBase, GetEdmModel(), batchHandler);
             });
 
         builder.Services.Configure<ApiBehaviorOptions>(options =>
         {
             options.InvalidModelStateResponseFactory = context =>
-            {
-                return new BadRequestProblem.InvalidRequestContent(
-                    context.ModelState.AsEnumerable().Last().Value?.Errors.First().ErrorMessage
-                        ?? "Invalid request content."
+                new BadRequestProblem.InvalidRequestContent(
+                    context
+                        .ModelState.Values.SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .FirstOrDefault() ?? "Invalid request content"
                 ).ToActionResult();
-            };
         });
 
         builder.Services.AddEndpointsApiExplorer();

@@ -2,6 +2,7 @@
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Controllers;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.City;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.City;
@@ -92,10 +93,10 @@ public class CityControllerTest
     public async Task AddCityAsync_ShouldReturnOk()
     {
         // Arrange
-        var cityId = new IdOutputModel(1);
+        var cityId = new IntIdOutputModel(1);
         _cityServiceMock
             .Setup(service => service.AddCityAsync("City 1"))
-            .ReturnsAsync(EitherExtensions.Success<ICityError, IdOutputModel>(cityId));
+            .ReturnsAsync(EitherExtensions.Success<ICityError, IntIdOutputModel>(cityId));
 
         // Act
         var result = await _cityController.AddCityAsync(
@@ -104,7 +105,7 @@ public class CityControllerTest
 
         // Assert
         var okResult = Assert.IsType<CreatedResult>(result.Result);
-        var actualCity = Assert.IsType<IdOutputModel>(okResult.Value);
+        var actualCity = Assert.IsType<IntIdOutputModel>(okResult.Value);
         actualCity.Should().BeEquivalentTo(cityId);
     }
 
@@ -115,7 +116,7 @@ public class CityControllerTest
         _cityServiceMock
             .Setup(service => service.AddCityAsync("City 1"))
             .ReturnsAsync(
-                EitherExtensions.Failure<ICityError, IdOutputModel>(
+                EitherExtensions.Failure<ICityError, IntIdOutputModel>(
                     new CityCreationError.CityNameAlreadyExists("City 1")
                 )
             );
@@ -206,18 +207,20 @@ public class CityControllerTest
     public async Task DeleteCityAsync_ShouldReturnOk()
     {
         // Arrange
-        var expectedId = new IdOutputModel(1);
+        var expectedId = new IntIdOutputModel(1);
 
         _cityServiceMock
             .Setup(service => service.DeleteCityAsync(1))
-            .ReturnsAsync(EitherExtensions.Success<CityFetchingError, IdOutputModel>(expectedId));
+            .ReturnsAsync(
+                EitherExtensions.Success<CityFetchingError, IntIdOutputModel>(expectedId)
+            );
 
         // Act
         var result = await _cityController.DeleteCityAsync(1);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var actual = Assert.IsType<IdOutputModel>(okResult.Value);
+        var actual = Assert.IsType<IntIdOutputModel>(okResult.Value);
         actual.Should().BeEquivalentTo(expectedId);
     }
 
@@ -228,7 +231,7 @@ public class CityControllerTest
         _cityServiceMock
             .Setup(service => service.DeleteCityAsync(1))
             .ReturnsAsync(
-                EitherExtensions.Failure<CityFetchingError, IdOutputModel>(
+                EitherExtensions.Failure<CityFetchingError, IntIdOutputModel>(
                     new CityFetchingError.CityByIdNotFound(It.IsAny<int>())
                 )
             );

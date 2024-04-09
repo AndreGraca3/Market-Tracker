@@ -1,6 +1,7 @@
 using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Repository.Operations.Brand;
 using market_tracker_webapi.Application.Repository.Operations.Category;
 using market_tracker_webapi.Application.Repository.Operations.Product;
@@ -92,7 +93,7 @@ public class ProductServiceTest
             .ReturnsAsync(_dummyCategories[0]);
 
         // Act
-        var productResult = await _productService.GetProductAsync(It.IsAny<int>());
+        var productResult = await _productService.GetProductByIdAsync(It.IsAny<int>());
 
         // Assert
         productResult
@@ -115,7 +116,7 @@ public class ProductServiceTest
             .ReturnsAsync((Product?)null);
 
         // Act
-        var productResult = await _productService.GetProductAsync(It.IsAny<int>());
+        var productResult = await _productService.GetProductByIdAsync(It.IsAny<int>());
 
         // Assert
         productResult
@@ -165,7 +166,7 @@ public class ProductServiceTest
         );
 
         // Assert
-        productResult.Value.Should().BeEquivalentTo(new IdOutputModel(_dummyProducts[0].Id));
+        productResult.Value.Should().BeEquivalentTo(new IntIdOutputModel(_dummyProducts[0].Id));
     }
 
     [Fact]
@@ -235,7 +236,7 @@ public class ProductServiceTest
             _dummyProducts[1].Quantity,
             _dummyProducts[1].Unit,
             _dummyProducts[0].Views,
-            _dummyProducts[0].Rate,
+            _dummyProducts[0].Rating,
             _dummyProducts[1].BrandId,
             _dummyProducts[1].CategoryId
         );
@@ -301,7 +302,7 @@ public class ProductServiceTest
         var productResult = await _productService.RemoveProductAsync(_dummyProducts[0].Id);
 
         // Assert
-        productResult.Value.Should().BeEquivalentTo(new IdOutputModel(_dummyProducts[0].Id));
+        productResult.Value.Should().BeEquivalentTo(new IntIdOutputModel(_dummyProducts[0].Id));
     }
 
     [Fact]

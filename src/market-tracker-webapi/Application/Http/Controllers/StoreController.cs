@@ -1,5 +1,4 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Store;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.City;
@@ -16,12 +15,15 @@ public class StoreController(IStoreService storeService) : ControllerBase
     [HttpGet(Uris.Stores.Base)]
     public async Task<ActionResult<CollectionOutputModel>> GetStoresAsync()
     {
-        var storesCollection = await storeService.GetStoresAsync();
-        return Ok(storesCollection);
+        var res = await storeService.GetStoresAsync();
+        return ResultHandler.Handle(
+            res,
+            _ => new ServerProblem.InternalServerError().ToActionResult()
+        );
     }
 
     [HttpGet(Uris.Stores.StoreById)]
-    public async Task<ActionResult<Store>> GetStoreByIdAsync(int id)
+    public async Task<ActionResult<Domain.Store>> GetStoreByIdAsync(int id)
     {
         var res = await storeService.GetStoreByIdAsync(id);
         return ResultHandler.Handle(
@@ -42,7 +44,9 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpGet(Uris.Stores.StoresFromCompany)]
-    public async Task<ActionResult<IEnumerable<Store>>> GetStoresFromCompanyAsync(int companyId)
+    public async Task<ActionResult<IEnumerable<Domain.Store>>> GetStoresFromCompanyAsync(
+        int companyId
+    )
     {
         var res = await storeService.GetStoresFromCompanyAsync(companyId);
         return ResultHandler.Handle(
@@ -65,7 +69,9 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpGet(Uris.Stores.StoresByCityName)]
-    public async Task<ActionResult<IEnumerable<Store>>> GetStoresByCityNameAsync(string cityName)
+    public async Task<ActionResult<IEnumerable<Domain.Store>>> GetStoresByCityNameAsync(
+        string cityName
+    )
     {
         var res = await storeService.GetStoresByCityNameAsync(cityName);
         return ResultHandler.Handle(
@@ -88,7 +94,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpPost(Uris.Stores.Base)]
-    public async Task<ActionResult<IdOutputModel>> AddStoreAsync(
+    public async Task<ActionResult<IntIdOutputModel>> AddStoreAsync(
         [FromBody] StoreCreationInputModel model
     )
     {
@@ -130,7 +136,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpPut(Uris.Stores.StoreById)]
-    public async Task<ActionResult<IdOutputModel>> UpdateStoreAsync(
+    public async Task<ActionResult<IntIdOutputModel>> UpdateStoreAsync(
         int id,
         [FromBody] StoreUpdateInputModel model
     )
@@ -172,7 +178,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpDelete(Uris.Stores.StoreById)]
-    public async Task<ActionResult<IdOutputModel>> DeleteStoreAsync(int id)
+    public async Task<ActionResult<IntIdOutputModel>> DeleteStoreAsync(int id)
     {
         var res = await storeService.DeleteStoreAsync(id);
         return ResultHandler.Handle(

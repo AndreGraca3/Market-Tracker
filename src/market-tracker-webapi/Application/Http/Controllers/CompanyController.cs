@@ -1,5 +1,5 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Company;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Operations.Company;
@@ -13,12 +13,17 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     [HttpGet(Uris.Companies.Base)]
     public async Task<ActionResult<CollectionOutputModel>> GetCompaniesAsync()
     {
-        var companiesCollection = await companyService.GetCompaniesAsync();
-        return Ok(companiesCollection);
+        var res = await companyService.GetCompaniesAsync();
+        return ResultHandler.Handle(
+            res,
+            _ => new ServerProblem.InternalServerError(
+                nameof(CompanyController)
+            ).ToActionResult()
+        );
     }
 
     [HttpGet(Uris.Companies.CompanyById)]
-    public async Task<ActionResult<Company>> GetCompanyByIdAsync(int id)
+    public async Task<ActionResult<Domain.Company>> GetCompanyByIdAsync(int id)
     {
         var res = await companyService.GetCompanyByIdAsync(id);
         return ResultHandler.Handle(
@@ -39,7 +44,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     }
 
     [HttpPost(Uris.Companies.Base)]
-    public async Task<ActionResult<IdOutputModel>> AddCompanyAsync(
+    public async Task<ActionResult<IntIdOutputModel>> AddCompanyAsync(
         [FromBody] CompanyCreationInputModel companyInput
     )
     {
@@ -65,7 +70,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     }
 
     [HttpPut(Uris.Companies.CompanyById)]
-    public async Task<ActionResult<Company>> UpdateCompanyAsync(
+    public async Task<ActionResult<Domain.Company>> UpdateCompanyAsync(
         int id,
         [FromBody] CompanyUpdateInputModel companyInput
     )
@@ -93,7 +98,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     }
 
     [HttpDelete(Uris.Companies.CompanyById)]
-    public async Task<ActionResult<IdOutputModel>> DeleteCompanyAsync(int id)
+    public async Task<ActionResult<IntIdOutputModel>> DeleteCompanyAsync(int id)
     {
         var res = await companyService.DeleteCompanyAsync(id);
         return ResultHandler.Handle(

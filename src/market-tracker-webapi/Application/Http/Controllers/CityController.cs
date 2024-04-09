@@ -1,5 +1,5 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.City;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.City;
 using market_tracker_webapi.Application.Service.Operations.City;
@@ -13,12 +13,12 @@ public class CityController(ICityService cityService) : ControllerBase
     [HttpGet(Uris.Cities.Base)]
     public async Task<ActionResult<CollectionOutputModel>> GetCitiesAsync()
     {
-        var citiesCollection = await cityService.GetCitiesAsync();
-        return Ok(citiesCollection);
+        var res = await cityService.GetCitiesAsync();
+        return ResultHandler.Handle(res, _ => new ServerProblem.InternalServerError().ToActionResult());
     }
 
     [HttpGet(Uris.Cities.CityById)]
-    public async Task<ActionResult<City>> GetCityByIdAsync(int id)
+    public async Task<ActionResult<Domain.City>> GetCityByIdAsync(int id)
     {
         var res = await cityService.GetCityByIdAsync(id);
         return ResultHandler.Handle(
@@ -39,7 +39,7 @@ public class CityController(ICityService cityService) : ControllerBase
     }
 
     [HttpPost(Uris.Cities.Base)]
-    public async Task<ActionResult<IdOutputModel>> AddCityAsync(
+    public async Task<ActionResult<IntIdOutputModel>> AddCityAsync(
         [FromBody] CityCreationInputModel cityInput
     )
     {
@@ -63,7 +63,7 @@ public class CityController(ICityService cityService) : ControllerBase
     }
 
     [HttpPut(Uris.Cities.CityById)]
-    public async Task<ActionResult<City>> UpdateCityAsync(
+    public async Task<ActionResult<Domain.City>> UpdateCityAsync(
         int id,
         [FromBody] CityUpdateInputModel cityInput
     )
@@ -89,7 +89,7 @@ public class CityController(ICityService cityService) : ControllerBase
     }
 
     [HttpDelete(Uris.Cities.CityById)]
-    public async Task<ActionResult<IdOutputModel>> DeleteCityAsync(int id)
+    public async Task<ActionResult<IntIdOutputModel>> DeleteCityAsync(int id)
     {
         var res = await cityService.DeleteCityAsync(id);
         return ResultHandler.Handle(

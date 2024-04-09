@@ -1,3 +1,3 @@
 namespace market_tracker_webapi.Application.Http.Models;
 
-public record IdOutputModel(int Id);
+public record StringIdOutputModel(string Id);

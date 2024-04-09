@@ -1,5 +1,4 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.City;
 using market_tracker_webapi.Application.Repository.Operations.Company;
 using market_tracker_webapi.Application.Repository.Operations.Store;
@@ -19,10 +18,12 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
         ITransactionManager transactionManager
     ) : IStoreService
     {
-        public async Task<CollectionOutputModel> GetStoresAsync()
+        public async Task<Either<IServiceError, CollectionOutputModel>> GetStoresAsync()
         {
             var stores = await storeRepository.GetStoresAsync();
-            return new CollectionOutputModel(stores);
+            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(
+                new CollectionOutputModel(stores)
+            );
         }
 
         public async Task<Either<StoreFetchingError, Domain.Store>> GetStoreByIdAsync(int id)
@@ -35,48 +36,52 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
                 : EitherExtensions.Success<StoreFetchingError, Domain.Store>(store);
         }
 
-        public async Task<Either<IServiceError, IEnumerable<Domain.Store>>> GetStoresFromCompanyAsync(int companyId)
+        public async Task<
+            Either<CompanyFetchingError, IEnumerable<Domain.Store>>
+        > GetStoresFromCompanyAsync(int companyId)
         {
             return await transactionManager.ExecuteAsync(async () =>
             {
                 var company = await companyRepository.GetCompanyByIdAsync(companyId);
                 if (company is null)
                 {
-                    return EitherExtensions.Failure<IServiceError, IEnumerable<Domain.Store>>(
+                    return EitherExtensions.Failure<CompanyFetchingError, IEnumerable<Domain.Store>>(
                         new CompanyFetchingError.CompanyByIdNotFound(companyId)
                     );
                 }
 
                 var stores = await storeRepository.GetStoresFromCompanyAsync(companyId);
-                return EitherExtensions.Success<IServiceError, IEnumerable<Domain.Store>>(
+                return EitherExtensions.Success<CompanyFetchingError, IEnumerable<Domain.Store>>(
                     stores
                 );
             });
         }
 
-        public async Task<Either<IServiceError, IEnumerable<Domain.Store>>> GetStoresByCityNameAsync(string cityName)
+        public async Task<
+            Either<CityFetchingError, IEnumerable<Domain.Store>>
+        > GetStoresByCityNameAsync(string cityName)
         {
             return await transactionManager.ExecuteAsync(async () =>
             {
                 var city = await cityRepository.GetCityByNameAsync(cityName);
                 if (city is null)
                 {
-                    return EitherExtensions.Failure<IServiceError, IEnumerable<Domain.Store>>(
+                    return EitherExtensions.Failure<CityFetchingError, IEnumerable<Domain.Store>>(
                         new CityFetchingError.CityByNameNotFound(cityName)
                     );
                 }
 
                 var stores = await storeRepository.GetStoresByCityNameAsync(cityName);
-                return EitherExtensions.Success<IServiceError, IEnumerable<Domain.Store>>(
+                return EitherExtensions.Success<CityFetchingError, IEnumerable<Domain.Store>>(
                     stores
                 );
             });
         }
 
-        public async Task<Either<IServiceError, IdOutputModel>> AddStoreAsync(
+        public async Task<Either<IServiceError, IntIdOutputModel>> AddStoreAsync(
             string name,
             string address,
-            int cityId,
+            int? cityId,
             int companyId
         )
         {
@@ -84,40 +89,43 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
             {
                 if (await storeRepository.GetStoreByAddressAsync(address) is not null)
                 {
-                    return EitherExtensions.Failure<IServiceError, IdOutputModel>(
+                    return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                         new StoreCreationError.StoreAddressAlreadyExists(address)
                     );
                 }
 
                 if (await storeRepository.GetStoreByNameAsync(name) is not null)
                 {
-                    return EitherExtensions.Failure<IServiceError, IdOutputModel>(
+                    return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                         new StoreCreationError.StoreNameAlreadyExists(name)
                     );
                 }
 
-                if (await cityRepository.GetCityByIdAsync(cityId) is null)
+                if (
+                    cityId.HasValue
+                    && await cityRepository.GetCityByIdAsync(cityId.Value) is null
+                )
                 {
-                    return EitherExtensions.Failure<IServiceError, IdOutputModel>(
-                        new CityFetchingError.CityByIdNotFound(cityId)
+                    return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
+                        new CityFetchingError.CityByIdNotFound(cityId.Value)
                     );
                 }
 
                 if (await companyRepository.GetCompanyByIdAsync(companyId) is null)
                 {
-                    return EitherExtensions.Failure<IServiceError, IdOutputModel>(
+                    return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                         new CompanyFetchingError.CompanyByIdNotFound(companyId)
                     );
                 }
 
                 var storeId = await storeRepository.AddStoreAsync(name, address, cityId, companyId);
-                return EitherExtensions.Success<IServiceError, IdOutputModel>(
-                    new IdOutputModel(storeId)
+                return EitherExtensions.Success<IServiceError, IntIdOutputModel>(
+                    new IntIdOutputModel(storeId)
                 );
             });
         }
 
-        public async Task<Either<IServiceError, IdOutputModel>> UpdateStoreAsync(
+        public async Task<Either<IServiceError, IntIdOutputModel>> UpdateStoreAsync(
             int id,
             string name,
             string address,
@@ -130,35 +138,35 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
                 var store = await storeRepository.GetStoreByIdAsync(id);
                 if (store is null)
                 {
-                    return EitherExtensions.Failure<IServiceError, IdOutputModel>(
+                    return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                         new StoreFetchingError.StoreByIdNotFound(id)
                     );
                 }
 
                 if (await storeRepository.GetStoreByNameAsync(name) is not null)
                 {
-                    return EitherExtensions.Failure<IServiceError, IdOutputModel>(
+                    return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                         new StoreCreationError.StoreNameAlreadyExists(name)
                     );
                 }
 
                 if (await storeRepository.GetStoreByAddressAsync(address) is not null)
                 {
-                    return EitherExtensions.Failure<IServiceError, IdOutputModel>(
+                    return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                         new StoreCreationError.StoreAddressAlreadyExists(address)
                     );
                 }
 
                 if (await cityRepository.GetCityByIdAsync(cityId) is null)
                 {
-                    return EitherExtensions.Failure<IServiceError, IdOutputModel>(
+                    return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                         new CityFetchingError.CityByIdNotFound(cityId)
                     );
                 }
 
                 if (await companyRepository.GetCompanyByIdAsync(companyId) is null)
                 {
-                    return EitherExtensions.Failure<IServiceError, IdOutputModel>(
+                    return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                         new CompanyFetchingError.CompanyByIdNotFound(companyId)
                     );
                 }
@@ -170,28 +178,28 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
                     companyId
                 );
                 return updatedStore is null
-                    ? EitherExtensions.Failure<IServiceError, IdOutputModel>(
+                    ? EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                         new StoreFetchingError.StoreByIdNotFound(id)
                     )
-                    : EitherExtensions.Success<IServiceError, IdOutputModel>(
-                        new IdOutputModel(updatedStore.Id)
+                    : EitherExtensions.Success<IServiceError, IntIdOutputModel>(
+                        new IntIdOutputModel(updatedStore.Id)
                     );
             });
         }
 
-        public async Task<Either<StoreFetchingError, IdOutputModel>> DeleteStoreAsync(int id)
+        public async Task<Either<StoreFetchingError, IntIdOutputModel>> DeleteStoreAsync(int id)
         {
             var store = await storeRepository.GetStoreByIdAsync(id);
             if (store is null)
             {
-                return EitherExtensions.Failure<StoreFetchingError, IdOutputModel>(
+                return EitherExtensions.Failure<StoreFetchingError, IntIdOutputModel>(
                     new StoreFetchingError.StoreByIdNotFound(id)
                 );
             }
 
             await storeRepository.DeleteStoreAsync(id);
-            return EitherExtensions.Success<StoreFetchingError, IdOutputModel>(
-                new IdOutputModel(id)
+            return EitherExtensions.Success<StoreFetchingError, IntIdOutputModel>(
+                new IntIdOutputModel(id)
             );
         }
     }

@@ -2,6 +2,7 @@
 using market_tracker_webapi.Application.Repository.Operations.Category;
 using market_tracker_webapi.Application.Repository.Operations.City;
 using market_tracker_webapi.Application.Repository.Operations.Company;
+using market_tracker_webapi.Application.Repository.Operations.Prices;
 using market_tracker_webapi.Application.Repository.Operations.List;
 using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Repository.Operations.Store;
@@ -29,7 +30,8 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
         )
         {
             services.AddDbContext<MarketTrackerDataContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("WebApiDatabase"))
+                options.UseNpgsql(configuration.GetConnectionString("WebApiDatabase")
+                )
             );
 
             return services;
@@ -66,7 +68,13 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
             
             services.AddScoped<IListService, ListService>();
             services.AddScoped<IListRepository, ListRepository>();
-
+            
+            services.AddScoped<IProductFeedbackService, ProductFeedbackService>();
+            services.AddScoped<IProductFeedbackRepository, ProductFeedbackRepository>();
+            
+            services.AddScoped<IProductPriceService, ProductPriceService>();
+            services.AddScoped<IPriceRepository, PriceRepository>();
+            
             return services;
         }
     }
