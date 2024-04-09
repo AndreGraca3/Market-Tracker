@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Domain;
+﻿using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.Product;
 
 namespace market_tracker_webapi.Application.Repository.Operations.Product;
 
@@ -6,12 +7,16 @@ using Product = Domain.Product;
 
 public interface IProductRepository
 {
-    Task<IEnumerable<Product>> GetProductsAsync();
+    Task<IEnumerable<ProductInfo>> GetProductsAsync(
+        string? name = null,
+        int? minRating = null,
+        int? maxRating = null
+    );
 
-    Task<Product?> GetProductByIdAsync(int productId);
+    Task<ProductDetails?> GetProductByIdAsync(string productId);
 
-    Task<int> AddProductAsync(
-        int id,
+    Task<string> AddProductAsync(
+        string productId,
         string name,
         string imageUrl,
         int quantity,
@@ -21,7 +26,7 @@ public interface IProductRepository
     );
 
     Task<Product?> UpdateProductAsync(
-        int productId,
+        string productId,
         string? name = null,
         string? imageUrl = null,
         int? quantity = null,
@@ -30,13 +35,5 @@ public interface IProductRepository
         int? categoryId = null
     );
 
-    Task<Product?> RemoveProductAsync(int productId);
-
-    Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(Guid clientId, int productId);
-
-    Task AddReviewAsync(Guid clientId, int productId, int rate, string comment);
-
-    Task<ProductReview?> UpdateReviewAsync(Guid clientId, int productId, int rate, string comment);
-
-    Task<ProductReview?> RemoveReviewAsync(Guid clientId, int productId);
+    Task<Product?> RemoveProductAsync(string productId);
 }

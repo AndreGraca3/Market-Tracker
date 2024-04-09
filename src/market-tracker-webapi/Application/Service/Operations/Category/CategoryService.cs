@@ -27,28 +27,31 @@ public class CategoryService(
 
     public async Task<Either<CategoryFetchingError, Category>> GetCategoryAsync(int id)
     {
-        var category = await categoryRepository.GetCategoryByIdAsync(id);
-        return category is null
-            ? EitherExtensions.Failure<CategoryFetchingError, Category>(
-                new CategoryFetchingError.CategoryByIdNotFound(id)
-            )
-            : EitherExtensions.Success<CategoryFetchingError, Category>(category);
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var category = await categoryRepository.GetCategoryByIdAsync(id);
+            return category is null
+                ? EitherExtensions.Failure<CategoryFetchingError, Category>(
+                    new CategoryFetchingError.CategoryByIdNotFound(id)
+                )
+                : EitherExtensions.Success<CategoryFetchingError, Category>(category);
+        });
     }
 
-    public async Task<Either<ICategoryError, IdOutputModel>> AddCategoryAsync(string name)
+    public async Task<Either<ICategoryError, IntIdOutputModel>> AddCategoryAsync(string name)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await categoryRepository.GetCategoryByNameAsync(name) is not null)
             {
-                return EitherExtensions.Failure<ICategoryError, IdOutputModel>(
+                return EitherExtensions.Failure<ICategoryError, IntIdOutputModel>(
                     new CategoryCreationError.CategoryNameAlreadyExists(name)
                 );
             }
 
             var categoryId = await categoryRepository.AddCategoryAsync(name);
-            return EitherExtensions.Success<ICategoryError, IdOutputModel>(
-                new IdOutputModel(categoryId)
+            return EitherExtensions.Success<ICategoryError, IntIdOutputModel>(
+                new IntIdOutputModel(categoryId)
             );
         });
     }
@@ -77,17 +80,17 @@ public class CategoryService(
         });
     }
 
-    public async Task<Either<CategoryFetchingError, IdOutputModel>> RemoveCategoryAsync(int id)
+    public async Task<Either<CategoryFetchingError, IntIdOutputModel>> RemoveCategoryAsync(int id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var category = await categoryRepository.RemoveCategoryAsync(id);
             return category is null
-                ? EitherExtensions.Failure<CategoryFetchingError, IdOutputModel>(
+                ? EitherExtensions.Failure<CategoryFetchingError, IntIdOutputModel>(
                     new CategoryFetchingError.CategoryByIdNotFound(id)
                 )
-                : EitherExtensions.Success<CategoryFetchingError, IdOutputModel>(
-                    new IdOutputModel(category.Id)
+                : EitherExtensions.Success<CategoryFetchingError, IntIdOutputModel>(
+                    new IntIdOutputModel(category.Id)
                 );
         });
     }

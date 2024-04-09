@@ -1,4 +1,5 @@
-using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
@@ -9,21 +10,65 @@ using Product = Domain.Product;
 
 public class ProductRepository(MarketTrackerDataContext dataContext) : IProductRepository
 {
-    public async Task<IEnumerable<Product>> GetProductsAsync()
+    public async Task<IEnumerable<ProductInfo>> GetProductsAsync(
+        string? name,
+        int? minRating,
+        int? maxRating
+    )
     {
-        return await dataContext.Product
-            .Select(productEntity => productEntity.ToProduct())
+        var query = from product in dataContext.Product
+            orderby EF.Functions.TrigramsSimilarity(product.Name, name) descending
+            join brand in dataContext.Brand on product.BrandId equals brand.Id
+            join category in dataContext.Category on product.CategoryId equals category.Id
+            where (minRating == null || product.Rating >= minRating) &&
+                  (maxRating == null || product.Rating <= maxRating)
+            select new
+            {
+                Product = product,
+                Brand = brand,
+                Category = category
+            };
+
+        return await query
+            .Select(queryRes =>
+                ProductInfo.ToProductInfo(
+                    queryRes.Product.ToProduct(),
+                    queryRes.Brand.ToBrand(),
+                    queryRes.Category.ToCategory()
+                )
+            )
             .ToListAsync();
     }
 
-    public async Task<Product?> GetProductByIdAsync(int productId)
+    public async Task<ProductDetails?> GetProductByIdAsync(string productId)
     {
-        var productEntity = await dataContext.Product.FindAsync(productId);
-        return productEntity?.ToProduct();
+        var query = await (
+            from product in dataContext.Product
+            where product.Id == productId
+            join brand in dataContext.Brand on product.BrandId equals brand.Id
+            join category in dataContext.Category on product.CategoryId equals category.Id
+            select new
+            {
+                Product = product,
+                Brand = brand,
+                Category = category
+            }
+        ).FirstOrDefaultAsync();
+
+        if (query is null)
+        {
+            return null;
+        }
+
+        return ProductDetails.ToProductDetails(
+            query.Product.ToProduct(),
+            query.Brand.ToBrand(),
+            query.Category.ToCategory()
+        );
     }
 
-    public async Task<int> AddProductAsync(
-        int id,
+    public async Task<string> AddProductAsync(
+        string productId,
         string name,
         string imageUrl,
         int quantity,
@@ -34,13 +79,11 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
     {
         var productEntity = new ProductEntity()
         {
-            Id = id,
+            Id = productId,
             Name = name,
             ImageUrl = imageUrl,
             Quantity = quantity,
             Unit = unit,
-            Views = 0,
-            Rate = 0,
             BrandId = brandId,
             CategoryId = categoryId
         };
@@ -50,7 +93,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
     }
 
     public async Task<Product?> UpdateProductAsync(
-        int productId,
+        string productId,
         string? name,
         string? imageUrl = null,
         int? quantity = null,
@@ -76,7 +119,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         return productEntity.ToProduct();
     }
 
-    public async Task<Product?> RemoveProductAsync(int productId)
+    public async Task<Product?> RemoveProductAsync(string productId)
     {
         var productEntity = await dataContext.Product.FindAsync(productId);
         if (productEntity is null)
@@ -87,63 +130,5 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         dataContext.Product.Remove(productEntity);
         await dataContext.SaveChangesAsync();
         return productEntity.ToProduct();
-    }
-
-    public async Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(Guid clientId, int productId)
-    {
-        return await dataContext.ProductReview
-            .Where(review => review.ProductId == productId)
-            .OrderByDescending(review => review.ClientId == clientId) // Client's review first
-            .ThenByDescending(review => review.CreatedAt)
-            .Select(productReviewEntity => productReviewEntity.ToProductReview())
-            .ToListAsync();
-    }
-
-    public async Task AddReviewAsync(Guid clientId, int productId, int rate, string comment)
-    {
-        var reviewEntity = new ProductReviewEntity()
-        {
-            ClientId = clientId,
-            ProductId = productId,
-            Rate = rate,
-            Comment = comment,
-            CreatedAt = DateTime.Now
-        };
-        dataContext.ProductReview.Add(reviewEntity);
-        await dataContext.SaveChangesAsync();
-    }
-
-    public async Task<ProductReview?> UpdateReviewAsync(
-        Guid clientId,
-        int productId,
-        int rate,
-        string comment
-    )
-    {
-        var reviewEntity = await dataContext.ProductReview.FindAsync(clientId, productId);
-        if (reviewEntity is null)
-        {
-            return null;
-        }
-
-        reviewEntity.Rate = rate;
-        reviewEntity.Comment = comment;
-
-        await dataContext.SaveChangesAsync();
-        return reviewEntity.ToProductReview();
-    }
-
-    public async Task<ProductReview?> RemoveReviewAsync(Guid clientId, int productId)
-    {
-        var reviewEntity = await dataContext.ProductReview.FindAsync(clientId, productId);
-        if (reviewEntity is null)
-        {
-            return null;
-        }
-
-        dataContext.ProductReview.Remove(reviewEntity);
-
-        await dataContext.SaveChangesAsync();
-        return reviewEntity.ToProductReview();
     }
 }

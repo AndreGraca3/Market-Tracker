@@ -16,7 +16,7 @@ namespace market_tracker_webapi.Application.Repository.Operations.Store
 
         Task<IEnumerable<Domain.Store>> GetStoresByCityNameAsync(string cityName);
 
-        Task<int> AddStoreAsync(string name, string address, int cityId, int companyId);
+        Task<int> AddStoreAsync(string name, string address, int? cityId, int companyId);
 
         Task<Domain.Store?> UpdateStoreAsync(int id, string address, int cityId, int companyId);
 

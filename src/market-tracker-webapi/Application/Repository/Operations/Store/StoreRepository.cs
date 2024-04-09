@@ -62,7 +62,7 @@ public class StoreRepository(MarketTrackerDataContext marketTrackerDataContext) 
         return storeEntities.Select(MapStoreEntity);
     }
 
-    public async Task<int> AddStoreAsync(string name, string address, int cityId, int companyId)
+    public async Task<int> AddStoreAsync(string name, string address, int? cityId, int companyId)
     {
         var newStore = new StoreEntity
         {

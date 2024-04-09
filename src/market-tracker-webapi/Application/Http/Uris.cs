@@ -22,15 +22,23 @@ public static class Uris
     public static class Products
     {
         public const string Base = $"{ApiBase}/products";
-        public const string ProductById = $"{Base}/{{id}}";
+        public const string ProductById = $"{Base}/{{productId}}";
+        public const string ReviewsByProductId = $"{ProductById}/reviews";
+        public const string StatsByProductId = $"{ProductById}/stats";
+        public const string PricesByProductId = $"{ProductById}/prices";
+        public const string HistoryByProductId = $"{ProductById}/price-history";
+        public const string ProductPreferencesById = $"{ProductById}/me";
 
-        public static string BuildProductByIdUri(int id) => ProductById.ExpandUri(id);
+        public static string BuildProductByIdUri(string id) => ProductById.ExpandUri(id);
+
+        public static string BuildReviewsByProductIdUri(string id) =>
+            ReviewsByProductId.ExpandUri(id);
     }
 
     public static class Categories
     {
         public const string Base = $"{ApiBase}/categories";
-        public const string CategoryById = $"{Base}/{{id}}";
+        public const string CategoryById = $"{Base}/{{categoryId}}";
 
         public static string BuildCategoryByIdUri(int id) => CategoryById.ExpandUri(id);
     }

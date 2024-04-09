@@ -1,6 +1,9 @@
-﻿namespace market_tracker_webapi.Application.Http.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace market_tracker_webapi.Application.Http.Models.City;
 
 public class CityCreationInputModel
 {
-    public required string CityName { get; set; }
+    [Required]
+    public string CityName { get; set; }
 }
