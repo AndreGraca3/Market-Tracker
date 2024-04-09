@@ -4,6 +4,7 @@ using market_tracker_webapi.Application.Http.Controllers;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.City;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.City;
 using market_tracker_webapi.Application.Service.Operations.City;
 using market_tracker_webapi.Application.Utils;
@@ -34,16 +35,17 @@ public class CityControllerTest
         };
         _cityServiceMock
             .Setup(service => service.GetCitiesAsync())
-            .ReturnsAsync(new CollectionOutputModel(cities));
+            .ReturnsAsync(EitherExtensions.Success<IServiceError, CollectionOutputModel>(
+                new CollectionOutputModel(cities)
+            ));
 
         // Act
         var result = await _cityController.GetCitiesAsync();
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var actualCitiesCollection = Assert.IsType<CollectionOutputModel>(okResult.Value);
-        actualCitiesCollection.Should().BeEquivalentTo(new CollectionOutputModel(cities));
-        actualCitiesCollection.Results.Should().BeEquivalentTo(cities);
+        var actualCitiesCollection = Assert.IsType<Either<IServiceError, CollectionOutputModel>>(okResult.Value);
+        actualCitiesCollection.Value.Should().BeEquivalentTo(new CollectionOutputModel(cities));
     }
 
     [Fact]
