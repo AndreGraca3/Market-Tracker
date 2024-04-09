@@ -43,7 +43,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 new StorePrice(StoreInfo.ToStoreInfo(group.Store.ToStore(), group.City?.ToCity(),
                     group.Company.ToCompany()), PriceInfo.Calculate(group.PriceEntry.Price,
                     group.Promotion?.ToPromotion(group.PriceEntry.Price), group.PriceEntry.CreatedAt))
-            ).OrderBy(group => group.PriceDetails.Price).First();
+            ).OrderBy(group => group.PriceData.Price).First();
 
         return cheapestStore;
     }

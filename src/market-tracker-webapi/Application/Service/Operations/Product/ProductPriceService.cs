@@ -38,14 +38,14 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
                     new List<StorePriceOutputModel>();
             }
 
-            if (minPrice is null || storePrice.PriceDetails.Price < minPrice)
+            if (minPrice is null || storePrice.PriceData.Price < minPrice)
             {
-                minPrice = storePrice.PriceDetails.Price;
+                minPrice = storePrice.PriceData.Price;
             }
 
-            if (maxPrice is null || storePrice.PriceDetails.Price > maxPrice)
+            if (maxPrice is null || storePrice.PriceData.Price > maxPrice)
             {
-                maxPrice = storePrice.PriceDetails.Price;
+                maxPrice = storePrice.PriceData.Price;
             }
 
             companyStoresDictionary[storePrice.Store.Company.Id]
@@ -53,8 +53,8 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
                     StorePriceOutputModel.ToStorePriceOutputModel(
                         Domain.Store.ToStore(storePrice.Store),
                         storePrice.Store.City,
-                        storePrice.PriceDetails.Price,
-                        storePrice.PriceDetails.Promotion,
+                        storePrice.PriceData.Price,
+                        storePrice.PriceData.Promotion,
                         storeAvailability.IsAvailable,
                         storeAvailability.LastChecked
                     )

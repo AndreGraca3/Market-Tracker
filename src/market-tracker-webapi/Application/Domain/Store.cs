@@ -1,5 +1,4 @@
-﻿using market_tracker_webapi.Application.Repository.Dto;
-using market_tracker_webapi.Application.Repository.Dto.Store;
+﻿using market_tracker_webapi.Application.Repository.Dto.Store;
 
 namespace market_tracker_webapi.Application.Domain;
 
@@ -14,7 +13,9 @@ public class Store
 
     public int CompanyId { get; set; }
 
-    public static Store ToStore(StoreInfo? storeDetails)
+    public bool IsOnline => CityId is null;
+
+    public static Store ToStore(StoreInfo storeDetails)
     {
         return new Store
         {

@@ -1,5 +1,4 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.City;
 using market_tracker_webapi.Application.Repository.Operations.Company;
 using market_tracker_webapi.Application.Repository.Operations.Store;
@@ -19,10 +18,12 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
         ITransactionManager transactionManager
     ) : IStoreService
     {
-        public async Task<CollectionOutputModel> GetStoresAsync()
+        public async Task<Either<IServiceError, CollectionOutputModel>> GetStoresAsync()
         {
             var stores = await storeRepository.GetStoresAsync();
-            return new CollectionOutputModel(stores);
+            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(
+                new CollectionOutputModel(stores)
+            );
         }
 
         public async Task<Either<StoreFetchingError, Domain.Store>> GetStoreByIdAsync(int id)

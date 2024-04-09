@@ -15,8 +15,11 @@ public class StoreController(IStoreService storeService) : ControllerBase
     [HttpGet(Uris.Stores.Base)]
     public async Task<ActionResult<CollectionOutputModel>> GetStoresAsync()
     {
-        var storesCollection = await storeService.GetStoresAsync();
-        return Ok(storesCollection);
+        var res = await storeService.GetStoresAsync();
+        return ResultHandler.Handle(
+            res,
+            _ => new ServerProblem.InternalServerError().ToActionResult()
+        );
     }
 
     [HttpGet(Uris.Stores.StoreById)]

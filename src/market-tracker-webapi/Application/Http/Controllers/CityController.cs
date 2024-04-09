@@ -13,8 +13,8 @@ public class CityController(ICityService cityService) : ControllerBase
     [HttpGet(Uris.Cities.Base)]
     public async Task<ActionResult<CollectionOutputModel>> GetCitiesAsync()
     {
-        var citiesCollection = await cityService.GetCitiesAsync();
-        return Ok(citiesCollection);
+        var res = await cityService.GetCitiesAsync();
+        return ResultHandler.Handle(res, _ => new ServerProblem.InternalServerError().ToActionResult());
     }
 
     [HttpGet(Uris.Cities.CityById)]

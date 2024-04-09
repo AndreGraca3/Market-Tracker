@@ -13,8 +13,13 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     [HttpGet(Uris.Companies.Base)]
     public async Task<ActionResult<CollectionOutputModel>> GetCompaniesAsync()
     {
-        var companiesCollection = await companyService.GetCompaniesAsync();
-        return Ok(companiesCollection);
+        var res = await companyService.GetCompaniesAsync();
+        return ResultHandler.Handle(
+            res,
+            _ => new ServerProblem.InternalServerError(
+                nameof(CompanyController)
+            ).ToActionResult()
+        );
     }
 
     [HttpGet(Uris.Companies.CompanyById)]
