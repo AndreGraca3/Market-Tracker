@@ -9,4 +9,6 @@ public class ListOfProducts
     public required string ListName { get; set; }
     
     public DateTime? ArchivedAt { get; set; }
+    
+    public DateTime CreatedAt { get; set; }
 }

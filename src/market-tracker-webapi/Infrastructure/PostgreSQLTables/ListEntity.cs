@@ -17,9 +17,11 @@ public class ListEntity
     
     [Column("name")]
     public required string Name { get; set; }
+
+    [Column("archived_at")] public DateTime? ArchivedAt { get; set; } = null;
     
-    [Column("archived_at")]
-    public DateTime? ArchivedAt { get; set; }
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
     
     public ListOfProducts ToListOfProducts()
     {
@@ -28,7 +30,8 @@ public class ListEntity
             Id = Id,
             ClientId = ClientId,
             ListName = Name,
-            ArchivedAt = ArchivedAt
+            ArchivedAt = ArchivedAt,
+            CreatedAt = CreatedAt
         };
     }
 }

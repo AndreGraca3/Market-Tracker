@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Repository\Dto\" />
+    <Folder Include="Application\Http\Models\List\" />
     <Folder Include="Application\Repository\Operations\" />
   </ItemGroup>
 
