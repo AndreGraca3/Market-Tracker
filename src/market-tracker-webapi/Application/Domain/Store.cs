@@ -1,4 +1,7 @@
-﻿namespace market_tracker_webapi.Application.Domain;
+﻿using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.Store;
+
+namespace market_tracker_webapi.Application.Domain;
 
 public class Store
 {
@@ -11,15 +14,15 @@ public class Store
 
     public int CompanyId { get; set; }
 
-    public static Store ToStore(StoreInfo storeInfo)
+    public static Store ToStore(StoreInfo? storeDetails)
     {
         return new Store
         {
-            Id = storeInfo.Id,
-            Name = storeInfo.Name,
-            Address = storeInfo.Address,
-            CityId = storeInfo.City?.Id,
-            CompanyId = storeInfo.Company.Id
+            Id = storeDetails.Id,
+            Name = storeDetails.Name,
+            Address = storeDetails.Address,
+            CityId = storeDetails.City?.Id,
+            CompanyId = storeDetails.Company.Id
         };
     }
 }

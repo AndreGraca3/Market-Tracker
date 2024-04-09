@@ -1,4 +1,6 @@
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.City;
 
 namespace market_tracker_webapi.Application.Http.Models.Price;
 
@@ -6,7 +8,7 @@ public record StorePriceOutputModel(
     int Id,
     string Name,
     string Address,
-    Domain.City? City,
+    CityInfo? City,
     bool IsOnline,
     int Price,
     Promotion? Promotion,
@@ -16,7 +18,7 @@ public record StorePriceOutputModel(
 {
     public static StorePriceOutputModel ToStorePriceOutputModel(
         Domain.Store store,
-        Domain.City? city,
+        CityInfo? city,
         int price,
         Promotion? promotion,
         bool isAvailable,

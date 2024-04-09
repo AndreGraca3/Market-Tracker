@@ -1,3 +1,5 @@
+using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
@@ -8,17 +10,61 @@ using Product = Domain.Product;
 
 public class ProductRepository(MarketTrackerDataContext dataContext) : IProductRepository
 {
-    public async Task<IEnumerable<Product>> GetProductsAsync()
+    public async Task<IEnumerable<ProductInfo>> GetProductsAsync(
+        string? name,
+        int? minRating,
+        int? maxRating
+    )
     {
-        return await dataContext
-            .Product.Select(productEntity => productEntity.ToProduct())
+        var query = from product in dataContext.Product
+            orderby EF.Functions.TrigramsSimilarity(product.Name, name) descending
+            join brand in dataContext.Brand on product.BrandId equals brand.Id
+            join category in dataContext.Category on product.CategoryId equals category.Id
+            where (minRating == null || product.Rating >= minRating) &&
+                  (maxRating == null || product.Rating <= maxRating)
+            select new
+            {
+                Product = product,
+                Brand = brand,
+                Category = category
+            };
+
+        return await query
+            .Select(queryRes =>
+                ProductInfo.ToProductInfo(
+                    queryRes.Product.ToProduct(),
+                    queryRes.Brand.ToBrand(),
+                    queryRes.Category.ToCategory()
+                )
+            )
             .ToListAsync();
     }
 
-    public async Task<Product?> GetProductByIdAsync(string productId)
+    public async Task<ProductDetails?> GetProductByIdAsync(string productId)
     {
-        var productEntity = await dataContext.Product.FindAsync(productId);
-        return productEntity?.ToProduct();
+        var query = await (
+            from product in dataContext.Product
+            where product.Id == productId
+            join brand in dataContext.Brand on product.BrandId equals brand.Id
+            join category in dataContext.Category on product.CategoryId equals category.Id
+            select new
+            {
+                Product = product,
+                Brand = brand,
+                Category = category
+            }
+        ).FirstOrDefaultAsync();
+
+        if (query is null)
+        {
+            return null;
+        }
+
+        return ProductDetails.ToProductDetails(
+            query.Product.ToProduct(),
+            query.Brand.ToBrand(),
+            query.Category.ToCategory()
+        );
     }
 
     public async Task<string> AddProductAsync(

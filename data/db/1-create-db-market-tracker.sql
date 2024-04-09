@@ -1,3 +1,4 @@
+create extension if not exists pg_trgm SCHEMA pg_catalog;
 drop table if exists post_comment;
 drop table if exists post;
 drop table if exists product_favourite;

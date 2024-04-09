@@ -25,6 +25,8 @@ public static class Uris
         public const string ProductById = $"{Base}/{{productId}}";
         public const string ReviewsByProductId = $"{ProductById}/reviews";
         public const string StatsByProductId = $"{ProductById}/stats";
+        public const string PricesByProductId = $"{ProductById}/prices";
+        public const string HistoryByProductId = $"{ProductById}/price-history";
         public const string ProductPreferencesById = $"{ProductById}/me";
 
         public static string BuildProductByIdUri(string id) => ProductById.ExpandUri(id);

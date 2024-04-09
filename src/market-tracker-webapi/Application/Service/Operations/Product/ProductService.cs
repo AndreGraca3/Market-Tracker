@@ -1,7 +1,8 @@
-using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Product;
+using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Repository.Operations.Brand;
 using market_tracker_webapi.Application.Repository.Operations.Category;
 using market_tracker_webapi.Application.Repository.Operations.Prices;
@@ -22,99 +23,52 @@ public class ProductService(
     ITransactionManager transactionManager
 ) : IProductService
 {
-    public async Task<Either<IServiceError, CollectionOutputModel>> GetProductsAsync()
-    {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            var products = await productRepository.GetProductsAsync();
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(
-                new CollectionOutputModel(products)
-            );
-        });
-    }
-
-    public async Task<Either<ProductFetchingError, ProductOutputModel>> GetProductByIdAsync(
-        string productId
+    public async Task<Either<IServiceError, CollectionOutputModel>> GetProductsAsync(
+        string? searchName,
+        int? minRating,
+        int? maxRating
     )
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var product = await productRepository.GetProductByIdAsync(productId);
-            if (product is null)
+            var products = await productRepository.GetProductsAsync(
+                searchName,
+                minRating,
+                maxRating
+            );
+
+            var productsOffers = new List<ProductOffer>();
+            var tasks = new List<Task>();
+
+            foreach (var product in products)
             {
-                return EitherExtensions.Failure<ProductFetchingError, ProductOutputModel>(
+                var cheapestStorePrice = priceRepository.GetCheapestStorePriceByProductIdAsync(
+                    product.Id,
+                    DateTime.Now
+                );
+                productsOffers.Add(new ProductOffer(product, cheapestStorePrice.Result));
+            }
+            
+            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(
+                new CollectionOutputModel(productsOffers)
+            );
+        });
+    }
+
+    public async Task<Either<ProductFetchingError, ProductInfo>> GetProductByIdAsync(string productId)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var productDetails = await productRepository.GetProductByIdAsync(productId);
+            if (productDetails is null)
+            {
+                return EitherExtensions.Failure<ProductFetchingError, ProductInfo>(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
 
-            var brand = (await brandRepository.GetBrandByIdAsync(product.BrandId))!;
-            var category = (await categoryRepository.GetCategoryByIdAsync(product.CategoryId))!;
-
-            int? minPrice = null;
-            int? maxPrice = null;
-
-            var storesAvailability = await priceRepository.GetStoresAvailabilityByProductIdAsync(
-                product.Id,
-                DateTime.Now
-            );
-
-            var companyStoresDictionary = new Dictionary<int, List<StorePriceOutputModel>>();
-            var companiesDictionary = new Dictionary<int, Domain.Company>();
-
-            foreach (var storeAvailability in storesAvailability)
-            {
-                var storePrice = await priceRepository.GetStorePriceByProductIdAsync(
-                    product.Id,
-                    storeAvailability.StoreId,
-                    DateTime.Now
-                );
-
-                if (!companyStoresDictionary.ContainsKey(storePrice.Store.Company.Id))
-                {
-                    companyStoresDictionary[storePrice.Store.Company.Id] =
-                        new List<StorePriceOutputModel>();
-                }
-
-                if (minPrice is null || storePrice.PriceDetails.Price < minPrice)
-                {
-                    minPrice = storePrice.PriceDetails.Price;
-                }
-
-                if (maxPrice is null || storePrice.PriceDetails.Price > maxPrice)
-                {
-                    maxPrice = storePrice.PriceDetails.Price;
-                }
-
-                companyStoresDictionary[storePrice.Store.Company.Id]
-                    .Add(
-                        StorePriceOutputModel.ToStorePriceOutputModel(
-                            Domain.Store.ToStore(storePrice.Store),
-                            storePrice.Store.City,
-                            storePrice.PriceDetails.Price,
-                            storePrice.PriceDetails.Promotion,
-                            storeAvailability.IsAvailable,
-                            storeAvailability.LastChecked
-                        )
-                    );
-                companiesDictionary[storePrice.Store.Company.Id] = storePrice.Store.Company;
-            }
-
-            return EitherExtensions.Success<ProductFetchingError, ProductOutputModel>(
-                ProductOutputModel.ToProductOutputModel(
-                    product,
-                    brand,
-                    category,
-                    companyStoresDictionary
-                        .Select(cStoresPrices => new CompanyPricesOutputModel(
-                            cStoresPrices.Key,
-                            companiesDictionary[cStoresPrices.Key].Name,
-                            cStoresPrices.Value
-                        ))
-                        .ToList(),
-                    minPrice,
-                    maxPrice
-                )
-            );
+            return EitherExtensions.Success<ProductFetchingError, ProductInfo>(
+                ProductInfo.ToProductInfo(productDetails));
         });
     }
 
@@ -126,7 +80,7 @@ public class ProductService(
         string unit,
         string brandName,
         int categoryId
-    // int price
+        // int price
     )
     {
         // TODO: Add price in the name of operator who is trying to add the product

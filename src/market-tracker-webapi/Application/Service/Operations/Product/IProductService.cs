@@ -1,5 +1,7 @@
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Product;
+using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Utils;
@@ -8,10 +10,13 @@ namespace market_tracker_webapi.Application.Service.Operations.Product;
 
 public interface IProductService
 {
-    public Task<Either<IServiceError, CollectionOutputModel>> GetProductsAsync();
-    public Task<Either<ProductFetchingError, ProductOutputModel>> GetProductByIdAsync(
-        string productId
+    public Task<Either<IServiceError, CollectionOutputModel>> GetProductsAsync(
+        string? searchName,
+        int? minRating,
+        int? maxRating
     );
+
+    public Task<Either<ProductFetchingError, ProductInfo>> GetProductByIdAsync(string productId);
 
     public Task<Either<IServiceError, StringIdOutputModel>> AddProductAsync(
         string productId,

@@ -13,8 +13,11 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
     [HttpGet(Uris.Categories.Base)]
     public async Task<ActionResult<CollectionOutputModel>> GetCategoriesAsync()
     {
-        var categoriesCollection = await categoryService.GetCategoriesAsync();
-        return Ok(categoriesCollection);
+        var res = await categoryService.GetCategoriesAsync();
+        return ResultHandler.Handle(
+            res,
+            error => new ServerProblem.InternalServerError().ToActionResult()
+        );
     }
 
     [HttpGet(Uris.Categories.CategoryById)]
@@ -23,16 +26,7 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
         var res = await categoryService.GetCategoryAsync(categoryId);
         return ResultHandler.Handle(
             res,
-            error =>
-            {
-                return error switch
-                {
-                    CategoryFetchingError.CategoryByIdNotFound idNotFoundError
-                        => new CategoryProblem.CategoryByIdNotFound(
-                            idNotFoundError
-                        ).ToActionResult(),
-                };
-            }
+            error => new ServerProblem.InternalServerError().ToActionResult()
         );
     }
 

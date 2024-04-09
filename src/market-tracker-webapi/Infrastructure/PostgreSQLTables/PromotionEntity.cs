@@ -17,8 +17,8 @@ public class PromotionEntity
     [Column("price_entry_id")]
     public string PriceEntryId { get; set; }
 
-    public Promotion ToPromotion()
+    public Promotion ToPromotion(int oldPrice)
     {
-        return new Promotion(percentage, CreatedAt, PriceEntryId);
+        return new Promotion(percentage, oldPrice, CreatedAt, PriceEntryId);
     }
 }
