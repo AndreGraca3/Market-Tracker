@@ -35,7 +35,7 @@ fun ProductsScreen(productsScreenViewModel: ProductsScreenViewModel) {
         onRefresh = {
             scope.launch {
                 isRefreshing = true
-                productsScreenViewModel.fetchProducts()
+                productsScreenViewModel.fetchProducts(true)
                 productsScreenViewModel.products.collect() {
                     if (it !is Loading) {
                         isRefreshing = false

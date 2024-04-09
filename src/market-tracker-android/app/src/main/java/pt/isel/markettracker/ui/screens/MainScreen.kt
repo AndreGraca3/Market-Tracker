@@ -6,15 +6,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import pt.isel.markettracker.navigation.Destination
-import pt.isel.markettracker.navigation.ToDestination
 import pt.isel.markettracker.navigation.NavBar
+import pt.isel.markettracker.navigation.toDestination
 import pt.isel.markettracker.ui.screens.list.ListScreen
 import pt.isel.markettracker.ui.screens.products.ProductsScreen
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
@@ -23,23 +22,22 @@ import pt.isel.markettracker.ui.theme.Grey
 
 @Composable
 fun MainScreen(
-    mainScreenViewModel: MainScreenViewModel,
     productsScreenViewModel: ProductsScreenViewModel
 ) {
     val navController = rememberNavController()
-    val currentScreen by mainScreenViewModel.currentScreen.collectAsState(initial = Destination.HOME)
 
     Scaffold(
         containerColor = Grey,
         bottomBar = {
             NavBar(
                 Destination.entries,
-                Destination.entries.indexOf(currentScreen),
+                selectedIndex = navController.currentDestination?.hierarchy?.first()?.route?.toDestination()?.ordinal
+                    ?: 0,
                 onItemClick = { route ->
-                    mainScreenViewModel.navigateTo(route.ToDestination())
-                    navController.navigate(
-                        route,
-                    )
+                    navController.navigate(route) {
+                        popUpTo(navController.graph.startDestinationId)
+                        launchSingleTop = true
+                    }
                 })
         }
     ) {

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.IOState
+import pt.isel.markettracker.domain.Idle
 import pt.isel.markettracker.domain.Loading
 import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.domain.loaded
@@ -32,8 +33,8 @@ class ProductsScreenViewModel : ViewModel() {
     val products: Flow<IOState<List<ProductInfo>>>
         get() = productsFlow.asStateFlow()
 
-    fun fetchProducts() {
-        if (productsFlow.value is Loading) return // this still doesn't prevent screen rotation from triggering a new fetch
+    fun fetchProducts(forceRefresh: Boolean = false) {
+        if (productsFlow.value !is Idle && !forceRefresh) return
 
         productsFlow.value = loading()
         viewModelScope.launch {

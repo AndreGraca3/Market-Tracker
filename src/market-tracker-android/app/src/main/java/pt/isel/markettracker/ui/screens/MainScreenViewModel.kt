@@ -15,7 +15,7 @@ class MainScreenViewModel : ViewModel() {
         }
     }
 
-    private val currentScreenFlow: MutableStateFlow<Destination> =
+    /*private val currentScreenFlow: MutableStateFlow<Destination> =
     MutableStateFlow(Destination.HOME)
 
     val currentScreen: Flow<Destination>
@@ -23,5 +23,5 @@ class MainScreenViewModel : ViewModel() {
 
     fun navigateTo(destination: Destination) {
         currentScreenFlow.value = destination
-    }
+    }*/
 }

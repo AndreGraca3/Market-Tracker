@@ -11,10 +11,12 @@ import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 
 class MainActivity : ComponentActivity() {
 
+    /*
     private val mainScreenViewModel by viewModels<MainScreenViewModel> {
         val app = (application as MarketTrackerDependencyProvider)
         MainScreenViewModel.factory()
     }
+    */
 
     private val productsScreenViewModel by viewModels<ProductsScreenViewModel> {
         val app = (application as MarketTrackerDependencyProvider)
@@ -31,7 +33,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             MarkettrackerTheme {
                 MainScreen(
-                    mainScreenViewModel = mainScreenViewModel,
                     productsScreenViewModel = productsScreenViewModel
                 )
             }
