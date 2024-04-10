@@ -6,8 +6,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -25,20 +28,21 @@ fun MainScreen(
     productsScreenViewModel: ProductsScreenViewModel
 ) {
     val navController = rememberNavController()
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
         containerColor = Grey,
         bottomBar = {
             NavBar(
                 Destination.entries,
-                selectedIndex = navController.currentDestination?.hierarchy?.first()?.route?.toDestination()?.ordinal
-                    ?: 0,
+                selectedIndex = selectedIndex,
                 onItemClick = { route ->
+                    selectedIndex = route.toDestination().ordinal
                     navController.navigate(route) {
-                        popUpTo(navController.graph.startDestinationId)
-                        launchSingleTop = true
+                        navController.popBackStack()
                     }
-                })
+                }
+            )
         }
     ) {
         NavHost(

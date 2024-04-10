@@ -1,5 +1,6 @@
 package pt.isel.markettracker.ui.screens.products
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Text
@@ -11,6 +12,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.Loading
 import pt.isel.markettracker.domain.idle
@@ -47,7 +50,10 @@ fun ProductsScreen(productsScreenViewModel: ProductsScreenViewModel) {
         IOResourceLoader(resource = productsState, errorContent = {
             Text(text = "Error loading products")
         }) { products ->
-            LazyVerticalGrid(columns = GridCells.Fixed(ProductsScreenViewModel.MAX_GRID_COLUMNS)) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(ProductsScreenViewModel.MAX_GRID_COLUMNS),
+                modifier = Modifier.padding(12.dp)
+            ) {
                 items(products.size) { index ->
                     ProductCard(product = products[index])
                 }
