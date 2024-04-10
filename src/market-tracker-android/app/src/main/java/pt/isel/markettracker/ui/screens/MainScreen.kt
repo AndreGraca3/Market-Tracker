@@ -24,7 +24,8 @@ import pt.isel.markettracker.ui.theme.Grey
 @Composable
 fun MainScreen(
     mainScreenViewModel: MainScreenViewModel,
-    productsScreenViewModel: ProductsScreenViewModel
+    productsScreenViewModel: ProductsScreenViewModel,
+    onProfileRequest: () -> Unit
 ) {
     val navController = rememberNavController()
     val currentScreen by mainScreenViewModel.currentScreen.collectAsState(initial = Destination.HOME)
@@ -59,7 +60,9 @@ fun MainScreen(
             }
 
             composable(Destination.PROFILE.route) {
-                ProfileScreen()
+               ProfileScreen(
+                   onNavigateRequest = onProfileRequest
+               )
             }
         }
     }

@@ -1,7 +1,10 @@
 package pt.isel.markettracker.http.models
 
 data class UserCreationInputModel(
-    val name: String // TODO
+    val name: String,
+    val username: String,
+    val email: String,
+    val password: String
 )
 
 data class UserInfo(

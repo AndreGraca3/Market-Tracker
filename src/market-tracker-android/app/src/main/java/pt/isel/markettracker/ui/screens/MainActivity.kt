@@ -6,8 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import pt.isel.markettracker.MarketTrackerDependencyProvider
+import pt.isel.markettracker.ui.screens.login.LoginActivity
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
+import pt.isel.markettracker.utils.NavigateAux
 
 class MainActivity : ComponentActivity() {
 
@@ -32,7 +34,10 @@ class MainActivity : ComponentActivity() {
             MarkettrackerTheme {
                 MainScreen(
                     mainScreenViewModel = mainScreenViewModel,
-                    productsScreenViewModel = productsScreenViewModel
+                    productsScreenViewModel = productsScreenViewModel,
+                    onProfileRequest = {
+                        NavigateAux.navigateTo<LoginActivity>(this)
+                    }
                 )
             }
         }
