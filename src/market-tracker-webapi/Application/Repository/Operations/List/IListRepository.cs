@@ -5,23 +5,23 @@ namespace market_tracker_webapi.Application.Repository.Operations.List;
 
 public interface IListRepository
 {
-    Task<IEnumerable<ListOfProducts>> GetListsOfProductsAsync(Guid clientId, string? listName = null, DateTime? archivedAt = null, DateTime? createdAt = null);
+    Task<IEnumerable<ListOfProducts>> GetListsAsync(Guid clientId, string? listName = null, DateTime? archivedAt = null, DateTime? createdAt = null);
     
-    Task<ListOfProducts?> GetListOfProductsByIdAsync(int id);
+    Task<ListOfProducts?> GetListByIdAsync(int id);
     
-    Task<int> AddListOfProductsAsync(Guid clientId, string listName);
+    Task<int> AddListAsync(Guid clientId, string listName);
     
-    Task<ListOfProducts?> UpdateListOfProductsAsync(int id, string? listName = null, DateTime? archivedAt = null);
+    Task<ListOfProducts?> UpdateListAsync(int id, string? listName = null, DateTime? archivedAt = null);
     
-    Task<ListOfProducts?> DeleteListOfProductsAsync(int id);
+    Task<ListOfProducts?> DeleteListAsync(int id);
     
-    Task<IEnumerable<ProductInList>> GetProductsInListAsync(int? listId = null, int? productId = null, int? storeId = null, int? quantity = null);
+    Task<IEnumerable<ProductInList>> GetProductsInListAsync(int? listId = null, string? productId = null, int? storeId = null, int? quantity = null);
     
-    Task<ProductInList?> GetProductsByListIdAsync(int listId, int productId, int storeId);
+    Task<ProductInList?> GetProductsByListIdAsync(int listId, string productId, int storeId);
     
-    Task<int> AddProductInListAsync(int listId, int productId, int storeId, int quantity);
+    Task<int> AddProductInListAsync(int listId, string productId, int storeId, int quantity);
     
-    Task<ProductInList?> UpdateProductInListAsync(int listId, int productId, int storeId, int? quantity = null);
+    Task<ProductInList?> UpdateProductInListAsync(int listId, string productId, int storeId, int? quantity = null);
     
-    Task<ProductInList?> DeleteProductInListAsync(int listId, int productId, int storeId);
+    Task<ProductInList?> DeleteProductInListAsync(int listId, string productId, int storeId);
 }

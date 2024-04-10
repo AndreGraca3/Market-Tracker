@@ -5,7 +5,7 @@ using market_tracker_webapi.Application.Domain;
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
 [Table("list_product", Schema = "MarketTracker")]
-public class ProductInListEntity
+public class ListEntryEntity
 {
     [Key]
     [Column("list_id")]
@@ -13,7 +13,7 @@ public class ProductInListEntity
     
     [Key]
     [Column("product_id")]
-    public int ProductId { get; set; }
+    public required string ProductId { get; set; }
     
     [Key]
     [Column("store_id")]

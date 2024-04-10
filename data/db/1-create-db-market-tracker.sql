@@ -2,7 +2,7 @@ create extension if not exists pg_trgm SCHEMA pg_catalog;
 drop table if exists post_comment;
 drop table if exists post;
 drop table if exists product_favourite;
-drop table if exists list_product;
+drop table if exists list_entry;
 drop table if exists list;
 drop table if exists token;
 drop table if exists product_review;
@@ -185,13 +185,13 @@ create table if not exists list
     archived_at timestamp
 );
 
-create table if not exists list_product
+create table if not exists list_entry
 (
     list_id    int references list (id) on delete cascade,
     product_id varchar(18) references product (id) on delete cascade,
     store_id   int references store (id) on delete cascade,
     quantity   int not null,
-    primary key (list_id, product_id, store_id)
+    primary key (list_id, product_id)
 );
 
 create table if not exists post

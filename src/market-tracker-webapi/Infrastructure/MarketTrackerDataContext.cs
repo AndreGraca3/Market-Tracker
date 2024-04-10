@@ -37,6 +37,6 @@ namespace market_tracker_webapi.Infrastructure
         
         public DbSet<ListEntity> List { get; set; }
         
-        public DbSet<ProductInListEntity> ProductInList { get; set; }
+        public DbSet<ListEntryEntity> ListEntry { get; set; }
     }
 }

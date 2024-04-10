@@ -7,7 +7,7 @@ namespace market_tracker_webapi.Application.Repository.Operations.List;
 
 public class ListRepository(MarketTrackerDataContext context) : IListRepository
 {
-    public async Task<IEnumerable<ListOfProducts>> GetListsOfProductsAsync(Guid clientId, string? listName = null, DateTime? archivedAt = null, DateTime? createdAt = null)
+    public async Task<IEnumerable<ListOfProducts>> GetListsAsync(Guid clientId, string? listName = null, DateTime? archivedAt = null, DateTime? createdAt = null)
     {
         var query = context.List.AsQueryable()
             .Where(l => l.ClientId == clientId);
@@ -33,13 +33,13 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
             .ToListAsync();
     }
 
-    public async Task<ListOfProducts?> GetListOfProductsByIdAsync(int id)
+    public async Task<ListOfProducts?> GetListByIdAsync(int id)
     {
         var listEntity = await context.List.FindAsync(id);
         return listEntity?.ToListOfProducts();
     }
 
-    public async Task<int> AddListOfProductsAsync(Guid clientId, string listName)
+    public async Task<int> AddListAsync(Guid clientId, string listName)
     {
         var listEntity = new ListEntity()
         {
@@ -53,7 +53,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         return listEntity.Id;
     }
 
-    public async Task<ListOfProducts?> UpdateListOfProductsAsync(int id, string? listName = null, DateTime? archivedAt = null)
+    public async Task<ListOfProducts?> UpdateListAsync(int id, string? listName = null, DateTime? archivedAt = null)
     {
         var listEntity = await context.List.FindAsync(id);
         
@@ -77,7 +77,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         return listEntity.ToListOfProducts();
     }
 
-    public async Task<ListOfProducts?> DeleteListOfProductsAsync(int id)
+    public async Task<ListOfProducts?> DeleteListAsync(int id)
     {
         var listEntity = await context.List.FindAsync(id);
         
@@ -86,20 +86,20 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
             return null;
         }
         
-        var productInListEntities = await context.ProductInList
+        var productInListEntities = await context.ListEntry
             .Where(pil => pil.ListId == id)
             .ToListAsync();
         
-        context.ProductInList.RemoveRange(productInListEntities);
+        context.ListEntry.RemoveRange(productInListEntities);
         context.List.Remove(listEntity);
         await context.SaveChangesAsync();
         
         return listEntity.ToListOfProducts();
     }
 
-    public async Task<IEnumerable<ProductInList>> GetProductsInListAsync(int? listId = null, int? productId = null, int? storeId = null, int? quantity = null)
+    public async Task<IEnumerable<ProductInList>> GetProductsInListAsync(int? listId = null, string? productId = null, int? storeId = null, int? quantity = null)
     {
-        var query = context.ProductInList.AsQueryable();
+        var query = context.ListEntry.AsQueryable();
         
         if (listId != null)
         {
@@ -126,15 +126,15 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
             .ToListAsync();
     }
 
-    public async Task<ProductInList?> GetProductsByListIdAsync(int listId, int productId, int storeId)
+    public async Task<ProductInList?> GetProductsByListIdAsync(int listId, string productId, int storeId)
     {
-        var productInListEntity = await context.ProductInList.FindAsync(listId, productId, storeId);
+        var productInListEntity = await context.ListEntry.FindAsync(listId, productId, storeId);
         return productInListEntity?.ToProductInList();
     }
 
-    public async Task<int> AddProductInListAsync(int listId, int productId, int storeId, int quantity)
+    public async Task<int> AddProductInListAsync(int listId, string productId, int storeId, int quantity)
     {
-        var productInListEntity = new ProductInListEntity()
+        var productInListEntity = new ListEntryEntity()
         {
             ListId = listId,
             ProductId = productId,
@@ -142,19 +142,24 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
             Quantity = quantity
         };
         
-        await context.ProductInList.AddAsync(productInListEntity);
+        await context.ListEntry.AddAsync(productInListEntity);
         await context.SaveChangesAsync();
         
         return productInListEntity.ListId;
     }
 
-    public async Task<ProductInList?> UpdateProductInListAsync(int listId, int productId, int storeId, int? quantity = null)
+    public async Task<ProductInList?> UpdateProductInListAsync(int listId, string productId, int storeId, int? quantity = null)
     {
-        var productInListEntity = await context.ProductInList.FindAsync(listId, productId, storeId);
+        var productInListEntity = await context.ListEntry.FindAsync(listId, productId, storeId);
         
-        if (productInListEntity == null || quantity == null)
+        if (productInListEntity == null)
         {
             return null;
+        }
+        
+        if (quantity != null)
+        {
+            productInListEntity.Quantity = quantity.Value;
         }
         
         await context.SaveChangesAsync();
@@ -162,16 +167,16 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         return productInListEntity.ToProductInList();
     }
 
-    public async Task<ProductInList?> DeleteProductInListAsync(int listId, int productId, int storeId)
+    public async Task<ProductInList?> DeleteProductInListAsync(int listId, string productId, int storeId)
     {
-        var productInListEntity = await context.ProductInList.FindAsync(listId, productId, storeId);
+        var productInListEntity = await context.ListEntry.FindAsync(listId, productId, storeId);
         
         if (productInListEntity == null)
         {
             return null;
         }
         
-        context.ProductInList.Remove(productInListEntity);
+        context.ListEntry.Remove(productInListEntity);
         await context.SaveChangesAsync();
         
         return productInListEntity.ToProductInList();
