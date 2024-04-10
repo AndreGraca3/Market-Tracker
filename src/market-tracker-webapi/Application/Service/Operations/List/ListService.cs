@@ -70,27 +70,20 @@ public class ListService(
 
     public async Task<Either<IServiceError, ListOfProducts>> UpdateListAsync(int id, Guid clientId, string? listName, DateTime? archivedAt)
     {
-        // return await transactionManager.ExecuteAsync(async () =>
-        // {
-        //     if (await userRepository.GetUserByIdAsync(clientId) is null)
-        //         return EitherExtensions.Failure<IServiceError, ListOfProducts>(
-        //             new UserFetchingError.UserByIdNotFound(clientId));
-        //     
-        //     var list = await listRepository.GetListByIdAsync(id);
-        //     if (list is null)
-        //         return EitherExtensions.Failure<IServiceError, ListOfProducts>(
-        //             new ListFetchingError.ListByIdNotFound(id));
-        //
-        //     if (list.ArchivedAt is not null)
-        //     {
-        //         return EitherExtensions.Failure<IServiceError, >()
-        //     }
-        //     
-        //     var updatedList = await listRepository.UpdateListAsync(id, listName, archivedAt);
-        //
-        //     return EitherExtensions.Success<IServiceError, ListOfProducts>(updatedList!);
-        // });
-        throw new NotImplementedException();
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var list = await listRepository.GetListByIdAsync(id);
+            if (list is null)
+                return EitherExtensions.Failure<IServiceError, ListOfProducts>(
+                    new ListFetchingError.ListByIdNotFound(id));
+            
+            if (list.ClientId != clientId)
+                return EitherExtensions.Failure<IServiceError, ListOfProducts>(
+                    new ListFetchingError.ListByIdNotFound(id));
+            
+            var updatedList = await listRepository.UpdateListAsync(id, listName, archivedAt);
+            return EitherExtensions.Success<IServiceError, ListOfProducts>(updatedList!);
+        });
     }
 
     public async Task<Either<ListFetchingError, ListOfProducts>> DeleteListAsync(int id)
