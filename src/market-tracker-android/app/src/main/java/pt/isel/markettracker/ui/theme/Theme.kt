@@ -1,37 +1,56 @@
 package pt.isel.markettracker.ui.theme
 
-import android.app.Activity
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalView
 
 private val LightColorScheme = lightColorScheme(
-    primary = Primary
-    /* Other default colors to override
-background = Color(0xFFFFFBFE),
-surface = Color(0xFFFFFBFE),
-onPrimary = Color.White,
-onSecondary = Color.White,
-onTertiary = Color.White,
-onBackground = Color(0xFF1C1B1F),
-onSurface = Color(0xFF1C1B1F),
-*/
+    primary = Primary,
+    /*
+    onPrimary = Color.Black,
+    primaryContainer = Color.Black,
+    onPrimaryContainer = Color.Black,
+    inversePrimary = Color.Black,
+    secondary = Color.Black,
+    onSecondary = Color.Black,
+    secondaryContainer = Color.Black,
+    onSecondaryContainer = Color.Black,
+    tertiary = Color.Black,
+    onTertiary = Color.Black,
+    tertiaryContainer = Color.Black,
+    onTertiaryContainer = Color.Black,
+    background = Color.Black,
+    onBackground = Color.Black,
+    surface = Color.Black,
+    onSurface = Color.Black,
+    surfaceVariant = Color.Black,
+    onSurfaceVariant = Color.Black,
+    surfaceTint = Color.Black,
+    inverseSurface = Color.Black,
+    inverseOnSurface = Color.Black,
+    error = Color.Black,
+    onError = Color.Black,
+    errorContainer = Color.Black,
+    onErrorContainer = Color.Black,
+    outline = Color.Black,
+    outlineVariant = Color.Black,
+    scrim = Color.Black,
+    surfaceBright = Color.Black,
+    surfaceContainer = Color.Black,
+    surfaceContainerHigh = Color.Black,
+    surfaceContainerHighest = Color.Black,
+    surfaceContainerLow = Color.Black,
+    surfaceContainerLowest = Color.Black,
+    surfaceDim = Color.Black*/
 )
 
 @Composable
 fun MarkettrackerTheme(
     content: @Composable () -> Unit
 ) {
-    val colorScheme = LightColorScheme
-
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
+        colorScheme = LightColorScheme,
+        typography = MarketTrackerTypography,
         content = content
     )
 }

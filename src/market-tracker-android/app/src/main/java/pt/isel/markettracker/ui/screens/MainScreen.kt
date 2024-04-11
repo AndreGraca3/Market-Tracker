@@ -25,7 +25,8 @@ import pt.isel.markettracker.ui.theme.Grey
 
 @Composable
 fun MainScreen(
-    productsScreenViewModel: ProductsScreenViewModel
+    productsScreenViewModel: ProductsScreenViewModel,
+    onProductClick: (String) -> Unit
 ) {
     val navController = rememberNavController()
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -53,7 +54,7 @@ fun MainScreen(
             modifier = Modifier.padding(it)
         ) {
             composable(Destination.HOME.route) {
-                ProductsScreen(productsScreenViewModel)
+                ProductsScreen(productsScreenViewModel, onProductClick)
             }
 
             composable(Destination.LIST.route) {
