@@ -6,7 +6,7 @@ public class ListProduct
     public required string Name { get; set; }
     public DateTime? ArchivedAt { get; set; }
     public DateTime CreatedAt { get; set; }
-    public required IEnumerable<ListEntry> Products { get; set; }
+    public required IEnumerable<ListEntryDetails> Products { get; set; }
     public int TotalPrice { get; set; }
     public int TotalProducts { get; set; }
 }

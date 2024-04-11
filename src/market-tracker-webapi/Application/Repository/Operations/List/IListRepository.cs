@@ -14,14 +14,4 @@ public interface IListRepository
     Task<ListOfProducts?> UpdateListAsync(int id, string? listName = null, DateTime? archivedAt = null);
     
     Task<ListOfProducts?> DeleteListAsync(int id);
-    
-    Task<IEnumerable<ProductInList>> GetProductsInListAsync(int? listId = null, string? productId = null, int? storeId = null, int? quantity = null);
-    
-    Task<ProductInList?> GetProductsByListIdAsync(int listId, string productId, int storeId);
-    
-    Task<int> AddProductInListAsync(int listId, string productId, int storeId, int quantity);
-    
-    Task<ProductInList?> UpdateProductInListAsync(int listId, string productId, int storeId, int? quantity = null);
-    
-    Task<ProductInList?> DeleteProductInListAsync(int listId, string productId, int storeId);
 }

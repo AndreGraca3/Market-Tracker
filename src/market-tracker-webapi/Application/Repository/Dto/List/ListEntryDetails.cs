@@ -2,7 +2,7 @@
 
 namespace market_tracker_webapi.Application.Repository.Dto.List;
 
-public class ListEntry
+public class ListEntryDetails
 {
     public required ProductItem ProductItem { get; set; }
     public required StorePrice StorePrice { get; set; }

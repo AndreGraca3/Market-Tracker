@@ -1,3 +1,3 @@
 ﻿namespace market_tracker_webapi.Application.Service.Errors.User;
 
-public class UserError : IServiceError;
+public interface IUserError : IServiceError;

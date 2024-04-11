@@ -1,8 +1,6 @@
 ﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Dto.List;
-using market_tracker_webapi.Application.Repository.Dto.Store;
-using market_tracker_webapi.Application.Repository.Operations.Company;
 using market_tracker_webapi.Application.Repository.Operations.List;
 using market_tracker_webapi.Application.Repository.Operations.Prices;
 using market_tracker_webapi.Application.Repository.Operations.Product;
@@ -10,9 +8,6 @@ using market_tracker_webapi.Application.Repository.Operations.Store;
 using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.List;
-using market_tracker_webapi.Application.Service.Errors.ListEntry;
-using market_tracker_webapi.Application.Service.Errors.Product;
-using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
@@ -25,13 +20,16 @@ public class ListService(
     IUserRepository userRepository,
     IPriceRepository priceRepository,
     IProductRepository productRepository,
-    IStoreRepository storeRepository,
+    IListEntryRepository listEntryRepository,
     ITransactionManager transactionManager) : IListService
 {
-    public async Task<CollectionOutputModel> GetListsAsync(Guid clientId, string? listName, DateTime? archivedAt)
+    public async Task<Either<IServiceError, CollectionOutputModel>> GetListsAsync(Guid clientId, string? listName, DateTime? archivedAt)
     {
-        var lists = await listRepository.GetListsAsync(clientId, listName, archivedAt);
-        return new CollectionOutputModel(lists);
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var lists = await listRepository.GetListsAsync(clientId, listName, archivedAt);
+            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(new CollectionOutputModel(lists));
+        });
     }
 
     public async Task<Either<ListFetchingError, ListProduct>> GetListByIdAsync(int id)
@@ -43,7 +41,7 @@ public class ListService(
                 return EitherExtensions.Failure<ListFetchingError, ListProduct>(
                     new ListFetchingError.ListByIdNotFound(id));
 
-            var productsInList = await listRepository.GetProductsInListAsync(id);
+            var productsInList = await listEntryRepository.GetListEntriesAsync(id);
 
             var listProduct = await CreateListProduct(list, productsInList);
 
@@ -61,10 +59,10 @@ public class ListService(
             
             if (!(await listRepository.GetListsAsync(clientId, listName)).IsNullOrEmpty())
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
-                    new ListCreationError.ListNameOfUserAlreadyExists(clientId, listName));
+                    new ListCreationError.ListNameAlreadyExists(clientId, listName));
             
             var id = await listRepository.AddListAsync(clientId, listName);
-            return EitherExtensions.Success<IServiceError, IntIdOutputModel>(new IntIdOutputModel(id));;
+            return EitherExtensions.Success<IServiceError, IntIdOutputModel>(new IntIdOutputModel(id));
         });
     }
 
@@ -77,9 +75,13 @@ public class ListService(
                 return EitherExtensions.Failure<IServiceError, ListOfProducts>(
                     new ListFetchingError.ListByIdNotFound(id));
             
+            if (list.ArchivedAt != null)
+                return EitherExtensions.Failure<IServiceError, ListOfProducts>(
+                    new ListUpdateError.ListIsArchived(id));
+            
             if (list.ClientId != clientId)
                 return EitherExtensions.Failure<IServiceError, ListOfProducts>(
-                    new ListFetchingError.ListByIdNotFound(id));
+                    new UserPermissionsError.UserDoNotOwnList(clientId, id));
             
             var updatedList = await listRepository.UpdateListAsync(id, listName, archivedAt);
             return EitherExtensions.Success<IServiceError, ListOfProducts>(updatedList!);
@@ -99,98 +101,10 @@ public class ListService(
             return EitherExtensions.Success<ListFetchingError, ListOfProducts>(deletedList!);
         });
     }
-
-    public async Task<CollectionOutputModel> GetListEntriesAsync(int? listId, string? productId, int? storeId, int? quantity)
-    {
-        var productsInList = await listRepository.GetProductsInListAsync(listId, productId, storeId, quantity);
-        return new CollectionOutputModel(productsInList);
-    }
-
-    public async Task<Either<IServiceError, ListEntry>> GetListEntryByIdAsync(int listId, string productId, int storeId)
-    {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            var productInList = await listRepository.GetProductsByListIdAsync(listId, productId, storeId);
-            if (productInList is null)
-                return EitherExtensions.Failure<IServiceError, ListEntry>(
-                    new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId, storeId));
-            
-            var listEntry = new ListEntry
-            {
-                ProductItem = new ProductItem
-                {
-                    ProductId = productInList.ProductId,
-                    Name = (await productRepository.GetProductByIdAsync(productInList.ProductId))!.Name
-                },
-                Quantity = productInList.Quantity,
-                StorePrice = await priceRepository.GetStorePriceByProductIdAsync(productInList.ProductId, productInList.StoreId, DateTime.Now)
-            };
-            
-            return EitherExtensions.Success<IServiceError, ListEntry>(listEntry);
-
-        });
-    }
-
-    public async Task<Either<IServiceError, IntIdOutputModel>> AddListEntryAsync(int listId, string productId, int storeId, int quantity)
-    {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            if (await listRepository.GetListByIdAsync(listId) is null)
-                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
-                    new ListFetchingError.ListByIdNotFound(listId));
-            
-            if (await productRepository.GetProductByIdAsync(productId) is null)
-                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
-                    new ProductFetchingError.ProductByIdNotFound(productId));
-            
-            if (await storeRepository.GetStoreByIdAsync(storeId) is null)
-                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
-                    new StoreFetchingError.StoreByIdNotFound(storeId));
-
-            if (quantity <= 0)
-                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
-                    new ListEntryCreationError.ListEntryQuantityInvalid(quantity));
-
-            var id = await listRepository.AddProductInListAsync(listId, productId, storeId, quantity);
-            return EitherExtensions.Success<IServiceError, IntIdOutputModel>(new IntIdOutputModel(id));
-        });
-    }
-
-    public async Task<Either<IServiceError, ProductInList>> UpdateListEntryAsync(int listId, string productId, int storeId, int? quantity = null)
-    {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            var productInList = await listRepository.GetProductsByListIdAsync(listId, productId, storeId);
-            if (productInList is null)
-                return EitherExtensions.Failure<IServiceError, ProductInList>(
-                    new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId, storeId));
-            
-            if (quantity <= 0)
-                return EitherExtensions.Failure<IServiceError, ProductInList>(
-                    new ListEntryCreationError.ListEntryQuantityInvalid(quantity));
-
-            var updatedProductInList = await listRepository.UpdateProductInListAsync(listId, productId, storeId, quantity);
-            return EitherExtensions.Success<IServiceError, ProductInList>(updatedProductInList!);
-        });
-    }
-
-    public async Task<Either<ListEntryFetchingError, ProductInList>> DeleteListEntryAsync(int listId, string productId, int storeId)
-    {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            var productInList = await listRepository.GetProductsByListIdAsync(listId, productId, storeId);
-            if (productInList is null)
-                return EitherExtensions.Failure<ListEntryFetchingError, ProductInList>(
-                    new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId, storeId));
-            
-            var deletedProductInList = await listRepository.DeleteProductInListAsync(listId, productId, storeId);
-            return EitherExtensions.Success<ListEntryFetchingError, ProductInList>(deletedProductInList!);
-        });
-    }
     
-    private async Task<ListProduct> CreateListProduct(ListOfProducts list, IEnumerable<ProductInList> productsInList)
+    private async Task<ListProduct> CreateListProduct(ListOfProducts list, IEnumerable<ListEntry> productsInList)
     {
-        var listEntries = new List<ListEntry>();
+        var listEntries = new List<ListEntryDetails>();
 
         foreach (var product in productsInList)
         {
@@ -204,7 +118,7 @@ public class ListService(
 
             var storePrice = await priceRepository.GetStorePriceByProductIdAsync(product.ProductId, product.StoreId, DateTime.Now);
 
-            var listEntry = new ListEntry
+            var listEntry = new ListEntryDetails
             {
                 ProductItem = productItem,
                 Quantity = product.Quantity,

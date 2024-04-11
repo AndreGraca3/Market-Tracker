@@ -1,6 +1,6 @@
 ﻿namespace market_tracker_webapi.Application.Domain;
 
-public class ProductInList
+public class ListEntry
 {
     public int ListId { get; set; }
     
