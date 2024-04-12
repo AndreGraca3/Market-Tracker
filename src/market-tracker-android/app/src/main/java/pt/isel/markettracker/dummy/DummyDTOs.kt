@@ -73,4 +73,21 @@ val dummyProducts = listOf(
             545
         )
     ),
+    ProductInfo(
+        "123653163325",
+        "Coca-Cola Bebida Gaseificada 1.5L",
+        "ad",
+        "Coca-Cola",
+        "Bebidas",
+        StorePriceData(
+            1,
+            "Pingo Doce Amadora",
+            CompanyInfo(
+                1,
+                "MiniPreço",
+                "https://www.kabaz.pt/stores/logo-minipreco.webp"
+            ),
+            299
+        )
+    ),
 )

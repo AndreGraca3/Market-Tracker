@@ -1,5 +1,6 @@
 package pt.isel.markettracker.ui.screens.products.card
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -27,7 +28,6 @@ fun PriceLabel(price: Int) {
             text = price.centToEuro(),
             style = MarketTrackerTypography.titleLarge,
             maxLines = 1,
-            modifier = Modifier.padding(start = 2.dp)
         )
     }
 }
