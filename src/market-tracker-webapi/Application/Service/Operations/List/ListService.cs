@@ -4,7 +4,6 @@ using market_tracker_webapi.Application.Repository.Dto.List;
 using market_tracker_webapi.Application.Repository.Operations.List;
 using market_tracker_webapi.Application.Repository.Operations.Prices;
 using market_tracker_webapi.Application.Repository.Operations.Product;
-using market_tracker_webapi.Application.Repository.Operations.Store;
 using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.List;
@@ -41,9 +40,9 @@ public class ListService(
                 return EitherExtensions.Failure<ListFetchingError, ListProduct>(
                     new ListFetchingError.ListByIdNotFound(id));
 
-            var productsInList = await listEntryRepository.GetListEntriesAsync(id);
+            var listEntries = await listEntryRepository.GetListEntriesAsync(id);
 
-            var listProduct = await CreateListProduct(list, productsInList);
+            var listProduct = await CreateListProduct(list, listEntries);
 
             return EitherExtensions.Success<ListFetchingError, ListProduct>(listProduct);
         });
@@ -102,11 +101,11 @@ public class ListService(
         });
     }
     
-    private async Task<ListProduct> CreateListProduct(ListOfProducts list, IEnumerable<ListEntry> productsInList)
+    private async Task<ListProduct> CreateListProduct(ListOfProducts list, IEnumerable<ListEntry> listEntries)
     {
-        var listEntries = new List<ListEntryDetails>();
+        var listEntriesDetails = new List<ListEntryDetails>();
 
-        foreach (var product in productsInList)
+        foreach (var product in listEntries)
         {
             var productDetail = await productRepository.GetProductByIdAsync(product.ProductId);
 
@@ -117,19 +116,22 @@ public class ListService(
             };
 
             var storePrice = await priceRepository.GetStorePriceByProductIdAsync(product.ProductId, product.StoreId, DateTime.Now);
-
+            
+            var isAvailable = !(await priceRepository.GetStoresAvailabilityAsync(product.ProductId, product.StoreId)).IsNullOrEmpty();
+            
             var listEntry = new ListEntryDetails
             {
                 ProductItem = productItem,
                 Quantity = product.Quantity,
-                StorePrice = storePrice
+                StorePrice = storePrice,
+                IsAvailable = isAvailable
             };
 
-            listEntries.Add(listEntry);
+            listEntriesDetails.Add(listEntry);
         }
 
-        var totalPrice = listEntries.Sum(entry => entry.StorePrice.PriceData.Price * entry.Quantity);
-        var totalProducts = listEntries.Sum(entry => entry.Quantity);
+        var totalPrice = listEntriesDetails.Sum(entry => entry.StorePrice.PriceData.Price * entry.Quantity);
+        var totalProducts = listEntriesDetails.Sum(entry => entry.Quantity);
 
         return new ListProduct
         {
@@ -137,7 +139,7 @@ public class ListService(
             Name = list.ListName,
             ArchivedAt = list.ArchivedAt,
             CreatedAt = list.CreatedAt,
-            Products = listEntries,
+            Products = listEntriesDetails,
             TotalPrice = totalPrice,
             TotalProducts = totalProducts
         };

@@ -12,9 +12,9 @@ public interface IPriceRepository
         DateTime priceAt
     );
 
-    public Task<IEnumerable<StoreAvailability>> GetStoresAvailabilityByProductIdAsync(
+    public Task<IEnumerable<StoreAvailability>> GetStoresAvailabilityAsync(
         string productId,
-        DateTime date
+        int? storeId = null
     );
 
     public Task<StorePrice> GetStorePriceByProductIdAsync(

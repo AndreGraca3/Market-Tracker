@@ -1,5 +1,7 @@
-﻿using market_tracker_webapi.Application.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.List;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Repository.Dto.List;
 using market_tracker_webapi.Application.Service.Errors.List;
@@ -15,7 +17,7 @@ public class ListController(
 {
     [HttpGet(Uris.Lists.Base)]
     public async Task<ActionResult<CollectionOutputModel>> GetListsAsync(
-        Guid clientId, 
+        [Required] Guid clientId, 
         string? listName, 
         DateTime? archivedAt)
     {
@@ -27,9 +29,9 @@ public class ListController(
     }
     
     [HttpGet(Uris.Lists.ListById)]
-    public async Task<ActionResult<ListProduct>> GetListByIdAsync(int id)
+    public async Task<ActionResult<ListProduct>> GetListByIdAsync(int listId)
     {
-        var res = await listService.GetListByIdAsync(id);
+        var res = await listService.GetListByIdAsync(listId);
         return ResultHandler.Handle(
             res,
             error =>
@@ -45,9 +47,9 @@ public class ListController(
     }
     
     [HttpPost(Uris.Lists.Base)]
-    public async Task<ActionResult<IntIdOutputModel>> AddListAsync(Guid clientId, string listName)
+    public async Task<ActionResult<IntIdOutputModel>> AddListAsync(CreationListInputModel inputModel)
     {
-        var res = await listService.AddListAsync(clientId, listName);
+        var res = await listService.AddListAsync(inputModel.ClientId, inputModel.ListName);
         return ResultHandler.Handle(
             res,
             error =>
@@ -60,18 +62,18 @@ public class ListController(
                         => new ListProblem.ListNameAlreadyExists(nameAlreadyExistsError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
-            }
+            },
+        (outputModel) => Created(Uris.Lists.BuildListByIdUri(outputModel.Id),res)
         );
     }
     
     [HttpPut(Uris.Lists.ListById)]
     public async Task<ActionResult<ListOfProducts>> UpdateListAsync(
-        int id, 
-        Guid clientId, 
-        string? listName, 
-        DateTime? archivedAt)
+        int listId, 
+        [Required] Guid clientId, 
+        [FromBody] UpdateListInputModel inputModel)
     {
-        var res = await listService.UpdateListAsync(id, clientId, listName, archivedAt);
+        var res = await listService.UpdateListAsync(listId, clientId, inputModel.ListName, inputModel.ArchivedAt);
         return ResultHandler.Handle(
             res,
             error =>
@@ -91,9 +93,9 @@ public class ListController(
     }
     
     [HttpDelete(Uris.Lists.ListById)]
-    public async Task<ActionResult<ListOfProducts>> DeleteListAsync(int id)
+    public async Task<ActionResult<ListOfProducts>> DeleteListAsync(int listId)
     {
-        var res = await listService.DeleteListAsync(id);
+        var res = await listService.DeleteListAsync(listId);
         return ResultHandler.Handle(
             res,
             error =>
@@ -104,7 +106,8 @@ public class ListController(
                         => new ListProblem.ListByIdNotFound(idNotFoundError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
-            }
+            },
+            _ => NoContent()
         );
     }
 }

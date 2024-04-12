@@ -182,7 +182,8 @@ create table if not exists list
     id          int generated always as identity primary key,
     client_id   uuid references client (id) on delete cascade,
     name        varchar(20) NOT NULL,
-    archived_at timestamp
+    archived_at timestamp,
+    created_at  timestamp not null default now()
 );
 
 create table if not exists list_entry

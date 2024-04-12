@@ -48,25 +48,32 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         return cheapestStore;
     }
 
-    public async Task<IEnumerable<StoreAvailability>> GetStoresAvailabilityByProductIdAsync(
+    public async Task<IEnumerable<StoreAvailability>> GetStoresAvailabilityAsync(
         string productId,
-        DateTime date
+        int? storeId = null
     )
     {
-        return await dataContext
-            .ProductAvailability.Where(availability => availability.ProductId == productId)
+        var query = dataContext.ProductAvailability.AsQueryable();
+            
+        if(storeId != null)
+        {
+            query = query.Where(availability => availability.StoreId == storeId);
+        }
+        
+        return await query
+            .Where(availability => availability.ProductId == productId)
             .Join(
                 dataContext.Company,
                 availability => availability.StoreId,
                 company => company.Id,
                 (availability, company) => new { availability, company }
             )
-            .Select(query => new StoreAvailability(
-                query.availability.StoreId,
-                query.availability.ProductId,
-                query.company.Id,
-                query.availability.IsAvailable,
-                query.availability.LastChecked
+            .Select(availabilityTuple => new StoreAvailability(
+                availabilityTuple.availability.StoreId,
+                availabilityTuple.availability.ProductId,
+                availabilityTuple.company.Id,
+                availabilityTuple.availability.IsAvailable,
+                availabilityTuple.availability.LastChecked
             ))
             .ToListAsync();
     }

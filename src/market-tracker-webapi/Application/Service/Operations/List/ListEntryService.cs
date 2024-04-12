@@ -12,6 +12,7 @@ using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
+using Microsoft.IdentityModel.Tokens;
 
 namespace market_tracker_webapi.Application.Service.Operations.List;
 
@@ -23,15 +24,6 @@ public class ListEntryService(
     IStoreRepository storeRepository,
     ITransactionManager transactionManager) : IListEntryService
 {
-        public async Task<Either<IServiceError, CollectionOutputModel>> GetListEntriesAsync(int? listId, string? productId, int? storeId, int? quantity)
-    {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            var listEntries = await listEntryRepository.GetListEntriesAsync(listId, productId, storeId, quantity);
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(new CollectionOutputModel(listEntries));
-        });
-    }
-
     public async Task<Either<IServiceError, ListEntryDetails>> GetListEntryByIdAsync(int listId, string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
@@ -41,6 +33,8 @@ public class ListEntryService(
                 return EitherExtensions.Failure<IServiceError, ListEntryDetails>(
                     new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId));
             
+            var isAvailable = !(await priceRepository.GetStoresAvailabilityAsync(listEntry.ProductId, listEntry.StoreId)).IsNullOrEmpty();
+            
             var listEntryDetails = new ListEntryDetails
             {
                 ProductItem = new ProductItem
@@ -49,7 +43,8 @@ public class ListEntryService(
                     Name = (await productRepository.GetProductByIdAsync(listEntry.ProductId))!.Name
                 },
                 Quantity = listEntry.Quantity,
-                StorePrice = await priceRepository.GetStorePriceByProductIdAsync(listEntry.ProductId, listEntry.StoreId, DateTime.Now)
+                StorePrice = await priceRepository.GetStorePriceByProductIdAsync(listEntry.ProductId, listEntry.StoreId, DateTime.Now),
+                IsAvailable = isAvailable
             };
             
             return EitherExtensions.Success<IServiceError, ListEntryDetails>(listEntryDetails);
@@ -61,6 +56,9 @@ public class ListEntryService(
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
+            if (quantity <= 0)
+                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
+                    new ListEntryCreationError.ListEntryQuantityInvalid(quantity));
             
             var list = await listRepository.GetListByIdAsync(listId);
             
@@ -79,10 +77,10 @@ public class ListEntryService(
             if (await storeRepository.GetStoreByIdAsync(storeId) is null)
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                     new StoreFetchingError.StoreByIdNotFound(storeId));
-
-            if (quantity <= 0)
+            
+            if ((await priceRepository.GetStoresAvailabilityAsync(productId, storeId)).IsNullOrEmpty())
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
-                    new ListEntryCreationError.ListEntryQuantityInvalid(quantity));
+                    new ProductFetchingError.UnavailableProductInStore(productId, storeId));
 
             var id = await listEntryRepository.AddListEntryAsync(listId, productId, storeId, quantity);
             return EitherExtensions.Success<IServiceError, IntIdOutputModel>(new IntIdOutputModel(id));
@@ -97,6 +95,10 @@ public class ListEntryService(
             if (listEntry is null)
                 return EitherExtensions.Failure<IServiceError, ListEntry>(
                     new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId));
+            
+            if (storeId is not null && (await priceRepository.GetStoresAvailabilityAsync(productId, storeId.Value)).IsNullOrEmpty())
+                return EitherExtensions.Failure<IServiceError, ListEntry>(
+                    new ProductFetchingError.UnavailableProductInStore(productId, storeId.Value));
             
             if (quantity <= 0)
                 return EitherExtensions.Failure<IServiceError, ListEntry>(

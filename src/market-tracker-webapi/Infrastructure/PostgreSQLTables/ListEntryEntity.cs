@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
-[Table("list_product", Schema = "MarketTracker")]
+[Table("list_entry", Schema = "MarketTracker")]
 public class ListEntryEntity
 {
     

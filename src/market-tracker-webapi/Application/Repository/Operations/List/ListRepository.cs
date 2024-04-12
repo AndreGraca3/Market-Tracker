@@ -92,11 +92,6 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
             return null;
         }
         
-        var productInListEntities = await context.ListEntry
-            .Where(pil => pil.ListId == id)
-            .ToListAsync();
-        
-        context.ListEntry.RemoveRange(productInListEntities);
         context.List.Remove(listEntity);
         await context.SaveChangesAsync();
         
