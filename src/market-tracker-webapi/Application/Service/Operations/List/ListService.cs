@@ -74,13 +74,13 @@ public class ListService(
                 return EitherExtensions.Failure<IServiceError, ListOfProducts>(
                     new ListFetchingError.ListByIdNotFound(id));
             
-            if (list.ArchivedAt != null)
-                return EitherExtensions.Failure<IServiceError, ListOfProducts>(
-                    new ListUpdateError.ListIsArchived(id));
-            
             if (list.ClientId != clientId)
                 return EitherExtensions.Failure<IServiceError, ListOfProducts>(
                     new UserPermissionsError.UserDoNotOwnList(clientId, id));
+            
+            if (list.ArchivedAt != null)
+                return EitherExtensions.Failure<IServiceError, ListOfProducts>(
+                    new ListUpdateError.ListIsArchived(id));
             
             var updatedList = await listRepository.UpdateListAsync(id, listName, archivedAt);
             return EitherExtensions.Success<IServiceError, ListOfProducts>(updatedList!);
