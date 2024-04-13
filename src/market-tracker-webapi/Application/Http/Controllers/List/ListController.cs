@@ -19,9 +19,10 @@ public class ListController(
     public async Task<ActionResult<CollectionOutputModel>> GetListsAsync(
         [Required] Guid clientId, 
         string? listName, 
-        DateTime? archivedAt)
+        DateTime? archivedAt,
+        DateTime? createdAt)
     {
-        var res = await listService.GetListsAsync(clientId, listName, archivedAt);
+        var res = await listService.GetListsAsync(clientId, listName, archivedAt, createdAt);
         return ResultHandler.Handle(
             res,
             _ => new ServerProblem.InternalServerError().ToActionResult()

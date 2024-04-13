@@ -21,7 +21,7 @@ public class ListEntryEntity
     [Column("quantity")]
     public int Quantity { get; set; }
     
-    public ListEntry ToProductInList()
+    public ListEntry ToListEntry()
     {
         return new ListEntry()
         {

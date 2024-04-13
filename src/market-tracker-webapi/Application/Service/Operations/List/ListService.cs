@@ -22,11 +22,11 @@ public class ListService(
     IListEntryRepository listEntryRepository,
     ITransactionManager transactionManager) : IListService
 {
-    public async Task<Either<IServiceError, CollectionOutputModel>> GetListsAsync(Guid clientId, string? listName, DateTime? archivedAt)
+    public async Task<Either<IServiceError, CollectionOutputModel>> GetListsAsync(Guid clientId, string? listName, DateTime? archivedAt, DateTime? createdAt)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var lists = await listRepository.GetListsAsync(clientId, listName, archivedAt);
+            var lists = await listRepository.GetListsAsync(clientId, listName, archivedAt, createdAt);
             return EitherExtensions.Success<IServiceError, CollectionOutputModel>(new CollectionOutputModel(lists));
         });
     }

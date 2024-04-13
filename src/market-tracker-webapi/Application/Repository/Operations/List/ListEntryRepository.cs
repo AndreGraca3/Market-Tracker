@@ -38,14 +38,14 @@ public class ListEntryRepository(MarketTrackerDataContext context) : IListEntryR
         }
     
         return await query
-            .Select(pilEntity => pilEntity.ToProductInList())
+            .Select(pilEntity => pilEntity.ToListEntry())
             .ToListAsync();
     }
 
     public async Task<ListEntry?> GetListEntriesByListIdAsync(int listId, string productId)
     {
         var productInListEntity = await context.ListEntry.FindAsync(listId, productId);
-        return productInListEntity?.ToProductInList();
+        return productInListEntity?.ToListEntry();
     }
 
     public async Task<int> AddListEntryAsync(int listId, string productId, int storeId, int quantity)
@@ -85,7 +85,7 @@ public class ListEntryRepository(MarketTrackerDataContext context) : IListEntryR
         
         await context.SaveChangesAsync();
         
-        return productInListEntity.ToProductInList();
+        return productInListEntity.ToListEntry();
     }
 
     public async Task<ListEntry?> DeleteListEntryAsync(int listId, string productId)
@@ -100,6 +100,6 @@ public class ListEntryRepository(MarketTrackerDataContext context) : IListEntryR
         context.ListEntry.Remove(productInListEntity);
         await context.SaveChangesAsync();
         
-        return productInListEntity.ToProductInList();
+        return productInListEntity.ToListEntry();
     }
 }

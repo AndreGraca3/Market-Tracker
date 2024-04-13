@@ -11,7 +11,7 @@ namespace market_tracker_webapi.Application.Service.Operations.List;
 
 public interface IListService
 {
-    Task<Either<IServiceError, CollectionOutputModel>> GetListsAsync(Guid clientId, string? listName, DateTime? archivedAt);
+    Task<Either<IServiceError, CollectionOutputModel>> GetListsAsync(Guid clientId, string? listName, DateTime? archivedAt, DateTime? createdAt);
     
     Task<Either<ListFetchingError, ListProduct>> GetListByIdAsync(int id);
     
