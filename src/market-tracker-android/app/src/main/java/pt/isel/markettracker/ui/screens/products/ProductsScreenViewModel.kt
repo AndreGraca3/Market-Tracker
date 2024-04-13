@@ -24,16 +24,36 @@ class ProductsScreenViewModel @Inject constructor(
         const val MAX_GRID_COLUMNS = 2
     }
 
+    // search and filters
+    private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
+    val searchQuery
+        get() = searchQueryFlow.asStateFlow()
+
+    private val filtersFlow: MutableStateFlow<ProductsFilters> =
+        MutableStateFlow(ProductsFilters())
+    val filters
+        get() = filtersFlow.asStateFlow()
+
+    fun onQueryChange(query: String) {
+        searchQueryFlow.value = query
+    }
+
+    // actual listed products
     private val productsFlow: MutableStateFlow<IOState<List<ProductInfo>>> =
         MutableStateFlow(idle())
-    val products = productsFlow.asStateFlow()
+    val products
+        get() = productsFlow.asStateFlow()
 
     fun fetchProducts(forceRefresh: Boolean = false) {
         if (productsFlow.value !is Idle && !forceRefresh) return
 
         productsFlow.value = loading()
         viewModelScope.launch {
-            val res = kotlin.runCatching { productService.getProducts() }
+            val res = kotlin.runCatching {
+                productService.getProducts(
+                    if (searchQueryFlow.value.isBlank()) null else searchQuery.value
+                )
+            }
             productsFlow.value = when (res.isSuccess) {
                 true -> loaded(res)
                 false -> fail(res.exceptionOrNull()!!) // TODO: handle error
@@ -41,3 +61,10 @@ class ProductsScreenViewModel @Inject constructor(
         }
     }
 }
+
+data class ProductsFilters(
+    val brandId: Int? = null,
+    val categoryId: Int? = null,
+    val minRating: String? = null,
+    val maxRating: String? = null
+)

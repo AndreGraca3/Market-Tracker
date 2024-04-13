@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.products
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.Loading
 import pt.isel.markettracker.ui.components.common.IOResourceLoader
@@ -29,25 +27,29 @@ import pt.isel.markettracker.ui.components.common.PullToRefreshLazyColumn
 import pt.isel.markettracker.ui.screens.products.card.ProductCard
 import pt.isel.markettracker.ui.screens.products.topbar.ProductsTopBar
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ProductsScreen(
     onProductClick: (String) -> Unit,
-    productsScreenViewModel: ProductsScreenViewModel = hiltViewModel(),
+    productsScreenViewModel: ProductsScreenViewModel
 ) {
     LaunchedEffect(Unit) {
         productsScreenViewModel.fetchProducts()
     }
 
+    val scope = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
 
     val productsState by productsScreenViewModel.products.collectAsState()
-
-    val scope = rememberCoroutineScope()
+    val searchQuery by productsScreenViewModel.searchQuery.collectAsState()
 
     Scaffold(
         topBar = {
-            ProductsTopBar()
+            ProductsTopBar(
+                searchQuery = searchQuery,
+                onQueryChange = productsScreenViewModel::onQueryChange,
+                onSearch = {
+                    productsScreenViewModel.fetchProducts()
+                })
         }
     ) { paddingValues ->
         PullToRefreshLazyColumn(
@@ -73,7 +75,7 @@ fun ProductsScreen(
                     columns = GridCells.Fixed(ProductsScreenViewModel.MAX_GRID_COLUMNS),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    contentPadding =  PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
                 ) {
                     items(products.size) { index ->
                         Box(

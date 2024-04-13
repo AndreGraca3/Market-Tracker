@@ -1,10 +1,7 @@
 package pt.isel.markettracker.ui.screens
 
-import android.annotation.SuppressLint
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -14,6 +11,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -22,12 +20,13 @@ import pt.isel.markettracker.navigation.NavBar
 import pt.isel.markettracker.navigation.toDestination
 import pt.isel.markettracker.ui.screens.list.ListScreen
 import pt.isel.markettracker.ui.screens.products.ProductsScreen
+import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreen
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
-    onProductClick: (String) -> Unit
+    onProductClick: (String) -> Unit,
+    productsScreenViewModel: ProductsScreenViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -41,8 +40,11 @@ fun MainScreen(
                 onItemClick = { route ->
                     selectedIndex = route.toDestination().ordinal
                     navController.navigate(route) {
-                        // it would be better to use popUpTo startDestination but navbar gets broken
-                        navController.popBackStack()
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 }
             )
@@ -52,11 +54,11 @@ fun MainScreen(
             navController = navController,
             startDestination = Destination.HOME.route,
             modifier = Modifier.padding(paddingValues),
-            enterTransition = { fadeIn(tween(400)) },
-            exitTransition = { fadeOut(tween(200)) },
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) {
             composable(Destination.HOME.route) {
-                ProductsScreen(onProductClick)
+                ProductsScreen(onProductClick, productsScreenViewModel)
             }
 
             composable(Destination.LIST.route) {

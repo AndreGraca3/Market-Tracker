@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
+import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.utils.NavigateAux
 

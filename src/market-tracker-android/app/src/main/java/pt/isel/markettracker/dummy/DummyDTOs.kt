@@ -7,7 +7,7 @@ import pt.isel.markettracker.domain.product.StorePriceData
 val dummyProducts = listOf(
     ProductInfo(
         "12345435",
-        "Saloio Queijo do bom Product 1 230gr",
+        "Saloio Queijo mesmo do bom autentico do norte e mal cheiroso grande 230gr",
         "https://media.kabaz.pt/images/products/1/2/6/9/4/126946-1706041053.png",
         "Saloio",
         "Laticínios",
