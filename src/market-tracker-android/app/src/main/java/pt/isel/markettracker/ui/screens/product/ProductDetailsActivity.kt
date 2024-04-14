@@ -14,7 +14,7 @@ class ProductDetailsActivity : ComponentActivity() {
 
         setContent {
             MarkettrackerTheme {
-                ProductDetailsScreen(onBackRequested = { finish() })
+                ProductDetailsScreen(onBackRequest = { finish() })
             }
         }
     }

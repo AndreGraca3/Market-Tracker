@@ -13,7 +13,7 @@ import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.ui.theme.mainFont
 
 @Composable
-fun LoginScreen(onBackRequested: () -> Unit) {
+fun LoginScreen(onBackRequest: () -> Unit) {
     MarkettrackerTheme {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -21,7 +21,7 @@ fun LoginScreen(onBackRequested: () -> Unit) {
         ) {
             Column {
                 Text("This is the login screen")
-                Button(onClick = onBackRequested) {
+                Button(onClick = onBackRequest) {
                     Text(text = "Go back to main screen")
                 }
                 Text(text = "No font specified")
