@@ -12,8 +12,9 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
     public async Task<IEnumerable<ListOfProducts>> GetListsAsync(
         Guid clientId, 
         string? listName = null, 
-        DateTime? archivedAt = null, 
-        DateTime? createdAt = null)
+        DateTime? archivedAfter = null, 
+        DateTime? createdAt = null,
+        bool isArchived = false)
     {
         var query = context.List.AsQueryable()
             .Where(l => l.ClientId == clientId);
@@ -23,9 +24,20 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
             query = query.Where(l => EF.Functions.TrigramsSimilarity(l.Name, listName) > SimilarityThreshold);
         }
     
-        if (archivedAt != null)
+        if(!isArchived)
         {
-            query = query.Where(l => l.ArchivedAt == archivedAt);
+            query = query.Where(l => l.ArchivedAt == null);
+        }
+        else
+        {
+            if (archivedAfter != null)
+            {
+                query = query.Where(l => l.ArchivedAt >= archivedAfter);
+            }
+            else
+            {
+                query = query.Where(l => l.ArchivedAt != null);
+            }
         }
     
         if (createdAt != null)
