@@ -14,33 +14,15 @@ namespace market_tracker_webapi.Application.Http.Controllers.List;
 
 public class ListEntryController(
     IListEntryService listEntryService
-    ) : ControllerBase
+) : ControllerBase
 {
-    [HttpGet(Uris.Lists.ListEntriesByListIdAndProductId)]
-    public async Task<ActionResult<ListEntryDetails>> GetListEntryByIdAsync(
-        int listId, 
-        string productId)
+    [HttpPost(Uris.Lists.ListProductsByListId)]
+    public async Task<ActionResult<IntIdOutputModel>> AddListEntryAsync(int listId,
+        CreationListEntryInputModel inputModel)
     {
-        var res = await listEntryService.GetListEntryByIdAsync(listId, productId);
-
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    ListEntryFetchingError.ListEntryByIdNotFound idNotFoundError
-                        => new ListEntryProblem.ListEntryByIdNotFound(idNotFoundError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            }
+        var res = await listEntryService.AddListEntryAsync(listId, inputModel.ProductId, inputModel.StoreId,
+            inputModel.Quantity
         );
-    }
-    
-    [HttpPost(Uris.Lists.ListEntriesByListId)]
-    public async Task<ActionResult<IntIdOutputModel>> AddListEntryAsync(CreationListEntryInputModel inputModel)
-    {
-        var res = await listEntryService.AddListEntryAsync(inputModel.ListId, inputModel.ProductId, inputModel.StoreId, inputModel.Quantity);
 
         return ResultHandler.Handle(
             res,
@@ -63,17 +45,19 @@ public class ListEntryController(
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
-            (outputModel) => Created(Uris.Lists.BuildListByIdUri(outputModel.Id),res)
+            (outputModel) => Created(Uris.Lists.BuildListByIdUri(outputModel.Id), res)
         );
     }
-    
-    [HttpPut(Uris.Lists.ListEntriesByListIdAndProductId)]
+
+    [HttpPatch(Uris.Lists.ListEntriesByListIdAndProductId)]
     public async Task<ActionResult<ListEntry>> UpdateListEntryAsync(
-        int listId, 
-        string productId, 
+        int listId,
+        string productId,
         [FromBody] UpdateListEntryInputModel inputModel)
     {
-        var res = await listEntryService.UpdateListEntryAsync(listId, productId, inputModel.StoreId, inputModel.Quantity);
+        var res = await listEntryService.UpdateListEntryAsync(listId, productId, inputModel.StoreId,
+            inputModel.Quantity
+        );
 
         return ResultHandler.Handle(
             res,
@@ -87,15 +71,19 @@ public class ListEntryController(
                         => new ProductProblem.UnavailableProductInStore(productUnavailableError).ToActionResult(),
                     ListEntryCreationError.ListEntryQuantityInvalid quantityInvalidError
                         => new ListEntryProblem.ListEntryQuantityInvalid(quantityInvalidError).ToActionResult(),
+                    ProductFetchingError.ProductByIdNotFound productNotFoundError
+                        => new ProductProblem.ProductByIdNotFound(productNotFoundError).ToActionResult(),
+                    StoreFetchingError.StoreByIdNotFound storeNotFoundError
+                        => new StoreProblem.StoreByIdNotFound(storeNotFoundError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
     }
-    
+
     [HttpDelete(Uris.Lists.ListEntriesByListIdAndProductId)]
     public async Task<ActionResult<ListEntry>> DeleteListEntryAsync(
-        int listId, 
+        int listId,
         string productId)
     {
         var res = await listEntryService.DeleteListEntryAsync(listId, productId);
@@ -114,6 +102,4 @@ public class ListEntryController(
             _ => NoContent()
         );
     }
-    
-    
 }

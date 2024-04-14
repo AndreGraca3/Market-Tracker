@@ -102,7 +102,7 @@ create table if not exists "user"
 (
     id         uuid primary key             default gen_random_uuid(),
     username   varchar(20) unique  not null,
-    name       varchar(20),
+    name       varchar(30),
     email      varchar(200) unique not null,
     password   varchar(30)         not null,
     created_at timestamp           not null default now()
@@ -181,7 +181,7 @@ create table if not exists list
 (
     id          int generated always as identity primary key,
     client_id   uuid references client (id) on delete cascade,
-    name        varchar(20) NOT NULL,
+    name        varchar(30) NOT NULL,
     archived_at timestamp,
     created_at  timestamp not null default now()
 );
@@ -198,7 +198,7 @@ create table if not exists list_entry
 create table if not exists post
 (
     id         int generated always as identity primary key,
-    title      varchar(20)  not null,
+    title      varchar(30)  not null,
     text       varchar(255) not null,
     created_at timestamp    not null default now(),
     client_id  uuid references client (id) on delete cascade,

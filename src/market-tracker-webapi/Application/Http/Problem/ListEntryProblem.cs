@@ -15,7 +15,7 @@ public class ListEntryProblem(
             404,
             "list-entry-not-found",
             "List entry not found",
-            $"List entry with list id {data.ListId} and product id {data.ProductId} not found",
+            $"This product is not present in given list",
             data
         );
     
@@ -24,7 +24,7 @@ public class ListEntryProblem(
             400,
             "list-entry-quantity-invalid",
             "List entry quantity invalid",
-            $"List entry quantity {data.Quantity} is invalid",
+            $"Invalid quantity",
             data
         );
 }

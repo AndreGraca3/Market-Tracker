@@ -83,7 +83,7 @@ public class ListEntryServiceTest
             IsAvailable = false
         };
         
-        _listEntryRepositoryMock.Setup(x => x.GetListEntriesByListIdAsync(It.IsAny<int>(), It.IsAny<string>()))
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync(listEntry);
         
         _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
@@ -109,7 +109,7 @@ public class ListEntryServiceTest
         const int listId = 1;
         const string productId = "product1";
         
-        _listEntryRepositoryMock.Setup(x => x.GetListEntriesByListIdAsync(It.IsAny<int>(), It.IsAny<string>()))
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync((ListEntry)null!);
         
         // Act
@@ -377,7 +377,7 @@ public class ListEntryServiceTest
             Quantity = 1
         };
         
-        _listEntryRepositoryMock.Setup(x => x.GetListEntriesByListIdAsync(It.IsAny<int>(), It.IsAny<string>()))
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync(listEntry);
         
         _priceRepositoryMock.Setup(x => x.GetStoresAvailabilityAsync(It.IsAny<string>(), It.IsAny<int?>()))
@@ -407,7 +407,7 @@ public class ListEntryServiceTest
         const int listId = 1;
         const string productId = "product1";
         
-        _listEntryRepositoryMock.Setup(x => x.GetListEntriesByListIdAsync(It.IsAny<int>(), It.IsAny<string>()))
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync((ListEntry)null!);
         
         // Act
@@ -432,7 +432,7 @@ public class ListEntryServiceTest
             Quantity = 1
         };
         
-        _listEntryRepositoryMock.Setup(x => x.GetListEntriesByListIdAsync(It.IsAny<int>(), It.IsAny<string>()))
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync(listEntry);
         
         _priceRepositoryMock.Setup(x => x.GetStoresAvailabilityAsync(It.IsAny<string>(), It.IsAny<int?>()))
@@ -460,7 +460,7 @@ public class ListEntryServiceTest
             Quantity = 0
         };
         
-        _listEntryRepositoryMock.Setup(x => x.GetListEntriesByListIdAsync(It.IsAny<int>(), It.IsAny<string>()))
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync(listEntry);
         
         _priceRepositoryMock.Setup(x => x.GetStoresAvailabilityAsync(It.IsAny<string>(), It.IsAny<int?>()))
@@ -495,7 +495,7 @@ public class ListEntryServiceTest
             Quantity = 1
         };
         
-        _listEntryRepositoryMock.Setup(x => x.GetListEntriesByListIdAsync(It.IsAny<int>(), It.IsAny<string>()))
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync(listEntry);
         
         _listEntryRepositoryMock.Setup(x => x.DeleteListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
@@ -515,7 +515,7 @@ public class ListEntryServiceTest
         const int listId = 1;
         const string productId = "product1";
         
-        _listEntryRepositoryMock.Setup(x => x.GetListEntriesByListIdAsync(It.IsAny<int>(), It.IsAny<string>()))
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync((ListEntry)null!);
         
         // Act

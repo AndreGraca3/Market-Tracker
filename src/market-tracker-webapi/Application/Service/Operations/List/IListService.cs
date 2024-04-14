@@ -11,13 +11,17 @@ namespace market_tracker_webapi.Application.Service.Operations.List;
 
 public interface IListService
 {
-    Task<Either<IServiceError, CollectionOutputModel>> GetListsAsync(Guid clientId, string? listName, DateTime? archivedAfter, DateTime? createdAt, bool isArchived);
-    
+    Task<Either<IServiceError, CollectionOutputModel>> GetListsAsync(Guid clientId, string? listName,
+        DateTime? createdAfter, bool? isArchived
+    );
+
     Task<Either<ListFetchingError, ListProduct>> GetListByIdAsync(int id);
-    
+
     Task<Either<IServiceError, IntIdOutputModel>> AddListAsync(Guid clientId, string listName);
-    
-    Task<Either<IServiceError, ListOfProducts>> UpdateListAsync(int id, Guid clientId, string? listName, DateTime? archivedAt);
-    
+
+    Task<Either<IServiceError, ListOfProducts>> UpdateListAsync(int id, Guid clientId, string? listName,
+        DateTime? archivedAt
+    );
+
     Task<Either<ListFetchingError, ListOfProducts>> DeleteListAsync(int id);
 }

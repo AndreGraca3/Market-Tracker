@@ -50,7 +50,7 @@ public class ListEntryRepositoryTest
         var listEntryRepository = new ListEntryRepository(context);
         
         // Act
-        var result = await listEntryRepository.GetListEntriesByListIdAsync(1, "product1");
+        var result = await listEntryRepository.GetListEntryAsync(1, "product1");
         
         // Assert
         result.Should().BeEquivalentTo(new ListEntry()

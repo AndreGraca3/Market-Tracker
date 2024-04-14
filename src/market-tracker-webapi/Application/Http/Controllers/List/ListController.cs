@@ -13,23 +13,23 @@ namespace market_tracker_webapi.Application.Http.Controllers.List;
 
 public class ListController(
     IListService listService
-    ) : ControllerBase
+) : ControllerBase
 {
     [HttpGet(Uris.Lists.Base)]
     public async Task<ActionResult<CollectionOutputModel>> GetListsAsync(
-        [Required] Guid clientId, 
-        string? listName, 
-        DateTime? archivedAfter,
-        DateTime? createdAt,
-        bool isArchived)
+        [Required] Guid clientId,
+        string? listName,
+        DateTime? createdAfter,
+        bool? isArchived
+    )
     {
-        var res = await listService.GetListsAsync(clientId, listName, archivedAfter, createdAt, isArchived);
+        var res = await listService.GetListsAsync(clientId, listName, createdAfter, isArchived);
         return ResultHandler.Handle(
             res,
             _ => new ServerProblem.InternalServerError().ToActionResult()
         );
     }
-    
+
     [HttpGet(Uris.Lists.ListById)]
     public async Task<ActionResult<ListProduct>> GetListByIdAsync(int listId)
     {
@@ -47,7 +47,7 @@ public class ListController(
             }
         );
     }
-    
+
     [HttpPost(Uris.Lists.Base)]
     public async Task<ActionResult<IntIdOutputModel>> AddListAsync(CreationListInputModel inputModel)
     {
@@ -65,15 +65,16 @@ public class ListController(
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
-        (outputModel) => Created(Uris.Lists.BuildListByIdUri(outputModel.Id),res)
+            (outputModel) => Created(Uris.Lists.BuildListByIdUri(outputModel.Id), outputModel)
         );
     }
-    
-    [HttpPut(Uris.Lists.ListById)]
+
+    [HttpPatch(Uris.Lists.ListById)]
     public async Task<ActionResult<ListOfProducts>> UpdateListAsync(
-        int listId, 
-        [Required] Guid clientId, 
-        [FromBody] UpdateListInputModel inputModel)
+        int listId,
+        [Required] Guid clientId,
+        [FromBody] UpdateListInputModel inputModel
+    )
     {
         var res = await listService.UpdateListAsync(listId, clientId, inputModel.ListName, inputModel.ArchivedAt);
         return ResultHandler.Handle(
@@ -86,14 +87,14 @@ public class ListController(
                         => new ListProblem.ListByIdNotFound(idNotFoundError).ToActionResult(),
                     ListUpdateError.ListIsArchived listIsArchivedError
                         => new ListProblem.ListIsArchived(listIsArchivedError).ToActionResult(),
-                    UserPermissionsError.UserDoNotOwnList userDoNotOwnListError
-                        => new UserProblem.UserDoNotOwnList(userDoNotOwnListError).ToActionResult(),
+                    ListFetchingError.UserDoesNotOwnList userDoNotOwnListError
+                        => new ListProblem.UserDoesNotOwnList(userDoNotOwnListError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
     }
-    
+
     [HttpDelete(Uris.Lists.ListById)]
     public async Task<ActionResult<ListOfProducts>> DeleteListAsync(int listId)
     {

@@ -6,5 +6,10 @@ public class ListFetchingError : IListError
     {
         public int Id { get; } = id;
     }
-    
+
+    public class UserDoesNotOwnList(Guid clientId, int listId) : ListFetchingError
+    {
+        public Guid ClientId { get; } = clientId;
+        public int ListId { get; } = listId;
+    }
 }

@@ -10,41 +10,37 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
     private const double SimilarityThreshold = 0.3;
 
     public async Task<IEnumerable<ListOfProducts>> GetListsAsync(
-        Guid clientId, 
-        string? listName = null, 
-        DateTime? archivedAfter = null, 
-        DateTime? createdAt = null,
-        bool isArchived = false)
+        Guid clientId,
+        string? listName = null,
+        DateTime? createdAfter = null,
+        bool? isArchived = false
+    )
     {
         var query = context.List.AsQueryable()
             .Where(l => l.ClientId == clientId);
-    
+
         if (!string.IsNullOrEmpty(listName))
         {
-            query = query.Where(l => EF.Functions.TrigramsSimilarity(l.Name, listName) > SimilarityThreshold);
+            query = query.Where(l => EF.Functions.ILike(l.Name, $"%{listName}%"));
         }
-    
-        if(!isArchived)
+
+        if (isArchived is not null)
         {
-            query = query.Where(l => l.ArchivedAt == null);
-        }
-        else
-        {
-            if (archivedAfter != null)
+            if (!isArchived.Value)
             {
-                query = query.Where(l => l.ArchivedAt >= archivedAfter);
+                query = query.Where(l => l.ArchivedAt == null);
             }
             else
             {
                 query = query.Where(l => l.ArchivedAt != null);
             }
         }
-    
-        if (createdAt != null)
+
+        if (createdAfter is not null)
         {
-            query = query.Where(l => l.CreatedAt == createdAt);
+            query = query.Where(l => l.CreatedAt >= createdAfter);
         }
-    
+
         return await query
             .OrderByDescending(listEntity => listEntity.CreatedAt)
             .Select(listEntity => listEntity.ToListOfProducts())
@@ -64,49 +60,49 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
             ClientId = clientId,
             Name = listName
         };
-        
+
         await context.List.AddAsync(listEntity);
         await context.SaveChangesAsync();
-        
+
         return listEntity.Id;
     }
 
     public async Task<ListOfProducts?> UpdateListAsync(int id, string? listName = null, DateTime? archivedAt = null)
     {
         var listEntity = await context.List.FindAsync(id);
-        
+
         if (listEntity == null)
         {
             return null;
         }
-        
+
         if (listName != null)
         {
             listEntity.Name = listName;
         }
-        
+
         if (archivedAt != null)
         {
             listEntity.ArchivedAt = archivedAt;
         }
-        
+
         await context.SaveChangesAsync();
-        
+
         return listEntity.ToListOfProducts();
     }
 
     public async Task<ListOfProducts?> DeleteListAsync(int id)
     {
         var listEntity = await context.List.FindAsync(id);
-        
+
         if (listEntity == null)
         {
             return null;
         }
-        
+
         context.List.Remove(listEntity);
         await context.SaveChangesAsync();
-        
+
         return listEntity.ToListOfProducts();
     }
 }

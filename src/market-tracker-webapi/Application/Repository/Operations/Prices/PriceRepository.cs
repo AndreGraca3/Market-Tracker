@@ -48,18 +48,10 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         return cheapestStore;
     }
 
-    public async Task<IEnumerable<StoreAvailability>> GetStoresAvailabilityAsync(
-        string productId,
-        int? storeId = null
-    )
+    public async Task<IEnumerable<StoreAvailability>> GetStoresAvailabilityAsync(string productId)
     {
         var query = dataContext.ProductAvailability.AsQueryable();
-            
-        if(storeId != null)
-        {
-            query = query.Where(availability => availability.StoreId == storeId);
-        }
-        
+
         return await query
             .Where(availability => availability.ProductId == productId)
             .Join(
@@ -76,6 +68,29 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 availabilityTuple.availability.LastChecked
             ))
             .ToListAsync();
+    }
+    
+    public async Task<StoreAvailability?> GetStoreAvailabilityAsync(string productId, int storeId)
+    {
+        var queryRes = await (
+            from availability in dataContext.ProductAvailability
+            where availability.ProductId == productId && availability.StoreId == storeId
+            join company in dataContext.Company on storeId equals company.Id
+            select new { availability, company }
+        ).FirstOrDefaultAsync();
+
+        if (queryRes is null)
+        {
+            return null;
+        }
+
+        return new StoreAvailability(
+            queryRes.availability.StoreId,
+            queryRes.availability.ProductId,
+            queryRes.company.Id,
+            queryRes.availability.IsAvailable,
+            queryRes.availability.LastChecked
+        );
     }
 
     public async Task<StorePrice> GetStorePriceByProductIdAsync(

@@ -6,7 +6,7 @@ public interface IListEntryRepository
 {
     Task<IEnumerable<ListEntry>> GetListEntriesAsync(int? listId = null, string? productId = null, int? storeId = null, int? quantity = null);
     
-    Task<ListEntry?> GetListEntriesByListIdAsync(int listId, string productId);
+    Task<ListEntry?> GetListEntryAsync(int listId, string productId);
     
     Task<int> AddListEntryAsync(int listId, string productId, int storeId, int quantity);
     

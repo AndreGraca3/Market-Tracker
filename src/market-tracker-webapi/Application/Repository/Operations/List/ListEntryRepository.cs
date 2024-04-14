@@ -42,7 +42,7 @@ public class ListEntryRepository(MarketTrackerDataContext context) : IListEntryR
             .ToListAsync();
     }
 
-    public async Task<ListEntry?> GetListEntriesByListIdAsync(int listId, string productId)
+    public async Task<ListEntry?> GetListEntryAsync(int listId, string productId)
     {
         var productInListEntity = await context.ListEntry.FindAsync(listId, productId);
         return productInListEntity?.ToListEntry();
@@ -72,7 +72,7 @@ public class ListEntryRepository(MarketTrackerDataContext context) : IListEntryR
         {
             return null;
         }
-        
+
         if (quantity != null)
         {
             productInListEntity.Quantity = quantity.Value;

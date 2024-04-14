@@ -34,12 +34,4 @@ public class UserProblem(
         $"The email {data.Email} is already in use",
         data
     );
-    
-    public class UserDoNotOwnList(UserPermissionsError.UserDoNotOwnList data) : UserProblem(
-        403,
-        "user-do-not-own-list",
-        "User do not own list",
-        $"User with id {data.ClientId} do not own list with id {data.ListId}",
-        data
-    );
 }
