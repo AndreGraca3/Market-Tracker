@@ -44,8 +44,8 @@ public class CityControllerTest
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var actualCitiesCollection = Assert.IsType<Either<IServiceError, CollectionOutputModel>>(okResult.Value);
-        actualCitiesCollection.Value.Should().BeEquivalentTo(new CollectionOutputModel(cities));
+        var actualCitiesCollection = Assert.IsType<CollectionOutputModel>(okResult.Value);
+        actualCitiesCollection.Should().BeEquivalentTo(new CollectionOutputModel(cities));
     }
 
     [Fact]

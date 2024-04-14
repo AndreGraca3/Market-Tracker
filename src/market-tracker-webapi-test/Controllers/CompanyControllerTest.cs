@@ -56,10 +56,10 @@ public class CompanyControllerTest
 
         // Assert
         var result = Assert.IsType<OkObjectResult>(actual.Result);
-        var actualCompaniesCollection = Assert.IsAssignableFrom<Either<IServiceError, CollectionOutputModel>>(
+        var actualCompaniesCollection = Assert.IsAssignableFrom<CollectionOutputModel>(
             result.Value
         );
-        actualCompaniesCollection.Value
+        actualCompaniesCollection
             .Should()
             .BeEquivalentTo(new CollectionOutputModel(expectedCompanies));
     }
