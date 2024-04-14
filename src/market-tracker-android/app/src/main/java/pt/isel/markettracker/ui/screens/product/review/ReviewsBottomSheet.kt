@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -31,10 +32,11 @@ fun ReviewsBottomSheet(
     showBottomSheet: Boolean,
     onDismissRequest: () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     if (showBottomSheet) {
         ModalBottomSheet(
+            modifier = Modifier.fillMaxHeight(0.7F),
             onDismissRequest = onDismissRequest,
             sheetState = sheetState,
             dragHandle = {
@@ -61,10 +63,9 @@ fun ReviewsBottomSheet(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(10.dp, 14.dp)
-                    .verticalScroll(rememberScrollState())
-                    .border(1.dp, Color.Black),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                    .padding(10.dp, 0.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 (1..100).forEach {
                     ReviewTile()
