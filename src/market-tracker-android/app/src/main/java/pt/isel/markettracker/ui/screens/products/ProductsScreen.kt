@@ -48,7 +48,7 @@ fun ProductsScreen(
                 searchQuery = searchQuery,
                 onQueryChange = productsScreenViewModel::onQueryChange,
                 onSearch = {
-                    productsScreenViewModel.fetchProducts()
+                    productsScreenViewModel.fetchProducts(true)
                 })
         }
     ) { paddingValues ->

@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.products.card
+package pt.isel.markettracker.ui.components.button
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -42,16 +42,7 @@ fun AddToListButton(onClick: () -> Unit) {
             Icon(
                 Icons.Filled.AddShoppingCart,
                 contentDescription = null,
-                tint = Color.Black,
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            Text(
-                text = "Adicionar",
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MarketTrackerTypography.bodyMedium,
-                color = Color.White,
-                fontWeight = FontWeight.Bold
+                tint = Color.White,
             )
         }
     }

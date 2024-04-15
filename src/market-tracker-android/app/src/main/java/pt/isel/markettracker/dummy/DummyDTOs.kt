@@ -13,11 +13,11 @@ val dummyProducts = listOf(
         "Laticínios",
         StorePriceData(
             1,
-            "Continente",
+            "Minipreço Online mas só de Lisboa",
             CompanyInfo(
                 1,
-                "Continente",
-                "https://www.kabaz.pt/stores/logo-continente.webp"
+                "Minipreço",
+                "https://www.kabaz.pt/stores/logo-minipreco.webp"
             ),
             489
         )

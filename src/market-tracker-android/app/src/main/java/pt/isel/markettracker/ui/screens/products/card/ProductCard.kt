@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.product.ProductInfo
 import pt.isel.markettracker.dummy.dummyProducts
 import pt.isel.markettracker.ui.components.LoadableImage
+import pt.isel.markettracker.ui.components.button.AddToListButton
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.ui.theme.Primary900
 import pt.isel.markettracker.utils.advanceShadow

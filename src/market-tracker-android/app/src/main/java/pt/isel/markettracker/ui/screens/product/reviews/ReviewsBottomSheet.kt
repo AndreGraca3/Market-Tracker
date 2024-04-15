@@ -1,6 +1,5 @@
-package pt.isel.markettracker.ui.screens.product.review
+package pt.isel.markettracker.ui.screens.product.reviews
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,19 +21,18 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewsBottomSheet(
-    showBottomSheet: Boolean,
+    showReviews: Boolean,
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    if (showBottomSheet) {
+    if (showReviews) {
         ModalBottomSheet(
             modifier = Modifier.fillMaxHeight(0.7F),
             onDismissRequest = onDismissRequest,

@@ -11,11 +11,11 @@ class ProductService(
     override val httpClient: OkHttpClient,
     override val gson: Gson
 ) : IProductService, MarketTrackerService() {
-    override suspend fun getProducts(query: String?): List<ProductInfo> {
+    override suspend fun getProducts(querySearch: String?): List<ProductInfo> {
         delay(1000)
         // if query is null, return all products
-        val fetchedProducts = if (query == null) dummyProducts
-        else dummyProducts.filter { it.name.contains(query, ignoreCase = true) }
+        val fetchedProducts = if (querySearch == null) dummyProducts
+        else dummyProducts.filter { it.name.contains(querySearch, ignoreCase = true) }
         return fetchedProducts.shuffled()
     }
 
