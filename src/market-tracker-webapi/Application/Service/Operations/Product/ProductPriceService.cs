@@ -16,9 +16,8 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
         int? minPrice = null;
         int? maxPrice = null;
 
-        var storesAvailability = await priceRepository.GetStoresAvailabilityByProductIdAsync(
-            productId,
-            DateTime.Now
+        var storesAvailability = await priceRepository.GetStoresAvailabilityAsync(
+            productId
         );
 
         var companyStoresDictionary = new Dictionary<int, List<StorePriceOutputModel>>();

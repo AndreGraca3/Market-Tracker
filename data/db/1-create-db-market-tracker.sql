@@ -2,7 +2,7 @@ create extension if not exists pg_trgm SCHEMA pg_catalog;
 drop table if exists post_comment;
 drop table if exists post;
 drop table if exists product_favourite;
-drop table if exists list_product;
+drop table if exists list_entry;
 drop table if exists list;
 drop table if exists token;
 drop table if exists product_review;
@@ -102,7 +102,7 @@ create table if not exists "user"
 (
     id         uuid primary key             default gen_random_uuid(),
     username   varchar(20) unique  not null,
-    name       varchar(20),
+    name       varchar(30),
     email      varchar(200) unique not null,
     password   varchar(30)         not null,
     created_at timestamp           not null default now()
@@ -181,22 +181,24 @@ create table if not exists list
 (
     id          int generated always as identity primary key,
     client_id   uuid references client (id) on delete cascade,
-    archived_at timestamp
+    name        varchar(30) NOT NULL,
+    archived_at timestamp,
+    created_at  timestamp not null default now()
 );
 
-create table if not exists list_product
+create table if not exists list_entry
 (
     list_id    int references list (id) on delete cascade,
     product_id varchar(18) references product (id) on delete cascade,
     store_id   int references store (id) on delete cascade,
     quantity   int not null,
-    primary key (list_id, product_id, store_id)
+    primary key (list_id, product_id)
 );
 
 create table if not exists post
 (
     id         int generated always as identity primary key,
-    title      varchar(20)  not null,
+    title      varchar(30)  not null,
     text       varchar(255) not null,
     created_at timestamp    not null default now(),
     client_id  uuid references client (id) on delete cascade,

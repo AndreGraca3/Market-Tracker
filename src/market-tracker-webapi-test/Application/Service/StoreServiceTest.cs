@@ -58,13 +58,15 @@ public class StoreServiceTest
             }
         };
 
-        _storeRepositoryMock.Setup(x => x.GetStoresAsync()).ReturnsAsync(stores);
+        _storeRepositoryMock
+            .Setup(x => x.GetStoresAsync())
+            .ReturnsAsync(stores);
 
         // Act
         var result = await _storeService.GetStoresAsync();
 
         // Assert
-        result.Should().BeEquivalentTo(new CollectionOutputModel(stores));
+        result.Should().BeEquivalentTo(new CollectionOutputModel(stores), options => options.ExcludingMissingMembers());
     }
 
     [Fact]

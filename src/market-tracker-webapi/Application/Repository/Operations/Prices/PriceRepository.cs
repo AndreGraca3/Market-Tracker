@@ -48,27 +48,49 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         return cheapestStore;
     }
 
-    public async Task<IEnumerable<StoreAvailability>> GetStoresAvailabilityByProductIdAsync(
-        string productId,
-        DateTime date
-    )
+    public async Task<IEnumerable<StoreAvailability>> GetStoresAvailabilityAsync(string productId)
     {
-        return await dataContext
-            .ProductAvailability.Where(availability => availability.ProductId == productId)
+        var query = dataContext.ProductAvailability.AsQueryable();
+
+        return await query
+            .Where(availability => availability.ProductId == productId)
             .Join(
                 dataContext.Company,
                 availability => availability.StoreId,
                 company => company.Id,
                 (availability, company) => new { availability, company }
             )
-            .Select(query => new StoreAvailability(
-                query.availability.StoreId,
-                query.availability.ProductId,
-                query.company.Id,
-                query.availability.IsAvailable,
-                query.availability.LastChecked
+            .Select(availabilityTuple => new StoreAvailability(
+                availabilityTuple.availability.StoreId,
+                availabilityTuple.availability.ProductId,
+                availabilityTuple.company.Id,
+                availabilityTuple.availability.IsAvailable,
+                availabilityTuple.availability.LastChecked
             ))
             .ToListAsync();
+    }
+    
+    public async Task<StoreAvailability?> GetStoreAvailabilityAsync(string productId, int storeId)
+    {
+        var queryRes = await (
+            from availability in dataContext.ProductAvailability
+            where availability.ProductId == productId && availability.StoreId == storeId
+            join company in dataContext.Company on storeId equals company.Id
+            select new { availability, company }
+        ).FirstOrDefaultAsync();
+
+        if (queryRes is null)
+        {
+            return null;
+        }
+
+        return new StoreAvailability(
+            queryRes.availability.StoreId,
+            queryRes.availability.ProductId,
+            queryRes.company.Id,
+            queryRes.availability.IsAvailable,
+            queryRes.availability.LastChecked
+        );
     }
 
     public async Task<StorePrice> GetStorePriceByProductIdAsync(
