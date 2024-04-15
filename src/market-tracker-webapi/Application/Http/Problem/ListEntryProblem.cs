@@ -18,13 +18,22 @@ public class ListEntryProblem(
             $"This product is not present in given list",
             data
         );
-    
+
     public class ListEntryQuantityInvalid(ListEntryCreationError.ListEntryQuantityInvalid data)
         : ListEntryProblem(
             400,
             "list-entry-quantity-invalid",
             "List entry quantity invalid",
-            $"Invalid quantity",
+            "Invalid quantity",
+            data
+        );
+
+    public class ProductAlreadyInList(ListEntryCreationError.ProductAlreadyInList data)
+        : ListEntryProblem(
+            409,
+            "product-already-in-list",
+            "Product already in list",
+            "This product is already in this list",
             data
         );
 }

@@ -7,8 +7,6 @@ namespace market_tracker_webapi.Application.Repository.Operations.List;
 
 public class ListRepository(MarketTrackerDataContext context) : IListRepository
 {
-    private const double SimilarityThreshold = 0.3;
-
     public async Task<IEnumerable<ListOfProducts>> GetListsAsync(
         Guid clientId,
         string? listName = null,

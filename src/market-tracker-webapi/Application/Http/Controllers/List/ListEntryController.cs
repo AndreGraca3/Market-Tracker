@@ -18,7 +18,7 @@ public class ListEntryController(
 {
     [HttpPost(Uris.Lists.ListProductsByListId)]
     public async Task<ActionResult<IntIdOutputModel>> AddListEntryAsync(
-        int listId, 
+        int listId,
         [Required] Guid clientId,
         [FromBody] CreationListEntryInputModel inputModel)
     {
@@ -44,10 +44,14 @@ public class ListEntryController(
                         => new StoreProblem.StoreByIdNotFound(storeNotFoundError).ToActionResult(),
                     ListEntryCreationError.ListEntryQuantityInvalid quantityInvalidError
                         => new ListEntryProblem.ListEntryQuantityInvalid(quantityInvalidError).ToActionResult(),
+                    ListFetchingError.UserDoesNotOwnList userDoesNotOwnListError
+                        => new ListProblem.UserDoesNotOwnList(userDoesNotOwnListError).ToActionResult(),
+                    ListEntryCreationError.ProductAlreadyInList productAlreadyInListError
+                        => new ListEntryProblem.ProductAlreadyInList(productAlreadyInListError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
-            (outputModel) => Created(Uris.Lists.BuildListByIdUri(outputModel.Id), res)
+            (outputModel) => Created(Uris.Lists.BuildListByIdUri(outputModel.Id), outputModel)
         );
     }
 
@@ -78,6 +82,8 @@ public class ListEntryController(
                         => new ProductProblem.ProductByIdNotFound(productNotFoundError).ToActionResult(),
                     StoreFetchingError.StoreByIdNotFound storeNotFoundError
                         => new StoreProblem.StoreByIdNotFound(storeNotFoundError).ToActionResult(),
+                    ListFetchingError.UserDoesNotOwnList userDoesNotOwnListError
+                        => new ListProblem.UserDoesNotOwnList(userDoesNotOwnListError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
@@ -100,6 +106,8 @@ public class ListEntryController(
                 {
                     ListEntryFetchingError.ListEntryByIdNotFound idNotFoundError
                         => new ListEntryProblem.ListEntryByIdNotFound(idNotFoundError).ToActionResult(),
+                    ListFetchingError.UserDoesNotOwnList userDoesNotOwnListError
+                        => new ListProblem.UserDoesNotOwnList(userDoesNotOwnListError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },

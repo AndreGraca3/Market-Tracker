@@ -4,7 +4,7 @@ namespace market_tracker_webapi.Application.Repository.Operations.List;
 
 public interface IListEntryRepository
 {
-    Task<IEnumerable<ListEntry>> GetListEntriesAsync(int? listId = null, string? productId = null, int? storeId = null, int? quantity = null);
+    Task<IEnumerable<ListEntry>> GetListEntriesAsync(int listId, int? storeId = null);
     
     Task<ListEntry?> GetListEntryAsync(int listId, string productId);
     

@@ -63,6 +63,8 @@ public class ListController(
                         => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult(),
                     ListCreationError.ListNameAlreadyExists nameAlreadyExistsError
                         => new ListProblem.ListNameAlreadyExists(nameAlreadyExistsError).ToActionResult(),
+                    ListFetchingError.UserDoesNotOwnList userDoNotOwnListError
+                        => new ListProblem.UserDoesNotOwnList(userDoNotOwnListError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
@@ -108,6 +110,8 @@ public class ListController(
                 {
                     ListFetchingError.ListByIdNotFound idNotFoundError
                         => new ListProblem.ListByIdNotFound(idNotFoundError).ToActionResult(),
+                    ListFetchingError.UserDoesNotOwnList userDoNotOwnListError
+                        => new ListProblem.UserDoesNotOwnList(userDoNotOwnListError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
