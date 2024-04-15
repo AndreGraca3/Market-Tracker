@@ -4,9 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.ShoppingBasket
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +22,7 @@ fun ProductMetricsBox(favourites: Int, ratings: Int, lists: Int) {
     ) {
         ProductMetric(imageVector = Icons.Default.Favorite, metric = favourites)
 
-        ProductMetric(imageVector = Icons.Default.BarChart, metric = ratings)
+        ProductMetric(imageVector = Icons.Default.Star, metric = ratings)
 
         ProductMetric(imageVector = Icons.Default.ShoppingBasket, metric = lists)
     }

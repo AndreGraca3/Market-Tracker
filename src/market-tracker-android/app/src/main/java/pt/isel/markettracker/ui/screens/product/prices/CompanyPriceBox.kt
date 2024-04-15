@@ -1,28 +1,35 @@
 package pt.isel.markettracker.ui.screens.product.prices
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material3.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults.rememberPlainTooltipPositionProvider
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.dummy.dummyProducts
+import kotlinx.coroutines.launch
 import pt.isel.markettracker.ui.components.button.AddToListButton
 import pt.isel.markettracker.ui.screens.products.card.PriceLabel
-import pt.isel.markettracker.ui.theme.Grey
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RowScope.CompanyPriceBox(price: Int) {
+    val positionProvider = rememberPlainTooltipPositionProvider()
+    val tooltipState = rememberTooltipState()
+    val scope = rememberCoroutineScope()
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -33,20 +40,27 @@ fun RowScope.CompanyPriceBox(price: Int) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            PriceLabel(price)
-            Icon(
-                imageVector = Icons.Default.Error,
-                contentDescription = "Price last checked",
-                modifier = Modifier
-                    .pointerInput(Unit) {
+            TooltipBox(
+                positionProvider = positionProvider,
+                tooltip = {
+                    Text("há 2 horas")
+                },
+                state = tooltipState
+            ) {
+                Box(
+                    modifier = Modifier.pointerInput(Unit) {
                         detectTapGestures(
                             onLongPress = {
-                                Log.v("CompanyPriceBox", "Price last checked clicked")
+                                scope.launch {
+                                    tooltipState.show()
+                                }
                             }
                         )
                     }
-                    .background(Grey, shape = CircleShape)
-            )
+                ) {
+                    PriceLabel(price)
+                }
+            }
         }
         AddToListButton(onClick = {})
     }

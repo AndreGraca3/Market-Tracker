@@ -74,7 +74,7 @@ fun ReviewTile() {
                 }
             }
             Text(
-                text = "Review - Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                text = "Muito bom, com um copo de vinho e um pão da minha mulher é uma maravilha!",
                 style = MarketTrackerTypography.bodyMedium
             )
         }
