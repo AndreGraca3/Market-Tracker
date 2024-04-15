@@ -9,9 +9,9 @@ namespace market_tracker_webapi.Application.Service.Operations.List;
 
 public interface IListEntryService
 {
-    Task<Either<IServiceError, IntIdOutputModel>> AddListEntryAsync(int listId, string productId, int storeId, int quantity);
+    Task<Either<IServiceError, IntIdOutputModel>> AddListEntryAsync(int listId, Guid clientId, string productId, int storeId, int quantity);
     
-    Task<Either<IServiceError, ListEntry>> UpdateListEntryAsync(int listId, string productId, int? storeId, int? quantity);
+    Task<Either<IServiceError, ListEntry>> UpdateListEntryAsync(int listId, Guid clientId, string productId, int? storeId, int? quantity);
     
-    Task<Either<ListEntryFetchingError, ListEntry>> DeleteListEntryAsync(int listId, string productId);
+    Task<Either<IServiceError, ListEntry>> DeleteListEntryAsync(int listId, Guid clientId, string productId);
 }

@@ -15,13 +15,13 @@ public interface IListService
         DateTime? createdAfter, bool? isArchived
     );
 
-    Task<Either<ListFetchingError, ListProduct>> GetListByIdAsync(int id);
+    Task<Either<ListFetchingError, ListProduct>> GetListByIdAsync(int id, Guid clientId);
 
     Task<Either<IServiceError, IntIdOutputModel>> AddListAsync(Guid clientId, string listName);
 
     Task<Either<IServiceError, ListOfProducts>> UpdateListAsync(int id, Guid clientId, string? listName,
-        DateTime? archivedAt
+        bool? isArchived
     );
 
-    Task<Either<ListFetchingError, ListOfProducts>> DeleteListAsync(int id);
+    Task<Either<ListFetchingError, ListOfProducts>> DeleteListAsync(int id, Guid clientId);
 }

@@ -67,7 +67,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         return listEntity.Id;
     }
 
-    public async Task<ListOfProducts?> UpdateListAsync(int id, string? listName = null, DateTime? archivedAt = null)
+    public async Task<ListOfProducts?> UpdateListAsync(int id, DateTime? archivedAt, string? listName = null)
     {
         var listEntity = await context.List.FindAsync(id);
 

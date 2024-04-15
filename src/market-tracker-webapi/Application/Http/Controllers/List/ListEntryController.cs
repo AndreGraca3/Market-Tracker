@@ -1,8 +1,8 @@
-﻿using market_tracker_webapi.Application.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.ListEntry;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Repository.Dto.List;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.ListEntry;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -17,10 +17,12 @@ public class ListEntryController(
 ) : ControllerBase
 {
     [HttpPost(Uris.Lists.ListProductsByListId)]
-    public async Task<ActionResult<IntIdOutputModel>> AddListEntryAsync(int listId,
-        CreationListEntryInputModel inputModel)
+    public async Task<ActionResult<IntIdOutputModel>> AddListEntryAsync(
+        int listId, 
+        [Required] Guid clientId,
+        [FromBody] CreationListEntryInputModel inputModel)
     {
-        var res = await listEntryService.AddListEntryAsync(listId, inputModel.ProductId, inputModel.StoreId,
+        var res = await listEntryService.AddListEntryAsync(listId, clientId, inputModel.ProductId, inputModel.StoreId,
             inputModel.Quantity
         );
 
@@ -52,10 +54,11 @@ public class ListEntryController(
     [HttpPatch(Uris.Lists.ListEntriesByListIdAndProductId)]
     public async Task<ActionResult<ListEntry>> UpdateListEntryAsync(
         int listId,
+        [Required] Guid clientId,
         string productId,
         [FromBody] UpdateListEntryInputModel inputModel)
     {
-        var res = await listEntryService.UpdateListEntryAsync(listId, productId, inputModel.StoreId,
+        var res = await listEntryService.UpdateListEntryAsync(listId, clientId, productId, inputModel.StoreId,
             inputModel.Quantity
         );
 
@@ -84,9 +87,10 @@ public class ListEntryController(
     [HttpDelete(Uris.Lists.ListEntriesByListIdAndProductId)]
     public async Task<ActionResult<ListEntry>> DeleteListEntryAsync(
         int listId,
+        [Required] Guid clientId,
         string productId)
     {
-        var res = await listEntryService.DeleteListEntryAsync(listId, productId);
+        var res = await listEntryService.DeleteListEntryAsync(listId, clientId, productId);
 
         return ResultHandler.Handle(
             res,

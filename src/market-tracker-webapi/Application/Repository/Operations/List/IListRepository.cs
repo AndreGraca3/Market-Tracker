@@ -12,7 +12,7 @@ public interface IListRepository
 
     Task<int> AddListAsync(Guid clientId, string listName);
 
-    Task<ListOfProducts?> UpdateListAsync(int id, string? listName = null, DateTime? archivedAt = null);
+    Task<ListOfProducts?> UpdateListAsync(int id, DateTime? archivedAt, string? listName = null);
 
     Task<ListOfProducts?> DeleteListAsync(int id);
 }

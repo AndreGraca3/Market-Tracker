@@ -33,7 +33,7 @@ public class ListService(
         });
     }
 
-    public async Task<Either<ListFetchingError, ListProduct>> GetListByIdAsync(int id)
+    public async Task<Either<ListFetchingError, ListProduct>> GetListByIdAsync(int id, Guid clientId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
@@ -41,6 +41,13 @@ public class ListService(
             if (list is null)
                 return EitherExtensions.Failure<ListFetchingError, ListProduct>(
                     new ListFetchingError.ListByIdNotFound(id));
+
+            if (list.ClientId != clientId)
+            {
+                return EitherExtensions.Failure<ListFetchingError, ListProduct>(
+                    new ListFetchingError.UserDoesNotOwnList(clientId, id)
+                );
+            }
 
             var listEntries = await listEntryRepository.GetListEntriesAsync(id);
 
@@ -68,7 +75,7 @@ public class ListService(
     }
 
     public async Task<Either<IServiceError, ListOfProducts>> UpdateListAsync(int id, Guid clientId, string? listName,
-        DateTime? archivedAt
+        bool? isArchived
     )
     {
         return await transactionManager.ExecuteAsync(async () =>
@@ -77,23 +84,30 @@ public class ListService(
             if (list is null)
                 return EitherExtensions.Failure<IServiceError, ListOfProducts>(
                     new ListFetchingError.ListByIdNotFound(id));
-
+            
             if (list.ClientId != clientId)
                 return EitherExtensions.Failure<IServiceError, ListOfProducts>(
                     new ListFetchingError.UserDoesNotOwnList(clientId, id)
                 );
-
+                
             if (list.ArchivedAt != null)
                 return EitherExtensions.Failure<IServiceError, ListOfProducts>(
                     new ListUpdateError.ListIsArchived(id)
                 );
 
-            var updatedList = await listRepository.UpdateListAsync(id, listName, archivedAt);
+            if (listName is not null && !(await listRepository.GetListsAsync(clientId, listName)).IsNullOrEmpty())
+                return EitherExtensions.Failure<IServiceError, ListOfProducts>(
+                    new ListCreationError.ListNameAlreadyExists(clientId, listName)
+                );
+
+            DateTime? archivedAt = isArchived.HasValue && isArchived.Value ? DateTime.Now : null;
+            
+            var updatedList = await listRepository.UpdateListAsync(id, archivedAt, listName);
             return EitherExtensions.Success<IServiceError, ListOfProducts>(updatedList!);
         });
     }
 
-    public async Task<Either<ListFetchingError, ListOfProducts>> DeleteListAsync(int id)
+    public async Task<Either<ListFetchingError, ListOfProducts>> DeleteListAsync(int id, Guid clientId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
@@ -101,6 +115,13 @@ public class ListService(
             if (list is null)
                 return EitherExtensions.Failure<ListFetchingError, ListOfProducts>(
                     new ListFetchingError.ListByIdNotFound(id));
+
+            if (list.ClientId != clientId)
+            {
+                return EitherExtensions.Failure<ListFetchingError, ListOfProducts>(
+                    new ListFetchingError.UserDoesNotOwnList(clientId, id)
+                );
+            }
 
             var deletedList = await listRepository.DeleteListAsync(id);
             return EitherExtensions.Success<ListFetchingError, ListOfProducts>(deletedList!);

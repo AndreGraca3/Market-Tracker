@@ -160,7 +160,7 @@ public class ListControllerTest
         var result = await listController.UpdateListAsync(1, Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a10"), new UpdateListInputModel()
         {
             ListName = "List 1",
-            ArchivedAt = null
+            IsArchived = null
         });
         
         // Assert

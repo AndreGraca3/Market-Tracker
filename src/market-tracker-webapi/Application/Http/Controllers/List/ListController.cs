@@ -31,9 +31,9 @@ public class ListController(
     }
 
     [HttpGet(Uris.Lists.ListById)]
-    public async Task<ActionResult<ListProduct>> GetListByIdAsync(int listId)
+    public async Task<ActionResult<ListProduct>> GetListByIdAsync(int listId, [Required] Guid clientId)
     {
-        var res = await listService.GetListByIdAsync(listId);
+        var res = await listService.GetListByIdAsync(listId, clientId);
         return ResultHandler.Handle(
             res,
             error =>
@@ -49,7 +49,8 @@ public class ListController(
     }
 
     [HttpPost(Uris.Lists.Base)]
-    public async Task<ActionResult<IntIdOutputModel>> AddListAsync(CreationListInputModel inputModel)
+    public async Task<ActionResult<IntIdOutputModel>> AddListAsync(
+        [FromBody] CreationListInputModel inputModel)
     {
         var res = await listService.AddListAsync(inputModel.ClientId, inputModel.ListName);
         return ResultHandler.Handle(
@@ -76,7 +77,7 @@ public class ListController(
         [FromBody] UpdateListInputModel inputModel
     )
     {
-        var res = await listService.UpdateListAsync(listId, clientId, inputModel.ListName, inputModel.ArchivedAt);
+        var res = await listService.UpdateListAsync(listId, clientId, inputModel.ListName, inputModel.IsArchived);
         return ResultHandler.Handle(
             res,
             error =>
@@ -96,9 +97,9 @@ public class ListController(
     }
 
     [HttpDelete(Uris.Lists.ListById)]
-    public async Task<ActionResult<ListOfProducts>> DeleteListAsync(int listId)
+    public async Task<ActionResult<ListOfProducts>> DeleteListAsync(int listId, [Required] Guid clientId)
     {
-        var res = await listService.DeleteListAsync(listId);
+        var res = await listService.DeleteListAsync(listId, clientId);
         return ResultHandler.Handle(
             res,
             error =>
