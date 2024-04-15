@@ -13,7 +13,7 @@ class LoginActivity : ComponentActivity() {
 
     private val vm by viewModels<LoginScreenViewModel> {
         val app = application as MarketTrackerDependencyProvider
-        LoginScreenViewModel.factory()
+        LoginScreenViewModel.factory(app.tokenService, app.preferencesRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -7,6 +7,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
+import pt.isel.markettracker.domain.infrastruture.PreferencesDataStore
+import pt.isel.markettracker.http.service.operations.token.ITokenService
+import pt.isel.markettracker.http.service.operations.token.TokenService
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.operations.user.UserService
 import java.util.concurrent.TimeUnit
@@ -27,10 +30,8 @@ class MarketTrackerApplication : Application(), MarketTrackerDependencyProvider 
 
     private val dataStore: DataStore<Preferences> by preferencesDataStore(MT_DATASTORE)
 
-    /*
     override val preferencesRepository: PreferencesDataStore
         get() = PreferencesDataStore(dataStore)
-    */
 
     /**
      * The HTTP client used to perform HTTP requests
@@ -47,4 +48,7 @@ class MarketTrackerApplication : Application(), MarketTrackerDependencyProvider 
 
     override val userService: IUserService
         get() = UserService(httpClient, gson)
+
+    override val tokenService: ITokenService
+        get() = TokenService(httpClient, gson)
 }

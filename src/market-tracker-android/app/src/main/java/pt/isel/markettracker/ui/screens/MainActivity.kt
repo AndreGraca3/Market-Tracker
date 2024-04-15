@@ -6,8 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import pt.isel.markettracker.MarketTrackerDependencyProvider
-import pt.isel.markettracker.ui.screens.login.LoginActivity
+import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
+import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
+import pt.isel.markettracker.ui.screens.signup.SignUpActivity
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.utils.NavigateAux
 
@@ -15,12 +17,22 @@ class MainActivity : ComponentActivity() {
 
     private val mainScreenViewModel by viewModels<MainScreenViewModel> {
         val app = (application as MarketTrackerDependencyProvider)
-        MainScreenViewModel.factory()
+        MainScreenViewModel.factory(app.preferencesRepository)
     }
 
     private val productsScreenViewModel by viewModels<ProductsScreenViewModel> {
-        val app = (application as MarketTrackerDependencyProvider)
+        (application as MarketTrackerDependencyProvider)
         ProductsScreenViewModel.factory()
+    }
+
+    private val loginScreenViewModel by viewModels<LoginScreenViewModel> {
+        val app = (application as MarketTrackerDependencyProvider)
+        LoginScreenViewModel.factory(app.tokenService, app.preferencesRepository)
+    }
+
+    private val profileScreenViewModel by viewModels<ProfileScreenViewModel> {
+        val app = (application as MarketTrackerDependencyProvider)
+        ProfileScreenViewModel.factory()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,8 +47,10 @@ class MainActivity : ComponentActivity() {
                 MainScreen(
                     mainScreenViewModel = mainScreenViewModel,
                     productsScreenViewModel = productsScreenViewModel,
-                    onProfileRequest = {
-                        NavigateAux.navigateTo<LoginActivity>(this)
+                    loginScreenViewModel = loginScreenViewModel,
+                    profileScreenViewModel = profileScreenViewModel,
+                    onCreateAccountRequested = {
+                        NavigateAux.navigateTo<SignUpActivity>(this)
                     }
                 )
             }

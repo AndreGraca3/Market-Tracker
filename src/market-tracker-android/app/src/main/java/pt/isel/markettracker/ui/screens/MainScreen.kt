@@ -12,23 +12,32 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import pt.isel.markettracker.domain.Loaded
+import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.navigation.Destination
-import pt.isel.markettracker.navigation.ToDestination
 import pt.isel.markettracker.navigation.NavBar
+import pt.isel.markettracker.navigation.ToDestination
 import pt.isel.markettracker.ui.screens.list.ListScreen
+import pt.isel.markettracker.ui.screens.login.LoginScreen
+import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.products.ProductsScreen
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreen
+import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 import pt.isel.markettracker.ui.theme.Grey
 
 @Composable
 fun MainScreen(
     mainScreenViewModel: MainScreenViewModel,
     productsScreenViewModel: ProductsScreenViewModel,
-    onProfileRequest: () -> Unit
+    loginScreenViewModel: LoginScreenViewModel,
+    profileScreenViewModel: ProfileScreenViewModel,
+    onCreateAccountRequested: () -> Unit
 ) {
     val navController = rememberNavController()
     val currentScreen by mainScreenViewModel.currentScreen.collectAsState(initial = Destination.HOME)
+
+    val loginState by loginScreenViewModel.loginPhase.collectAsState(initial = idle())
 
     Scaffold(
         containerColor = Grey,
@@ -60,9 +69,26 @@ fun MainScreen(
             }
 
             composable(Destination.PROFILE.route) {
-               ProfileScreen(
-                   onNavigateRequest = onProfileRequest
-               )
+                // if logged show profile screen
+                if (loginState is Loaded) {
+                    ProfileScreen(
+                        user = profileScreenViewModel.user
+                    )
+                } else {
+                    LoginScreen(
+                        email = loginScreenViewModel.email,
+                        password = loginScreenViewModel.password,
+                        onEmailChange = { loginScreenViewModel.email = it },
+                        onPasswordChange = { loginScreenViewModel.password = it },
+                        onLoginRequested = {
+                            loginScreenViewModel.login()
+                        },
+                        onGoogleSignUpRequested = {
+
+                        },
+                        onCreateAccountRequested = onCreateAccountRequested
+                    )
+                }
             }
         }
     }
