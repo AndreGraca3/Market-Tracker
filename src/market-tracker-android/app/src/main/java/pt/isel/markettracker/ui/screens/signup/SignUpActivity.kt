@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import pt.isel.markettracker.MarketTrackerDependencyProvider
+import pt.isel.markettracker.utils.NavigateAux
 
 class SignUpActivity : ComponentActivity() {
 
@@ -25,7 +26,10 @@ class SignUpActivity : ComponentActivity() {
                 onUsernameChange = { vm.username = it },
                 onEmailChange = { vm.email = it },
                 onPasswordChange = { vm.password = it },
-                onCreateAccountRequested = {},
+                onCreateAccountRequested = {
+                    vm.createUser()
+                    finish()
+                },
                 onBackRequested = { finish() }
             )
         }

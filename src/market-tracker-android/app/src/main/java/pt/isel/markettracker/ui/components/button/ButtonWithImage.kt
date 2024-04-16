@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.login
+package pt.isel.markettracker.ui.components.button
 
 import android.content.Context
 import android.util.Log

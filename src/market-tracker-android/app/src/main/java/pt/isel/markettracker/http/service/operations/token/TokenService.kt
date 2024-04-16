@@ -14,7 +14,7 @@ class TokenService(
 ) : ITokenService, MarketTrackerService() {
 
     companion object {
-        private val TOKEN_REQUEST_URL = URL("/tokens")
+        private val TOKEN_REQUEST_URL = URL("${MT_API_URL}/tokens")
     }
 
     override suspend fun createToken(input: TokenCreationInputModel) {

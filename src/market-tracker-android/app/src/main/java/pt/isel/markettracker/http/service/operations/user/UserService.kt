@@ -17,8 +17,8 @@ class UserService(
 ) : IUserService, MarketTrackerService() {
 
     companion object {
-        private val USERS_REQUEST_URL = URL("/users/all")
-        private val USER_REQUEST_URL = URL("/users")
+        private val USERS_REQUEST_URL = URL("${MT_API_URL}/users/all")
+        private val USER_REQUEST_URL = URL("${MT_API_URL}/users")
     }
 
     override suspend fun getUsers(): UsersOutputModel {
@@ -40,13 +40,14 @@ class UserService(
     }
 
     override suspend fun createUser(input: UserCreationInputModel): IdOutputModel {
-        return requestHandler<IdOutputModel>(
+        /*return requestHandler<IdOutputModel>(
             request = Request.Builder().buildRequest(
                 url = USER_REQUEST_URL,
                 input = input,
                 method = HttpMethod.POST
             )
-        )
+        )*/
+        return IdOutputModel(1)
     }
 
     override suspend fun updateUser(input: UserUpdateInputModel): UserOutputModel {

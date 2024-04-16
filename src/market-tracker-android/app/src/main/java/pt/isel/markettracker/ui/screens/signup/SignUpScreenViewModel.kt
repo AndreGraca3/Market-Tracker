@@ -1,5 +1,6 @@
 package pt.isel.markettracker.ui.screens.signup
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,9 +17,8 @@ import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.domain.loaded
 import pt.isel.markettracker.domain.loading
 import pt.isel.markettracker.http.models.IdOutputModel
-import pt.isel.markettracker.http.models.UserCreationInputModel
+import pt.isel.markettracker.http.models.user.UserCreationInputModel
 import pt.isel.markettracker.http.service.operations.user.IUserService
-import pt.isel.markettracker.http.service.operations.user.UserService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 
 class SignUpScreenViewModel(
@@ -44,7 +44,7 @@ class SignUpScreenViewModel(
     fun createUser() {
         signUpPhaseFlow.value = loading()
         viewModelScope.launch {
-            val result = runCatchingAPIFailure {
+            val result = runCatching {
                 userService.createUser(
                     UserCreationInputModel(
                         name,
@@ -54,8 +54,10 @@ class SignUpScreenViewModel(
                     )
                 )
             }
-            // signUpPhaseFlow.value = loaded(result)
-            TODO("Finish this implementation :)")
+            signUpPhaseFlow.value = when (result.isSuccess) {
+                true -> loaded(result)
+                false -> TODO("Not yet defined!")
+            }
         }
     }
 }

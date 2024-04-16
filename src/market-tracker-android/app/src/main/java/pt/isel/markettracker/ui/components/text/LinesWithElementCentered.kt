@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.login
+package pt.isel.markettracker.ui.components.text
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

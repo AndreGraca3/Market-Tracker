@@ -16,8 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.markettracker.R
+import pt.isel.markettracker.ui.components.button.ButtonWithImage
+import pt.isel.markettracker.ui.components.text.LinesWithElementCentered
 import pt.isel.markettracker.ui.components.text.MarketTrackerTextField
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.ui.theme.mainFont
@@ -48,6 +52,13 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
+                Text(
+                    text = "Login",
+                    fontFamily = mainFont,
+                    color = Color.Red,
+                    fontSize = 24.sp
+                )
+
                 MarketTrackerTextField(
                     value = email,
                     onValueChange = onEmailChange,
@@ -68,7 +79,7 @@ fun LoginScreen(
                     onValueChange = onPasswordChange,
                     leadingIcon = {
                         Icon(
-                            Icons.Default.Password,
+                            imageVector = Icons.Default.Password,
                             contentDescription = "password"
                         )
                     },

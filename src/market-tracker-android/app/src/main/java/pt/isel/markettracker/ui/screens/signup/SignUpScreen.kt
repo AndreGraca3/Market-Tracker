@@ -4,14 +4,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import pt.isel.markettracker.ui.components.text.MarketTrackerTextField
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.ui.theme.mainFont
@@ -46,11 +54,22 @@ fun SignUpScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
+
+                Text(
+                    text = "Registo",
+                    fontFamily = mainFont,
+                    color = Color.Red,
+                    fontSize = 24.sp
+                )
+
                 MarketTrackerTextField(
                     value = name,
                     onValueChange = onNameChange,
                     leadingIcon = {
-                        Text(text = "👤")
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "name"
+                        )
                     },
                     placeholder = { Text(text = "Name", fontFamily = mainFont) },
                     modifier = Modifier.testTag(SignUpNameInputTag)
@@ -60,7 +79,10 @@ fun SignUpScreen(
                     value = username,
                     onValueChange = onUsernameChange,
                     leadingIcon = {
-                        Text(text = "👥")
+                        Icon(
+                            imageVector = Icons.Default.People,
+                            contentDescription = "username"
+                        )
                     },
                     placeholder = { Text(text = "Username", fontFamily = mainFont) },
                     modifier = Modifier.testTag(SignUpUsernameInputTag)
@@ -70,7 +92,10 @@ fun SignUpScreen(
                     value = email,
                     onValueChange = onEmailChange,
                     leadingIcon = {
-                        Text(text = "📧")
+                        Icon(
+                            imageVector = Icons.Default.Email,
+                            contentDescription = "email"
+                        )
                     },
                     placeholder = { Text(text = "Email", fontFamily = mainFont) },
                     modifier = Modifier.testTag(SignUpEmailInputTag)
@@ -80,7 +105,10 @@ fun SignUpScreen(
                     value = password,
                     onValueChange = onPasswordChange,
                     leadingIcon = {
-                        Text(text = "🔑")
+                        Icon(
+                            imageVector = Icons.Default.Password,
+                            contentDescription = "password"
+                        )
                     },
                     placeholder = { Text(text = "Password", fontFamily = mainFont) },
                     isPassword = true,

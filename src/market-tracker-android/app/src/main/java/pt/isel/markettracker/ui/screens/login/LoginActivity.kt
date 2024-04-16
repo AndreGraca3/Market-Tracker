@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.rememberCoroutineScope
 import pt.isel.markettracker.MarketTrackerDependencyProvider
+import pt.isel.markettracker.ui.components.button.Auth
 import pt.isel.markettracker.ui.screens.signup.SignUpActivity
 import pt.isel.markettracker.utils.NavigateAux
 
