@@ -1,14 +1,17 @@
 package pt.isel.markettracker.ui.screens
 
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -17,6 +20,7 @@ import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.navigation.Destination
 import pt.isel.markettracker.navigation.NavBar
 import pt.isel.markettracker.navigation.ToDestination
+import pt.isel.markettracker.navigation.toDestination
 import pt.isel.markettracker.ui.screens.list.ListScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
@@ -28,40 +32,42 @@ import pt.isel.markettracker.ui.theme.Grey
 
 @Composable
 fun MainScreen(
-    mainScreenViewModel: MainScreenViewModel,
-    productsScreenViewModel: ProductsScreenViewModel,
-    loginScreenViewModel: LoginScreenViewModel,
-    profileScreenViewModel: ProfileScreenViewModel,
-    onCreateAccountRequested: () -> Unit
+    onProductClick: (String) -> Unit,
+    productsScreenViewModel: ProductsScreenViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
-    val currentScreen by mainScreenViewModel.currentScreen.collectAsState(initial = Destination.HOME)
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     val loginState by loginScreenViewModel.loginPhase.collectAsState(initial = idle())
 
     Scaffold(
-        containerColor = Grey,
+        contentColor = Color.Black,
         bottomBar = {
             NavBar(
                 Destination.entries,
-                Destination.entries.indexOf(currentScreen),
+                selectedIndex = selectedIndex,
                 onItemClick = { route ->
-                    mainScreenViewModel.navigateTo(route.ToDestination())
-                    navController.navigate(
-                        route,
-                    )
-                })
+                    selectedIndex = route.toDestination().ordinal
+                    navController.navigate(route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
         }
-    ) {
+    ) { paddingValues ->
         NavHost(
             navController = navController,
             startDestination = Destination.HOME.route,
-            enterTransition = { fadeIn(tween(400)) },
-            exitTransition = { fadeOut(tween(200)) },
-            modifier = Modifier.padding(it)
+            modifier = Modifier.padding(paddingValues),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) {
             composable(Destination.HOME.route) {
-                ProductsScreen(productsScreenViewModel)
+                ProductsScreen(onProductClick, productsScreenViewModel)
             }
 
             composable(Destination.LIST.route) {

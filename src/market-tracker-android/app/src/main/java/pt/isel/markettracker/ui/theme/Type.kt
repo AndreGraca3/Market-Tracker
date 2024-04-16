@@ -16,29 +16,101 @@ val mainFont = FontFamily(
 )
 
 // Set of Material typography styles to start with
-val Typography = Typography(
+val MarketTrackerTypography = Typography(
     bodyLarge = TextStyle(
         fontFamily = mainFont,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         color = Color.Black,
-        lineHeight = 24.sp,
+        lineHeight = 26.sp,
         letterSpacing = 0.5.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = mainFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 18.sp,
+        color = Color.Black,
+        lineHeight = 20.sp,
+        letterSpacing = 0.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = mainFont,
+        fontWeight = FontWeight.Light,
+        fontSize = 10.sp,
+        color = Color.Black,
+        lineHeight = 14.sp,
+        letterSpacing = 0.sp
     ),
     titleLarge = TextStyle(
         fontFamily = mainFont,
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
+        fontSize = 28.sp,
         color = Color.Black,
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
+    titleMedium = TextStyle(
+        fontFamily = mainFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        color = Color.Black,
+        lineHeight = 24.sp,
+        letterSpacing = 0.sp
+    ),
+    titleSmall = TextStyle(
+        fontFamily = mainFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 10.sp,
+        color = Color.Black,
+        lineHeight = 20.sp,
+        letterSpacing = 0.sp
+    ),
     labelSmall = TextStyle(
         fontFamily = mainFont,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
+        fontWeight = FontWeight.Light,
+        fontSize = 10.sp,
         color = Color.Black,
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = mainFont,
+        fontWeight = FontWeight.Light,
+        fontSize = 12.sp,
+        color = Color.Black,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = mainFont,
+        fontWeight = FontWeight.Light,
+        fontSize = 16.sp,
+        color = Color.Black,
+        lineHeight = 20.sp,
+        letterSpacing = 0.5.sp
+    ),
+    displayLarge = TextStyle(
+        fontFamily = mainFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 32.sp,
+        color = Color.Black,
+        lineHeight = 40.sp,
+        letterSpacing = 0.sp
+    ),
+    displayMedium = TextStyle(
+        fontFamily = mainFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 24.sp,
+        color = Color.Black,
+        lineHeight = 32.sp,
+        letterSpacing = 0.sp
+    ),
+    displaySmall = TextStyle(
+        fontFamily = mainFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp,
+        color = Color.Black,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
     )
 )

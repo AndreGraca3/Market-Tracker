@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -64,6 +66,10 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("io.coil-kt:coil-compose:2.6.0")
 
+    implementation("com.google.dagger:hilt-android:2.49")
+    kapt("com.google.dagger:hilt-android-compiler:2.49")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.11.0"))
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.google.code.gson:gson:2.10.1")
@@ -92,4 +98,13 @@ dependencies {
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0-alpha02")
 
     implementation ("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
+}
+
+hilt {
+    enableAggregatingTask = true
 }

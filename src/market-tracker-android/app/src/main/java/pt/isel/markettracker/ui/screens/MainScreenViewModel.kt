@@ -24,7 +24,7 @@ class MainScreenViewModel(
         }
     }
 
-    private val currentScreenFlow: MutableStateFlow<Destination> =
+    /*private val currentScreenFlow: MutableStateFlow<Destination> =
     MutableStateFlow(Destination.HOME)
 
     val currentScreen: Flow<Destination>

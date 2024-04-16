@@ -15,7 +15,7 @@ import androidx.compose.ui.res.painterResource
 import com.example.markettracker.R
 
 @Composable
-fun LoadingIcon(text: String) {
+fun LoadingIcon(text: String? = null) {
     val infiniteTransition = rememberInfiniteTransition(label = "rotation")
     val rotation by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -36,6 +36,8 @@ fun LoadingIcon(text: String) {
             contentDescription = "LoadingIcon",
             modifier = Modifier.rotate(rotation)
         )
-        Text(text = text)
+        text?.let {
+            Text(text = it)
+        }
     }
 }
