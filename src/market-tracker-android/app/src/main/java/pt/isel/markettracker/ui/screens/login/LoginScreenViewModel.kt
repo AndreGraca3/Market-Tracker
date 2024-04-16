@@ -19,7 +19,6 @@ import pt.isel.markettracker.domain.loaded
 import pt.isel.markettracker.domain.loading
 import pt.isel.markettracker.http.models.token.TokenCreationInputModel
 import pt.isel.markettracker.http.service.operations.token.ITokenService
-import pt.isel.markettracker.http.service.result.APIResult
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 
 class LoginScreenViewModel(
