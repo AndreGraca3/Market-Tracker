@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -75,6 +76,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.datastore:datastore-core:1.0.0")
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
 
     implementation("com.exyte:animated-navigation-bar:1.0.0")
     implementation("com.github.tfaki:ComposableSweetToast:1.0.1")

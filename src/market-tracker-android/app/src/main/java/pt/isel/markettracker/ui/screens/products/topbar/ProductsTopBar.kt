@@ -30,7 +30,8 @@ import pt.isel.markettracker.ui.theme.Primary400
 fun ProductsTopBar(
     searchQuery: String,
     onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    onBarcodeScanRequest: () -> Unit
 ) {
     var isSearching by rememberSaveable { mutableStateOf(false) }
     val background by animateColorAsState(
@@ -75,6 +76,7 @@ fun ProductsTopBar(
             searchQuery = searchQuery,
             onQueryChange = onQueryChange,
             searchHistory = previousQueries,
+            onBarcodeScanRequest = onBarcodeScanRequest,
             modifier = Modifier.weight(1f)
         ) {
         }
@@ -87,6 +89,7 @@ fun ProductsTopBarPreview() {
     ProductsTopBar(
         searchQuery = "",
         onQueryChange = {},
-        onSearch = {}
+        onSearch = {},
+        onBarcodeScanRequest = {}
     )
 }

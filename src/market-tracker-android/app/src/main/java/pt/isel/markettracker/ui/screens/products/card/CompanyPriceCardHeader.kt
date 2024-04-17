@@ -7,7 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun CompanyPrice(price: Int, logoUrl: String) {
+fun CompanyPriceCardHeader(price: Int, logoUrl: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth(),

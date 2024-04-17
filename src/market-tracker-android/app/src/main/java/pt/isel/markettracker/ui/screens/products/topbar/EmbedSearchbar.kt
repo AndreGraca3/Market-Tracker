@@ -38,6 +38,7 @@ fun EmbeddedSearchBar(
     onSearch: (String) -> Unit,
     modifier: Modifier = Modifier,
     searchHistory: List<String> = emptyList(),
+    onBarcodeScanRequest: () -> Unit,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
     SearchBar(
@@ -85,10 +86,10 @@ fun EmbeddedSearchBar(
                     }
                 }
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = onBarcodeScanRequest,
                     modifier = Modifier
-                        .clip(CircleShape)
                         .padding(12.dp)
+                        .clip(CircleShape)
                 ) {
                     Icon(
                         painterResource(R.drawable.barcodeicon),
@@ -111,6 +112,7 @@ fun EmbedSearchBarPreview() {
         searchQuery = "",
         onQueryChange = { },
         onSearch = { },
+        onBarcodeScanRequest = { },
         content = {
         }
     )

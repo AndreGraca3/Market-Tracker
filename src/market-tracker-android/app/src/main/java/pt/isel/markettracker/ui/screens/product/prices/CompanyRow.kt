@@ -24,12 +24,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
+import pt.isel.markettracker.domain.price.CompanyPrices
 import pt.isel.markettracker.dummy.dummyProducts
+import pt.isel.markettracker.dummy.dummyStores
 import pt.isel.markettracker.ui.screens.product.stores.StoresBottomSheet
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
-fun CompanyRow() {
+fun CompanyRow(companyPrices: CompanyPrices) {
     var showCompanyStores by rememberSaveable { mutableStateOf(false) }
 
     Row(
@@ -43,7 +45,7 @@ fun CompanyRow() {
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             SubcomposeAsyncImage(
-                model = dummyProducts.first().lowestPriceStore.company.logoUrl,
+                model = dummyStores.first().company.logoUrl,
                 loading = {
                     CircularProgressIndicator()
                 },
@@ -55,7 +57,7 @@ fun CompanyRow() {
             )
 
             Text(
-                text = dummyProducts.first().lowestPriceStore.storeName,
+                text = dummyStores.first().name,
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
                     .clickable {
@@ -70,7 +72,7 @@ fun CompanyRow() {
             )
         }
 
-        CompanyPriceBox(price = dummyProducts.first().lowestPriceStore.price)
+        CompanyPriceBox(price = 69)
     }
     StoresBottomSheet(
         showStores = showCompanyStores,
@@ -81,5 +83,11 @@ fun CompanyRow() {
 @Preview
 @Composable
 fun PriceRowPreview() {
-    CompanyRow()
+    CompanyRow(
+        CompanyPrices(
+            1,
+            "Continente",
+            listOf()
+        )
+    )
 }

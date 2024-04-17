@@ -116,6 +116,8 @@ fun <T> IOState<T>.getOrThrow(): T = when (this) {
  * Returns the exception that caused the I/O operation to fail, if one is available.
  */
 fun <T> IOState<T>.exceptionOrNull(): Throwable? = when (this) {
-    is Loaded -> value.exceptionOrNull()
+    is Fail -> exception
     else -> null
 }
+
+fun<T> Loaded<T>.extractValue(): T = value.getOrThrow()

@@ -1,6 +1,7 @@
 package pt.isel.markettracker.ui.screens.product.prices
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,10 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import pt.isel.markettracker.domain.Fail
+import pt.isel.markettracker.domain.IOState
+import pt.isel.markettracker.domain.Loaded
+import pt.isel.markettracker.domain.extractValue
+import pt.isel.markettracker.domain.price.CompanyPrices
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
+import pt.isel.markettracker.utils.shimmerEffect
 
 @Composable
-fun PricesSection() {
+fun PricesSection(pricesState: IOState<List<CompanyPrices>>) {
     Column(
         verticalArrangement = Arrangement.spacedBy(22.dp)
     ) {
@@ -43,11 +50,29 @@ fun PricesSection() {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            (1..10).forEach {
-                CompanyRow()
-                HorizontalDivider(modifier = Modifier.fillMaxWidth(0.9F))
+            when (pricesState) {
+                is Loaded -> {
+                    pricesState.extractValue().forEach { companyPrices ->
+                        CompanyRow(companyPrices)
+                        HorizontalDivider()
+                    }
+                }
+
+                is Fail -> {
+                    Text(
+                        text = pricesState.exception.message ?: "Erro ao carregar preços",
+                        style = MarketTrackerTypography.bodyMedium
+                    )
+                }
+
+                else -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shimmerEffect()
+                    )
+                }
             }
         }
-
     }
 }

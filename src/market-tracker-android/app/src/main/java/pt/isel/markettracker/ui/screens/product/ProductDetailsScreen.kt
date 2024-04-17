@@ -1,41 +1,44 @@
 package pt.isel.markettracker.ui.screens.product
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import pt.isel.markettracker.dummy.dummyProducts
-import pt.isel.markettracker.ui.components.LoadableImage
+import pt.isel.markettracker.domain.Loaded
+import pt.isel.markettracker.domain.exceptionOrNull
+import pt.isel.markettracker.domain.extractValue
+import pt.isel.markettracker.domain.getOrNull
+import pt.isel.markettracker.ui.screens.product.alert.PriceAlertDialog
+import pt.isel.markettracker.ui.screens.product.components.ProductNotFoundDialog
+import pt.isel.markettracker.ui.screens.product.components.ProductTopBar
 import pt.isel.markettracker.ui.screens.product.prices.PricesSection
 import pt.isel.markettracker.ui.screens.product.rating.ProductStatsRow
 import pt.isel.markettracker.ui.screens.product.reviews.ReviewsBottomSheet
-import pt.isel.markettracker.ui.theme.MarketTrackerTypography
+import pt.isel.markettracker.ui.screens.product.specs.ProductImage
+import pt.isel.markettracker.ui.screens.product.specs.ProductSpecs
 
 @Composable
 fun ProductDetailsScreen(
     onBackRequest: () -> Unit,
-    viewModel: ProductDetailsScreenViewModel = hiltViewModel()
+    vm: ProductDetailsScreenViewModel
 ) {
+    val productState by vm.product.collectAsState()
+    val preferencesState by vm.preferences.collectAsState()
+    val pricesState by vm.prices.collectAsState()
+    val statsState by vm.stats.collectAsState()
+
     var isReviewsSectionOpen by remember { mutableStateOf(false) }
+    var isPriceAlertOpen by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -44,44 +47,49 @@ fun ProductDetailsScreen(
     ) {
         ProductTopBar(
             onBackRequest = onBackRequest,
-            hasAlert = false,
-            onAlertRequest = {},
-            isProductFavorite = true,
+            preferencesState = preferencesState,
+            onAlertRequest = { isPriceAlertOpen = true },
             onFavoriteRequest = {}
         )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(350.dp)
-                .clip(RoundedCornerShape(bottomStart = 46.dp, bottomEnd = 46.dp))
-                .background(Color.White),
-            contentAlignment = Alignment.Center
-        ) {
-            LoadableImage(
-                model = dummyProducts.first().imageUrl,
-                contentDescription = "Product Image",
-                modifier = Modifier
-                    .padding(18.dp)
+
+        productState.exceptionOrNull()?.let {
+            ProductNotFoundDialog(
+                message = "Produto não encontrado",
+                onDismissRequest = onBackRequest
             )
         }
+
+        val product = productState.getOrNull()
+
+        ProductImage(product?.imageUrl)
 
         Column(
             modifier = Modifier.padding(20.dp, 16.dp),
             verticalArrangement = Arrangement.spacedBy(26.dp)
         ) {
-            Text(text = dummyProducts.first().name, style = MarketTrackerTypography.titleLarge)
+            ProductSpecs(product)
 
             ProductStatsRow(
-                rating = 4.3,
+                statsState = statsState,
                 onCommunityReviewsRequest = { isReviewsSectionOpen = true }
             )
 
-            PricesSection()
+            PricesSection(pricesState)
         }
 
         ReviewsBottomSheet(
             isReviewsSectionOpen,
             onDismissRequest = { isReviewsSectionOpen = false }
         )
+
+        preferencesState.let {
+            if (it is Loaded && isPriceAlertOpen) {
+                PriceAlertDialog(
+                    price = it.extractValue().priceAlert!!.priceThreshold,
+                    onAlertSet = { isPriceAlertOpen = false },
+                    onDismissRequest = { isPriceAlertOpen = false }
+                )
+            }
+        }
     }
 }

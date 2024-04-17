@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.product.ProductInfo
 import pt.isel.markettracker.dummy.dummyProducts
+import pt.isel.markettracker.dummy.dummyStores
 import pt.isel.markettracker.ui.components.LoadableImage
 import pt.isel.markettracker.ui.components.button.AddToListButton
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
@@ -60,9 +61,9 @@ fun ProductCard(product: ProductInfo, onProductClick: (String) -> Unit) {
                 )
             }
             ProductSpecs(product = product)
-            CompanyPrice(
-                product.lowestPriceStore.price,
-                product.lowestPriceStore.company.logoUrl
+            CompanyPriceCardHeader(
+                69,
+                dummyStores.first().company.logoUrl
             )
             Box(
                 contentAlignment = Alignment.BottomCenter,

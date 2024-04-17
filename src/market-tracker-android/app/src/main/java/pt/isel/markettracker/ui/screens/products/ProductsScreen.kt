@@ -30,6 +30,7 @@ import pt.isel.markettracker.ui.screens.products.topbar.ProductsTopBar
 @Composable
 fun ProductsScreen(
     onProductClick: (String) -> Unit,
+    onBarcodeScanRequest: () -> Unit,
     productsScreenViewModel: ProductsScreenViewModel
 ) {
     LaunchedEffect(Unit) {
@@ -49,7 +50,9 @@ fun ProductsScreen(
                 onQueryChange = productsScreenViewModel::onQueryChange,
                 onSearch = {
                     productsScreenViewModel.fetchProducts(true)
-                })
+                },
+                onBarcodeScanRequest = onBarcodeScanRequest
+            )
         }
     ) { paddingValues ->
         PullToRefreshLazyColumn(

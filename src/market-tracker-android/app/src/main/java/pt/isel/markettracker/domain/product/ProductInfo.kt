@@ -1,19 +1,22 @@
 package pt.isel.markettracker.domain.product
 
+import pt.isel.markettracker.domain.City
+
 data class ProductInfo(
     val id: String,
     val name: String,
     val imageUrl: String,
     val brand: String,
-    val category: String,
-    val lowestPriceStore: StorePriceData,
+    val category: String
 )
 
-data class StorePriceData(
-    val storeId: Int,
-    val storeName: String,
-    val company: CompanyInfo,
-    val price: Int
+data class StoreInfo(
+    val id: Int,
+    val name: String,
+    val address: String,
+    val city: City?,
+    val isOnline: Boolean,
+    val company: CompanyInfo
 )
 
 data class CompanyInfo(

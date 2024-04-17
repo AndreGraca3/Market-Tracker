@@ -4,11 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import dagger.hilt.android.AndroidEntryPoint
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
-import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
+import pt.isel.markettracker.ui.screens.product.ProductIdExtra
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
-import pt.isel.markettracker.utils.NavigateAux
+import pt.isel.markettracker.utils.navigateTo
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -24,10 +27,33 @@ class MainActivity : ComponentActivity() {
             MarkettrackerTheme {
                 MainScreen(
                     onProductClick = {
-                        NavigateAux.navigateTo<ProductDetailsActivity>(this)
+                        navigateTo<ProductDetailsActivity>(
+                            this,
+                            ProductDetailsActivity.PRODUCT_ID_EXTRA,
+                            ProductIdExtra(it)
+                        )
+                    },
+                    onBarcodeScanRequest = {
+                        val scanner =
+                            GmsBarcodeScanning.getClient(this, barcodeScannerOptions)
+
+                        scanner.startScan().addOnSuccessListener {
+                            navigateTo<ProductDetailsActivity>(
+                                this,
+                                ProductDetailsActivity.PRODUCT_ID_EXTRA,
+                                ProductIdExtra(it.rawValue ?: "")
+                            )
+                        }
                     }
                 )
             }
         }
+    }
+
+    private val barcodeScannerOptions by lazy {
+        GmsBarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_EAN_13)
+            .setBarcodeFormats(Barcode.FORMAT_EAN_8)
+            .build()
     }
 }

@@ -1,7 +1,8 @@
 package pt.isel.markettracker.ui.screens
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import pt.isel.markettracker.ui.screens.profile.ProfileScreen
 @Composable
 fun MainScreen(
     onProductClick: (String) -> Unit,
+    onBarcodeScanRequest: () -> Unit,
     productsScreenViewModel: ProductsScreenViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
@@ -54,11 +56,21 @@ fun MainScreen(
             navController = navController,
             startDestination = Destination.HOME.route,
             modifier = Modifier.padding(paddingValues),
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
-        ) {
+            enterTransition = {
+                fadeIn(tween(1000))
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Start, tween(700)
+                )
+            },
+            popEnterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.End, tween(700)
+                )
+            }) {
             composable(Destination.HOME.route) {
-                ProductsScreen(onProductClick, productsScreenViewModel)
+                ProductsScreen(onProductClick, onBarcodeScanRequest, productsScreenViewModel)
             }
 
             composable(Destination.LIST.route) {

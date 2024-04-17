@@ -3,7 +3,11 @@ package pt.isel.markettracker.http.service.operations.product
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
+import pt.isel.markettracker.domain.price.CompanyPrices
 import pt.isel.markettracker.domain.product.ProductInfo
+import pt.isel.markettracker.domain.product.ProductReview
+import pt.isel.markettracker.domain.product.ProductStats
+import pt.isel.markettracker.domain.product.ProductStatsCounts
 import pt.isel.markettracker.dummy.dummyProducts
 import pt.isel.markettracker.http.service.MarketTrackerService
 
@@ -22,5 +26,19 @@ class ProductService(
     override suspend fun getProductById(id: String): ProductInfo {
         delay(1000)
         return dummyProducts.first { it.id == id }
+    }
+
+    override suspend fun getProductPrices(id: String): List<CompanyPrices> {
+        delay(2000)
+        return listOf()
+    }
+
+    override suspend fun getProductStats(id: String): ProductStats {
+        delay(2000)
+        return ProductStats(
+            id,
+            ProductStatsCounts(1, 2, 3),
+            3.6,
+        )
     }
 }

@@ -6,11 +6,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.IOState
+import pt.isel.markettracker.domain.Idle
 import pt.isel.markettracker.domain.fail
 import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.domain.loaded
 import pt.isel.markettracker.domain.loading
+import pt.isel.markettracker.domain.price.CompanyPrices
 import pt.isel.markettracker.domain.product.ProductInfo
+import pt.isel.markettracker.domain.product.ProductPreferences
+import pt.isel.markettracker.domain.product.ProductReview
+import pt.isel.markettracker.domain.product.ProductStats
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import javax.inject.Inject
 
@@ -23,7 +28,8 @@ class ProductDetailsScreenViewModel @Inject constructor(
     val product
         get() = productFlow
 
-    fun getProductById(id: String) {
+    fun fetchProductById(id: String) {
+        if (productFlow.value !is Idle) return
         productFlow.value = loading()
 
         viewModelScope.launch {
@@ -35,7 +41,53 @@ class ProductDetailsScreenViewModel @Inject constructor(
         }
     }
 
-    fun getProductPrices() {
+    private val pricesFlow = MutableStateFlow<IOState<List<CompanyPrices>>>(idle())
+    val prices
+        get() = pricesFlow
+
+    fun fetchProductPrices(id: String) {
+        if (pricesFlow.value !is Idle) return
+        pricesFlow.value = loading()
+
+        viewModelScope.launch {
+            val res = kotlin.runCatching { productService.getProductPrices(id) }
+            pricesFlow.value = when (res.isSuccess) {
+                true -> loaded(res)
+                false -> fail(res.exceptionOrNull()!!)
+            }
+        }
+    }
+
+    private val statsFlow = MutableStateFlow<IOState<ProductStats>>(idle())
+    val stats
+        get() = statsFlow
+
+    fun fetchProductStats(id: String) {
+        if (statsFlow.value !is Idle) return
+        statsFlow.value = loading()
+
+        viewModelScope.launch {
+            val res = kotlin.runCatching { productService.getProductStats(id) }
+            statsFlow.value = when (res.isSuccess) {
+                true -> loaded(res)
+                false -> fail(res.exceptionOrNull()!!)
+            }
+        }
+    }
+
+    private val preferencesFlow = MutableStateFlow<IOState<ProductPreferences>>(idle())
+    val preferences
+        get() = preferencesFlow
+
+    fun fetchProductPreferences() {
+        // TODO: Implement this function
+    }
+
+    private val reviewsFlow = MutableStateFlow<IOState<List<ProductReview>>>(idle())
+    val reviews
+        get() = reviewsFlow
+
+    fun fetchProductReviews(id: String) {
         // TODO: Implement this function
     }
 }
