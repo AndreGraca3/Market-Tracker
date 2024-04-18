@@ -18,6 +18,8 @@ import pt.isel.markettracker.domain.user.User
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.ui.theme.mainFont
 
+const val ProfileScreenTestTag = "SignUpScreenTag"
+
 @Composable
 fun ProfileScreen(
     user: User
@@ -26,7 +28,7 @@ fun ProfileScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .testTag(""),
+                .testTag(ProfileScreenTestTag),
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -35,8 +37,8 @@ fun ProfileScreen(
             ) {
 
                 Image(
-                    painter = painterResource(R.drawable.google),
-                    contentDescription = "ola"
+                    painter = painterResource(R.drawable.user_icon),
+                    contentDescription = "user_icon"
                 )
 
                 Text(

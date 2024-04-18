@@ -31,7 +31,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="pt.isel.markettracker.ui.screens.login.LoginActivity" />
         <activity android:name="pt.isel.markettracker.ui.screens.product.ProductDetailsActivity" />
         <activity android:name="pt.isel.markettracker.ui.screens.signup.SignUpActivity" />
     </application>

@@ -1,19 +1,13 @@
 package pt.isel.markettracker.ui.screens.profile
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
+import dagger.hilt.android.lifecycle.HiltViewModel
 import pt.isel.markettracker.domain.user.User
+import javax.inject.Inject
 
-class ProfileScreenViewModel : ViewModel() {
-
-    companion object {
-        fun factory() =
-            viewModelFactory {
-                initializer { ProfileScreenViewModel() }
-            }
-    }
-
+@HiltViewModel
+class ProfileScreenViewModel @Inject constructor(
+) : ViewModel() {
     val user = User(
         "Digo",
         "Diogo",

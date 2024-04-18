@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Market Tracker</string>
+    <string name="GOOGLE_CLIENT_ID">317635904868-mgmlu2g27gt43tb00c7i5kfevprerrsn.apps.googleusercontent.com</string>
 </resources>

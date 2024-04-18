@@ -32,7 +32,7 @@ class MainScreenViewModel(
 
     fun navigateTo(destination: Destination) {
         currentScreenFlow.value = destination
-    }
+    }*/
 
     /**
      * I don't understand how and why this works XD

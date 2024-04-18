@@ -77,11 +77,6 @@ fun <T> saved(value: Result<T>): Saved<T> = Saved(value)
 fun <T> loadSuccess(value: T): Loaded<T> = loaded(Result.success(value))
 
 /**
- * Returns a new [IOState] in the loaded state with a failed result.
- */
-fun <T> loadFailure(error: Throwable): Loaded<T> = loaded(Result.failure(error))
-
-/**
  * Returns a new [IOState] in the saved state with a successful result.
  */
 fun <T> saveSuccess(value: T): Saved<T> = saved(Result.success(value))
