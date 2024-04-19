@@ -15,7 +15,7 @@ public class CategoryProblem(
             404,
             "category-not-found",
             "Category not found",
-            $"Category with id {data.Id} not found",
+            "Category does not exist",
             data
         );
 

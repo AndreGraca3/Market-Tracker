@@ -9,7 +9,8 @@ public interface IPriceRepository
 {
     public Task<StorePrice?> GetCheapestStorePriceByProductIdAsync(
         string productId,
-        DateTime priceAt
+        DateTime priceAt,
+        IList<int>? companyIds = null
     );
 
     public Task<IEnumerable<StoreAvailability>> GetStoresAvailabilityAsync(string productId);
@@ -29,7 +30,7 @@ public interface IPriceRepository
         DateTime pricedBefore
     );
 
-    public Task AddPriceAsync(
+    public Task<string> AddPriceAsync(
         string productId,
         int storeId,
         int price,

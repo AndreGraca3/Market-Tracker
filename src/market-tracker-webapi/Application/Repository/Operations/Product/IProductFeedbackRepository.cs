@@ -1,10 +1,11 @@
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto;
 
 namespace market_tracker_webapi.Application.Repository.Operations.Product;
 
 public interface IProductFeedbackRepository
 {
-    Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(string productId);
+    Task<PaginatedResult<ProductReview>> GetReviewsByProductIdAsync(string productId, int skip, int take);
 
     Task<ProductReview?> UpsertReviewAsync(
         Guid clientId,
@@ -21,7 +22,7 @@ public interface IProductFeedbackRepository
 
     Task<bool> UpdateProductFavouriteAsync(Guid clientId, string productId, bool isFavourite);
 
-    Task<ProductPreferences> GetUserFeedbackByProductId(Guid clientId, string productId);
+    Task<ProductPreferences> GetProductsPreferencesAsync(Guid clientId, string productId);
 
     public Task<ProductStats?> GetProductStatsByIdAsync(string productId);
 }

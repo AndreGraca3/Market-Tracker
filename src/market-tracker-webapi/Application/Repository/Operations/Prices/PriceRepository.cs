@@ -1,15 +1,19 @@
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Price;
 using market_tracker_webapi.Application.Repository.Dto.Store;
 using market_tracker_webapi.Infrastructure;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.Operations.Prices;
 
 public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepository
 {
-    public async Task<StorePrice?> GetCheapestStorePriceByProductIdAsync(string productId, DateTime priceAt)
+    public async Task<StorePrice?> GetCheapestStorePriceByProductIdAsync(
+        string productId,
+        DateTime priceAt,
+        IList<int>? companyIds
+    )
     {
         var query = await (
             from priceEntry in dataContext.PriceEntry
@@ -23,6 +27,9 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 on priceEntry.Id equals promotion.PriceEntryId
                 into promotionGroup
             from promotion in promotionGroup.DefaultIfEmpty()
+            join availability in dataContext.ProductAvailability on store.Id equals availability.StoreId
+            where availability.ProductId == productId && availability.IsAvailable
+            where companyIds == null || companyIds.Contains(company.Id)
             select new
             {
                 Store = store,
@@ -43,7 +50,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 new StorePrice(StoreInfo.ToStoreInfo(group.Store.ToStore(), group.City?.ToCity(),
                     group.Company.ToCompany()), PriceInfo.Calculate(group.PriceEntry.Price,
                     group.Promotion?.ToPromotion(group.PriceEntry.Price), group.PriceEntry.CreatedAt))
-            ).OrderBy(group => group.PriceData.Price).First();
+            ).MinBy(group => group.PriceData.Price);
 
         return cheapestStore;
     }
@@ -69,7 +76,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             ))
             .ToListAsync();
     }
-    
+
     public async Task<StoreAvailability?> GetStoreAvailabilityAsync(string productId, int storeId)
     {
         var queryRes = await (
@@ -168,7 +175,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             .ToListAsync();
     }
 
-    public Task AddPriceAsync(
+    public async Task<string> AddPriceAsync(
         string productId,
         int storeId,
         int price,
@@ -176,6 +183,31 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         int? promotionPercentage
     )
     {
-        throw new NotImplementedException();
+        var priceEntry = new PriceEntryEntity
+        {
+            ProductId = productId,
+            StoreId = storeId,
+            Price = price,
+            CreatedAt = createdAt
+        };
+
+        await dataContext.PriceEntry.AddAsync(priceEntry);
+
+        await dataContext.SaveChangesAsync();
+
+        if (promotionPercentage.HasValue)
+        {
+            var promotion = new PromotionEntity
+            {
+                Percentage = promotionPercentage.Value,
+                PriceEntryId = priceEntry.Id
+            };
+
+            await dataContext.Promotion.AddAsync(promotion);
+        }
+
+        await dataContext.SaveChangesAsync();
+
+        return priceEntry.Id;
     }
 }

@@ -2,6 +2,7 @@ using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Http.Models.User;
+using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -16,31 +17,31 @@ public class ProductFeedbackService(
     ITransactionManager transactionManager
 ) : IProductFeedbackService
 {
-    public async Task<
-        Either<ProductFetchingError, CollectionOutputModel>
-    > GetReviewsByProductIdAsync(string productId)
-    {
-        throw new NotImplementedException();
+    public async Task<Either<ProductFetchingError, PaginatedResult<ProductReviewOutputModel>>> GetReviewsByProductIdAsync(
+        string productId, int skip, int take
+    ) {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await productRepository.GetProductByIdAsync(productId) is null)
             {
-                return EitherExtensions.Failure<ProductFetchingError, CollectionOutputModel>(
+                return EitherExtensions.Failure<ProductFetchingError, PaginatedResult<ProductReviewOutputModel>>(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
 
-            var reviews = await productFeedbackRepository.GetReviewsByProductIdAsync(productId);
+            var paginatedReviews =
+                await productFeedbackRepository.GetReviewsByProductIdAsync(productId, skip, take);
 
-            return EitherExtensions.Success<ProductFetchingError, CollectionOutputModel>(
-                new CollectionOutputModel(
-                    reviews.Select(review =>
+            return EitherExtensions.Success<ProductFetchingError, PaginatedResult<ProductReviewOutputModel>>(
+                new PaginatedResult<ProductReviewOutputModel>(
+                    paginatedReviews.Items.Select(review =>
                     {
-                        // TODO: decide if its preferable to build this in repo
-                        // TODO: get actual user
                         var user = new UserInfoOutputModel(review.ClientId, "dummy", "dummy");
                         return ProductReviewOutputModel.ToProductReviewOutputModel(user, review);
-                    })
+                    }),
+                    paginatedReviews.TotalItems,
+                    skip,
+                    take
                 )
             );
         });
@@ -65,7 +66,7 @@ public class ProductFeedbackService(
                 );
             }
 
-            var oldPreferences = await productFeedbackRepository.GetUserFeedbackByProductId(
+            var oldPreferences = await productFeedbackRepository.GetProductsPreferencesAsync(
                 clientId,
                 productId
             );
@@ -126,15 +127,13 @@ public class ProductFeedbackService(
         });
     }
 
-    public async Task<Either<IServiceError, ProductPreferences>> GetUserFeedbackByProductId(
+    public async Task<Either<IServiceError, ProductPreferences>> GetProductsPreferencesAsync(
         Guid clientId,
         string productId
     )
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            throw new NotImplementedException(); // TODO: search if client exists
-
             if (await productRepository.GetProductByIdAsync(productId) is null)
             {
                 return EitherExtensions.Failure<IServiceError, ProductPreferences>(
@@ -142,7 +141,7 @@ public class ProductFeedbackService(
                 );
             }
 
-            var clientFeedback = await productFeedbackRepository.GetUserFeedbackByProductId(
+            var clientFeedback = await productFeedbackRepository.GetProductsPreferencesAsync(
                 clientId,
                 productId
             );

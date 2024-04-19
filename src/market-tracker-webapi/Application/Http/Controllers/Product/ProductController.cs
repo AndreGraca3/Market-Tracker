@@ -1,4 +1,5 @@
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Repository.Dto.Product;
@@ -14,13 +15,23 @@ public class ProductController(IProductService productService, IProductPriceServ
     : ControllerBase
 {
     [HttpGet(Uris.Products.Base)]
-    public async Task<ActionResult<CollectionOutputModel>> GetProductsAsync(
-        string? searchName,
-        int? minRating,
-        int? maxRating
+    public async Task<ActionResult<PaginatedProductsOutputModel>> GetProductsAsync(
+        [FromQuery] ProductsFiltersInputModel filters,
+        [FromQuery] PaginationInputs paginationInputs
     )
     {
-        var res = await productService.GetProductsAsync(searchName, minRating, maxRating);
+        var res =
+            await productService.GetProductsAsync(
+                paginationInputs.Skip,
+                paginationInputs.ItemsPerPage,
+                paginationInputs.SortBy,
+                filters.SearchName,
+                filters.CategoryIds,
+                filters.BrandIds,
+                filters.CompanyIds,
+                filters.MinRating,
+                filters.MaxRating
+            );
         return ResultHandler.Handle(
             res,
             _ => new ServerProblem.InternalServerError().ToActionResult()
@@ -40,6 +51,7 @@ public class ProductController(IProductService productService, IProductPriceServ
                 {
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
                         => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -58,6 +70,7 @@ public class ProductController(IProductService productService, IProductPriceServ
                 {
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
                         => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -91,13 +104,14 @@ public class ProductController(IProductService productService, IProductPriceServ
                         => new CategoryProblem.CategoryByIdNotFound(
                             categoryNotFound
                         ).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
             outputModel => Created(Uris.Products.BuildProductByIdUri(outputModel.Id), outputModel)
         );
     }
 
-    [HttpPut(Uris.Products.ProductById)]
+    [HttpPatch(Uris.Products.ProductById)]
     public async Task<ActionResult<ProductInfoOutputModel>> UpdateProductAsync(
         string productId,
         [FromBody] ProductUpdateInputModel productInput
@@ -107,10 +121,10 @@ public class ProductController(IProductService productService, IProductPriceServ
             productId,
             productInput.Name,
             productInput.ImageUrl,
-            productInput.Quantity!.Value,
+            productInput.Quantity,
             productInput.Unit,
             productInput.BrandName,
-            productInput.CategoryId!.Value
+            productInput.CategoryId
         );
 
         return ResultHandler.Handle(
@@ -126,6 +140,7 @@ public class ProductController(IProductService productService, IProductPriceServ
                         => new CategoryProblem.CategoryByIdNotFound(
                             categoryNotFound
                         ).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -144,6 +159,7 @@ public class ProductController(IProductService productService, IProductPriceServ
                 {
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
                         => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
             _ => NoContent()
