@@ -19,6 +19,6 @@ public class PromotionEntity
 
     public Promotion ToPromotion(int oldPrice)
     {
-        return new Promotion(percentage, oldPrice, CreatedAt, PriceEntryId);
+        return new Promotion(percentage, oldPrice, CreatedAt);
     }
 }

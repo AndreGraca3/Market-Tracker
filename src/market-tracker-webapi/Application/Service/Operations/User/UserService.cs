@@ -16,11 +16,12 @@ namespace market_tracker_webapi.Application.Service.Operations.User
     {
         public async Task<UsersOutputModel> GetUsersAsync(
             string? username,
-            PaginationInputModel pagination
+            int skip,
+            int take
         )
         {
             var users = (
-                await userRepository.GetUsersAsync(username, pagination.Skip, pagination.Limit)
+                await userRepository.GetUsersAsync(username, skip, take)
             )
                 .Select(it => new UserOutputModel(it.Id, it.Username, it.Name, it.CreatedAt))
                 .ToArray();

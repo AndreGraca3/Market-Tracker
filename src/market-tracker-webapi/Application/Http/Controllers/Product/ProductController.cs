@@ -1,6 +1,9 @@
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -14,13 +17,22 @@ public class ProductController(IProductService productService, IProductPriceServ
     : ControllerBase
 {
     [HttpGet(Uris.Products.Base)]
-    public async Task<ActionResult<CollectionOutputModel>> GetProductsAsync(
-        string? searchName,
-        int? minRating,
-        int? maxRating
+    public async Task<ActionResult<PaginatedProductsOutputModel>> GetProductsAsync(
+        [FromQuery] ProductsFiltersInputModel filters,
+        [FromQuery] PaginationInputs paginationInputs
     )
     {
-        var res = await productService.GetProductsAsync(searchName, minRating, maxRating);
+        var res =
+            await productService.GetProductsAsync(
+                paginationInputs.Skip,
+                paginationInputs.ItemsPerPage,
+                filters.SearchName,
+                filters.CategoryIds,
+                filters.BrandIds,
+                filters.CompanyIds,
+                filters.MinRating,
+                filters.MaxRating
+            );
         return ResultHandler.Handle(
             res,
             _ => new ServerProblem.InternalServerError().ToActionResult()

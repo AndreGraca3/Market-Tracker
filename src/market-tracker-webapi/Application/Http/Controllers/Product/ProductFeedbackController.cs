@@ -2,6 +2,7 @@ using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Operations.Product;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,14 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     : ControllerBase
 {
     [HttpGet(Uris.Products.ReviewsByProductId)]
-    public async Task<ActionResult<CollectionOutputModel>> GetReviewsByProductIdAsync(
-        string productId
+    public async Task<ActionResult<PaginatedResult<ProductReviewOutputModel>>> GetReviewsByProductIdAsync(
+        string productId,
+        [FromQuery] PaginationInputs paginationInputs
     )
     {
-        var res = await productFeedbackService.GetReviewsByProductIdAsync(productId);
+        var res = await productFeedbackService.GetReviewsByProductIdAsync(
+            productId, paginationInputs.Skip, paginationInputs.ItemsPerPage
+        );
         return ResultHandler.Handle(
             res,
             error =>
@@ -25,7 +29,8 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
                 return error switch
                 {
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult()
+                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -45,7 +50,8 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
                 return error switch
                 {
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult()
+                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -75,6 +81,7 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
                 {
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
                         => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -91,7 +98,8 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
                 return error switch
                 {
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult()
+                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );

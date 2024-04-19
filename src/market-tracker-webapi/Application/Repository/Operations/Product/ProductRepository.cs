@@ -10,8 +10,12 @@ using Product = Domain.Product;
 
 public class ProductRepository(MarketTrackerDataContext dataContext) : IProductRepository
 {
-    public async Task<IEnumerable<ProductInfo>> GetProductsAsync(
+    public async Task<PaginatedResult<ProductInfo>> GetProductsAsync(
+        int skip,
+        int take,
         string? name,
+        IList<int>? categoryIds,
+        IList<int>? brandIds,
         int? minRating,
         int? maxRating
     )
@@ -20,7 +24,10 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
             orderby EF.Functions.TrigramsSimilarity(product.Name, name) descending
             join brand in dataContext.Brand on product.BrandId equals brand.Id
             join category in dataContext.Category on product.CategoryId equals category.Id
-            where (minRating == null || product.Rating >= minRating) &&
+            where (name == null || EF.Functions.TrigramsSimilarity(product.Name, name) >= 0.3) &&
+                  (categoryIds == null || categoryIds.Contains(product.CategoryId)) &&
+                  (brandIds == null || brandIds.Contains(product.BrandId)) &&
+                  (minRating == null || product.Rating >= minRating) &&
                   (maxRating == null || product.Rating <= maxRating)
             select new
             {
@@ -29,7 +36,9 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                 Category = category
             };
 
-        return await query
+        var items = await query
+            .Skip(skip)
+            .Take(take)
             .Select(queryRes =>
                 ProductInfo.ToProductInfo(
                     queryRes.Product.ToProduct(),
@@ -38,6 +47,8 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                 )
             )
             .ToListAsync();
+
+        return new PaginatedResult<ProductInfo>(items, query.Count(), skip, take);
     }
 
     public async Task<ProductDetails?> GetProductByIdAsync(string productId)

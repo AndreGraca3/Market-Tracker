@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Repository.Dto;
+﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Product;
 
 namespace market_tracker_webapi.Application.Repository.Operations.Product;
@@ -7,8 +8,12 @@ using Product = Domain.Product;
 
 public interface IProductRepository
 {
-    Task<IEnumerable<ProductInfo>> GetProductsAsync(
+    Task<PaginatedResult<ProductInfo>> GetProductsAsync(
+        int skip,
+        int take,
         string? name = null,
+        IList<int>? categoryIds = null,
+        IList<int>? brandIds = null,
         int? minRating = null,
         int? maxRating = null
     );

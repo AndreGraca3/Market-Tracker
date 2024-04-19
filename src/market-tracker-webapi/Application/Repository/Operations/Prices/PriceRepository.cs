@@ -9,7 +9,11 @@ namespace market_tracker_webapi.Application.Repository.Operations.Prices;
 
 public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepository
 {
-    public async Task<StorePrice?> GetCheapestStorePriceByProductIdAsync(string productId, DateTime priceAt)
+    public async Task<StorePrice?> GetCheapestStorePriceByProductIdAsync(
+        string productId,
+        DateTime priceAt,
+        IList<int>? companyIds
+    )
     {
         var query = await (
             from priceEntry in dataContext.PriceEntry
@@ -23,6 +27,9 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 on priceEntry.Id equals promotion.PriceEntryId
                 into promotionGroup
             from promotion in promotionGroup.DefaultIfEmpty()
+            join availability in dataContext.ProductAvailability on store.Id equals availability.StoreId
+            where availability.ProductId == productId && availability.IsAvailable
+            where companyIds == null || companyIds.Contains(company.Id)
             select new
             {
                 Store = store,
@@ -69,7 +76,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             ))
             .ToListAsync();
     }
-    
+
     public async Task<StoreAvailability?> GetStoreAvailabilityAsync(string productId, int storeId)
     {
         var queryRes = await (

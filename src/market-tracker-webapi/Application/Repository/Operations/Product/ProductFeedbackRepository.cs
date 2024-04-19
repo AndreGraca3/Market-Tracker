@@ -1,20 +1,26 @@
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.Operations.Product;
 
-public class ProductFeedbackRepository(MarketTrackerDataContext dataContext)
-    : IProductFeedbackRepository
+public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : IProductFeedbackRepository
 {
-    public async Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(string productId)
+    public async Task<PaginatedResult<ProductReview>> GetReviewsByProductIdAsync(string productId, int skip, int take)
     {
-        return await dataContext
-            .ProductReview.Where(review => review.ProductId == productId)
+        var reviews = await dataContext
+            .ProductReview
+            .Where(review => review.ProductId == productId)
             .OrderByDescending(review => review.CreatedAt)
+            .Skip(skip)
+            .Take(take)
             .Select(productReviewEntity => productReviewEntity.ToProductReview())
             .ToListAsync();
+
+        var totalItems = await dataContext.ProductReview.CountAsync(review => review.ProductId == productId);
+        return new PaginatedResult<ProductReview>(reviews, totalItems, skip, take);
     }
 
     public async Task<int> AddReviewAsync(

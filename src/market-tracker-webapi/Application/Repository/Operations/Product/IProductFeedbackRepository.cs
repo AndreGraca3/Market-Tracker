@@ -1,10 +1,11 @@
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto;
 
 namespace market_tracker_webapi.Application.Repository.Operations.Product;
 
 public interface IProductFeedbackRepository
 {
-    Task<IEnumerable<ProductReview>> GetReviewsByProductIdAsync(string productId);
+    Task<PaginatedResult<ProductReview>> GetReviewsByProductIdAsync(string productId, int skip, int take);
 
     Task<ProductReview?> UpsertReviewAsync(
         Guid clientId,

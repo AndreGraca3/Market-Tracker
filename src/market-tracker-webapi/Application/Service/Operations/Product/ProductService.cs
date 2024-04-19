@@ -23,34 +23,62 @@ public class ProductService(
     ITransactionManager transactionManager
 ) : IProductService
 {
-    public async Task<Either<IServiceError, CollectionOutputModel>> GetProductsAsync(
+    public async Task<Either<IServiceError, PaginatedProductsOutputModel>> GetProductsAsync(
+        int skip,
+        int take,
         string? searchName,
+        IList<int>? categoryIds,
+        IList<int>? brandIds,
+        IList<int>? companyIds,
         int? minRating,
         int? maxRating
     )
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var products = await productRepository.GetProductsAsync(
+            var paginatedProducts = await productRepository.GetProductsAsync(
+                skip,
+                take,
                 searchName,
+                categoryIds,
+                brandIds,
                 minRating,
                 maxRating
             );
 
             var productsOffers = new List<ProductOffer>();
-            var tasks = new List<Task>();
+            var hitsCounters = new ProductsHitsCounters();
 
-            foreach (var product in products)
+            foreach (var product in paginatedProducts.Items)
             {
-                var cheapestStorePrice = priceRepository.GetCheapestStorePriceByProductIdAsync(
-                    product.Id,
-                    DateTime.Now
+                var cheapestStorePrice =
+                    await priceRepository.GetCheapestStorePriceByProductIdAsync(product.Id, DateTime.Now, companyIds);
+
+                if (cheapestStorePrice is null)
+                {
+                    continue; // Skip product if no price is found
+                }
+                
+                productsOffers.Add(new ProductOffer(product, cheapestStorePrice));
+
+                var productBrandId = product.Brand.Id;
+                var productCategoryId = product.Category.Id;
+                var hasPromotion = cheapestStorePrice.PriceData.Promotion != null;
+
+                hitsCounters.AddOrUpdateBrandHitsCounter(productBrandId, product.Brand.Name);
+                hitsCounters.AddOrUpdateCategoryHitsCounter(productCategoryId, product.Category.Name);
+                hitsCounters.AddOrUpdateCompanyHitsCounter(
+                    cheapestStorePrice.Store.Company.Id,
+                    cheapestStorePrice.Store.Company.Name
                 );
-                productsOffers.Add(new ProductOffer(product, cheapestStorePrice.Result));
+                hitsCounters.AddOrUpdatePromotionHitsCounter(hasPromotion);
             }
-            
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(
-                new CollectionOutputModel(productsOffers)
+
+            var paginatedProductOffers =
+                new PaginatedResult<ProductOffer>(productsOffers, paginatedProducts.TotalItems, skip, take);
+
+            return EitherExtensions.Success<IServiceError, PaginatedProductsOutputModel>(
+                new PaginatedProductsOutputModel(paginatedProductOffers, hitsCounters)
             );
         });
     }
