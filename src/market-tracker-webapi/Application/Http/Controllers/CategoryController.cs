@@ -53,7 +53,8 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
                     CategoryCreationError.InvalidParentCategory invalidParentCategoryIdError
                         => new CategoryProblem.InvalidParentCategory(
                             invalidParentCategoryIdError
-                        ).ToActionResult()
+                        ).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
             outputModel =>
@@ -85,7 +86,8 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
                     CategoryCreationError.InvalidParentCategory invalidParentCategoryIdError
                         => new CategoryProblem.InvalidParentCategory(
                             invalidParentCategoryIdError
-                        ).ToActionResult()
+                        ).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -105,6 +107,7 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
                         => new CategoryProblem.CategoryByIdNotFound(
                             idNotFoundError
                         ).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
             _ => NoContent()

@@ -8,17 +8,17 @@ namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 public class PromotionEntity
 {
     [Column("percentage")]
-    public int percentage { get; set; }
+    public required int Percentage { get; set; }
 
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 
     [Key]
     [Column("price_entry_id")]
-    public string PriceEntryId { get; set; }
+    public required string PriceEntryId { get; set; }
 
     public Promotion ToPromotion(int oldPrice)
     {
-        return new Promotion(percentage, oldPrice, CreatedAt);
+        return new Promotion(Percentage, oldPrice, CreatedAt);
     }
 }

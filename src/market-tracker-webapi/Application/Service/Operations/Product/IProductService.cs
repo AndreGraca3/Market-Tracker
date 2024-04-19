@@ -15,6 +15,7 @@ public interface IProductService
     public Task<Either<IServiceError, PaginatedProductsOutputModel>> GetProductsAsync(
         int skip,
         int take,
+        SortByType? sortBy,
         string? searchName,
         IList<int>? categoryIds,
         IList<int>? brandIds,
@@ -38,12 +39,12 @@ public interface IProductService
 
     public Task<Either<IServiceError, ProductInfoOutputModel>> UpdateProductAsync(
         string productId,
-        string name,
-        string imageUrl,
-        int quantity,
-        string unit,
-        string brandName,
-        int categoryId
+        string? name,
+        string? imageUrl,
+        int? quantity,
+        string? unit,
+        string? brandName,
+        int? categoryId
     );
 
     public Task<Either<ProductFetchingError, StringIdOutputModel>> RemoveProductAsync(

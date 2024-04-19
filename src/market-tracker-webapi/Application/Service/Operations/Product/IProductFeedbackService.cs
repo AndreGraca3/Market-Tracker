@@ -24,10 +24,7 @@ public interface IProductFeedbackService
         Optional<ProductReviewInputModel?> review
     );
 
-    Task<Either<IServiceError, ProductPreferences>> GetUserFeedbackByProductId(
-        Guid clientId,
-        string productId
-    );
+    Task<Either<IServiceError, ProductPreferences>> GetProductsPreferencesAsync(Guid clientId, string productId);
 
     Task<Either<ProductFetchingError, ProductStats>> GetProductStatsByIdAsync(string productId);
 }

@@ -94,7 +94,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
 
     public async Task<PriceAlert?> RemovePriceAlertAsync(Guid clientId, string productId)
     {
-        var priceAlertEntity = dataContext.PriceAlert.Find(clientId, productId);
+        var priceAlertEntity = await dataContext.PriceAlert.FindAsync(clientId, productId);
         if (priceAlertEntity is null)
         {
             return null;
@@ -129,7 +129,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         return isFavourite;
     }
 
-    public async Task<ProductPreferences> GetUserFeedbackByProductId(
+    public async Task<ProductPreferences> GetProductsPreferencesAsync(
         Guid clientId,
         string productId
     )

@@ -1,9 +1,7 @@
-using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -26,6 +24,7 @@ public class ProductController(IProductService productService, IProductPriceServ
             await productService.GetProductsAsync(
                 paginationInputs.Skip,
                 paginationInputs.ItemsPerPage,
+                paginationInputs.SortBy,
                 filters.SearchName,
                 filters.CategoryIds,
                 filters.BrandIds,
@@ -52,6 +51,7 @@ public class ProductController(IProductService productService, IProductPriceServ
                 {
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
                         => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -70,6 +70,7 @@ public class ProductController(IProductService productService, IProductPriceServ
                 {
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
                         => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -103,13 +104,14 @@ public class ProductController(IProductService productService, IProductPriceServ
                         => new CategoryProblem.CategoryByIdNotFound(
                             categoryNotFound
                         ).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
             outputModel => Created(Uris.Products.BuildProductByIdUri(outputModel.Id), outputModel)
         );
     }
 
-    [HttpPut(Uris.Products.ProductById)]
+    [HttpPatch(Uris.Products.ProductById)]
     public async Task<ActionResult<ProductInfoOutputModel>> UpdateProductAsync(
         string productId,
         [FromBody] ProductUpdateInputModel productInput
@@ -119,10 +121,10 @@ public class ProductController(IProductService productService, IProductPriceServ
             productId,
             productInput.Name,
             productInput.ImageUrl,
-            productInput.Quantity!.Value,
+            productInput.Quantity,
             productInput.Unit,
             productInput.BrandName,
-            productInput.CategoryId!.Value
+            productInput.CategoryId
         );
 
         return ResultHandler.Handle(
@@ -138,6 +140,7 @@ public class ProductController(IProductService productService, IProductPriceServ
                         => new CategoryProblem.CategoryByIdNotFound(
                             categoryNotFound
                         ).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -156,6 +159,7 @@ public class ProductController(IProductService productService, IProductPriceServ
                 {
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
                         => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
             _ => NoContent()

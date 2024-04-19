@@ -1,3 +1,4 @@
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Product;
@@ -26,6 +27,7 @@ public class ProductService(
     public async Task<Either<IServiceError, PaginatedProductsOutputModel>> GetProductsAsync(
         int skip,
         int take,
+        SortByType? sortBy,
         string? searchName,
         IList<int>? categoryIds,
         IList<int>? brandIds,
@@ -39,6 +41,7 @@ public class ProductService(
             var paginatedProducts = await productRepository.GetProductsAsync(
                 skip,
                 take,
+                sortBy,
                 searchName,
                 categoryIds,
                 brandIds,
@@ -47,7 +50,7 @@ public class ProductService(
             );
 
             var productsOffers = new List<ProductOffer>();
-            var hitsCounters = new ProductsHitsCounters();
+            var facetsCounters = new ProductsFacetsCounters();
 
             foreach (var product in paginatedProducts.Items)
             {
@@ -58,27 +61,27 @@ public class ProductService(
                 {
                     continue; // Skip product if no price is found
                 }
-                
+
                 productsOffers.Add(new ProductOffer(product, cheapestStorePrice));
 
                 var productBrandId = product.Brand.Id;
                 var productCategoryId = product.Category.Id;
                 var hasPromotion = cheapestStorePrice.PriceData.Promotion != null;
 
-                hitsCounters.AddOrUpdateBrandHitsCounter(productBrandId, product.Brand.Name);
-                hitsCounters.AddOrUpdateCategoryHitsCounter(productCategoryId, product.Category.Name);
-                hitsCounters.AddOrUpdateCompanyHitsCounter(
+                facetsCounters.AddOrUpdateBrandFacetCounter(productBrandId, product.Brand.Name);
+                facetsCounters.AddOrUpdateCategoryFacetCounter(productCategoryId, product.Category.Name);
+                facetsCounters.AddOrUpdateCompanyFacetCounter(
                     cheapestStorePrice.Store.Company.Id,
                     cheapestStorePrice.Store.Company.Name
                 );
-                hitsCounters.AddOrUpdatePromotionHitsCounter(hasPromotion);
+                facetsCounters.AddOrUpdatePromotionFacetCounter(hasPromotion);
             }
 
             var paginatedProductOffers =
                 new PaginatedResult<ProductOffer>(productsOffers, paginatedProducts.TotalItems, skip, take);
 
             return EitherExtensions.Success<IServiceError, PaginatedProductsOutputModel>(
-                new PaginatedProductsOutputModel(paginatedProductOffers, hitsCounters)
+                new PaginatedProductsOutputModel(paginatedProductOffers, facetsCounters)
             );
         });
     }
@@ -152,27 +155,40 @@ public class ProductService(
 
     public async Task<Either<IServiceError, ProductInfoOutputModel>> UpdateProductAsync(
         string productId,
-        string name,
-        string imageUrl,
-        int quantity,
-        string unit,
-        string brandName,
-        int categoryId
+        string? name,
+        string? imageUrl,
+        int? quantity,
+        string? unit,
+        string? brandName,
+        int? categoryId
     )
     {
         // Moderators only
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var brand =
-                await brandRepository.GetBrandByNameAsync(brandName)
-                ?? await brandRepository.AddBrandAsync(brandName);
-
-            var category = await categoryRepository.GetCategoryByIdAsync(categoryId);
-            if (category is null)
+            var product = await productRepository.GetProductByIdAsync(productId);
+            if (product is null)
             {
                 return EitherExtensions.Failure<IServiceError, ProductInfoOutputModel>(
-                    new CategoryFetchingError.CategoryByIdNotFound(categoryId)
+                    new ProductFetchingError.ProductByIdNotFound(productId)
                 );
+            }
+
+            var brand = brandName is not null
+                ? await brandRepository.GetBrandByNameAsync(brandName)
+                  ?? await brandRepository.AddBrandAsync(brandName)
+                : product.Brand;
+
+            var category = product.Category;
+            if (categoryId is not null)
+            {
+                category = await categoryRepository.GetCategoryByIdAsync(categoryId.Value);
+                if (category is null)
+                {
+                    return EitherExtensions.Failure<IServiceError, ProductInfoOutputModel>(
+                        new CategoryFetchingError.CategoryByIdNotFound(categoryId.Value)
+                    );
+                }
             }
 
             var updatedProduct = await productRepository.UpdateProductAsync(
@@ -182,18 +198,11 @@ public class ProductService(
                 quantity,
                 unit,
                 brand.Id,
-                category.Id
+                categoryId
             );
 
-            if (updatedProduct is null)
-            {
-                return EitherExtensions.Failure<IServiceError, ProductInfoOutputModel>(
-                    new ProductFetchingError.ProductByIdNotFound(productId)
-                );
-            }
-
             return EitherExtensions.Success<IServiceError, ProductInfoOutputModel>(
-                ProductInfoOutputModel.ToProductInfoOutputModel(updatedProduct, brand, category)
+                ProductInfoOutputModel.ToProductInfoOutputModel(updatedProduct!, brand, category)
             );
         });
     }

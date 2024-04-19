@@ -29,10 +29,7 @@ public class CityController(ICityService cityService) : ControllerBase
                 {
                     CityFetchingError.CityByIdNotFound idNotFoundError
                         => new CityProblem.CityByIdNotFound(idNotFoundError).ToActionResult(),
-                    _
-                        => new ServerProblem.InternalServerError(
-                            nameof(CityController)
-                        ).ToActionResult()
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -52,10 +49,7 @@ public class CityController(ICityService cityService) : ControllerBase
                 {
                     CityCreationError.CityNameAlreadyExists cityNameError
                         => new CityProblem.CityNameAlreadyExists(cityNameError).ToActionResult(),
-                    _
-                        => new ServerProblem.InternalServerError(
-                            nameof(CityController)
-                        ).ToActionResult()
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
             outputModel => Created(Uris.Cities.BuildCategoryByIdUri(outputModel.Id), outputModel)
@@ -79,10 +73,7 @@ public class CityController(ICityService cityService) : ControllerBase
                         => new CityProblem.CityByIdNotFound(idNotFoundError).ToActionResult(),
                     CityCreationError.CityNameAlreadyExists cityNameError
                         => new CityProblem.CityNameAlreadyExists(cityNameError).ToActionResult(),
-                    _
-                        => new ServerProblem.InternalServerError(
-                            nameof(CityController)
-                        ).ToActionResult()
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );

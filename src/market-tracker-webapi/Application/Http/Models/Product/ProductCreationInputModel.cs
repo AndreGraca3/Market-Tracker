@@ -8,7 +8,7 @@ public class ProductCreationInputModel
     public string Id { get; set; }
 
     [Required]
-    [MaxLength(50, ErrorMessage = "Name too long.")]
+    [MaxLength(100, ErrorMessage = "Name too long.")]
     public string Name { get; set; }
 
     [Required]

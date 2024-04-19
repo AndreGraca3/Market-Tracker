@@ -13,6 +13,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
     public async Task<PaginatedResult<ProductInfo>> GetProductsAsync(
         int skip,
         int take,
+        SortByType? sortBy,
         string? name,
         IList<int>? categoryIds,
         IList<int>? brandIds,
@@ -35,6 +36,25 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                 Brand = brand,
                 Category = category
             };
+
+        switch (sortBy)
+        {
+            case SortByType.NameHighToLow:
+                query = query.OrderByDescending(queryRes => queryRes.Product.Name);
+                break;
+            case SortByType.NameLowToHigh:
+                query = query.OrderBy(queryRes => queryRes.Product.Name);
+                break;
+            case SortByType.RatingHighToLow:
+                query = query.OrderByDescending(queryRes => queryRes.Product.Rating);
+                break;
+            case SortByType.RatingLowToHigh:
+                query = query.OrderBy(queryRes => queryRes.Product.Rating);
+                break;
+            default:
+                query = query.OrderBy(queryRes => queryRes.Product.Views);
+                break;
+        }
 
         var items = await query
             .Skip(skip)

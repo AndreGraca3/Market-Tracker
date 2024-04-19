@@ -22,7 +22,7 @@ public interface IProductFeedbackRepository
 
     Task<bool> UpdateProductFavouriteAsync(Guid clientId, string productId, bool isFavourite);
 
-    Task<ProductPreferences> GetUserFeedbackByProductId(Guid clientId, string productId);
+    Task<ProductPreferences> GetProductsPreferencesAsync(Guid clientId, string productId);
 
     public Task<ProductStats?> GetProductStatsByIdAsync(string productId);
 }

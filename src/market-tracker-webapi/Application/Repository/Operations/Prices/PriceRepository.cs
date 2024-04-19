@@ -1,8 +1,8 @@
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Price;
 using market_tracker_webapi.Application.Repository.Dto.Store;
 using market_tracker_webapi.Infrastructure;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.Operations.Prices;
@@ -50,7 +50,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 new StorePrice(StoreInfo.ToStoreInfo(group.Store.ToStore(), group.City?.ToCity(),
                     group.Company.ToCompany()), PriceInfo.Calculate(group.PriceEntry.Price,
                     group.Promotion?.ToPromotion(group.PriceEntry.Price), group.PriceEntry.CreatedAt))
-            ).OrderBy(group => group.PriceData.Price).First();
+            ).MinBy(group => group.PriceData.Price);
 
         return cheapestStore;
     }
@@ -175,7 +175,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             .ToListAsync();
     }
 
-    public Task AddPriceAsync(
+    public async Task<string> AddPriceAsync(
         string productId,
         int storeId,
         int price,
@@ -183,6 +183,31 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         int? promotionPercentage
     )
     {
-        throw new NotImplementedException();
+        var priceEntry = new PriceEntryEntity
+        {
+            ProductId = productId,
+            StoreId = storeId,
+            Price = price,
+            CreatedAt = createdAt
+        };
+
+        await dataContext.PriceEntry.AddAsync(priceEntry);
+
+        await dataContext.SaveChangesAsync();
+
+        if (promotionPercentage.HasValue)
+        {
+            var promotion = new PromotionEntity
+            {
+                Percentage = promotionPercentage.Value,
+                PriceEntryId = priceEntry.Id
+            };
+
+            await dataContext.Promotion.AddAsync(promotion);
+        }
+
+        await dataContext.SaveChangesAsync();
+
+        return priceEntry.Id;
     }
 }

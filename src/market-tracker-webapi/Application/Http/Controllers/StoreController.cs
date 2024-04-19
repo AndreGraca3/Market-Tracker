@@ -138,15 +138,15 @@ public class StoreController(IStoreService storeService) : ControllerBase
     [HttpPut(Uris.Stores.StoreById)]
     public async Task<ActionResult<IntIdOutputModel>> UpdateStoreAsync(
         int id,
-        [FromBody] StoreUpdateInputModel model
+        [FromBody] StoreUpdateInputModel storeInput
     )
     {
         var res = await storeService.UpdateStoreAsync(
             id,
-            model.Name,
-            model.Address,
-            model.CityId,
-            model.CompanyId
+            storeInput.Name,
+            storeInput.Address,
+            storeInput.CityId,
+            storeInput.CompanyId
         );
         return ResultHandler.Handle(
             res,

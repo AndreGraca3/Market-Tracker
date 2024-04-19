@@ -66,7 +66,7 @@ public class ProductFeedbackService(
                 );
             }
 
-            var oldPreferences = await productFeedbackRepository.GetUserFeedbackByProductId(
+            var oldPreferences = await productFeedbackRepository.GetProductsPreferencesAsync(
                 clientId,
                 productId
             );
@@ -127,15 +127,13 @@ public class ProductFeedbackService(
         });
     }
 
-    public async Task<Either<IServiceError, ProductPreferences>> GetUserFeedbackByProductId(
+    public async Task<Either<IServiceError, ProductPreferences>> GetProductsPreferencesAsync(
         Guid clientId,
         string productId
     )
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            throw new NotImplementedException(); // TODO: search if client exists
-
             if (await productRepository.GetProductByIdAsync(productId) is null)
             {
                 return EitherExtensions.Failure<IServiceError, ProductPreferences>(
@@ -143,7 +141,7 @@ public class ProductFeedbackService(
                 );
             }
 
-            var clientFeedback = await productFeedbackRepository.GetUserFeedbackByProductId(
+            var clientFeedback = await productFeedbackRepository.GetProductsPreferencesAsync(
                 clientId,
                 productId
             );

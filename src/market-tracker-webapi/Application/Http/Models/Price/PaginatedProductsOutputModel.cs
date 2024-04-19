@@ -5,34 +5,34 @@ namespace market_tracker_webapi.Application.Http.Models.Price;
 
 public class PaginatedProductsOutputModel(
     PaginatedResult<ProductOffer> paginatedResult,
-    ProductsHitsCounters hitsCounters
+    ProductsFacetsCounters facetsCounters
 )
 {
     public IEnumerable<ProductOffer> Items { get; } = paginatedResult.Items;
-    public ProductsHitsCounters Hits { get; } = hitsCounters;
+    public ProductsFacetsCounters Facets { get; } = facetsCounters;
     public int CurrentPage { get; } = paginatedResult.CurrentPage;
     public int ItemsPerPage { get; } = paginatedResult.ItemsPerPage;
     public int TotalItems { get; } = paginatedResult.TotalItems;
     public int TotalPages { get; } = paginatedResult.TotalPages;
 }
 
-public class ProductsHitsCounters
+public class ProductsFacetsCounters
 {
-    private Dictionary<int, HitsCounter> _brandsDictionary = new();
-    private Dictionary<int, HitsCounter> _companiesDictionary = new();
-    private Dictionary<int, HitsCounter> _categoriesDictionary = new();
-    private BooleanHitsCounter _promotionDictionary = new();
+    private Dictionary<int, FacetCounter> _brandsDictionary = new();
+    private Dictionary<int, FacetCounter> _companiesDictionary = new();
+    private Dictionary<int, FacetCounter> _categoriesDictionary = new();
+    private BooleanFacetsCounter _promotionDictionary = new();
 
-    public IEnumerable<HitsCounter> Brands => _brandsDictionary.Values;
-    public IEnumerable<HitsCounter> Companies => _companiesDictionary.Values;
-    public IEnumerable<HitsCounter> Categories => _categoriesDictionary.Values;
-    public BooleanHitsCounter Promotions => _promotionDictionary;
+    public IEnumerable<FacetCounter> Brands => _brandsDictionary.Values;
+    public IEnumerable<FacetCounter> Companies => _companiesDictionary.Values;
+    public IEnumerable<FacetCounter> Categories => _categoriesDictionary.Values;
+    public BooleanFacetsCounter Promotions => _promotionDictionary;
 
-    public void AddOrUpdateBrandHitsCounter(int brandId, string brandName)
+    public void AddOrUpdateBrandFacetCounter(int brandId, string brandName)
     {
-        if (!_brandsDictionary.TryGetValue(brandId, out HitsCounter? value))
+        if (!_brandsDictionary.TryGetValue(brandId, out FacetCounter? value))
         {
-            value = new HitsCounter
+            value = new FacetCounter
             {
                 Id = brandId,
                 Name = brandName
@@ -43,16 +43,16 @@ public class ProductsHitsCounters
         value.Count++;
     }
 
-    public void AddOrUpdateCompanyHitsCounter(int? companyId, string? companyName)
+    public void AddOrUpdateCompanyFacetCounter(int? companyId, string? companyName)
     {
         if (companyId == null || companyName == null)
         {
             return;
         }
 
-        if (!_companiesDictionary.TryGetValue(companyId.Value, out HitsCounter? value))
+        if (!_companiesDictionary.TryGetValue(companyId.Value, out FacetCounter? value))
         {
-            value = new HitsCounter
+            value = new FacetCounter
             {
                 Id = companyId.Value,
                 Name = companyName
@@ -63,11 +63,11 @@ public class ProductsHitsCounters
         value.Count++;
     }
 
-    public void AddOrUpdateCategoryHitsCounter(int categoryId, string categoryName)
+    public void AddOrUpdateCategoryFacetCounter(int categoryId, string categoryName)
     {
-        if (!_categoriesDictionary.TryGetValue(categoryId, out HitsCounter? value))
+        if (!_categoriesDictionary.TryGetValue(categoryId, out FacetCounter? value))
         {
-            value = new HitsCounter
+            value = new FacetCounter
             {
                 Id = categoryId,
                 Name = categoryName
@@ -78,7 +78,7 @@ public class ProductsHitsCounters
         value.Count++;
     }
 
-    public void AddOrUpdatePromotionHitsCounter(bool hasPromotion)
+    public void AddOrUpdatePromotionFacetCounter(bool hasPromotion)
     {
         if (hasPromotion)
         {
@@ -91,7 +91,7 @@ public class ProductsHitsCounters
     }
 }
 
-public class HitsCounter
+public class FacetCounter
 {
     public required int Id { get; set; }
 
@@ -100,7 +100,7 @@ public class HitsCounter
     public int Count { get; set; } = 0;
 }
 
-public record BooleanHitsCounter
+public record BooleanFacetsCounter
 {
     public int False { get; set; } = 0;
 

@@ -11,6 +11,7 @@ public interface IProductRepository
     Task<PaginatedResult<ProductInfo>> GetProductsAsync(
         int skip,
         int take,
+        SortByType? sortBy = null,
         string? name = null,
         IList<int>? categoryIds = null,
         IList<int>? brandIds = null,

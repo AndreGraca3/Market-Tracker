@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using market_tracker_webapi.Application.Repository.Dto;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace market_tracker_webapi.Application.Http.Models;
@@ -9,7 +10,7 @@ public class PaginationInputs
 
     [Range(1, 100)] public int ItemsPerPage { get; set; } = 20;
 
-    public string? SortBy { get; set; }
+    public SortByType? SortBy { get; set; }
 
     [BindNever] public int Skip => (Page - 1) * ItemsPerPage;
 }

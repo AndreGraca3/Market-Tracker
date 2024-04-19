@@ -10,8 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace market_tracker_webapi.Application.Http.Controllers.Product;
 
 [ApiController]
-public class ProductFeedbackController(IProductFeedbackService productFeedbackService)
-    : ControllerBase
+public class ProductFeedbackController(IProductFeedbackService productFeedbackService) : ControllerBase
 {
     [HttpGet(Uris.Products.ReviewsByProductId)]
     public async Task<ActionResult<PaginatedResult<ProductReviewOutputModel>>> GetReviewsByProductIdAsync(
@@ -37,12 +36,12 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     }
 
     [HttpGet(Uris.Products.ProductPreferencesById)]
-    public async Task<ActionResult<ProductPreferences>> GetUserFeedbackByProductIdAsync(
-        string productId
-    )
+    public async Task<ActionResult<ProductPreferences>> GetProductsPreferencesAsync(string productId)
     {
         var clientId = Guid.NewGuid(); // TODO: Implement authorization
-        var res = await productFeedbackService.GetUserFeedbackByProductId(clientId, productId);
+        var res = await productFeedbackService.GetProductsPreferencesAsync(
+            clientId, productId
+        );
         return ResultHandler.Handle(
             res,
             error =>
@@ -60,7 +59,7 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     [HttpPatch(Uris.Products.ProductPreferencesById)]
     public async Task<ActionResult<ProductPreferences>> AddUserFeedbackByProductIdAsync(
         string productId,
-        [FromBody] ProductPreferencesInputModel productPreferencesInput
+        [FromBody] ProductPreferencesInputModel preferencesInput
     )
     {
         var clientId = Guid.NewGuid(); // TODO: Implement authorization
@@ -68,9 +67,9 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
         var res = await productFeedbackService.UpsertProductPreferencesAsync(
             clientId,
             productId,
-            productPreferencesInput.IsFavourite,
-            productPreferencesInput.PriceAlert,
-            productPreferencesInput.Review
+            preferencesInput.IsFavourite,
+            preferencesInput.PriceAlert,
+            preferencesInput.Review
         );
 
         return ResultHandler.Handle(

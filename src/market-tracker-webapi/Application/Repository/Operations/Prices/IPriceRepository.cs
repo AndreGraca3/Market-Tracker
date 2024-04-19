@@ -30,7 +30,7 @@ public interface IPriceRepository
         DateTime pricedBefore
     );
 
-    public Task AddPriceAsync(
+    public Task<string> AddPriceAsync(
         string productId,
         int storeId,
         int price,
