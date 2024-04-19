@@ -1,6 +1,8 @@
 package pt.isel.markettracker.ui.screens
 
-import androidx.activity.result.ActivityResult
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.padding
@@ -11,13 +13,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import pt.isel.markettracker.domain.Loaded
+import com.talhafaki.composablesweettoast.util.SweetToastUtil.SweetError
+import pt.isel.markettracker.domain.Fail
 import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.navigation.Destination
 import pt.isel.markettracker.navigation.NavBar
@@ -43,6 +47,20 @@ fun MainScreen(
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     val loginState by loginScreenViewModel.loginPhase.collectAsState(initial = idle())
+
+    val userFetchingState by profileScreenViewModel.userPhase.collectAsState(initial = idle())
+
+    val launcher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent(),
+            onResult = { contentPath ->
+                if (contentPath != null) {
+                    profileScreenViewModel.avatarPath = contentPath
+                    profileScreenViewModel.updateUser()
+                }
+            }
+        )
+
 
     Scaffold(
         contentColor = Color.Black,
@@ -82,9 +100,35 @@ fun MainScreen(
                 // if logged show profile screen
                 if (loginState is LoginScreenState.Success) {
                     ProfileScreen(
-                        user = profileScreenViewModel.user
+                        user = userFetchingState,
+                        onLogoutRequested = {
+                            /** WARNING:
+                             * I Realized now I Should be using the same viewModel for both
+                             * Profile and Login Screens. Meaning the code bellow is not Correct!
+                             * **/
+                            profileScreenViewModel.logout()
+                            loginScreenViewModel.logout()
+                        },
+                        onEditRequested = {
+
+                        },
+                        onChangeAvatarRequested = {
+                            launcher.launch("image/*")
+                        },
+                        onDeleteAccountRequested = {
+                            loginScreenViewModel.logout()
+                            profileScreenViewModel.deleteAccount()
+                        }
                     )
                 } else {
+                    if (loginState is Fail) {
+                        SweetError(
+                            (loginState as Fail).exception.message
+                                ?: "Credenciais Inválidas ou Conta Inexistente",
+                            Toast.LENGTH_LONG,
+                            contentAlignment = Alignment.Center
+                        )
+                    }
                     LoginScreen(
                         email = loginScreenViewModel.email,
                         password = loginScreenViewModel.password,
@@ -92,6 +136,7 @@ fun MainScreen(
                         onPasswordChange = { loginScreenViewModel.password = it },
                         onLoginRequested = {
                             loginScreenViewModel.login()
+                            profileScreenViewModel.fetchUser()
                         },
                         onGoogleLoginRequested = loginScreenViewModel::handleGoogleSignInTask,
                         onCreateAccountRequested = onCreateAccountRequested

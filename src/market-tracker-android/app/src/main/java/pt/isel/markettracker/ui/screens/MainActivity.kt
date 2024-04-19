@@ -1,30 +1,30 @@
 package pt.isel.markettracker.ui.screens
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
+import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
+import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModelFactory
+import pt.isel.markettracker.ui.screens.signup.SignUpActivity
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.utils.NavigateAux
 
 
-private val TAG = "OLA"
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val vm by viewModels<ProfileScreenViewModel>(
+        extrasProducer = {
+            defaultViewModelCreationExtras.withCreationCallback<ProfileScreenViewModelFactory> { factory ->
+                factory.create(contentResolver)
+            }
+        }
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen().setKeepOnScreenCondition {
@@ -35,11 +35,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             MarkettrackerTheme {
                 MainScreen(
+                    profileScreenViewModel = vm,
                     onProductClick = {
                         NavigateAux.navigateTo<ProductDetailsActivity>(this)
                     },
                     onCreateAccountRequested = {
-                        // make a fetch to Create User
+                        NavigateAux.navigateTo<SignUpActivity>(this)
                     }
                 )
             }

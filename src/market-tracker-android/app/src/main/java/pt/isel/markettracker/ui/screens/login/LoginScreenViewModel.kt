@@ -74,7 +74,6 @@ class LoginScreenViewModel @Inject constructor(
                 return@launch
             }
             loginPhaseFlow.value = LoginScreenState.Fail(result.exceptionOrNull()!!)
-            //preferences.setToken(result.getOrNull().toString())
         }
     }
 
@@ -92,5 +91,9 @@ class LoginScreenViewModel @Inject constructor(
         }
     }
 
-    //
+    fun logout() {
+        email = ""
+        password = ""
+        loginPhaseFlow.value = LoginScreenState.Idle
+    }
 }

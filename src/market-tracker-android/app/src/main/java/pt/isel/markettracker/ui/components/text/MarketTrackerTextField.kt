@@ -11,7 +11,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun  MarketTrackerTextField(
+fun MarketTrackerTextField(
     modifier: Modifier = Modifier,
     value: String,
     enabled: Boolean = true,
@@ -32,8 +32,8 @@ fun  MarketTrackerTextField(
         placeholder = placeholder,
         singleLine = true,
         shape = RoundedCornerShape(16.dp),
-        visualTransformation = if(isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = if(isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
         modifier = modifier
     )
 }

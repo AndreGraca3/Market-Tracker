@@ -1,60 +1,92 @@
 package pt.isel.markettracker.ui.screens.profile
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.SubcomposeAsyncImage
 import com.example.markettracker.R
-import pt.isel.markettracker.domain.user.User
-import pt.isel.markettracker.ui.theme.MarkettrackerTheme
+import pt.isel.markettracker.domain.IOState
+import pt.isel.markettracker.http.models.user.UserOutputModel
+import pt.isel.markettracker.ui.components.common.IOResourceLoader
+import pt.isel.markettracker.ui.screens.profile.components.AvatarIcon
+import pt.isel.markettracker.ui.screens.profile.components.SettingsButton
+import pt.isel.markettracker.ui.screens.profile.components.TimeDisplay
 import pt.isel.markettracker.ui.theme.mainFont
 
 const val ProfileScreenTestTag = "SignUpScreenTag"
 
 @Composable
 fun ProfileScreen(
-    user: User
+    user: IOState<UserOutputModel>,
+    onLogoutRequested: () -> Unit,
+    onEditRequested: () -> Unit,
+    onChangeAvatarRequested: () -> Unit,
+    onDeleteAccountRequested: () -> Unit
 ) {
-    MarkettrackerTheme {
+    IOResourceLoader(
+        resource = user,
+        errorContent = {
+            Text("Falha ao carregar o profile!")
+        },
+    ) { userDetails ->
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .testTag(ProfileScreenTestTag),
             contentAlignment = Alignment.Center
         ) {
+            SettingsButton(
+                icon = Icons.Default.Settings,
+                onEditRequested = onEditRequested,
+                onDeleteRequested = onDeleteAccountRequested,
+                modifier = Modifier.align(alignment = Alignment.TopEnd)
+            )
+
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
 
-                Image(
-                    painter = painterResource(R.drawable.user_icon),
-                    contentDescription = "user_icon"
+                Text(
+                    text = "Bem vindo/a ${userDetails.name} 👋",
+                    fontFamily = mainFont,
+                    fontSize = 30.sp
+                )
+
+                AvatarIcon(
+                    avatarIcon = userDetails.avatar,
+                    onIconClick = onChangeAvatarRequested,
                 )
 
                 Text(
-                    text = user.username
+                    text = userDetails.username,
+                    fontFamily = mainFont
                 )
 
                 Text(
-                    text = user.name
+                    text = userDetails.email
                 )
 
-                Text(
-                    text = user.email
+                TimeDisplay(
+                    userDetails.createdAt
                 )
 
-                Button(onClick = { /*TODO*/ }) {
-                    Text("Logout", fontFamily = mainFont)
+                Button(
+                    onClick = onLogoutRequested
+                ) {
+                    Text("Logout ✋", fontFamily = mainFont)
                 }
             }
         }

@@ -23,11 +23,6 @@ interface MarketTrackerDependencyProvider {
     val userService: IUserService
 
     /**
-     * The service used to manipulate the token
-     */
-    val tokenService: ITokenService
-
-    /**
      * The data store used to store the user token
      */
     val preferencesRepository: PreferencesRepository

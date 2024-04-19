@@ -3,20 +3,17 @@ package pt.isel.markettracker.ui.screens.signup
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
-import pt.isel.markettracker.MarketTrackerDependencyProvider
-import pt.isel.markettracker.utils.NavigateAux
+import androidx.hilt.navigation.compose.hiltViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SignUpActivity : ComponentActivity() {
-
-    private val vm by viewModels<SignUpScreenViewModel> {
-        val app = (application as MarketTrackerDependencyProvider)
-        SignUpScreenViewModel.factory(app.userService)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val vm: SignUpScreenViewModel = hiltViewModel()
+
             SignUpScreen(
                 name = vm.name,
                 username = vm.username,

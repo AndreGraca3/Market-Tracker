@@ -8,13 +8,15 @@ import pt.isel.markettracker.http.models.user.UsersOutputModel
 import java.util.UUID
 
 interface IUserService {
-    suspend fun getUsers(/* pagination + username*/): UsersOutputModel
+    suspend fun getUsers(username: String?): UsersOutputModel
 
-    suspend fun getUser(): UserOutputModel
+    suspend fun getUser(id: String): UserOutputModel
 
-    suspend fun createUser(input: UserCreationInputModel): IdOutputModel
+    suspend fun createUser(input: UserCreationInputModel): IdOutputModel // "create client"
 
-    suspend fun updateUser(input: UserUpdateInputModel): UserOutputModel
+    suspend fun updateUser(id: String, input: UserUpdateInputModel): UserOutputModel
 
-    suspend fun deleteUser(): IdOutputModel
+    suspend fun updateUserAvatar(id: String, avatar: String)
+
+    suspend fun deleteUser(id: String): IdOutputModel
 }
