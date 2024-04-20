@@ -1,8 +1,5 @@
 package pt.isel.markettracker.ui.screens
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,7 +39,6 @@ import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 fun MainScreen(
     onProductClick: (String) -> Unit,
     onBarcodeScanRequest: () -> Unit,
-    productsScreenViewModel: ProductsScreenViewModel = hiltViewModel()
     onCreateAccountRequested: () -> Unit,
     productsScreenViewModel: ProductsScreenViewModel = hiltViewModel(),
     loginScreenViewModel: LoginScreenViewModel = hiltViewModel(),

@@ -5,7 +5,7 @@ import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.domain.user.User
 import pt.isel.markettracker.dummy.dummyUsers
-import pt.isel.markettracker.http.models.IdOutputModel
+import pt.isel.markettracker.http.models.StringIdOutputModel
 import pt.isel.markettracker.http.models.user.UserCreationInputModel
 import pt.isel.markettracker.http.models.user.UserOutputModel
 import pt.isel.markettracker.http.models.user.UserUpdateInputModel
@@ -52,7 +52,7 @@ class UserService(
         return dummyUsers.first { it.id == id }.toUserOutputModel()
     }
 
-    override suspend fun createUser(input: UserCreationInputModel): IdOutputModel {
+    override suspend fun createUser(input: UserCreationInputModel): StringIdOutputModel {
         /*return requestHandler<IdOutputModel>(
             request = Request.Builder().buildRequest(
                 url = USER_REQUEST_URL,
@@ -70,7 +70,7 @@ class UserService(
                 password = input.password
             )
         )
-        return IdOutputModel(id)
+        return StringIdOutputModel(id)
     }
 
     override suspend fun updateUser(id: String, input: UserUpdateInputModel): UserOutputModel {
@@ -102,7 +102,7 @@ class UserService(
         }
     }
 
-    override suspend fun deleteUser(id: String): IdOutputModel {
+    override suspend fun deleteUser(id: String): StringIdOutputModel {
         //return requestHandler<IdOutputModel>(
         //    request = Request.Builder().buildRequest(
         //        url = USER_REQUEST_URL,
@@ -110,7 +110,7 @@ class UserService(
         //    )
         //)
         dummyUsers.removeIf { it.id == id } // verify if true
-        return IdOutputModel(id)
+        return StringIdOutputModel(id)
     }
 
     private fun User.toUserOutputModel(): UserOutputModel {

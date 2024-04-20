@@ -11,10 +11,10 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
+import pt.isel.markettracker.ui.screens.product.ProductIdExtra
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModelFactory
 import pt.isel.markettracker.ui.screens.signup.SignUpActivity
-import pt.isel.markettracker.ui.screens.product.ProductIdExtra
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.utils.navigateTo
 
@@ -41,15 +41,14 @@ class MainActivity : ComponentActivity() {
                 MainScreen(
                     profileScreenViewModel = vm,
                     onProductClick = {
-                        NavigateAux.navigateTo<ProductDetailsActivity>(this)
-                    },
-                    onCreateAccountRequested = {
-                        NavigateAux.navigateTo<SignUpActivity>(this)
                         navigateTo<ProductDetailsActivity>(
                             this,
                             ProductDetailsActivity.PRODUCT_ID_EXTRA,
                             ProductIdExtra(it)
                         )
+                    },
+                    onCreateAccountRequested = {
+                        navigateTo<SignUpActivity>(this)
                     },
                     onBarcodeScanRequest = {
                         val scanner =
