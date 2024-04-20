@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -19,6 +20,7 @@ import com.example.markettracker.R
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.http.models.user.UserOutputModel
 import pt.isel.markettracker.ui.components.common.IOResourceLoader
+import pt.isel.markettracker.ui.screens.login.LoginScreenState
 import pt.isel.markettracker.ui.screens.profile.components.AvatarIcon
 import pt.isel.markettracker.ui.screens.profile.components.SettingsButton
 import pt.isel.markettracker.ui.screens.profile.components.TimeDisplay
@@ -29,11 +31,17 @@ const val ProfileScreenTestTag = "SignUpScreenTag"
 @Composable
 fun ProfileScreen(
     user: IOState<UserOutputModel>,
+    onFetchUserRequested: () -> Unit,
     onLogoutRequested: () -> Unit,
     onEditRequested: () -> Unit,
     onChangeAvatarRequested: () -> Unit,
     onDeleteAccountRequested: () -> Unit
 ) {
+
+    LaunchedEffect(Unit) {
+        onFetchUserRequested()
+    }
+
     IOResourceLoader(
         resource = user,
         errorContent = {

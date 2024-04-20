@@ -61,7 +61,6 @@ fun MainScreen(
             }
         )
 
-
     Scaffold(
         contentColor = Color.Black,
         bottomBar = {
@@ -101,12 +100,9 @@ fun MainScreen(
                 if (loginState is LoginScreenState.Success) {
                     ProfileScreen(
                         user = userFetchingState,
+                        onFetchUserRequested = profileScreenViewModel::fetchUser,
                         onLogoutRequested = {
-                            /** WARNING:
-                             * I Realized now I Should be using the same viewModel for both
-                             * Profile and Login Screens. Meaning the code bellow is not Correct!
-                             * **/
-                            profileScreenViewModel.logout()
+                            profileScreenViewModel.resetToIdle()
                             loginScreenViewModel.logout()
                         },
                         onEditRequested = {
@@ -136,7 +132,6 @@ fun MainScreen(
                         onPasswordChange = { loginScreenViewModel.password = it },
                         onLoginRequested = {
                             loginScreenViewModel.login()
-                            profileScreenViewModel.fetchUser()
                         },
                         onGoogleLoginRequested = loginScreenViewModel::handleGoogleSignInTask,
                         onCreateAccountRequested = onCreateAccountRequested

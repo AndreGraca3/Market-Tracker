@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.Fail
 import pt.isel.markettracker.domain.IOState
+import pt.isel.markettracker.domain.Idle
 import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.domain.loadSuccess
 import pt.isel.markettracker.domain.loading
@@ -41,6 +42,7 @@ class ProfileScreenViewModel @AssistedInject constructor(
     var avatarPath by mutableStateOf<Uri?>(null)
 
     fun fetchUser() {
+        if (userFetchingFlow.value !is Idle) return
         userFetchingFlow.value = loading()
         viewModelScope.launch {
             val result = runCatchingAPIFailure {
@@ -55,7 +57,7 @@ class ProfileScreenViewModel @AssistedInject constructor(
         }
     }
 
-    fun logout() {
+    fun resetToIdle() {
         //remove token from preferences
         viewModelScope.launch {
             val user = userService.getUser("1")

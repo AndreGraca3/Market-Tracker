@@ -69,6 +69,8 @@ class LoginScreenViewModel @Inject constructor(
                     )
                 )
             }
+            email = ""
+            password = ""
             if (result.isSuccess) {
                 loginPhaseFlow.value = LoginScreenState.Success(result)
                 return@launch
@@ -92,8 +94,6 @@ class LoginScreenViewModel @Inject constructor(
     }
 
     fun logout() {
-        email = ""
-        password = ""
         loginPhaseFlow.value = LoginScreenState.Idle
     }
 }
