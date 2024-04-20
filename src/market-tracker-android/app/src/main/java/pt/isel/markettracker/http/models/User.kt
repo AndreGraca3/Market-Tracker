@@ -1,9 +1,5 @@
 package pt.isel.markettracker.http.models
 
-data class UserCreationInputModel(
-    val name: String // TODO
-)
-
 data class UserInfo(
     val id: Int,
     val name: String,

@@ -14,6 +14,10 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.operations.product.ProductService
+import pt.isel.markettracker.http.service.operations.token.ITokenService
+import pt.isel.markettracker.http.service.operations.token.TokenService
+import pt.isel.markettracker.http.service.operations.user.IUserService
+import pt.isel.markettracker.http.service.operations.user.UserService
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -48,5 +52,17 @@ class AppModule {
     @Singleton
     fun provideProductService(httpClient: OkHttpClient, gson: Gson): IProductService {
         return ProductService(httpClient, gson)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserService(httpClient: OkHttpClient, gson: Gson): IUserService {
+        return UserService(httpClient, gson)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTokenService(httpClient: OkHttpClient, gson: Gson): ITokenService {
+        return TokenService(httpClient, gson)
     }
 }
