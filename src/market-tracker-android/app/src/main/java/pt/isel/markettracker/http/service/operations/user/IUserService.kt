@@ -5,7 +5,6 @@ import pt.isel.markettracker.http.models.user.UserCreationInputModel
 import pt.isel.markettracker.http.models.user.UserOutputModel
 import pt.isel.markettracker.http.models.user.UserUpdateInputModel
 import pt.isel.markettracker.http.models.user.UsersOutputModel
-import java.util.UUID
 
 interface IUserService {
     suspend fun getUsers(username: String?): UsersOutputModel

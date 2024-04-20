@@ -9,7 +9,6 @@ import pt.isel.markettracker.http.models.token.TokenCreationInputModel
 import pt.isel.markettracker.http.models.token.TokenOutputModel
 import pt.isel.markettracker.http.service.MarketTrackerService
 import java.net.URL
-import java.util.UUID
 
 class TokenService(
     override val httpClient: OkHttpClient,
@@ -52,6 +51,6 @@ class TokenService(
         //        method = HttpMethod.DELETE
         //    )
         //)
-        dummyTokens.removeIf { it.tokenValue == tokenValue}
+        dummyTokens.removeIf { it.tokenValue == tokenValue }
     }
 }

@@ -15,12 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.SubcomposeAsyncImage
-import com.example.markettracker.R
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.http.models.user.UserOutputModel
 import pt.isel.markettracker.ui.components.common.IOResourceLoader
-import pt.isel.markettracker.ui.screens.login.LoginScreenState
 import pt.isel.markettracker.ui.screens.profile.components.AvatarIcon
 import pt.isel.markettracker.ui.screens.profile.components.SettingsButton
 import pt.isel.markettracker.ui.screens.profile.components.TimeDisplay

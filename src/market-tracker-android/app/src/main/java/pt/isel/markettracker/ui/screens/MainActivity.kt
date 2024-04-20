@@ -14,7 +14,6 @@ import pt.isel.markettracker.ui.screens.signup.SignUpActivity
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.utils.NavigateAux
 
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
