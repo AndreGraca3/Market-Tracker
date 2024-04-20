@@ -33,6 +33,10 @@ fun MainScreen(
     val navController = rememberNavController()
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
+    navController.addOnDestinationChangedListener { _, destination, _ ->
+        selectedIndex = destination.route?.toDestination()?.ordinal ?: 0
+    }
+
     Scaffold(
         contentColor = Color.Black,
         bottomBar = {
@@ -40,7 +44,6 @@ fun MainScreen(
                 Destination.entries,
                 selectedIndex = selectedIndex,
                 onItemClick = { route ->
-                    selectedIndex = route.toDestination().ordinal
                     navController.navigate(route) {
                         popUpTo(navController.graph.startDestinationId) {
                             saveState = true

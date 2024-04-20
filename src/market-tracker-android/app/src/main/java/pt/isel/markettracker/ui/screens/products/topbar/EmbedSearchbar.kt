@@ -3,7 +3,6 @@ package pt.isel.markettracker.ui.screens.products.topbar
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -18,11 +17,15 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
@@ -37,19 +40,25 @@ fun EmbeddedSearchBar(
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
     modifier: Modifier = Modifier,
-    searchHistory: List<String> = emptyList(),
-    onBarcodeScanRequest: () -> Unit,
-    content: @Composable (ColumnScope.() -> Unit)
+    onBarcodeScanRequest: () -> Unit
 ) {
+    val previousQueries = remember { mutableStateListOf<String>() }
+
     SearchBar(
         modifier = modifier,
         colors = SearchBarDefaults.colors(Grey),
         query = searchQuery,
         onQueryChange = onQueryChange,
         placeholder = {
-            Text("Procurar produto")
+            Text(
+                text = stringResource(id = R.string.search_hint),
+                overflow = TextOverflow.Ellipsis
+            )
         },
-        onSearch = onSearch,
+        onSearch = {
+            onSearch(it)
+            previousQueries.add(it)
+        },
         active = active,
         onActiveChange = onActiveChange,
         leadingIcon = {
@@ -73,9 +82,8 @@ fun EmbeddedSearchBar(
                             onQueryChange("")
                             if (active) {
                                 onActiveChange(false)
-                            } else {
-                                onSearch(searchQuery)
                             }
+                            onSearch(searchQuery)
                         }
                     ) {
                         Icon(
@@ -88,7 +96,6 @@ fun EmbeddedSearchBar(
                 IconButton(
                     onClick = onBarcodeScanRequest,
                     modifier = Modifier
-                        .padding(12.dp)
                         .clip(CircleShape)
                 ) {
                     Icon(
@@ -98,9 +105,18 @@ fun EmbeddedSearchBar(
                     )
                 }
             }
-        },
-        content = content
-    )
+        }
+    ) {
+        previousQueries.forEach {
+            SearchHistoryItem(
+                searchQuery = it,
+                onHistoryItemClick = {
+                    onQueryChange(it)
+                    onSearch(it)
+                }
+            )
+        }
+    }
 }
 
 @Preview
@@ -112,8 +128,6 @@ fun EmbedSearchBarPreview() {
         searchQuery = "",
         onQueryChange = { },
         onSearch = { },
-        onBarcodeScanRequest = { },
-        content = {
-        }
+        onBarcodeScanRequest = { }
     )
 }

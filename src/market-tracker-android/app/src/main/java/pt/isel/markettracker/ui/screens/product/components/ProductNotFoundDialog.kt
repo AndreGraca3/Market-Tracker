@@ -22,11 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.markettracker.R
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.ui.theme.Primary400
 import pt.isel.markettracker.ui.theme.Primary500
@@ -62,7 +64,7 @@ fun ProductNotFoundDialog(
                     )
 
                     Text(
-                        text = "Parece que ainda não temos este produto na nossa base de dados.",
+                        text = stringResource(id = R.string.product_not_found_message),
                         style = MarketTrackerTypography.titleMedium,
                         textAlign = TextAlign.Center
                     )
@@ -72,7 +74,7 @@ fun ProductNotFoundDialog(
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(Primary400)
                     ) {
-                        Text(text = "Eu compreendo")
+                        Text(text = stringResource(id = R.string.accept))
                     }
                 }
             }
@@ -93,7 +95,7 @@ fun ProductNotFoundDialog(
 @Composable
 fun ProductNotFoundDialogPreview() {
     ProductNotFoundDialog(
-        message = "Produto não encontrado",
+        message = stringResource(id = R.string.product_not_found_message),
         onDismissRequest = {}
     )
 }

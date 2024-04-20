@@ -13,7 +13,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.markettracker.R
 import pt.isel.markettracker.domain.Loaded
 import pt.isel.markettracker.domain.exceptionOrNull
 import pt.isel.markettracker.domain.extractValue
@@ -54,7 +56,7 @@ fun ProductDetailsScreen(
 
         productState.exceptionOrNull()?.let {
             ProductNotFoundDialog(
-                message = "Produto não encontrado",
+                message = stringResource(id = R.string.product_not_found_title),
                 onDismissRequest = onBackRequest
             )
         }
@@ -64,8 +66,8 @@ fun ProductDetailsScreen(
         ProductImage(product?.imageUrl)
 
         Column(
-            modifier = Modifier.padding(20.dp, 16.dp),
-            verticalArrangement = Arrangement.spacedBy(26.dp)
+            modifier = Modifier.padding(24.dp, 18.dp),
+            verticalArrangement = Arrangement.spacedBy(28.dp)
         ) {
             ProductSpecs(product)
 

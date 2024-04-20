@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.markettracker.R
 import pt.isel.markettracker.domain.Fail
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.Loaded
@@ -28,7 +30,10 @@ fun ProductStatsRow(statsState: IOState<ProductStats>, onCommunityReviewsRequest
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(text = "Estatísticas do produto", style = MarketTrackerTypography.bodyMedium)
+        Text(
+            text = stringResource(id = R.string.product_stats_section_title),
+            style = MarketTrackerTypography.bodyMedium
+        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -54,7 +59,8 @@ fun ProductStatsRow(statsState: IOState<ProductStats>, onCommunityReviewsRequest
 
                 is Fail -> {
                     Text(
-                        text = statsState.exception.message ?: "Erro ao carregar estatísticas",
+                        text = statsState.exception.message
+                            ?: stringResource(id = R.string.product_stats_loading_error),
                         style = MarketTrackerTypography.bodyMedium
                     )
                 }

@@ -43,7 +43,7 @@ fun ProductCard(product: ProductInfo, onProductClick: (String) -> Unit) {
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(14.dp, 8.dp)
@@ -60,17 +60,13 @@ fun ProductCard(product: ProductInfo, onProductClick: (String) -> Unit) {
                     modifier = Modifier.fillMaxSize()
                 )
             }
-            ProductSpecs(product = product)
+            ProductCardSpecs(product = product)
             CompanyPriceCardHeader(
                 69,
                 dummyStores.first().company.logoUrl
             )
-            Box(
-                contentAlignment = Alignment.BottomCenter,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                AddToListButton(onClick = {})
-            }
+
+            AddToListButton(onClick = {})
         }
     }
 }

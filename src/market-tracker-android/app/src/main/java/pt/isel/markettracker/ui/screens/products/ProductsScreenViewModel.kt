@@ -2,9 +2,6 @@ package pt.isel.markettracker.ui.screens.products
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.mlkit.vision.barcode.common.Barcode
-import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
-import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,13 +29,27 @@ class ProductsScreenViewModel @Inject constructor(
     val searchQuery
         get() = searchQueryFlow.asStateFlow()
 
+    fun onSearchQueryChange(query: String) {
+        searchQueryFlow.value = query
+    }
+
     private val filtersFlow: MutableStateFlow<ProductsFilters> =
         MutableStateFlow(ProductsFilters())
     val filters
         get() = filtersFlow.asStateFlow()
 
-    fun onQueryChange(query: String) {
-        searchQueryFlow.value = query
+    fun onFiltersChange(filters: ProductsFilters) {
+        filtersFlow.value = filters
+    }
+
+    val sortOptionFlow: MutableStateFlow<ProductsSortOption> =
+        MutableStateFlow(ProductsSortOption.POPULARITY)
+    val sortOption
+        get() = sortOptionFlow.asStateFlow()
+
+    fun onSortOptionChange(option: String) {
+        sortOptionFlow.value =
+            ProductsSortOption.entries.first { it.title == option }
     }
 
     // actual listed products
@@ -71,3 +82,11 @@ data class ProductsFilters(
     val minRating: String? = null,
     val maxRating: String? = null
 )
+
+enum class ProductsSortOption(val title: String) {
+    POPULARITY("Popularidade"),
+    NAME_ASC("Nome (A-Z)"),
+    NAME_DESC("Nome (Z-A)"),
+    RATING_ASC("Menor Avaliação"),
+    RATING_DESC("Maior Avaliação"),
+}

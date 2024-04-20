@@ -5,7 +5,6 @@ import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.domain.price.CompanyPrices
 import pt.isel.markettracker.domain.product.ProductInfo
-import pt.isel.markettracker.domain.product.ProductReview
 import pt.isel.markettracker.domain.product.ProductStats
 import pt.isel.markettracker.domain.product.ProductStatsCounts
 import pt.isel.markettracker.dummy.dummyProducts
@@ -29,7 +28,7 @@ class ProductService(
     }
 
     override suspend fun getProductPrices(id: String): List<CompanyPrices> {
-        delay(2000)
+        delay(10000)
         return listOf()
     }
 
