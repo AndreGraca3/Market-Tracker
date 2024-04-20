@@ -39,7 +39,8 @@ public class ListEntryService(
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                     new ListFetchingError.ListByIdNotFound(listId));
 
-            if (list.ClientId != clientId)
+            var listClients = await listRepository.GetListClientsByListIdAsync(listId);
+            if (!listClients.Contains(clientId))
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                     new ListFetchingError.UserDoesNotOwnList(clientId, listId));
 
@@ -82,7 +83,9 @@ public class ListEntryService(
                 return EitherExtensions.Failure<IServiceError, ListEntry>(
                     new ListFetchingError.ListByIdNotFound(listId));
 
-            if (list.ClientId != clientId)
+            
+            var listClients = await listRepository.GetListClientsByListIdAsync(listId);
+            if (!listClients.Contains(clientId))
                 return EitherExtensions.Failure<IServiceError, ListEntry>(
                     new ListFetchingError.UserDoesNotOwnList(clientId, listId));
 
@@ -127,7 +130,8 @@ public class ListEntryService(
                 return EitherExtensions.Failure<IServiceError, ListEntry>(
                     new ListFetchingError.ListByIdNotFound(listId));
 
-            if (list.ClientId != clientId)
+            var listClients = await listRepository.GetListClientsByListIdAsync(listId);
+            if (!listClients.Contains(clientId))
                 return EitherExtensions.Failure<IServiceError, ListEntry>(
                     new ListFetchingError.UserDoesNotOwnList(clientId, listId));
 

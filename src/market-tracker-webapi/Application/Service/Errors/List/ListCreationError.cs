@@ -7,4 +7,10 @@ public class ListCreationError : IServiceError
         public Guid ClientId { get; } = clientId;
         public string ListName { get; } = listName;
     }
+    
+    public class MaxListNumberReached(Guid clientId, int maxListCounter) : ListCreationError
+    {
+        public Guid ClientId { get; } = clientId;
+        public int MaxListCounter { get; } = maxListCounter;
+    }
 }
