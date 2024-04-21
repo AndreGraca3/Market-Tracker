@@ -22,13 +22,19 @@ public class ListService(
     IListEntryRepository listEntryRepository,
     ITransactionManager transactionManager) : IListService
 {
+    private const int MaxListNumber = 10;
+
     public async Task<Either<IServiceError, CollectionOutputModel>> GetListsAsync(Guid clientId, string? listName,
-        DateTime? createdAfter, bool? isArchived
+        DateTime? createdAfter, bool? isArchived, bool? isOwner = null
     )
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var lists = await listRepository.GetListsAsync(clientId, listName, createdAfter, isArchived);
+            if (await userRepository.GetUserByIdAsync(clientId) is null)
+                return EitherExtensions.Failure<IServiceError, CollectionOutputModel>(
+                    new UserFetchingError.UserByIdNotFound(clientId));
+            
+            var lists = await listRepository.GetListsAsync(clientId, listName, createdAfter, isArchived, isOwner);
             return EitherExtensions.Success<IServiceError, CollectionOutputModel>(new CollectionOutputModel(lists));
         });
     }
@@ -42,16 +48,15 @@ public class ListService(
                 return EitherExtensions.Failure<ListFetchingError, ListProduct>(
                     new ListFetchingError.ListByIdNotFound(id));
 
-            if (list.ClientId != clientId)
-            {
+            var listClients = (await listRepository.GetListClientsByListIdAsync(id)).ToList();
+            if (!listClients.Contains(clientId))
                 return EitherExtensions.Failure<ListFetchingError, ListProduct>(
                     new ListFetchingError.UserDoesNotOwnList(clientId, id)
                 );
-            }
 
             var listEntries = await listEntryRepository.GetListEntriesAsync(id);
 
-            var listProduct = await CreateListProduct(list, listEntries);
+            var listProduct = await CreateListProduct(list, listEntries, listClients);
 
             return EitherExtensions.Success<ListFetchingError, ListProduct>(listProduct);
         });
@@ -68,8 +73,13 @@ public class ListService(
             if (!(await listRepository.GetListsAsync(clientId, listName)).IsNullOrEmpty())
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                     new ListCreationError.ListNameAlreadyExists(clientId, listName));
+            
+            if ((await listRepository.GetListsAsync(clientId)).Count() >= MaxListNumber)
+                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
+                    new ListCreationError.MaxListNumberReached(clientId, MaxListNumber)); 
 
-            var id = await listRepository.AddListAsync(clientId, listName);
+            var id = await listRepository.AddListAsync(listName, clientId);
+            await listRepository.AddListClientAsync(id, clientId);
             return EitherExtensions.Success<IServiceError, IntIdOutputModel>(new IntIdOutputModel(id));
         });
     }
@@ -85,10 +95,9 @@ public class ListService(
                 return EitherExtensions.Failure<IServiceError, ListOfProducts>(
                     new ListFetchingError.ListByIdNotFound(id));
             
-            if (list.ClientId != clientId)
+            if (list.OwnerId != clientId)
                 return EitherExtensions.Failure<IServiceError, ListOfProducts>(
-                    new ListFetchingError.UserDoesNotOwnList(clientId, id)
-                );
+                    new ListFetchingError.UserDoesNotOwnList(clientId, id));
                 
             if (list.ArchivedAt != null)
                 return EitherExtensions.Failure<IServiceError, ListOfProducts>(
@@ -116,19 +125,78 @@ public class ListService(
                 return EitherExtensions.Failure<ListFetchingError, ListOfProducts>(
                     new ListFetchingError.ListByIdNotFound(id));
 
-            if (list.ClientId != clientId)
-            {
+            if (list.OwnerId != clientId)
                 return EitherExtensions.Failure<ListFetchingError, ListOfProducts>(
-                    new ListFetchingError.UserDoesNotOwnList(clientId, id)
-                );
-            }
+                    new ListFetchingError.UserDoesNotOwnList(clientId, id));
 
             var deletedList = await listRepository.DeleteListAsync(id);
             return EitherExtensions.Success<ListFetchingError, ListOfProducts>(deletedList!);
         });
     }
+    public async Task<Either<IServiceError, ListClient>> AddClientToListAsync(int listId, Guid clientIdToAdd, Guid clientId)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            if (await userRepository.GetUserByIdAsync(clientId) is null)
+                return EitherExtensions.Failure<IServiceError, ListClient>(
+                    new UserFetchingError.UserByIdNotFound(clientId));
+            
+            var list = await listRepository.GetListByIdAsync(listId);
+            if (list is null)
+                return EitherExtensions.Failure<IServiceError, ListClient>(
+                    new ListFetchingError.ListByIdNotFound(listId));
+            
+            if (list.OwnerId != clientId)
+                return EitherExtensions.Failure<IServiceError, ListClient>(
+                    new ListFetchingError.UserDoesNotOwnList(clientId, listId));
 
-    private async Task<ListProduct> CreateListProduct(ListOfProducts list, IEnumerable<ListEntry> listEntries)
+            if ((await listRepository.GetListClientsByListIdAsync(listId)).Contains(clientIdToAdd))
+                return EitherExtensions.Failure<IServiceError, ListClient>(
+                    new ListClientCreationError.ClientAlreadyInList(listId, clientIdToAdd));
+
+            await listRepository.AddListClientAsync(listId, clientIdToAdd);
+            return EitherExtensions.Success<IServiceError, ListClient>(new ListClient()
+            {
+                ClientId = clientIdToAdd,
+                ListId = listId
+            });
+        });
+    }
+
+    public async Task<Either<IServiceError, ListClient>> RemoveClientFromListAsync(int listId, Guid clientId)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            if (await userRepository.GetUserByIdAsync(clientId) is null)
+                return EitherExtensions.Failure<IServiceError, ListClient>(
+                    new UserFetchingError.UserByIdNotFound(clientId));
+            
+            var list = await listRepository.GetListByIdAsync(listId);
+            if (list is null)
+                return EitherExtensions.Failure<IServiceError, ListClient>(
+                    new ListFetchingError.ListByIdNotFound(listId));
+
+            if (list.OwnerId == clientId)
+            {
+                await listRepository.DeleteListAsync(listId);
+                return EitherExtensions.Success<IServiceError, ListClient>(new ListClient()
+                {
+                    ClientId = clientId,
+                    ListId = listId
+                });
+            }
+
+            var listClient = await listRepository.DeleteListClientAsync(listId, clientId);
+            if (listClient is null)
+            {
+                return EitherExtensions.Failure<IServiceError, ListClient>(
+                    new ListClientFetchingError.ClientInListNotFound(clientId, listId));
+            }
+            return EitherExtensions.Success<IServiceError, ListClient>(listClient);
+        });
+    }
+    
+    private async Task<ListProduct> CreateListProduct(ListOfProducts list, IEnumerable<ListEntry> listEntries, IEnumerable<Guid> clientIds)
     {
         var listEntriesDetails = new List<ListEntryDetails>();
 
@@ -167,6 +235,7 @@ public class ListService(
             Name = list.ListName,
             ArchivedAt = list.ArchivedAt,
             CreatedAt = list.CreatedAt,
+            ClientIds = clientIds,
             Products = listEntriesDetails,
             TotalPrice = totalPrice,
             TotalProducts = totalProducts

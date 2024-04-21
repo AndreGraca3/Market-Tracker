@@ -3,6 +3,7 @@ drop table if exists post_comment;
 drop table if exists post;
 drop table if exists product_favourite;
 drop table if exists list_entry;
+drop table if exists list_client;
 drop table if exists list;
 drop table if exists token;
 drop table if exists product_review;
@@ -180,10 +181,10 @@ create table if not exists product_stats_counts
 create table if not exists list
 (
     id          int generated always as identity primary key,
-    client_id   uuid references client (id) on delete cascade,
     name        varchar(30) NOT NULL,
     archived_at timestamp,
-    created_at  timestamp not null default now()
+    created_at  timestamp not null default now(),
+    owner_id    uuid references client (id) on delete cascade
 );
 
 create table if not exists list_entry
@@ -193,6 +194,13 @@ create table if not exists list_entry
     store_id   int references store (id) on delete cascade,
     quantity   int not null,
     primary key (list_id, product_id)
+);
+
+create table if not exists list_client
+(
+    list_id    int references list (id) on delete cascade,
+    client_id  uuid references client (id) on delete cascade,
+    primary key (list_id, client_id)
 );
 
 create table if not exists post

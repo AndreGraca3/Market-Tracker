@@ -39,10 +39,15 @@ namespace market_tracker_webapi.Infrastructure
         
         public DbSet<ListEntryEntity> ListEntry { get; set; }
         
+        public DbSet<ListClientEntity> ListClient { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ListEntryEntity>()
                 .HasKey(le => new { le.ListId, le.ProductId });
+            
+            modelBuilder.Entity<ListClientEntity>()
+                .HasKey(lc => new { lc.ListId, lc.ClientId });
         }
     }
 }

@@ -1,4 +1,4 @@
-INSERT INTO list (client_id, name, archived_at) VALUES 
+INSERT INTO list (owner_id, name, archived_at) VALUES 
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'List 1 aberta do user a', null),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'List 2 arquivada do user a', '2022-04-21'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'List 3 arquivada do user a', '2021-01-01'),

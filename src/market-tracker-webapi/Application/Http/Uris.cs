@@ -41,6 +41,7 @@ public static class Uris
         public const string ListById = $"{Base}/{{listId}}";
         public const string ListProductsByListId = $"{ListById}/products";
         public const string ListEntriesByListIdAndProductId = $"{ListProductsByListId}/{{productId}}";
+        public const string Clients = $"{ListById}/clients";
 
         public static string BuildListByIdUri(int id) => ListById.ExpandUri(id);
 

@@ -20,13 +20,22 @@ public class ListController(
         [Required] Guid clientId,
         string? listName,
         DateTime? createdAfter,
-        bool? isArchived
+        bool? isArchived,
+        bool? isOwner
     )
     {
-        var res = await listService.GetListsAsync(clientId, listName, createdAfter, isArchived);
+        var res = await listService.GetListsAsync(clientId, listName, createdAfter, isArchived, isOwner);
         return ResultHandler.Handle(
             res,
-            _ => new ServerProblem.InternalServerError().ToActionResult()
+            error =>
+            {
+                return error switch
+                {
+                    UserFetchingError.UserByIdNotFound idNotFoundError
+                        => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
+                };
+            }
         );
     }
 
@@ -42,6 +51,8 @@ public class ListController(
                 {
                     ListFetchingError.ListByIdNotFound idNotFoundError
                         => new ListProblem.ListByIdNotFound(idNotFoundError).ToActionResult(),
+                    ListFetchingError.UserDoesNotOwnList userDoNotOwnListError
+                        => new ListProblem.UserDoesNotOwnList(userDoNotOwnListError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
@@ -65,6 +76,8 @@ public class ListController(
                         => new ListProblem.ListNameAlreadyExists(nameAlreadyExistsError).ToActionResult(),
                     ListFetchingError.UserDoesNotOwnList userDoNotOwnListError
                         => new ListProblem.UserDoesNotOwnList(userDoNotOwnListError).ToActionResult(),
+                    ListCreationError.MaxListNumberReached maxListNumberReachedError
+                        => new ListProblem.MaxListNumberReached(maxListNumberReachedError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
@@ -92,6 +105,8 @@ public class ListController(
                         => new ListProblem.ListIsArchived(listIsArchivedError).ToActionResult(),
                     ListFetchingError.UserDoesNotOwnList userDoNotOwnListError
                         => new ListProblem.UserDoesNotOwnList(userDoNotOwnListError).ToActionResult(),
+                    ListCreationError.ListNameAlreadyExists nameAlreadyExistsError
+                        => new ListProblem.ListNameAlreadyExists(nameAlreadyExistsError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
@@ -112,6 +127,60 @@ public class ListController(
                         => new ListProblem.ListByIdNotFound(idNotFoundError).ToActionResult(),
                     ListFetchingError.UserDoesNotOwnList userDoNotOwnListError
                         => new ListProblem.UserDoesNotOwnList(userDoNotOwnListError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
+                };
+            },
+            _ => NoContent()
+        );
+    }
+    
+    [HttpPost(Uris.Lists.Clients)]
+    public async Task<ActionResult<ListClient>> AddClientToListAsync(
+        int listId, 
+        [FromBody] CreateClientListInputModel inputModel,
+        [Required] Guid clientId)
+    {
+        var res = await listService.AddClientToListAsync(listId, inputModel.ClientId, clientId);
+        return ResultHandler.Handle(
+            res,
+            error =>
+            {
+                return error switch
+                {
+                    UserFetchingError.UserByIdNotFound idNotFoundError
+                        => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult(),
+                    ListFetchingError.ListByIdNotFound idNotFoundError
+                        => new ListProblem.ListByIdNotFound(idNotFoundError).ToActionResult(),
+                    ListFetchingError.UserDoesNotOwnList userDoNotOwnListError
+                        => new ListProblem.UserDoesNotOwnList(userDoNotOwnListError).ToActionResult(),
+                    ListClientCreationError.ClientAlreadyInList clientAlreadyInListError
+                        => new ListClientProblem.ClientAlreadyInList(clientAlreadyInListError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
+                };
+            }
+        );
+    }
+    
+    [HttpDelete(Uris.Lists.Clients)]
+    public async Task<ActionResult<ListClient>> RemoveClientFromListAsync(
+        int listId, 
+        [Required] Guid clientId)
+    {
+        var res = await listService.RemoveClientFromListAsync(listId, clientId);
+        return ResultHandler.Handle(
+            res,
+            error =>
+            {
+                return error switch
+                {
+                    UserFetchingError.UserByIdNotFound idNotFoundError
+                        => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult(),
+                    ListFetchingError.ListByIdNotFound idNotFoundError
+                        => new ListProblem.ListByIdNotFound(idNotFoundError).ToActionResult(),
+                    ListFetchingError.UserDoesNotOwnList userDoNotOwnListError
+                        => new ListProblem.UserDoesNotOwnList(userDoNotOwnListError).ToActionResult(),
+                    ListClientFetchingError.ClientInListNotFound clientInListNotFound
+                        => new ListClientProblem.ClientInListNotFound(clientInListNotFound).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },

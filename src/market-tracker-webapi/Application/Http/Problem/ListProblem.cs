@@ -45,4 +45,12 @@ public class ListProblem(
         "You do not own this list",
         data
     );
+    
+    public class MaxListNumberReached(ListCreationError.MaxListNumberReached data) : ListProblem(
+        403,
+        "max-list-number-reached",
+        "Max list number reached",
+        $"Max list number reached for client {data.ClientId}",
+        data
+    );
 }
