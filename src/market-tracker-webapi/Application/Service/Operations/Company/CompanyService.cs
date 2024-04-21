@@ -1,6 +1,7 @@
 ﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.Company;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
@@ -12,10 +13,15 @@ public class CompanyService(
     ITransactionManager transactionManager
 ) : ICompanyService
 {
-    public async Task<CollectionOutputModel> GetCompaniesAsync()
+    public async Task<Either<IServiceError, CollectionOutputModel>> GetCompaniesAsync()
     {
-        var companies = await companyRepository.GetCompaniesAsync();
-        return new CollectionOutputModel(companies);
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var companies = await companyRepository.GetCompaniesAsync();
+            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(
+                new CollectionOutputModel(companies)
+            );
+        });
     }
 
     public async Task<Either<CompanyFetchingError, Domain.Company>> GetCompanyByIdAsync(int id)
@@ -28,32 +34,33 @@ public class CompanyService(
             : EitherExtensions.Success<CompanyFetchingError, Domain.Company>(company);
     }
 
-    public async Task<Either<CompanyFetchingError, Domain.Company>> GetCompanyByNameAsync(
-        string companyName
-    )
+    public async Task<Either<CompanyFetchingError, Domain.Company>> GetCompanyByNameAsync(string companyName)
     {
-        var company = await companyRepository.GetCompanyByNameAsync(companyName);
-        return company is null
-            ? EitherExtensions.Failure<CompanyFetchingError, Domain.Company>(
-                new CompanyFetchingError.CompanyByNameNotFound(companyName)
-            )
-            : EitherExtensions.Success<CompanyFetchingError, Domain.Company>(company);
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var company = await companyRepository.GetCompanyByNameAsync(companyName);
+            return company is null
+                ? EitherExtensions.Failure<CompanyFetchingError, Domain.Company>(
+                    new CompanyFetchingError.CompanyByNameNotFound(companyName)
+                )
+                : EitherExtensions.Success<CompanyFetchingError, Domain.Company>(company);
+        });
     }
 
-    public async Task<Either<ICompanyError, IdOutputModel>> AddCompanyAsync(string companyName)
+    public async Task<Either<ICompanyError, IntIdOutputModel>> AddCompanyAsync(string companyName)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await companyRepository.GetCompanyByNameAsync(companyName) is not null)
             {
-                return EitherExtensions.Failure<ICompanyError, IdOutputModel>(
+                return EitherExtensions.Failure<ICompanyError, IntIdOutputModel>(
                     new CompanyCreationError.CompanyNameAlreadyExists(companyName)
                 );
             }
 
             var companyId = await companyRepository.AddCompanyAsync(companyName);
-            return EitherExtensions.Success<ICompanyError, IdOutputModel>(
-                new IdOutputModel(companyId)
+            return EitherExtensions.Success<ICompanyError, IntIdOutputModel>(
+                new IntIdOutputModel(companyId)
             );
         });
     }
@@ -88,17 +95,17 @@ public class CompanyService(
         });
     }
 
-    public async Task<Either<CompanyFetchingError, IdOutputModel>> DeleteCompanyAsync(int id)
+    public async Task<Either<CompanyFetchingError, IntIdOutputModel>> DeleteCompanyAsync(int id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var company = await companyRepository.DeleteCompanyAsync(id);
             return company is null
-                ? EitherExtensions.Failure<CompanyFetchingError, IdOutputModel>(
+                ? EitherExtensions.Failure<CompanyFetchingError, IntIdOutputModel>(
                     new CompanyFetchingError.CompanyByIdNotFound(id)
                 )
-                : EitherExtensions.Success<CompanyFetchingError, IdOutputModel>(
-                    new IdOutputModel(company.Id)
+                : EitherExtensions.Success<CompanyFetchingError, IntIdOutputModel>(
+                    new IntIdOutputModel(company.Id)
                 );
         });
     }

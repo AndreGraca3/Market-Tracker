@@ -37,7 +37,7 @@ public class CityServiceTest
         var result = await _cityService.GetCitiesAsync();
 
         // Assert
-        result.Should().BeEquivalentTo(new CollectionOutputModel(cities));
+        result.Value.Should().BeEquivalentTo(new CollectionOutputModel(cities));
     }
 
     [Fact]
@@ -112,7 +112,7 @@ public class CityServiceTest
         var result = await _cityService.AddCityAsync("City 1");
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel(0));
+        result.Value.Should().BeEquivalentTo(new IntIdOutputModel(0));
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public class CityServiceTest
         var result = await _cityService.UpdateCityAsync(1, "City 1");
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel(1));
+        result.Value.Should().BeEquivalentTo(new IntIdOutputModel(1));
     }
 
     [Fact]
@@ -197,7 +197,7 @@ public class CityServiceTest
         var result = await _cityService.DeleteCityAsync(1);
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel(1));
+        result.Value.Should().BeEquivalentTo(new IntIdOutputModel(1));
     }
 
     [Fact]

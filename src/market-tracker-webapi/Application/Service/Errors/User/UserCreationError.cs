@@ -1,6 +1,6 @@
 ﻿namespace market_tracker_webapi.Application.Service.Errors.User;
 
-public class UserCreationError : UserError
+public class UserCreationError : IUserError
 {
     public class InvalidEmail(string email) : UserCreationError
     {

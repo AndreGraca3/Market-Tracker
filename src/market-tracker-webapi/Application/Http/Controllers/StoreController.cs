@@ -1,7 +1,8 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Store;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Service.Errors.City;
+using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Operations.Store;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,15 @@ public class StoreController(IStoreService storeService) : ControllerBase
     [HttpGet(Uris.Stores.Base)]
     public async Task<ActionResult<CollectionOutputModel>> GetStoresAsync()
     {
-        var storesCollection = await storeService.GetStoresAsync();
-        return Ok(storesCollection);
+        var res = await storeService.GetStoresAsync();
+        return ResultHandler.Handle(
+            res,
+            _ => new ServerProblem.InternalServerError().ToActionResult()
+        );
     }
 
     [HttpGet(Uris.Stores.StoreById)]
-    public async Task<ActionResult<Store>> GetStoreByIdAsync(int id)
+    public async Task<ActionResult<Domain.Store>> GetStoreByIdAsync(int id)
     {
         var res = await storeService.GetStoreByIdAsync(id);
         return ResultHandler.Handle(
@@ -40,7 +44,9 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpGet(Uris.Stores.StoresFromCompany)]
-    public async Task<ActionResult<IEnumerable<Store>>> GetStoresFromCompanyAsync(int companyId)
+    public async Task<ActionResult<IEnumerable<Domain.Store>>> GetStoresFromCompanyAsync(
+        int companyId
+    )
     {
         var res = await storeService.GetStoresFromCompanyAsync(companyId);
         return ResultHandler.Handle(
@@ -49,8 +55,8 @@ public class StoreController(IStoreService storeService) : ControllerBase
             {
                 return error switch
                 {
-                    StoreFetchingError.StoreByCompanyIdNotFound companyIdNotFoundError
-                        => new StoreProblem.StoreByCompanyIdNotFound(
+                    CompanyFetchingError.CompanyByIdNotFound companyIdNotFoundError
+                        => new CompanyProblem.CompanyByIdNotFound(
                             companyIdNotFoundError
                         ).ToActionResult(),
                     _
@@ -63,7 +69,9 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpGet(Uris.Stores.StoresByCityName)]
-    public async Task<ActionResult<IEnumerable<Store>>> GetStoresByCityNameAsync(string cityName)
+    public async Task<ActionResult<IEnumerable<Domain.Store>>> GetStoresByCityNameAsync(
+        string cityName
+    )
     {
         var res = await storeService.GetStoresByCityNameAsync(cityName);
         return ResultHandler.Handle(
@@ -72,8 +80,8 @@ public class StoreController(IStoreService storeService) : ControllerBase
             {
                 return error switch
                 {
-                    StoreFetchingError.StoreByCityNameNotFound cityNotFoundError
-                        => new StoreProblem.StoreByCityNameNotFound(
+                    CityFetchingError.CityByNameNotFound cityNotFoundError
+                        => new CityProblem.CityNameNotFound(
                             cityNotFoundError
                         ).ToActionResult(),
                     _
@@ -86,7 +94,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpPost(Uris.Stores.Base)]
-    public async Task<ActionResult<IdOutputModel>> AddStoreAsync(
+    public async Task<ActionResult<IntIdOutputModel>> AddStoreAsync(
         [FromBody] StoreCreationInputModel model
     )
     {
@@ -110,12 +118,12 @@ public class StoreController(IStoreService storeService) : ControllerBase
                         => new StoreProblem.StoreNameAlreadyExists(
                             nameAlreadyExistsError
                         ).ToActionResult(),
-                    StoreFetchingError.StoreByCityIdNotFound cityIdNotFoundError
-                        => new StoreProblem.StoreByCityIdNotFound(
+                    CityFetchingError.CityByIdNotFound cityIdNotFoundError
+                        => new CityProblem.CityByIdNotFound(
                             cityIdNotFoundError
                         ).ToActionResult(),
-                    StoreFetchingError.StoreByCompanyIdNotFound companyIdNotFoundError
-                        => new StoreProblem.StoreByCompanyIdNotFound(
+                    CompanyFetchingError.CompanyByIdNotFound companyIdNotFoundError
+                        => new CompanyProblem.CompanyByIdNotFound(
                             companyIdNotFoundError
                         ).ToActionResult(),
                     _
@@ -128,17 +136,17 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpPut(Uris.Stores.StoreById)]
-    public async Task<ActionResult<IdOutputModel>> UpdateStoreAsync(
+    public async Task<ActionResult<IntIdOutputModel>> UpdateStoreAsync(
         int id,
-        [FromBody] StoreUpdateInputModel model
+        [FromBody] StoreUpdateInputModel storeInput
     )
     {
         var res = await storeService.UpdateStoreAsync(
             id,
-            model.Name,
-            model.Address,
-            model.CityId,
-            model.CompanyId
+            storeInput.Name,
+            storeInput.Address,
+            storeInput.CityId,
+            storeInput.CompanyId
         );
         return ResultHandler.Handle(
             res,
@@ -152,12 +160,12 @@ public class StoreController(IStoreService storeService) : ControllerBase
                         => new StoreProblem.StoreNameAlreadyExists(
                             nameAlreadyExistsError
                         ).ToActionResult(),
-                    StoreFetchingError.StoreByCityIdNotFound cityIdNotFoundError
-                        => new StoreProblem.StoreByCityIdNotFound(
+                    CityFetchingError.CityByIdNotFound cityIdNotFoundError
+                        => new CityProblem.CityByIdNotFound(
                             cityIdNotFoundError
                         ).ToActionResult(),
-                    StoreFetchingError.StoreByCompanyIdNotFound companyIdNotFoundError
-                        => new StoreProblem.StoreByCompanyIdNotFound(
+                    CompanyFetchingError.CompanyByIdNotFound companyIdNotFoundError
+                        => new CompanyProblem.CompanyByIdNotFound(
                             companyIdNotFoundError
                         ).ToActionResult(),
                     _
@@ -170,7 +178,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpDelete(Uris.Stores.StoreById)]
-    public async Task<ActionResult<IdOutputModel>> DeleteStoreAsync(int id)
+    public async Task<ActionResult<IntIdOutputModel>> DeleteStoreAsync(int id)
     {
         var res = await storeService.DeleteStoreAsync(id);
         return ResultHandler.Handle(

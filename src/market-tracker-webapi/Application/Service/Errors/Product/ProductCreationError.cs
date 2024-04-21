@@ -6,9 +6,9 @@ public class ProductCreationError : IProductError
     {
         public string BrandName { get; } = brandName;
     }
-    
-    public class ProductAlreadyExists(int productId) : ProductCreationError
+
+    public class ProductAlreadyExists(string productId) : ProductCreationError
     {
-        public int ProductId { get; } = productId;
+        public string ProductId { get; } = productId;
     }
 }

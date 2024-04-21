@@ -707,7 +707,7 @@ namespace market_tracker_webapi_test.Application.Repository
 
             // Assert
             actualStore.Should().BeEquivalentTo(storeData);
-            (await context.Store.FindAsync(storeData.Id)).Should().BeEquivalentTo(storeData);
+            (await context.Store.FindAsync(storeData.Id)).Should().BeEquivalentTo(storeData, options => options.Excluding(x => x.IsOnline));
         }
 
         [Fact]

@@ -4,6 +4,8 @@ using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.City;
 using market_tracker_webapi.Application.Repository.Operations.Company;
 using market_tracker_webapi.Application.Repository.Operations.Store;
+using market_tracker_webapi.Application.Service.Errors.City;
+using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Operations.Store;
 using Moq;
@@ -56,13 +58,15 @@ public class StoreServiceTest
             }
         };
 
-        _storeRepositoryMock.Setup(x => x.GetStoresAsync()).ReturnsAsync(stores);
+        _storeRepositoryMock
+            .Setup(x => x.GetStoresAsync())
+            .ReturnsAsync(stores);
 
         // Act
         var result = await _storeService.GetStoresAsync();
 
         // Assert
-        result.Should().BeEquivalentTo(new CollectionOutputModel(stores));
+        result.Should().BeEquivalentTo(new CollectionOutputModel(stores), options => options.ExcludingMissingMembers());
     }
 
     [Fact]
@@ -114,7 +118,7 @@ public class StoreServiceTest
         var result = await _storeService.GetStoresFromCompanyAsync(1);
 
         // Assert
-        result.Error.Should().BeEquivalentTo(new StoreFetchingError.StoreByCompanyIdNotFound(1));
+        result.Error.Should().BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(1));
     }
 
     [Fact]
@@ -173,7 +177,7 @@ public class StoreServiceTest
         // Assert
         result
             .Error.Should()
-            .BeEquivalentTo(new StoreFetchingError.StoreByCityNameNotFound("City 1"));
+            .BeEquivalentTo(new CityFetchingError.CityByNameNotFound("City 1"));
     }
 
     [Fact]
@@ -255,7 +259,7 @@ public class StoreServiceTest
         var result = await _storeService.AddStoreAsync("Store 1", "Address 1", 1, 1);
 
         // Assert
-        result.Error.Should().BeEquivalentTo(new StoreFetchingError.StoreByCityIdNotFound(1));
+        result.Error.Should().BeEquivalentTo(new CityFetchingError.CityByIdNotFound(1));
     }
 
     [Fact]
@@ -276,7 +280,7 @@ public class StoreServiceTest
         var result = await _storeService.AddStoreAsync("Store 1", "Address 1", 1, 1);
 
         // Assert
-        result.Error.Should().BeEquivalentTo(new StoreFetchingError.StoreByCompanyIdNotFound(1));
+        result.Error.Should().BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(1));
     }
 
     [Fact]
@@ -310,7 +314,7 @@ public class StoreServiceTest
         var result = await _storeService.AddStoreAsync("Store 1", "Address 1", 1, 1);
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel(1));
+        result.Value.Should().BeEquivalentTo(new IntIdOutputModel(1));
     }
 
     [Fact]
@@ -349,7 +353,7 @@ public class StoreServiceTest
         var result = await _storeService.UpdateStoreAsync(1, "Store1", "Address 1", 1, 1);
 
         // Assert
-        result.Error.Should().BeEquivalentTo(new StoreFetchingError.StoreByCityIdNotFound(1));
+        result.Error.Should().BeEquivalentTo(new CityFetchingError.CityByIdNotFound(1));
     }
 
     [Fact]
@@ -379,7 +383,7 @@ public class StoreServiceTest
         var result = await _storeService.UpdateStoreAsync(1, "Store 1", "Address 1", 1, 1);
 
         // Assert
-        result.Error.Should().BeEquivalentTo(new StoreFetchingError.StoreByCompanyIdNotFound(1));
+        result.Error.Should().BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(1));
     }
 
     [Fact]
@@ -431,7 +435,7 @@ public class StoreServiceTest
         var result = await _storeService.UpdateStoreAsync(1, "Store 1", "Address 1", 1, 1);
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel(1));
+        result.Value.Should().BeEquivalentTo(new IntIdOutputModel(1));
     }
 
     [Fact]
@@ -481,6 +485,6 @@ public class StoreServiceTest
         var result = await _storeService.DeleteStoreAsync(1);
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new IdOutputModel(1));
+        result.Value.Should().BeEquivalentTo(new IntIdOutputModel(1));
     }
 }

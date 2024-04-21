@@ -16,14 +16,14 @@ namespace market_tracker_webapi.Application.Http.Controllers
         [HttpGet]
         [Authenticated]
         public async Task<ActionResult<UsersOutputModel>> GetUsersAsync(
-            [FromQuery] PaginationInputModel pagination,
+            [FromQuery] PaginationInputs paginationInputs,
             [FromQuery] string? username
         )
         {
             Console.Write(HttpContext.Items[AuthenticationFilter.KeyUser]);
             logger.LogDebug($"Call {nameof(GetUsersAsync)} with {username}");
 
-            return Ok(await userService.GetUsersAsync(username, pagination));
+            return Ok(await userService.GetUsersAsync(username, paginationInputs.Skip, paginationInputs.ItemsPerPage));
         }
 
         [HttpGet(Uris.Users.UserById)]

@@ -25,7 +25,7 @@ public class BrandRepository(MarketTrackerDataContext dataContext) : IBrandRepos
 
     public async Task<Brand> AddBrandAsync(string name)
     {
-        var brandEntity = new BrandEntity() { Name = name };
+        var brandEntity = new BrandEntity { Name = name };
         await dataContext.Brand.AddAsync(brandEntity);
         await dataContext.SaveChangesAsync();
         return new Brand(brandEntity.Id, brandEntity.Name);

@@ -1,4 +1,4 @@
-﻿namespace market_tracker_webapi.Application.Http.Models;
+﻿namespace market_tracker_webapi.Application.Http.Models.City;
 
 public class CityUpdateInputModel
 {

@@ -27,4 +27,13 @@ public class ProductProblem(
             $"Product with id {data.ProductId} already exists",
             data
         );
+    
+    public class UnavailableProductInStore(ProductFetchingError.UnavailableProductInStore data)
+        : ProductProblem(
+            404,
+            "product-not-available-in-store",
+            "Product not available in store",
+            $"Product with id {data.ProductId} not available in store with id {data.StoreId}",
+            data
+        );
 }
