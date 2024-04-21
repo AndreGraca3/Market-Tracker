@@ -38,7 +38,7 @@ data class Saved<T>(val value: Result<T>) : IOState<T>()
 /**
  * The fail state, i.e. the state after the load operation has failed.
  */
-data class Fail(val message: Throwable) : IOState<Nothing>()
+data class Fail(val exception: Throwable) : IOState<Nothing>()
 
 /**
  * Returns a new [IOState] in the idle state.
@@ -77,11 +77,6 @@ fun <T> saved(value: Result<T>): Saved<T> = Saved(value)
 fun <T> loadSuccess(value: T): Loaded<T> = loaded(Result.success(value))
 
 /**
- * Returns a new [IOState] in the loaded state with a failed result.
- */
-fun <T> loadFailure(error: Throwable): Loaded<T> = loaded(Result.failure(error))
-
-/**
  * Returns a new [IOState] in the saved state with a successful result.
  */
 fun <T> saveSuccess(value: T): Saved<T> = saved(Result.success(value))
@@ -116,6 +111,8 @@ fun <T> IOState<T>.getOrThrow(): T = when (this) {
  * Returns the exception that caused the I/O operation to fail, if one is available.
  */
 fun <T> IOState<T>.exceptionOrNull(): Throwable? = when (this) {
-    is Loaded -> value.exceptionOrNull()
+    is Fail -> exception
     else -> null
 }
+
+fun<T> Loaded<T>.extractValue(): T = value.getOrThrow()

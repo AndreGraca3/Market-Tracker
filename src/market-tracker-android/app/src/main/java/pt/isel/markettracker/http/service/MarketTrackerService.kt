@@ -19,7 +19,7 @@ import kotlin.coroutines.resumeWithException
 
 abstract class MarketTrackerService {
     companion object {
-        const val MT_API_URL = "https://192.168.1.X:2001/api"
+        const val MT_API_URL = "http://localhost:2001/api" //"https://192.168.1.X:2001/api"
     }
 
     abstract val httpClient: OkHttpClient

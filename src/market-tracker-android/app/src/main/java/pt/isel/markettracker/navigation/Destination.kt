@@ -17,3 +17,7 @@ enum class Destination(val icon: ImageVector, val route: String) {
         Icons.Default.Person, "profile"
     );
 }
+
+fun String.toDestination(): Destination {
+    return Destination.entries.find { it.route == this } ?: Destination.HOME
+}
