@@ -15,13 +15,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.http.models.token.TokenCreationInputModel
 import pt.isel.markettracker.http.service.operations.token.ITokenService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
+import pt.isel.markettracker.repository.auth.IAuthRepository
 import javax.inject.Inject
 
 private const val TAG = "GoogleAuth"
@@ -29,6 +29,7 @@ private const val TAG = "GoogleAuth"
 @HiltViewModel
 class LoginScreenViewModel @Inject constructor(
     private val tokenService: ITokenService,
+    private val authRepository: IAuthRepository
     //private val preferences: PreferencesRepository
 ) : ViewModel() {
 
@@ -46,11 +47,10 @@ class LoginScreenViewModel @Inject constructor(
         }
     }
 
-
     private val loginPhaseFlow: MutableStateFlow<LoginScreenState> =
         MutableStateFlow(LoginScreenState.Idle)
 
-    val loginPhase: Flow<LoginScreenState>
+    val loginPhase
         get() = loginPhaseFlow.asStateFlow()
 
 
@@ -73,9 +73,8 @@ class LoginScreenViewModel @Inject constructor(
             password = ""
             if (result.isSuccess) {
                 loginPhaseFlow.value = LoginScreenState.Success(result)
-                return@launch
-            }
-            loginPhaseFlow.value = LoginScreenState.Fail(result.exceptionOrNull()!!)
+                authRepository.login()
+            } else loginPhaseFlow.value = LoginScreenState.Fail(result.exceptionOrNull()!!)
         }
     }
 

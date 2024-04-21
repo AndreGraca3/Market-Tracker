@@ -18,6 +18,8 @@ import pt.isel.markettracker.http.service.operations.token.ITokenService
 import pt.isel.markettracker.http.service.operations.token.TokenService
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.operations.user.UserService
+import pt.isel.markettracker.repository.auth.AuthRepository
+import pt.isel.markettracker.repository.auth.IAuthRepository
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -32,6 +34,12 @@ class AppModule {
     @Singleton
     fun provideDataStore(appContext: Application): DataStore<Preferences> {
         return appContext.dataStore
+    }
+
+    @Singleton
+    @Provides
+    fun provideAuthRepository(): IAuthRepository {
+        return AuthRepository()
     }
 
     @Provides

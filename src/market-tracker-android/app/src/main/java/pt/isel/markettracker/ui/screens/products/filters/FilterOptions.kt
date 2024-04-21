@@ -37,8 +37,7 @@ fun FilterOptions(selectedSort: ProductsSortOption, onFiltersRequest: () -> Unit
             Dropdown(
                 options = sortOptions,
                 selected = selectedSort.title,
-                onSelectedChange = onSortRequest,
-                modifier = Modifier.fillMaxWidth(0.8F)
+                onSelectedChange = onSortRequest
             )
         }   
         HorizontalDivider(modifier = Modifier.fillMaxWidth())

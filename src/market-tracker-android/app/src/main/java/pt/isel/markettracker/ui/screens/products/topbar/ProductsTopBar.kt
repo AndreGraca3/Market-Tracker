@@ -40,7 +40,7 @@ fun ProductsTopBar(
         modifier = Modifier
             .fillMaxWidth()
             .background(background)
-            .padding(8.dp, 8.dp),
+            .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {

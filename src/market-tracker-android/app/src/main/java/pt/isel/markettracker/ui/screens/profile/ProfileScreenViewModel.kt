@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -24,19 +23,21 @@ import pt.isel.markettracker.http.models.user.UserOutputModel
 import pt.isel.markettracker.http.service.operations.token.ITokenService
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
+import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.utils.convertImageToBase64
 
 @HiltViewModel(assistedFactory = ProfileScreenViewModelFactory::class)
 class ProfileScreenViewModel @AssistedInject constructor(
     @Assisted private val contentResolver: ContentResolver,
     private val userService: IUserService,
+    private val authRepository: IAuthRepository,
     private val tokenService: ITokenService
 ) : ViewModel() {
 
     private val userFetchingFlow: MutableStateFlow<IOState<UserOutputModel>> =
         MutableStateFlow(idle())
 
-    val userPhase: Flow<IOState<UserOutputModel>>
+    val userPhase
         get() = userFetchingFlow.asStateFlow()
 
     var avatarPath by mutableStateOf<Uri?>(null)
@@ -59,6 +60,7 @@ class ProfileScreenViewModel @AssistedInject constructor(
 
     fun resetToIdle() {
         //remove token from preferences
+        authRepository.logout()
         viewModelScope.launch {
             val user = userService.getUser("1")
             tokenService.deleteToken(user.id)

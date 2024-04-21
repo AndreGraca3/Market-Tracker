@@ -19,13 +19,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.markettracker.R
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.tasks.Task
 import pt.isel.markettracker.ui.components.button.ButtonWithImage
 import pt.isel.markettracker.ui.components.text.LinesWithElementCentered
 import pt.isel.markettracker.ui.components.text.MarketTrackerTextField
 import pt.isel.markettracker.ui.theme.mainFont
-
 
 const val LoginScreenTag = "LoginScreenTag"
 const val LoginEmailInputTag = "LoginEmailInputTag"
@@ -33,13 +30,8 @@ const val LoginPasswordInputTag = "LoginPasswordInputTag"
 
 @Composable
 fun LoginScreen(
-    email: String,
-    password: String,
-    onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onLoginRequested: () -> Unit,
-    onGoogleLoginRequested: (Task<GoogleSignInAccount>) -> Unit,
-    onCreateAccountRequested: () -> Unit
+    onSignUpRequested: () -> Unit,
+    loginScreenViewModel: LoginScreenViewModel
 ) {
     Box(
         modifier = Modifier
@@ -59,8 +51,8 @@ fun LoginScreen(
             )
 
             MarketTrackerTextField(
-                value = email,
-                onValueChange = onEmailChange,
+                value = loginScreenViewModel.email,
+                onValueChange = { loginScreenViewModel.email = it },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Email,
@@ -74,8 +66,8 @@ fun LoginScreen(
             )
 
             MarketTrackerTextField(
-                value = password,
-                onValueChange = onPasswordChange,
+                value = loginScreenViewModel.password,
+                onValueChange = { loginScreenViewModel.password = it },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Password,
@@ -90,7 +82,7 @@ fun LoginScreen(
             )
 
             Button(
-                onClick = onLoginRequested
+                onClick = loginScreenViewModel::login
             ) {
                 Text(text = "Login", fontFamily = mainFont)
             }
@@ -108,11 +100,11 @@ fun LoginScreen(
             }
 
             GoogleLoginButton(
-                onGoogleLoginRequested = onGoogleLoginRequested
+                onGoogleLoginRequested = loginScreenViewModel::handleGoogleSignInTask
             )
 
             ButtonWithImage(
-                onClick = onCreateAccountRequested,
+                onClick = onSignUpRequested,
                 image = R.drawable.mt_logo,
                 buttonText = "Criar conta Market Tracker"
             )

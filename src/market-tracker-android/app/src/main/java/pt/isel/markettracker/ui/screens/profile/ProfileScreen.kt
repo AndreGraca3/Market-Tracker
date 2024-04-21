@@ -10,13 +10,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pt.isel.markettracker.domain.IOState
-import pt.isel.markettracker.http.models.user.UserOutputModel
 import pt.isel.markettracker.ui.components.common.IOResourceLoader
 import pt.isel.markettracker.ui.screens.profile.components.AvatarIcon
 import pt.isel.markettracker.ui.screens.profile.components.SettingsButton
@@ -27,16 +27,13 @@ const val ProfileScreenTestTag = "SignUpScreenTag"
 
 @Composable
 fun ProfileScreen(
-    user: IOState<UserOutputModel>,
-    onFetchUserRequested: () -> Unit,
-    onLogoutRequested: () -> Unit,
-    onEditRequested: () -> Unit,
     onChangeAvatarRequested: () -> Unit,
-    onDeleteAccountRequested: () -> Unit
+    profileScreenViewModel: ProfileScreenViewModel
 ) {
+    val user by profileScreenViewModel.userPhase.collectAsState()
 
     LaunchedEffect(Unit) {
-        onFetchUserRequested()
+        profileScreenViewModel.fetchUser()
     }
 
     IOResourceLoader(
@@ -54,8 +51,10 @@ fun ProfileScreen(
         ) {
             SettingsButton(
                 icon = Icons.Default.Settings,
-                onEditRequested = onEditRequested,
-                onDeleteRequested = onDeleteAccountRequested,
+                onEditRequested = { },
+                onDeleteRequested = {
+                    profileScreenViewModel.resetToIdle()
+                },
                 modifier = Modifier.align(alignment = Alignment.TopEnd)
             )
 
@@ -89,7 +88,9 @@ fun ProfileScreen(
                 )
 
                 Button(
-                    onClick = onLogoutRequested
+                    onClick = {
+                        profileScreenViewModel.resetToIdle()
+                    }
                 ) {
                     Text("Logout ✋", fontFamily = mainFont)
                 }

@@ -10,6 +10,7 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
+import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
@@ -17,6 +18,7 @@ import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModelFactory
 import pt.isel.markettracker.ui.screens.signup.SignUpActivity
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.utils.navigateTo
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -29,6 +31,9 @@ class MainActivity : ComponentActivity() {
         }
     )
 
+    @Inject
+    lateinit var authRepository: IAuthRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen().setKeepOnScreenCondition {
             // upload FCM token to server
@@ -38,7 +43,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MarkettrackerTheme {
-                MainScreen(
+                Navigation(
                     profileScreenViewModel = vm,
                     onProductClick = {
                         navigateTo<ProductDetailsActivity>(
@@ -47,7 +52,7 @@ class MainActivity : ComponentActivity() {
                             ProductIdExtra(it)
                         )
                     },
-                    onCreateAccountRequested = {
+                    onSignUpRequested = {
                         navigateTo<SignUpActivity>(this)
                     },
                     onBarcodeScanRequest = {
@@ -61,7 +66,8 @@ class MainActivity : ComponentActivity() {
                                 ProductIdExtra(it.rawValue ?: "")
                             )
                         }
-                    }
+                    },
+                    authRepository = authRepository
                 )
             }
         }

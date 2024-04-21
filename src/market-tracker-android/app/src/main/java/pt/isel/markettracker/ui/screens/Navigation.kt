@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens
 
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.EnterTransition
@@ -13,22 +12,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.talhafaki.composablesweettoast.util.SweetToastUtil.SweetError
-import pt.isel.markettracker.domain.Fail
-import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.navigation.Destination
 import pt.isel.markettracker.navigation.NavBar
 import pt.isel.markettracker.navigation.toDestination
+import pt.isel.markettracker.repository.auth.AuthEvent
+import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.ui.screens.list.ListScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreen
-import pt.isel.markettracker.ui.screens.login.LoginScreenState
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.products.ProductsScreen
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
@@ -36,10 +32,11 @@ import pt.isel.markettracker.ui.screens.profile.ProfileScreen
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 
 @Composable
-fun MainScreen(
+fun Navigation(
     onProductClick: (String) -> Unit,
     onBarcodeScanRequest: () -> Unit,
-    onCreateAccountRequested: () -> Unit,
+    onSignUpRequested: () -> Unit,
+    authRepository: IAuthRepository,
     productsScreenViewModel: ProductsScreenViewModel = hiltViewModel(),
     loginScreenViewModel: LoginScreenViewModel = hiltViewModel(),
     profileScreenViewModel: ProfileScreenViewModel = hiltViewModel()
@@ -47,9 +44,7 @@ fun MainScreen(
     val navController = rememberNavController()
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
-    val loginState by loginScreenViewModel.loginPhase.collectAsState(initial = idle())
-
-    val userFetchingState by profileScreenViewModel.userPhase.collectAsState(initial = idle())
+    val authState by authRepository.authState.collectAsState()
 
     val launcher =
         rememberLauncherForActivityResult(
@@ -100,46 +95,22 @@ fun MainScreen(
             }
 
             composable(Destination.PROFILE.route) {
-                // if logged show profile screen
-                if (loginState is LoginScreenState.Success) {
-                    ProfileScreen(
-                        user = userFetchingState,
-                        onFetchUserRequested = profileScreenViewModel::fetchUser,
-                        onLogoutRequested = {
-                            profileScreenViewModel.resetToIdle()
-                            loginScreenViewModel.logout()
-                        },
-                        onEditRequested = {
-
-                        },
-                        onChangeAvatarRequested = {
-                            launcher.launch("image/*")
-                        },
-                        onDeleteAccountRequested = {
-                            loginScreenViewModel.logout()
-                            profileScreenViewModel.deleteAccount()
-                        }
-                    )
-                } else {
-                    if (loginState is Fail) {
-                        SweetError(
-                            (loginState as Fail).exception.message
-                                ?: "Credenciais Inválidas ou Conta Inexistente",
-                            Toast.LENGTH_LONG,
-                            contentAlignment = Alignment.Center
+                when (authState) {
+                    is AuthEvent.Login -> {
+                        ProfileScreen(
+                            onChangeAvatarRequested = {
+                                launcher.launch("image/*")
+                            },
+                            profileScreenViewModel = profileScreenViewModel
                         )
                     }
-                    LoginScreen(
-                        email = loginScreenViewModel.email,
-                        password = loginScreenViewModel.password,
-                        onEmailChange = { loginScreenViewModel.email = it },
-                        onPasswordChange = { loginScreenViewModel.password = it },
-                        onLoginRequested = {
-                            loginScreenViewModel.login()
-                        },
-                        onGoogleLoginRequested = loginScreenViewModel::handleGoogleSignInTask,
-                        onCreateAccountRequested = onCreateAccountRequested
-                    )
+
+                    else -> {
+                        LoginScreen(
+                            onSignUpRequested = onSignUpRequested,
+                            loginScreenViewModel = loginScreenViewModel
+                        )
+                    }
                 }
             }
         }
