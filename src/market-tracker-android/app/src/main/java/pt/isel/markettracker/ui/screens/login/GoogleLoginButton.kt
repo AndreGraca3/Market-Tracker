@@ -10,7 +10,7 @@ import com.example.markettracker.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
-import pt.isel.markettracker.ui.components.button.ButtonWithImage
+import pt.isel.markettracker.ui.components.buttons.ButtonWithImage
 
 @Composable
 fun GoogleLoginButton(

@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.components.button
+package pt.isel.markettracker.ui.components.buttons
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box

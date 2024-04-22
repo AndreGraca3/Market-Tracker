@@ -13,6 +13,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,14 +29,14 @@ import pt.isel.markettracker.domain.Fail
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.Loaded
 import pt.isel.markettracker.domain.extractValue
-import pt.isel.markettracker.domain.price.CompanyPrices
+import pt.isel.markettracker.http.models.price.CompanyPrices
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.utils.shimmerEffect
 
 @Composable
 fun PricesSection(pricesState: IOState<List<CompanyPrices>>) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(22.dp)
+        verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         Text(
             text = stringResource(id = R.string.prices_section_title),
@@ -53,7 +57,7 @@ fun PricesSection(pricesState: IOState<List<CompanyPrices>>) {
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(21.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
         ) {
@@ -66,8 +70,8 @@ fun PricesSection(pricesState: IOState<List<CompanyPrices>>) {
                             style = MarketTrackerTypography.bodyMedium,
                             color = Color.Red
                         )
-                    } else companiesPrices.forEach { companyPrices ->
-                        CompanyRow(companyPrices)
+                    } else companiesPrices.forEach {
+                        CompanyRow(companyPrices = it)
                         HorizontalDivider()
                     }
                 }

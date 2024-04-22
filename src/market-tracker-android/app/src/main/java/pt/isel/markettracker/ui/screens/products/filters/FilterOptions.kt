@@ -30,14 +30,15 @@ fun FilterOptions(selectedSort: ProductsSortOption, onFiltersRequest: () -> Unit
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .fillMaxWidth(0.8F)
-                .padding(0.dp, 8.dp)
+                .fillMaxWidth(0.9F)
+                .padding(vertical = 10.dp)
         ) {
             FilterButton(onFiltersRequest)
             Dropdown(
                 options = sortOptions,
                 selected = selectedSort.title,
-                onSelectedChange = onSortRequest
+                onSelectedChange = onSortRequest,
+                modifier = Modifier.fillMaxWidth(0.8F)
             )
         }   
         HorizontalDivider(modifier = Modifier.fillMaxWidth())

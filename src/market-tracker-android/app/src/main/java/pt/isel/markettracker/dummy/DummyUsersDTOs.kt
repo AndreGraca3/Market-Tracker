@@ -5,9 +5,9 @@ import pt.isel.markettracker.domain.user.User
 val dummyUsers = mutableListOf(
         User(
             id = "1",
-            name = "Diogo",
-            username = "Digo",
-            email = "Diogo@gmail.com",
+            name = "Alberto",
+            username = "alberto_concertina",
+            email = "alberto@gmail.com",
             password = "123",
         )
     )

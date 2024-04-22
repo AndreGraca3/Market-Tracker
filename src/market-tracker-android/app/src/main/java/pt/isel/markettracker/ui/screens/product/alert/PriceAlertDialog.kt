@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -21,11 +22,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.markettracker.R
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.ui.theme.Primary600
 
@@ -60,7 +63,7 @@ fun PriceAlertDialog(
                     verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
                     Text(
-                        text = "Nós avisamos-te quando o preço baixar!",
+                        text = stringResource(id = R.string.price_alert_title),
                         style = MarketTrackerTypography.titleMedium,
                         color = Color.DarkGray,
                         fontWeight = FontWeight.Bold,
@@ -68,12 +71,11 @@ fun PriceAlertDialog(
                     )
 
                     PriceThresholdAdjuster(
-                        price = price,
                         currentPriceThreshold = currentPriceThreshold,
                         onPriceThresholdChange = { currentPriceThreshold = it }
                     )
 
-                    IconButton(
+                    Button(
                         onClick = { onAlertSet(currentPriceThreshold) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -82,7 +84,7 @@ fun PriceAlertDialog(
                             .background(Primary600, CircleShape)
                     ) {
                         Text(
-                            text = "Definir Alerta",
+                            text = stringResource(id = R.string.set_alert),
                             style = MarketTrackerTypography.titleMedium,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,

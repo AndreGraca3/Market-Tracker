@@ -15,11 +15,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import pt.isel.markettracker.domain.price.StorePrice
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoresBottomSheet(
     showStores: Boolean,
+    storesPrices: List<StorePrice>,
+    onStoreSelect: (Int) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -32,19 +35,17 @@ fun StoresBottomSheet(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(12.dp, 0.dp)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(21.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                (1..10).forEach {
+                storesPrices.forEach {
                     StoreTile(
-                        storeName = "Continente",
-                        storeAddress = "Rua do Continente",
-                        storeCity = "Lisboa",
-                        storePrice = 199,
+                        storeName = it.name,
+                        storeAddress = it.address,
+                        storeCity = it.city?.name,
+                        storePrice = it.price,
                         onStoreSelected = {
-                            // TODO: select store
+                            onStoreSelect(it.id)
                             onDismissRequest()
                         }
                     )

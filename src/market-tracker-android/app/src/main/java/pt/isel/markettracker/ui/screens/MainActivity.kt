@@ -1,13 +1,13 @@
 package pt.isel.markettracker.ui.screens
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.google.mlkit.vision.barcode.common.Barcode
-import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
-import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import pt.isel.markettracker.repository.auth.IAuthRepository
@@ -34,6 +34,18 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var authRepository: IAuthRepository
 
+    private val barCodeLauncher = registerForActivityResult(ScanContract()) { result ->
+        if (result.contents != null) {
+            navigateTo<ProductDetailsActivity>(
+                this,
+                ProductDetailsActivity.PRODUCT_ID_EXTRA,
+                ProductIdExtra(result.contents ?: "")
+            )
+        } else {
+            Toast.makeText(this, "Failed to scan barcode", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen().setKeepOnScreenCondition {
             // upload FCM token to server
@@ -56,16 +68,7 @@ class MainActivity : ComponentActivity() {
                         navigateTo<SignUpActivity>(this)
                     },
                     onBarcodeScanRequest = {
-                        val scanner =
-                            GmsBarcodeScanning.getClient(this, barcodeScannerOptions)
-
-                        scanner.startScan().addOnSuccessListener {
-                            navigateTo<ProductDetailsActivity>(
-                                this,
-                                ProductDetailsActivity.PRODUCT_ID_EXTRA,
-                                ProductIdExtra(it.rawValue ?: "")
-                            )
-                        }
+                        barCodeLauncher.launch(barcodeScannerOptions)
                     },
                     authRepository = authRepository
                 )
@@ -74,9 +77,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private val barcodeScannerOptions by lazy {
-        GmsBarcodeScannerOptions.Builder()
-            .setBarcodeFormats(Barcode.FORMAT_EAN_13)
-            .setBarcodeFormats(Barcode.FORMAT_EAN_8)
-            .build()
+        ScanOptions()
+            .setDesiredBarcodeFormats(ScanOptions.EAN_13, ScanOptions.EAN_8)
+            .setPrompt("Escaneie o código de barras do produto")
+            .setBeepEnabled(false)
+            .setOrientationLocked(false)
     }
 }

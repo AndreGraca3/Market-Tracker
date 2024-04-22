@@ -116,3 +116,6 @@ fun <T> IOState<T>.exceptionOrNull(): Throwable? = when (this) {
 }
 
 fun<T> Loaded<T>.extractValue(): T = value.getOrThrow()
+
+fun<T> T.toResultSuccess(): Result<T> = Result.success(this)
+fun Throwable.toResultFailure(): Result<Throwable> = Result.failure(this)

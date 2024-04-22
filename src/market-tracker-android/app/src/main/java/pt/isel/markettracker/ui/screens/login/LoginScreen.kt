@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.markettracker.R
-import pt.isel.markettracker.ui.components.button.ButtonWithImage
+import pt.isel.markettracker.ui.components.buttons.ButtonWithImage
 import pt.isel.markettracker.ui.components.text.LinesWithElementCentered
 import pt.isel.markettracker.ui.components.text.MarketTrackerTextField
 import pt.isel.markettracker.ui.theme.mainFont

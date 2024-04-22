@@ -37,7 +37,7 @@ fun Dropdown(
                 value = selected,
                 onValueChange = onSelectedChange,
                 readOnly = true,
-                maxLines = 1,
+                singleLine = true,
                 colors = TextFieldDefaults.colors(
                     unfocusedIndicatorColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,

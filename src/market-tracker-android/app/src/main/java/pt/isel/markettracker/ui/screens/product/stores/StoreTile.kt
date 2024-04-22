@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.ui.screens.products.card.PriceLabel
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
@@ -17,23 +20,36 @@ import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 fun StoreTile(
     storeName: String,
     storeAddress: String,
-    storeCity: String,
+    storeCity: String?,
     storePrice: Int,
     onStoreSelected: () -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.clickable { onStoreSelected() }
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onStoreSelected() }
+            .padding(16.dp, 8.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.7F),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(text = storeName, style = MarketTrackerTypography.bodyLarge)
-            Text(text = storeAddress, style = MarketTrackerTypography.bodyMedium)
-            Text(text = storeCity, style = MarketTrackerTypography.bodyMedium)
+            Text(
+                text = storeName,
+                style = MarketTrackerTypography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.DarkGray
+            )
+            listOf(storeAddress, storeCity).forEach {
+                if (it != null) Text(
+                    text = it,
+                    style = MarketTrackerTypography.bodyMedium,
+                    color = Color.DarkGray
+                )
+            }
         }
 
         PriceLabel(price = storePrice)

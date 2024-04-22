@@ -19,10 +19,6 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <meta-data
-            android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="barcode_ui"/>
-
         <activity
             android:name="pt.isel.markettracker.ui.screens.MainActivity"
             android:exported="true"
@@ -34,6 +30,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="portrait"
+            tools:replace="screenOrientation" />
 
         <activity android:name="pt.isel.markettracker.ui.screens.product.ProductDetailsActivity" />
         <activity android:name="pt.isel.markettracker.ui.screens.signup.SignUpActivity" />

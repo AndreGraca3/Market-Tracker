@@ -71,7 +71,7 @@ fun EmbeddedSearchBar(
             Row(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .padding(4.dp, 0.dp),
+                    .padding(horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 AnimatedVisibility(searchQuery.isNotEmpty(), enter = fadeIn(), exit = fadeOut()) {

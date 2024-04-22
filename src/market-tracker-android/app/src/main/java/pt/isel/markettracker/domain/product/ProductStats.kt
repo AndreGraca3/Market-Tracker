@@ -7,7 +7,7 @@ data class ProductStats(
 )
 
 data class ProductStatsCounts(
-    val favourites: Int,
+    val favorites: Int,
     val ratings: Int,
     val lists: Int
 )

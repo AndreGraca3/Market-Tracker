@@ -46,6 +46,7 @@ class ProductDetailsActivity : ComponentActivity() {
                     Log.v("ProductDetailsActivity", "Product loaded")
                     vm.fetchProductStats(productId)
                     vm.fetchProductPrices(productId)
+                    vm.fetchProductPreferences(productId)
                 }
             }
         }
