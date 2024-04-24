@@ -1,41 +1,53 @@
-using market_tracker_webapi.Application.Http;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Service.Errors.User;
-using market_tracker_webapi.Application.Service.Operations.User;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace market_tracker_webapi.Application.Pipeline.Authorization;
 
-public class AuthenticationFilter(IUserService userService) : IAsyncAuthorizationFilter
+public class AuthenticationFilter(RequestTokenProcessor tokenProcessor) : IAsyncAuthorizationFilter
 {
-    private const string Schema = "Bearer ";
-    public const string KeyUser = "User";
-
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
-        if (!context.ActionDescriptor.EndpointMetadata.Any(e => e is AuthenticatedAttribute))
+        try
         {
-            return;
-        }
+            var authenticatedAttribute = context.ActionDescriptor.EndpointMetadata.First(e =>
+                e.GetType() == typeof(AuthenticatedAttribute)) as AuthenticatedAttribute;
 
-        var token = context.HttpContext.Request.Headers.Authorization.ToString().Replace(Schema, "");
-        if (string.IsNullOrEmpty(token))
+            if (authenticatedAttribute is null)
+            {
+                return;
+            }
+
+            var tokenValue = new Guid(
+                context.HttpContext.Request.Cookies[AuthenticationDetails.NameAuthorizationCookie] ?? string.Empty
+            );
+
+            var authenticatedUser = await tokenProcessor.ProcessAuthorizationHeaderValue(tokenValue);
+
+            if (authenticatedUser is null)
+            {
+                context.Result =
+                    new AuthenticationProblem.InvalidToken().ToActionResult();
+                return;
+            }
+
+            if (authenticatedAttribute.Role != authenticatedUser.User.Role)
+            {
+                context.Result =
+                    new AuthenticationProblem.UnauthorizedResource().ToActionResult();
+                return;
+            }
+
+            Console.WriteLine($"Authenticated User in Filter: {authenticatedUser}");
+
+            context.HttpContext.Items[AuthenticationDetails.KeyUser] = authenticatedUser;
+        }
+        catch (Exception e)
         {
-            context.Result =
-                new AuthenticationProblem.InvalidToken().ToActionResult();
-            Console.WriteLine("Unauthorized because token is null");
-            return;
+            context.Result = e switch
+            {
+                ArgumentNullException => new AuthenticationProblem.InvalidToken().ToActionResult(),
+                FormatException => new AuthenticationProblem.InvalidFormat().ToActionResult(),
+            };
         }
-
-        var user = await userService.GetUserByToken(new Guid(token));
-        if (user is null)
-        {
-            context.Result =
-                new AuthenticationProblem.InvalidToken().ToActionResult();
-            Console.WriteLine("Unauthorized because token is null");
-            return;
-        }
-
-        context.HttpContext.Items[KeyUser] = user;
     }
 }

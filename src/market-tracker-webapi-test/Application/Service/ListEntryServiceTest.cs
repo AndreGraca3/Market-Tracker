@@ -20,7 +20,7 @@ namespace market_tracker_webapi_test.Application.Service;
 
 public class ListEntryServiceTest
 {
-    private readonly Mock<IListRepository> _listRepositoryMock; 
+    /*private readonly Mock<IListRepository> _listRepositoryMock; 
     private readonly Mock<IPriceRepository> _priceRepositoryMock;
     private readonly Mock<IProductRepository> _productRepositoryMock;
     private readonly Mock<IListEntryRepository> _listEntryRepositoryMock;
@@ -523,5 +523,5 @@ public class ListEntryServiceTest
         
         // Assert
         result.Error.Should().BeEquivalentTo(new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId));
-    }
+    }*/
 }

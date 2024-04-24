@@ -12,37 +12,37 @@ public class UserRepository(
 {
     public async Task<IEnumerable<User>> GetUsersAsync(string? username, int skip, int limit)
     {
-        var users = username is null
+        var usersEntities = username is null
             ? await dataContext.User.Skip(skip).Take(limit).ToListAsync()
             : await dataContext.User.Where(user => user.Username.Contains(username)).Skip(skip).Take(limit)
                 .ToListAsync();
 
-        return users.Select(MapUserEntity)!;
+        return usersEntities.Select(userEntity => userEntity.ToUser());
     }
 
     public async Task<User?> GetUserByIdAsync(Guid id)
     {
-        return MapUserEntity(await dataContext.User.FindAsync(id));
+        return (await dataContext.User.FindAsync(id))?.ToUser();
     }
 
     public async Task<User?> GetUserByUsernameAsync(string username)
     {
-        return MapUserEntity(await dataContext.User.FirstOrDefaultAsync(user => user.Username == username));
+        return (await dataContext.User.FirstOrDefaultAsync(user => user.Username == username))?.ToUser();
     }
 
     public async Task<User?> GetUserByEmailAsync(string email)
     {
-        return MapUserEntity(await dataContext.User.FirstOrDefaultAsync(user => user.Email == email));
+        return (await dataContext.User.FirstOrDefaultAsync(user => user.Email == email))?.ToUser();
     }
 
-    public async Task<Guid> CreateUserAsync(string username, string name, string email, string password)
+    public async Task<Guid> CreateUserAsync(string username, string name, string email, string role)
     {
         var newUser = new UserEntity
         {
             Name = name,
             Username = username,
             Email = email,
-            Password = password
+            Role = role
         };
         await dataContext.User.AddAsync(newUser);
         await dataContext.SaveChangesAsync();
@@ -51,43 +51,29 @@ public class UserRepository(
 
     public async Task<User?> UpdateUserAsync(Guid id, string? name, string? userName)
     {
-        var user = await dataContext.User.FindAsync(id);
-        if (user is null)
+        var userEntity = await dataContext.User.FindAsync(id);
+        if (userEntity is null)
         {
             return null;
         }
 
-        user.Name = name ?? user.Name;
-        user.Username = userName ?? user.Username;
+        userEntity.Name = name ?? userEntity.Name;
+        userEntity.Username = userName ?? userEntity.Username;
 
         await dataContext.SaveChangesAsync();
-        return MapUserEntity(user);
+        return userEntity.ToUser();
     }
 
     public async Task<User?> DeleteUserAsync(Guid id)
     {
-        var deletedUser = await dataContext.User.FindAsync(id);
-        if (deletedUser is null)
+        var deletedUserEntity = await dataContext.User.FindAsync(id);
+        if (deletedUserEntity is null)
         {
             return null;
         }
 
-        dataContext.Remove(deletedUser);
+        dataContext.Remove(deletedUserEntity);
         await dataContext.SaveChangesAsync();
-        return MapUserEntity(deletedUser);
-    }
-
-    private static User? MapUserEntity(UserEntity? userEntity)
-    {
-        return userEntity is not null
-            ? new User
-            (
-                userEntity.Id,
-                userEntity.Username,
-                userEntity.Name,
-                userEntity.Email,
-                userEntity.Password,
-                userEntity.CreatedAt)
-            : null;
+        return deletedUserEntity.ToUser();
     }
 }
