@@ -57,15 +57,15 @@ fun ProductTopBar(
 
                     IconButton(onClick = onAlertRequest, modifier = Modifier.padding(8.dp)) {
                         Icon(
-                            imageVector = if (preferences.priceAlert != null) Icons.Default.AddAlert
-                            else Icons.Default.RemoveCircle,
+                            imageVector = if (preferences.priceAlert != null) Icons.Default.RemoveCircle
+                            else Icons.Default.AddAlert,
                             contentDescription = "Alert",
                         )
                     }
 
                     IconButton(onClick = onFavoriteRequest, modifier = Modifier.padding(8.dp)) {
                         Icon(
-                            imageVector = if (preferences.isFavorite) Icons.Default.Favorite else Icons.Default.HeartBroken,
+                            imageVector = if (preferences.isFavorite) Icons.Default.HeartBroken else Icons.Default.Favorite,
                             contentDescription = "Favorite",
                         )
                     }

@@ -42,8 +42,8 @@ class ProductsScreenViewModel @Inject constructor(
         filtersFlow.value = filters
     }
 
-    val sortOptionFlow: MutableStateFlow<ProductsSortOption> =
-        MutableStateFlow(ProductsSortOption.POPULARITY)
+    private val sortOptionFlow: MutableStateFlow<ProductsSortOption> =
+        MutableStateFlow(ProductsSortOption.Popularity)
     val sortOption
         get() = sortOptionFlow.asStateFlow()
 
@@ -65,7 +65,8 @@ class ProductsScreenViewModel @Inject constructor(
         viewModelScope.launch {
             val res = kotlin.runCatching {
                 productService.getProducts(
-                    if (searchQueryFlow.value.isBlank()) null else searchQuery.value
+                    if (searchQueryFlow.value.isBlank()) null else searchQuery.value,
+                    sortOption.value.name,
                 )
             }
             productsFlow.value = when (res.isSuccess) {
@@ -84,9 +85,9 @@ data class ProductsFilters(
 )
 
 enum class ProductsSortOption(val title: String) {
-    POPULARITY("Popularidade"),
-    NAME_ASC("Nome (A-Z)"),
-    NAME_DESC("Nome (Z-A)"),
-    RATING_ASC("Menor Avaliação"),
-    RATING_DESC("Maior Avaliação"),
+    Popularity("Popularidade"),
+    NameLowToHigh("Nome (A-Z)"),
+    NameHighToLow("Nome (Z-A)"),
+    RatingLowToHigh("Menor Avaliação"),
+    RatingHighToLow("Maior Avaliação")
 }

@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.product.prices
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,11 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import pt.isel.markettracker.ui.components.button.AddToListButton
+import pt.isel.markettracker.ui.components.buttons.AddToListButton
 import pt.isel.markettracker.ui.screens.products.card.PriceLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +30,7 @@ fun RowScope.CompanyPriceBox(price: Int) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier
             .align(Alignment.Bottom)
     ) {

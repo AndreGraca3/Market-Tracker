@@ -20,11 +20,14 @@ import pt.isel.markettracker.domain.Loaded
 import pt.isel.markettracker.domain.exceptionOrNull
 import pt.isel.markettracker.domain.extractValue
 import pt.isel.markettracker.domain.getOrNull
+import pt.isel.markettracker.domain.loaded
+import pt.isel.markettracker.domain.loading
+import pt.isel.markettracker.domain.toResultSuccess
 import pt.isel.markettracker.ui.screens.product.alert.PriceAlertDialog
 import pt.isel.markettracker.ui.screens.product.components.ProductNotFoundDialog
 import pt.isel.markettracker.ui.screens.product.components.ProductTopBar
 import pt.isel.markettracker.ui.screens.product.prices.PricesSection
-import pt.isel.markettracker.ui.screens.product.rating.ProductStatsRow
+import pt.isel.markettracker.ui.screens.product.rating.ProductRatingsRow
 import pt.isel.markettracker.ui.screens.product.reviews.ReviewsBottomSheet
 import pt.isel.markettracker.ui.screens.product.specs.ProductImage
 import pt.isel.markettracker.ui.screens.product.specs.ProductSpecs
@@ -67,12 +70,16 @@ fun ProductDetailsScreen(
 
         Column(
             modifier = Modifier.padding(24.dp, 18.dp),
-            verticalArrangement = Arrangement.spacedBy(28.dp)
+            verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
             ProductSpecs(product)
 
-            ProductStatsRow(
+            ProductRatingsRow(
                 statsState = statsState,
+                productReviewState = when (val loadedPrefs = preferencesState) {
+                    is Loaded -> loaded(loadedPrefs.extractValue().review.toResultSuccess())
+                    else -> loading()
+                },
                 onCommunityReviewsRequest = { isReviewsSectionOpen = true }
             )
 
@@ -87,7 +94,7 @@ fun ProductDetailsScreen(
         preferencesState.let {
             if (it is Loaded && isPriceAlertOpen) {
                 PriceAlertDialog(
-                    price = it.extractValue().priceAlert!!.priceThreshold,
+                    price = it.extractValue().priceAlert?.priceThreshold ?: 0,
                     onAlertSet = { isPriceAlertOpen = false },
                     onDismissRequest = { isPriceAlertOpen = false }
                 )

@@ -61,7 +61,7 @@ fun ReviewsBottomSheet(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(10.dp, 0.dp)
+                    .padding(horizontal = 10.dp)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {

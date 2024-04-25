@@ -53,7 +53,6 @@ class LoginScreenViewModel @Inject constructor(
     val loginPhase
         get() = loginPhaseFlow.asStateFlow()
 
-
     var email by mutableStateOf("")
     var password by mutableStateOf("")
 

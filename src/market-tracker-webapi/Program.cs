@@ -89,7 +89,10 @@ static class Program
                 o.JsonSerializerOptions.DefaultIgnoreCondition =
                     JsonIgnoreCondition.WhenWritingDefault
             )*/
-            .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new OptionalConverter()))
+            .AddJsonOptions(o => {
+                o.JsonSerializerOptions.Converters.Add(new OptionalConverter());
+                o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            })
             .AddOData(options =>
             {
                 options.Conventions.Remove(

@@ -20,10 +20,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.product.ProductInfo
+import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.dummy.dummyProducts
 import pt.isel.markettracker.dummy.dummyStores
 import pt.isel.markettracker.ui.components.LoadableImage
-import pt.isel.markettracker.ui.components.button.AddToListButton
+import pt.isel.markettracker.ui.components.buttons.AddToListButton
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.ui.theme.Primary900
 import pt.isel.markettracker.utils.advanceShadow
@@ -62,7 +63,7 @@ fun ProductCard(product: ProductInfo, onProductClick: (String) -> Unit) {
             }
             ProductCardSpecs(product = product)
             CompanyPriceCardHeader(
-                69,
+                dummyCompanyPrices.minOf { companyPrices -> companyPrices.stores.minOf { it.price } },
                 dummyStores.first().company.logoUrl
             )
 

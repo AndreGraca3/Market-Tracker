@@ -56,7 +56,7 @@ fun ReviewTile() {
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "User André Graça",
+                    text = "Alberto",
                     style = MarketTrackerTypography.bodyLarge,
                     fontWeight = FontWeight.Bold
                 )
