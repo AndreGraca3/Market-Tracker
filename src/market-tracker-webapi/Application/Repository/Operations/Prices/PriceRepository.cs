@@ -48,11 +48,11 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 Product = product,
                 Brand = brand,
                 Category = category,
-                StorePrice = new StorePrice(
-                    StoreInfo.ToStoreInfo(store.ToStore(), city == null ? null : city.ToCity(), company.ToCompany()),
-                    PriceInfo.Calculate(price.Price, promotion == null ? null : promotion.ToPromotion(price.Price),
-                        price.CreatedAt)
-                )
+                Store = store,
+                Company = company,
+                City = city,
+                Price = price,
+                Promotion = promotion
             };
 
         var categoryFacets = await query
@@ -73,15 +73,29 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 Count = grouping.Count()
             }).ToListAsync();
 
-        var bestOffersQuery = query
-            .GroupBy(g => g.Product.Id)
-            .Select(grouping =>
-                new ProductOffer(ProductInfo.ToProductInfo(grouping.First().Product.ToProduct(),
-                        grouping.First().Brand.ToBrand(), grouping.First().Category.ToCategory()),
-                    grouping.First().StorePrice)
-            )
-            .Skip(skip)
-            .Take(take);
+        var companyFacets = await query
+            .GroupBy(p => p.Company.Id)
+            .Select(grouping => new FacetCounter
+            {
+                Id = grouping.Key,
+                Name = grouping.First().Company.Name,
+                Count = grouping.Count()
+            }).ToListAsync();
+
+        var bestOffers = new List<ProductOffer>();
+
+        foreach (var group in query.GroupBy(g => g.Product.Id))
+        {
+            var bestOffer = group
+                .Select(g => new ProductOffer(
+                    ProductInfo.ToProductInfo(g.Product.ToProduct(), g.Brand.ToBrand(), g.Category.ToCategory()),
+                    new StorePrice(StoreInfo.ToStoreInfo(g.Store.ToStore(), g.City?.ToCity(), g.Company.ToCompany()),
+                        PriceInfo.Calculate(g.Price.Price, g.Promotion?.ToPromotion(g.Price.Price), g.Price.CreatedAt))
+                ))
+                .MinBy(g => g.StorePrice.PriceData.Price);
+
+            bestOffers.Add(bestOffer);
+        }
 
         Console.WriteLine("never working");
 
@@ -97,17 +111,9 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             _ => query
         };*/
 
-        var productsFacetsCounters = new ProductsFacetsCounters();
+        var productsFacetsCounters = new ProductsFacetsCounters(brandFacets, categoryFacets, companyFacets);
 
-        var res = query
-            .Select(grouping =>
-                new ProductOffer(
-                    ProductInfo.ToProductInfo(grouping.Product.ToProduct(), grouping.Brand.ToBrand(),
-                        grouping.Category.ToCategory()),
-                    grouping.StorePrice))
-            .ToList();
-
-        var paginatedProducts = new PaginatedResult<ProductOffer>(res, query.Count(), skip, take);
+        var paginatedProducts = new PaginatedResult<ProductOffer>(bestOffers, query.Count(), skip, take);
 
         return new PaginatedProductOffers(paginatedProducts, productsFacetsCounters);
     }
