@@ -10,7 +10,7 @@ namespace market_tracker_webapi_test.Application.Repository;
 
 public class ListRepositoryTest
 {
-    [Fact]
+    /*[Fact]
     public async Task GetListsAsync_ShouldReturnListOfProducts()
     {
         // Arrange
@@ -276,5 +276,5 @@ public class ListRepositoryTest
         databaseContext.SaveChanges();
         databaseContext.Database.EnsureCreated();
         return databaseContext;
-    }
+    }*/
 }

@@ -5,6 +5,6 @@ public record User(
     string Username,
     string Name,
     string Email,
-    string Password,
+    string Role,
     DateTime CreatedAt
 );

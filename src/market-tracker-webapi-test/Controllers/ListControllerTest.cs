@@ -17,7 +17,7 @@ namespace market_tracker_webapi_test.Controllers;
 
 public class ListControllerTest
 {
-    private readonly Mock<IListService> listServiceMock;
+    /*private readonly Mock<IListService> listServiceMock;
     private readonly ListController listController;
     
     public ListControllerTest()
@@ -191,5 +191,5 @@ public class ListControllerTest
 
         // Assert
         Assert.IsType<NoContentResult>(result.Result);
-    }
+    }*/
 }

@@ -18,6 +18,15 @@ public class UserProblem(
         data
     );
 
+    public class UserByTokenValueNotFound(UserFetchingError.UserByTokenValueNotFound data)
+        : UserProblem(
+            404,
+            "user-not-found",
+            "User not found",
+            $"User with token value {data.TokenValue} not found",
+            data
+        );
+
     public class UserByIdNotFound(UserFetchingError.UserByIdNotFound data)
         : UserProblem(
             404,

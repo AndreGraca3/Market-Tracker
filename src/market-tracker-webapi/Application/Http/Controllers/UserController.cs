@@ -1,6 +1,7 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.User;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.User;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,14 @@ namespace market_tracker_webapi.Application.Http.Controllers
         : ControllerBase
     {
         [HttpGet]
+        [Authorized(["client"])]
         public async Task<ActionResult<UsersOutputModel>> GetUsersAsync(
             [FromQuery] PaginationInputs paginationInputs,
             [FromQuery] string? username
         )
         {
+            var user = HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser;
+            Console.WriteLine($"Authenticated User in controller method : {user?.User.Name}");
             logger.LogDebug($"Call {nameof(GetUsersAsync)} with {username}");
 
             return Ok(await userService.GetUsersAsync(username, paginationInputs.Skip, paginationInputs.ItemsPerPage));
@@ -43,7 +47,6 @@ namespace market_tracker_webapi.Application.Http.Controllers
 
         [HttpPost]
         public async Task<ActionResult<UserCreationOutputModel>> CreateUserAsync(
-            [FromQuery] int? code,
             [FromBody] UserCreationInputModel userInput
         )
         {
@@ -55,8 +58,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
                 userInput.Username,
                 userInput.Name,
                 userInput.Email,
-                userInput.Password,
-                code
+                userInput.Password
             );
 
             return ResultHandler.Handle(

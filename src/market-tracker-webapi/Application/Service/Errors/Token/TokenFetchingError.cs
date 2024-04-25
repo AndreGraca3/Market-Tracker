@@ -2,8 +2,8 @@
 
 public class TokenFetchingError : TokenError
 {
-    public class TokenByTokenValueNotFound(Guid tokenValue) : TokenFetchingError
+    public class TokenByTokenValueNotFound(String tokenValue) : TokenFetchingError
     {
-        public Guid TokenValue { get; } = tokenValue;
+        public String TokenValue { get; } = tokenValue;
     }
 }

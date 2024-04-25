@@ -12,6 +12,6 @@ public interface ITokenService
     );
 
     Task<Either<TokenFetchingError, TokenOutputModel>> DeleteTokenAsync(
-        Guid tokenValue
+        string tokenValue
     );
 }

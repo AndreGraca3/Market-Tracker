@@ -4,6 +4,6 @@ public record Promotion(int Percentage, int OldPrice, DateTime CreatedAt)
 {
     public int CalculatePrice(int oldPrice)
     {
-        return oldPrice - (oldPrice * Percentage / 100);
+        return oldPrice - oldPrice * Percentage / 100;
     }
 }

@@ -12,50 +12,49 @@ public class TokenRepository(
 {
     public async Task<Token?> GetTokenByTokenValueAsync(Guid tokenValue)
     {
-        return MapTokenEntity(await dataContext.Token.FindAsync(tokenValue));
+        return (await dataContext.Token.FindAsync(tokenValue))?.ToToken();
     }
 
-    public async Task<Guid> CreateTokenAsync(Guid userId)
+    public async Task<Token> CreateTokenAsync(Guid userId)
     {
-        var newToken = new TokenEntity
+        var tokenEntity = new TokenEntity
         {
-            CreatedAt = default,
-            ExpiresAt = default,
+            ExpiresAt = DateTime.Now.AddHours(1),
             UserId = userId
         };
-        await dataContext.Token.AddAsync(newToken);
+        await dataContext.Token.AddAsync(tokenEntity);
         await dataContext.SaveChangesAsync();
-        return newToken.TokenValue;
+        return tokenEntity.ToToken();
+    }
+
+    public async Task<Guid> CreateTokenByTokenValueAsync(Guid tokenValue, DateTime expiresAt, Guid userId)
+    {
+        var tokenEntity = new TokenEntity
+        {
+            TokenValue = tokenValue,
+            ExpiresAt = expiresAt,
+            UserId = userId
+        };
+        await dataContext.Token.AddAsync(tokenEntity);
+        await dataContext.SaveChangesAsync();
+        return tokenEntity.TokenValue;
     }
 
     public async Task<Token?> GetTokenByUserIdAsync(Guid userId)
     {
-        return MapTokenEntity(await dataContext.Token.Where(token => token.UserId == userId).FirstOrDefaultAsync());
+        return (await dataContext.Token.Where(tokenEntity => tokenEntity.UserId == userId).FirstOrDefaultAsync())?.ToToken();
     }
 
     public async Task<Token?> DeleteTokenAsync(Guid tokenValue)
     {
-        var deletedToken = await dataContext.Token.FindAsync(tokenValue);
-        if (deletedToken is null)
+        var deletedTokenEntity = await dataContext.Token.FindAsync(tokenValue);
+        if (deletedTokenEntity is null)
         {
             return null;
         }
 
-        dataContext.Remove(deletedToken);
+        dataContext.Remove(deletedTokenEntity);
         await dataContext.SaveChangesAsync();
-        return MapTokenEntity(deletedToken);
-    }
-
-    private static Token? MapTokenEntity(TokenEntity? tokenEntity)
-    {
-        return tokenEntity is not null
-            ? new Token
-            (
-                tokenEntity.TokenValue,
-                tokenEntity.CreatedAt,
-                tokenEntity.ExpiresAt,
-                tokenEntity.UserId
-            )
-            : null;
+        return deletedTokenEntity.ToToken();
     }
 }

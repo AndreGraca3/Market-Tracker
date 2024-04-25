@@ -6,6 +6,8 @@ namespace market_tracker_webapi.Infrastructure
     public class MarketTrackerDataContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<UserEntity> User { get; set; }
+        
+        public DbSet<AccountEntity> Account { get; set; }
 
         public DbSet<TokenEntity> Token { get; set; }
 
