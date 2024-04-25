@@ -1,6 +1,9 @@
 ﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.List;
+using market_tracker_webapi.Application.Http.Models.ListEntry;
 using market_tracker_webapi.Application.Repository.Dto.List;
+using market_tracker_webapi.Application.Repository.Dto.Store;
 using market_tracker_webapi.Application.Repository.Operations.List;
 using market_tracker_webapi.Application.Repository.Operations.Prices;
 using market_tracker_webapi.Application.Repository.Operations.Product;
@@ -39,8 +42,7 @@ public class ListEntryService(
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                     new ListFetchingError.ListByIdNotFound(listId));
 
-            var listClients = await listRepository.GetListClientsByListIdAsync(listId);
-            if (!listClients.Contains(clientId))
+            if (!await listRepository.IsClientInListAsync(listId, clientId))
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                     new ListFetchingError.UserDoesNotOwnList(clientId, listId));
 
@@ -83,9 +85,8 @@ public class ListEntryService(
                 return EitherExtensions.Failure<IServiceError, ListEntry>(
                     new ListFetchingError.ListByIdNotFound(listId));
 
-            
-            var listClients = await listRepository.GetListClientsByListIdAsync(listId);
-            if (!listClients.Contains(clientId))
+
+            if (!await listRepository.IsClientInListAsync(listId, clientId))
                 return EitherExtensions.Failure<IServiceError, ListEntry>(
                     new ListFetchingError.UserDoesNotOwnList(clientId, listId));
 
@@ -130,8 +131,7 @@ public class ListEntryService(
                 return EitherExtensions.Failure<IServiceError, ListEntry>(
                     new ListFetchingError.ListByIdNotFound(listId));
 
-            var listClients = await listRepository.GetListClientsByListIdAsync(listId);
-            if (!listClients.Contains(clientId))
+            if (!await listRepository.IsClientInListAsync(listId, clientId))
                 return EitherExtensions.Failure<IServiceError, ListEntry>(
                     new ListFetchingError.UserDoesNotOwnList(clientId, listId));
 
@@ -143,5 +143,117 @@ public class ListEntryService(
             var deleteListEntry = await listEntryRepository.DeleteListEntryAsync(listId, productId);
             return EitherExtensions.Success<IServiceError, ListEntry>(deleteListEntry!);
         });
+    }
+
+    public async Task<Either<ListFetchingError, ShoppingListEntriesOutputModel>> GetListEntriesAsync(int listId,
+        Guid clientId,
+        ShoppingListAlternativeType alternativeType,
+        IList<int>? companyIds,
+        IList<int>? storeIds,
+        IList<int>? cityIds
+    )
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var list = await listRepository.GetListByIdAsync(listId);
+            if (list is null)
+                return EitherExtensions.Failure<ListFetchingError, ShoppingListEntriesOutputModel>(
+                    new ListFetchingError.ListByIdNotFound(listId));
+
+            if (!await listRepository.IsClientInListAsync(list.Id, clientId))
+                return EitherExtensions.Failure<ListFetchingError, ShoppingListEntriesOutputModel>(
+                    new ListFetchingError.UserDoesNotOwnList(clientId, listId));
+
+            var listEntries = (await listEntryRepository.GetListEntriesAsync(listId)).ToList();
+
+            ShoppingListEntriesOutputModel? entriesResult = null;
+
+            switch (alternativeType)
+            {
+                case ShoppingListAlternativeType.Cheapest:
+                    var getEntryDetailsByCriteria = new Func<ListEntry, Task<ListEntryDetails>>(async entry =>
+                    {
+                        var storePrice = await priceRepository.GetCheapestStorePriceAvailableByProductIdAsync(
+                            entry.ProductId,
+                            list.ArchivedAt ?? DateTime.Now
+                        );
+                        var isAvailable = storePrice is not null;
+                        return new ListEntryDetails
+                        {
+                            ProductItem = new ProductItem
+                            {
+                                ProductId = entry.ProductId,
+                                Name = (await productRepository.GetProductByIdAsync(entry.ProductId))!.Name
+                            },
+                            Quantity = entry.Quantity,
+                            StorePrice = storePrice,
+                            IsAvailable = isAvailable
+                        };
+                    });
+                    entriesResult = await BuildShoppingListEntriesResult(listEntries, getEntryDetailsByCriteria);
+                    break;
+                case ShoppingListAlternativeType.None:
+                    Console.WriteLine("None");
+                    entriesResult = await BuildShoppingListEntriesResult(listEntries, async entry =>
+                    {
+                        var isAvailable =
+                            (await priceRepository.GetStoreAvailabilityAsync(entry.ProductId, entry.StoreId))
+                            ?.IsAvailable ?? false;
+
+                        var storePrice = isAvailable
+                            ? await priceRepository.GetStorePriceByProductIdAsync(entry.ProductId, entry.StoreId,
+                                DateTime.Now)
+                            : null;
+
+                        return new ListEntryDetails
+                        {
+                            ProductItem = new ProductItem
+                            {
+                                ProductId = entry.ProductId,
+                                Name = (await productRepository.GetProductByIdAsync(entry.ProductId))!.Name
+                            },
+                            Quantity = entry.Quantity,
+                            StorePrice = storePrice,
+                            IsAvailable = isAvailable
+                        };
+                    });
+                    break;
+            }
+
+            return EitherExtensions.Success<ListFetchingError, ShoppingListEntriesOutputModel>(
+                entriesResult
+            );
+        });
+    }
+
+    // helper method
+    private async Task<ShoppingListEntriesOutputModel> BuildShoppingListEntriesResult(
+        IEnumerable<ListEntry> listEntries, Func<ListEntry, Task<ListEntryDetails>> getEntryDetailsByCriteria
+    )
+    {
+        var listEntriesDetails = new List<ListEntryDetails>();
+
+        var totalPrice = 0;
+        var totalProducts = 0;
+
+        foreach (var product in listEntries)
+        {
+            var listEntry = await getEntryDetailsByCriteria(product);
+            
+            if (listEntry.StorePrice is not null)
+            {
+                totalPrice += listEntry.StorePrice.PriceData.Price * product.Quantity;
+                totalProducts++;
+            }
+
+            listEntriesDetails.Add(listEntry);
+        }
+
+        return new ShoppingListEntriesOutputModel
+        {
+            Products = listEntriesDetails,
+            TotalPrice = totalPrice,
+            TotalProducts = totalProducts
+        };
     }
 }

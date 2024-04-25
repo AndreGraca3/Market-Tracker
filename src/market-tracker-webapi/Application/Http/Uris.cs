@@ -39,16 +39,11 @@ public static class Uris
     {
         public const string Base = $"{ApiBase}/lists";
         public const string ListById = $"{Base}/{{listId}}";
-        public const string ListProductsByListId = $"{ListById}/products";
-        public const string ListEntriesByListIdAndProductId = $"{ListProductsByListId}/{{productId}}";
+        public const string ProductsByListId = $"{ListById}/products";
+        public const string ProductByListIdAndProductId = $"{ProductsByListId}/{{productId}}";
         public const string Clients = $"{ListById}/clients";
 
         public static string BuildListByIdUri(int id) => ListById.ExpandUri(id);
-
-        public static string BuildListProductsByListIdUri(int id) => ListProductsByListId.ExpandUri(id);
-
-        public static string BuildListProductsByListIdAndProductIdUri(int listId, string productId) =>
-            ListEntriesByListIdAndProductId.ExpandUri(listId, productId);
     }
 
     public static class Categories

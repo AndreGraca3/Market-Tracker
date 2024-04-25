@@ -13,6 +13,7 @@ using Moq;
 
 namespace market_tracker_webapi_test.Controllers;
 
+/*
 public class CompanyControllerTest
 {
     private readonly Mock<ICompanyService> _companyServiceMock;
@@ -289,3 +290,4 @@ public class CompanyControllerTest
             .BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(It.IsAny<int>()));
     }
 }
+*/

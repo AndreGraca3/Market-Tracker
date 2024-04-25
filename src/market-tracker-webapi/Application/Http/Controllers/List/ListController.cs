@@ -2,6 +2,7 @@
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.List;
+using market_tracker_webapi.Application.Http.Models.ListEntry;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Repository.Dto.List;
 using market_tracker_webapi.Application.Service.Errors.List;
@@ -16,7 +17,7 @@ public class ListController(
 ) : ControllerBase
 {
     [HttpGet(Uris.Lists.Base)]
-    public async Task<ActionResult<CollectionOutputModel>> GetListsAsync(
+    public async Task<ActionResult<CollectionOutputModel<ShoppingList>>> GetListsAsync(
         [Required] Guid clientId,
         string? listName,
         DateTime? createdAfter,
@@ -40,7 +41,7 @@ public class ListController(
     }
 
     [HttpGet(Uris.Lists.ListById)]
-    public async Task<ActionResult<ListProduct>> GetListByIdAsync(int listId, [Required] Guid clientId)
+    public async Task<ActionResult<ShoppingListOutputModel>> GetListByIdAsync(int listId, [Required] Guid clientId)
     {
         var res = await listService.GetListByIdAsync(listId, clientId);
         return ResultHandler.Handle(
@@ -61,7 +62,7 @@ public class ListController(
 
     [HttpPost(Uris.Lists.Base)]
     public async Task<ActionResult<IntIdOutputModel>> AddListAsync(
-        [FromBody] CreationListInputModel inputModel)
+        [FromBody] ListCreationInputModel inputModel)
     {
         var res = await listService.AddListAsync(inputModel.ClientId, inputModel.ListName);
         return ResultHandler.Handle(
@@ -86,7 +87,7 @@ public class ListController(
     }
 
     [HttpPatch(Uris.Lists.ListById)]
-    public async Task<ActionResult<ListOfProducts>> UpdateListAsync(
+    public async Task<ActionResult<ShoppingList>> UpdateListAsync(
         int listId,
         [Required] Guid clientId,
         [FromBody] UpdateListInputModel inputModel
@@ -114,7 +115,7 @@ public class ListController(
     }
 
     [HttpDelete(Uris.Lists.ListById)]
-    public async Task<ActionResult<ListOfProducts>> DeleteListAsync(int listId, [Required] Guid clientId)
+    public async Task<ActionResult<ShoppingList>> DeleteListAsync(int listId, [Required] Guid clientId)
     {
         var res = await listService.DeleteListAsync(listId, clientId);
         return ResultHandler.Handle(
@@ -133,14 +134,14 @@ public class ListController(
             _ => NoContent()
         );
     }
-    
+
     [HttpPost(Uris.Lists.Clients)]
     public async Task<ActionResult<ListClient>> AddClientToListAsync(
-        int listId, 
-        [FromBody] CreateClientListInputModel inputModel,
+        int listId,
+        [FromBody] ListInviteInputModel inviteInputModel,
         [Required] Guid clientId)
     {
-        var res = await listService.AddClientToListAsync(listId, inputModel.ClientId, clientId);
+        var res = await listService.AddClientToListAsync(listId, inviteInputModel.ClientId, clientId);
         return ResultHandler.Handle(
             res,
             error =>
@@ -160,10 +161,10 @@ public class ListController(
             }
         );
     }
-    
+
     [HttpDelete(Uris.Lists.Clients)]
     public async Task<ActionResult<ListClient>> RemoveClientFromListAsync(
-        int listId, 
+        int listId,
         [Required] Guid clientId)
     {
         var res = await listService.RemoveClientFromListAsync(listId, clientId);

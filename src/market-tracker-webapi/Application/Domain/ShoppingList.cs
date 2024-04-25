@@ -1,10 +1,10 @@
 ﻿namespace market_tracker_webapi.Application.Domain;
 
-public class ListOfProducts
+public class ShoppingList
 {
     public int Id { get; set; }
     
-    public required string ListName { get; set; }
+    public required string Name { get; set; }
     
     public DateTime? ArchivedAt { get; set; }
     

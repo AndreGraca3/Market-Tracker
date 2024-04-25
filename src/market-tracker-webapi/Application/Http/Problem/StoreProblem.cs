@@ -27,14 +27,4 @@ public class StoreProblem(
             $"Store with name {data.StoreName} already exists",
             data
         );
-    
-    public class StoreAddressAlreadyExists(StoreCreationError.StoreAddressAlreadyExists data)
-        : CompanyProblem(
-            400,
-            "store-address-already-exists",
-            "Store address already exists",
-            $"Store with address {data.Address} already exists",
-            data
-        );
-    
 }

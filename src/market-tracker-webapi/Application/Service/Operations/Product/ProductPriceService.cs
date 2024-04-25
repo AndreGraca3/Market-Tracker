@@ -9,9 +9,8 @@ namespace market_tracker_webapi.Application.Service.Operations.Product;
 
 public class ProductPriceService(IPriceRepository priceRepository) : IProductPriceService
 {
-    public async Task<Either<ProductFetchingError, CollectionOutputModel>> GetProductPricesAsync(
-        string productId
-    )
+    public async Task<Either<ProductFetchingError, CollectionOutputModel<CompanyPricesOutputModel>>>
+        GetProductPricesAsync(string productId)
     {
         int? minPrice = null;
         int? maxPrice = null;
@@ -61,8 +60,8 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
             companiesDictionary[storePrice.Store.Company.Id] = storePrice.Store.Company;
         }
 
-        return EitherExtensions.Success<ProductFetchingError, CollectionOutputModel>(
-            new CollectionOutputModel(
+        return EitherExtensions.Success<ProductFetchingError, CollectionOutputModel<CompanyPricesOutputModel>>(
+            new CollectionOutputModel<CompanyPricesOutputModel>(
                 companyStoresDictionary
                     .Select(companyStores => new CompanyPricesOutputModel(
                         companiesDictionary[companyStores.Key].Id,

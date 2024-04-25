@@ -12,7 +12,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Product;
 
 public interface IProductService
 {
-    public Task<Either<IServiceError, PaginatedProductsOutputModel>> GetProductsAsync(
+    public Task<Either<IServiceError, PaginatedProductOffers>> GetProductOffersAsync(
         int skip,
         int take,
         SortByType? sortBy,
@@ -20,6 +20,8 @@ public interface IProductService
         IList<int>? categoryIds,
         IList<int>? brandIds,
         IList<int>? companyIds,
+        int? minPrice, 
+        int? maxPrice,
         int? minRating,
         int? maxRating
     );
@@ -34,7 +36,7 @@ public interface IProductService
         string unit,
         string brandName,
         int categoryId
-    // int price
+        // int price
     );
 
     public Task<Either<IServiceError, ProductInfoOutputModel>> UpdateProductAsync(

@@ -7,7 +7,7 @@ namespace market_tracker_webapi.Application.Repository.Operations.List;
 
 public class ListRepository(MarketTrackerDataContext context) : IListRepository
 {
-    public async Task<IEnumerable<ListOfProducts>> GetListsAsync(
+    public async Task<IEnumerable<ShoppingList>> GetListsAsync(
         Guid clientId,
         string? listName = null,
         DateTime? createdAfter = null,
@@ -30,7 +30,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
                 query = query.Where(l => l.OwnerId == clientId);
             }
         }
-        
+
         if (!string.IsNullOrEmpty(listName))
         {
             query = query.Where(l => EF.Functions.ILike(l.Name, $"%{listName}%"));
@@ -55,24 +55,30 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
 
         return await query
             .OrderByDescending(listEntity => listEntity.CreatedAt)
-            .Select(listEntity => listEntity.ToListOfProducts())
+            .Select(listEntity => listEntity.ToShoppingList())
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Guid>> GetListClientsByListIdAsync(int listId)
+    public async Task<IEnumerable<Guid>> GetClientIdsByListIdAsync(int listId)
     {
         var clients = await context.ListClient
             .Where(listClient => listClient.ListId == listId)
             .Select(listClient => listClient.ClientId)
             .ToListAsync();
-        
+
         return clients;
     }
+    
+    public async Task<bool> IsClientInListAsync(int listId, Guid clientId)
+    {
+        return await context.ListClient
+            .AnyAsync(lc => lc.ListId == listId && lc.ClientId == clientId);
+    }
 
-    public async Task<ListOfProducts?> GetListByIdAsync(int id)
+    public async Task<ShoppingList?> GetListByIdAsync(int id)
     {
         var listEntity = await context.List.FindAsync(id);
-        return listEntity?.ToListOfProducts();
+        return listEntity?.ToShoppingList();
     }
 
     public async Task<int> AddListAsync(string listName, Guid ownerId)
@@ -89,7 +95,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         return listEntity.Id;
     }
 
-    public async Task<ListOfProducts?> UpdateListAsync(int id, DateTime? archivedAt, string? listName = null)
+    public async Task<ShoppingList?> UpdateListAsync(int id, DateTime? archivedAt, string? listName = null)
     {
         var listEntity = await context.List.FindAsync(id);
 
@@ -110,10 +116,10 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
 
         await context.SaveChangesAsync();
 
-        return listEntity.ToListOfProducts();
+        return listEntity.ToShoppingList();
     }
 
-    public async Task<ListOfProducts?> DeleteListAsync(int id)
+    public async Task<ShoppingList?> DeleteListAsync(int id)
     {
         var listEntity = await context.List.FindAsync(id);
 
@@ -125,7 +131,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         context.List.Remove(listEntity);
         await context.SaveChangesAsync();
 
-        return listEntity.ToListOfProducts();
+        return listEntity.ToShoppingList();
     }
 
     public async Task<ListClient> AddListClientAsync(int listId, Guid clientId)

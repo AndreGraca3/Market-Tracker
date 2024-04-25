@@ -1,12 +1,8 @@
-using market_tracker_webapi.Application.Repository.Dto;
-using market_tracker_webapi.Application.Repository.Dto.Product;
+namespace market_tracker_webapi.Application.Repository.Dto.Product;
 
-namespace market_tracker_webapi.Application.Http.Models.Price;
-
-public class PaginatedProductsOutputModel(
+public class PaginatedProductOffers(
     PaginatedResult<ProductOffer> paginatedResult,
-    ProductsFacetsCounters facetsCounters
-)
+    ProductsFacetsCounters facetsCounters)
 {
     public IEnumerable<ProductOffer> Items { get; } = paginatedResult.Items;
     public ProductsFacetsCounters Facets { get; } = facetsCounters;
@@ -18,15 +14,48 @@ public class PaginatedProductsOutputModel(
 
 public class ProductsFacetsCounters
 {
+    public ProductsFacetsCounters(
+    )
+    {
+    }
+    public ProductsFacetsCounters(IEnumerable<FacetCounter> brandFacets, IEnumerable<FacetCounter> companyFacets,
+        IEnumerable<FacetCounter> categoryFacets,
+        BooleanFacetsCounter promotionFacets)
+    {
+        Brands = brandFacets;
+        Companies = companyFacets;
+        Categories = categoryFacets;
+        Promotions = promotionFacets;
+    }
+
     private Dictionary<int, FacetCounter> _brandsDictionary = new();
     private Dictionary<int, FacetCounter> _companiesDictionary = new();
     private Dictionary<int, FacetCounter> _categoriesDictionary = new();
     private BooleanFacetsCounter _promotionDictionary = new();
 
-    public IEnumerable<FacetCounter> Brands => _brandsDictionary.Values;
-    public IEnumerable<FacetCounter> Companies => _companiesDictionary.Values;
-    public IEnumerable<FacetCounter> Categories => _categoriesDictionary.Values;
-    public BooleanFacetsCounter Promotions => _promotionDictionary;
+    public IEnumerable<FacetCounter> Brands
+    {
+        get => _brandsDictionary.Values;
+        set => throw new NotImplementedException();
+    }
+
+    public IEnumerable<FacetCounter> Companies
+    {
+        get => _companiesDictionary.Values;
+        set => throw new NotImplementedException();
+    }
+
+    public IEnumerable<FacetCounter> Categories
+    {
+        get => _categoriesDictionary.Values;
+        set => throw new NotImplementedException();
+    }
+
+    public BooleanFacetsCounter Promotions
+    {
+        get => _promotionDictionary;
+        set => _promotionDictionary = value;
+    }
 
     public void AddOrUpdateBrandFacetCounter(int brandId, string brandName)
     {
@@ -97,7 +126,7 @@ public class FacetCounter
 
     public required string Name { get; set; }
 
-    public int Count { get; set; } = 0;
+    public int Count { get; set; }
 }
 
 public record BooleanFacetsCounter

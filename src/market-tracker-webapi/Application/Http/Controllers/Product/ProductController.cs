@@ -16,14 +16,14 @@ public class ProductController(IProductService productService, IProductPriceServ
     : ControllerBase
 {
     [HttpGet(Uris.Products.Base)]
-    public async Task<ActionResult<PaginatedProductsOutputModel>> GetProductsAsync(
+    public async Task<ActionResult<PaginatedProductOffers>> GetProductsAsync(
         [FromQuery] ProductsFiltersInputModel filters,
         [FromQuery] PaginationInputs paginationInputs,
         [FromQuery] SortByType? sortBy
     )
     {
         var res =
-            await productService.GetProductsAsync(
+            await productService.GetProductOffersAsync(
                 paginationInputs.Skip,
                 paginationInputs.ItemsPerPage,
                 sortBy,
@@ -31,6 +31,8 @@ public class ProductController(IProductService productService, IProductPriceServ
                 filters.CategoryIds,
                 filters.BrandIds,
                 filters.CompanyIds,
+                filters.MinPrice,
+                filters.MaxPrice,
                 filters.MinRating,
                 filters.MaxRating
             );
@@ -60,7 +62,8 @@ public class ProductController(IProductService productService, IProductPriceServ
     }
 
     [HttpGet(Uris.Products.PricesByProductId)]
-    public async Task<ActionResult<CollectionOutputModel>> GetProductPricesAsync(string productId)
+    public async Task<ActionResult<CollectionOutputModel<CompanyPricesOutputModel>>> GetProductPricesAsync(
+        string productId)
     {
         var res = await productPriceService.GetProductPricesAsync(productId);
 

@@ -1,6 +1,4 @@
-using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Product;
@@ -24,7 +22,7 @@ public class ProductService(
     ITransactionManager transactionManager
 ) : IProductService
 {
-    public async Task<Either<IServiceError, PaginatedProductsOutputModel>> GetProductsAsync(
+    /*public async Task<Either<IServiceError, PaginatedProductsOutputModel>> GetProductsAsync(
         int skip,
         int take,
         SortByType? sortBy,
@@ -38,7 +36,7 @@ public class ProductService(
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var paginatedProducts = await productRepository.GetProductsAsync(
+            var paginatedProducts = await productRepository.GetAvailableProductsAsync(
                 skip,
                 take,
                 sortBy,
@@ -55,24 +53,20 @@ public class ProductService(
             foreach (var product in paginatedProducts.Items)
             {
                 var cheapestStorePrice =
-                    await priceRepository.GetCheapestStorePriceByProductIdAsync(product.Id, DateTime.Now, companyIds);
-
-                if (cheapestStorePrice is null)
-                {
-                    continue; // Skip product if no price is found
-                }
+                    await priceRepository.GetCheapestStorePriceAvailableByProductIdAsync(product.Id, DateTime.Now,
+                        companyIds);
 
                 productsOffers.Add(new ProductOffer(product, cheapestStorePrice));
 
                 var productBrandId = product.Brand.Id;
                 var productCategoryId = product.Category.Id;
-                var hasPromotion = cheapestStorePrice.PriceData.Promotion != null;
+                var hasPromotion = cheapestStorePrice?.PriceData.Promotion != null;
 
                 facetsCounters.AddOrUpdateBrandFacetCounter(productBrandId, product.Brand.Name);
                 facetsCounters.AddOrUpdateCategoryFacetCounter(productCategoryId, product.Category.Name);
                 facetsCounters.AddOrUpdateCompanyFacetCounter(
-                    cheapestStorePrice.Store.Company.Id,
-                    cheapestStorePrice.Store.Company.Name
+                    cheapestStorePrice?.Store.Company.Id,
+                    cheapestStorePrice?.Store.Company.Name
                 );
                 facetsCounters.AddOrUpdatePromotionFacetCounter(hasPromotion);
             }
@@ -83,6 +77,30 @@ public class ProductService(
             return EitherExtensions.Success<IServiceError, PaginatedProductsOutputModel>(
                 new PaginatedProductsOutputModel(paginatedProductOffers, facetsCounters)
             );
+        });
+    }*/
+
+    public async Task<Either<IServiceError, PaginatedProductOffers>> GetProductOffersAsync(int skip, int take,
+        SortByType? sortBy, string? searchName, IList<int>? categoryIds, IList<int>? brandIds,
+        IList<int>? companyIds, int? minPrice, int? maxPrice, int? minRating, int? maxRating)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var paginatedOffers = await priceRepository.GetAvailableProductsOffersAsync(
+                skip,
+                take,
+                sortBy,
+                searchName,
+                categoryIds,
+                brandIds,
+                minPrice,
+                maxPrice,
+                minRating,
+                maxRating,
+                companyIds
+            );
+
+            return EitherExtensions.Success<IServiceError, PaginatedProductOffers>(paginatedOffers);
         });
     }
 
@@ -207,9 +225,7 @@ public class ProductService(
         });
     }
 
-    public async Task<Either<ProductFetchingError, StringIdOutputModel>> RemoveProductAsync(
-        string productId
-    )
+    public async Task<Either<ProductFetchingError, StringIdOutputModel>> RemoveProductAsync(string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {

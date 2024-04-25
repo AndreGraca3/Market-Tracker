@@ -1,5 +1,4 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.City;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.City;
@@ -11,13 +10,13 @@ namespace market_tracker_webapi.Application.Service.Operations.City;
 public class CityService(ICityRepository cityRepository, ITransactionManager transactionManager)
     : ICityService
 {
-    public async Task<Either<IServiceError, CollectionOutputModel>> GetCitiesAsync()
+    public async Task<Either<IServiceError, CollectionOutputModel<Domain.City>>> GetCitiesAsync()
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var cities = await cityRepository.GetCitiesAsync();
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(
-                new CollectionOutputModel(cities)
+            return EitherExtensions.Success<IServiceError, CollectionOutputModel<Domain.City>>(
+                new CollectionOutputModel<Domain.City>(cities)
             );
         });
     }

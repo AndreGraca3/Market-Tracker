@@ -1,5 +1,4 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.Company;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Company;
@@ -13,13 +12,13 @@ public class CompanyService(
     ITransactionManager transactionManager
 ) : ICompanyService
 {
-    public async Task<Either<IServiceError, CollectionOutputModel>> GetCompaniesAsync()
+    public async Task<Either<IServiceError, CollectionOutputModel<Domain.Company>>> GetCompaniesAsync()
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var companies = await companyRepository.GetCompaniesAsync();
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(
-                new CollectionOutputModel(companies)
+            return EitherExtensions.Success<IServiceError, CollectionOutputModel<Domain.Company>>(
+                new CollectionOutputModel<Domain.Company>(companies)
             );
         });
     }

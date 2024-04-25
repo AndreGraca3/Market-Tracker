@@ -1,5 +1,7 @@
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Price;
+using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Repository.Dto.Store;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
@@ -9,10 +11,117 @@ namespace market_tracker_webapi.Application.Repository.Operations.Prices;
 
 public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepository
 {
-    public async Task<StorePrice?> GetCheapestStorePriceByProductIdAsync(
+    public async Task<PaginatedProductOffers> GetAvailableProductsOffersAsync(int skip, int take,
+        SortByType? sortBy = null, string? name = null, IList<int>? categoryIds = null, IList<int>? brandIds = null,
+        int? minPrice = null,
+        int? maxPrice = null, int? minRating = null, int? maxRating = null, IList<int>? companyIds = null,
+        IList<int>? storeIds = null, IList<int>? cityIds = null)
+    {
+        var query = from product in dataContext.Product
+            join price in dataContext.PriceEntry on product.Id equals price.ProductId
+            join brand in dataContext.Brand on product.BrandId equals brand.Id
+            join category in dataContext.Category on product.CategoryId equals category.Id
+            join store in dataContext.Store on price.StoreId equals store.Id
+            join availability in dataContext.ProductAvailability on store.Id equals availability.StoreId
+            where availability.ProductId == product.Id
+            join company in dataContext.Company on store.CompanyId equals company.Id
+            join city in dataContext.City on store.CityId equals city.Id into cityGroup
+            from city in cityGroup.DefaultIfEmpty()
+            join promotion in dataContext.Promotion on price.Id equals promotion.PriceEntryId into promotionGroup
+            from promotion in promotionGroup.DefaultIfEmpty()
+            where price.CreatedAt == dataContext.PriceEntry
+                      .Where(pe => pe.ProductId == product.Id && pe.StoreId == store.Id)
+                      .Max(pe => pe.CreatedAt)
+                  && availability.IsAvailable
+                  && (categoryIds == null || categoryIds.Contains(product.CategoryId))
+                  && (brandIds == null || brandIds.Contains(product.BrandId))
+                  && (minRating == null || product.Rating >= minRating)
+                  && (maxRating == null || product.Rating <= maxRating)
+                  && (name == null || product.Name.Contains(name))
+                  && (companyIds == null || companyIds.Contains(company.Id))
+                  && (storeIds == null || storeIds.Contains(store.Id))
+                  && (cityIds == null || cityIds.Contains(city.Id))
+                  && (minPrice == null || price.Price >= minPrice)
+                  && (maxPrice == null || price.Price <= maxPrice)
+            select new
+            {
+                Product = product,
+                Brand = brand,
+                Category = category,
+                StorePrice = new StorePrice(
+                    StoreInfo.ToStoreInfo(store.ToStore(), city == null ? null : city.ToCity(), company.ToCompany()),
+                    PriceInfo.Calculate(price.Price, promotion == null ? null : promotion.ToPromotion(price.Price),
+                        price.CreatedAt)
+                )
+            };
+
+        var list = query
+            .GroupBy(p => p.Product.Id);
+
+        var companyFacets = list
+            .
+/*
+        var categoryFacets = query
+            .GroupBy(g => g.Category.Id)
+            .Select(grouping => new FacetCounter
+            {
+                Id = grouping.Key,
+                Name = grouping.First().Category.Name,
+                Count = grouping.Count()
+            });
+
+
+        var brandFacets = await query
+            .GroupBy(p => p.Product.BrandId)
+            .Select(grouping => new FacetCounter
+            {
+                Id = grouping.Key,
+                Name = grouping.First().Brand.Name,
+                Count = grouping.Count()
+            }).ToListAsync();
+
+        var promotionFacets = list
+            .GroupBy(p => p.StorePrice.PriceData.Promotion != null)
+            .Select(grouping => new BooleanFacetsCounter
+            {
+                True = grouping.Key ? grouping.Count() : 0,
+                False = !grouping.Key ? grouping.Count() : 0
+            });*/
+
+        query = sortBy switch
+        {
+            SortByType.Popularity => query.OrderBy(queryRes => queryRes.Product.Views),
+            SortByType.NameLowToHigh => query.OrderBy(queryRes => queryRes.Product.Name),
+            SortByType.NameHighToLow => query.OrderByDescending(queryRes => queryRes.Product.Name),
+            SortByType.RatingLowToHigh => query.OrderBy(queryRes => queryRes.Product.Rating),
+            SortByType.RatingHighToLow => query.OrderByDescending(queryRes => queryRes.Product.Rating),
+            SortByType.PriceLowToHigh => query.OrderBy(queryRes => queryRes.StorePrice.PriceData.Price),
+            SortByType.PriceHighToLow => query.OrderByDescending(queryRes => queryRes.StorePrice.PriceData.Price),
+            _ => query
+        };
+
+        var productsFacetsCounters = new ProductsFacetsCounters();
+
+        var res = await query
+            .Skip(skip)
+            .Take(take)
+            .Select(queryRes => new ProductOffer(
+                ProductInfo.ToProductInfo(queryRes.Product.ToProduct(), queryRes.Brand.ToBrand(),
+                    queryRes.Category.ToCategory()),
+                queryRes.StorePrice
+            )).ToListAsync();
+
+        var paginatedProducts = new PaginatedResult<ProductOffer>(res, query.Count(), skip, take);
+
+        return new PaginatedProductOffers(paginatedProducts, productsFacetsCounters);
+    }
+
+    public async Task<StorePrice?> GetCheapestStorePriceAvailableByProductIdAsync(
         string productId,
         DateTime priceAt,
-        IList<int>? companyIds
+        IList<int>? companyIds,
+        IList<int>? storeIds,
+        IList<int>? cityIds
     )
     {
         var query = await (
@@ -30,6 +139,8 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             join availability in dataContext.ProductAvailability on store.Id equals availability.StoreId
             where availability.ProductId == productId && availability.IsAvailable
             where companyIds == null || companyIds.Contains(company.Id)
+            where storeIds == null || storeIds.Contains(store.Id)
+            where cityIds == null || cityIds.Contains(city.Id)
             select new
             {
                 Store = store,
@@ -40,7 +151,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             }
         ).ToListAsync();
 
-        if (!query.Any())
+        if (query.Count == 0)
         {
             return null;
         }
