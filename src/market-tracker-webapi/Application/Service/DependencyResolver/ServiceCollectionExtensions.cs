@@ -22,7 +22,6 @@ using market_tracker_webapi.Application.Service.Operations.User;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 
 namespace market_tracker_webapi.Application.Service.DependencyResolver
 {

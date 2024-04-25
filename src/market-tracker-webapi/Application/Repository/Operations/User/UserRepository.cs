@@ -12,12 +12,8 @@ public class UserRepository(
 {
     public async Task<IEnumerable<User>> GetUsersAsync(string? username, int skip, int limit)
     {
-        var usersEntities = username is null
-            ? await dataContext.User.Skip(skip).Take(limit).ToListAsync()
-            : await dataContext.User.Where(user => user.Username.Contains(username)).Skip(skip).Take(limit)
-                .ToListAsync();
-
-        return usersEntities.Select(userEntity => userEntity.ToUser());
+        return await dataContext.User.Where(user => username == null || user.Username.Contains(username)).Skip(skip)
+            .Take(limit).Select(userEntity => userEntity.ToUser()).ToListAsync();
     }
 
     public async Task<User?> GetUserByIdAsync(Guid id)
