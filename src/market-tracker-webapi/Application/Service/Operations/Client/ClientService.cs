@@ -105,7 +105,7 @@ public class ClientService(
                     new UserFetchingError.UserByIdNotFound(id)
                 );
             }
-
+            
             return EitherExtensions.Success<UserFetchingError, Client>(
                 client
             );

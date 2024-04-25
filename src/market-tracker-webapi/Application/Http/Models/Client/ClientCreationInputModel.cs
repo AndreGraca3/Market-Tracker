@@ -5,5 +5,5 @@ public record ClientCreationInputModel(
     string Name,
     string Email,
     string Password,
-    string Avatar
+    string? Avatar
 );

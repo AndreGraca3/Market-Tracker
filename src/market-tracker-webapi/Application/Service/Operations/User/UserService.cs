@@ -128,7 +128,7 @@ namespace market_tracker_webapi.Application.Service.Operations.User
                         new UserFetchingError.UserByIdNotFound(id)
                     );
                 }
-
+                
                 return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
                     new UserOutputModel(id, user.Username, user.Name, user.CreatedAt)
                 );

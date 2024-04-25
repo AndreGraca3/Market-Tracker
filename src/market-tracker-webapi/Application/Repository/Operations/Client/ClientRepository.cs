@@ -15,7 +15,9 @@ public class ClientRepository(
     public async Task<PaginatedResult<ClientInfo>> GetClientsAsync(string? username, int skip, int take)
     {
         var query = from user in dataContext.User
-            join client in dataContext.Client on user.Id equals client.UserId
+            join client in dataContext.Client on user.Id equals client.UserId into clientGroup
+            from client in clientGroup.DefaultIfEmpty()
+            where user.Role == "client"
             select new ClientInfo(user.Id, user.Username, user.Name, user.Email, user.CreatedAt, client.Avatar);
 
         var clients = await query

@@ -3,6 +3,7 @@ using market_tracker_webapi.Application.Repository.Operations.Account;
 using market_tracker_webapi.Application.Repository.Operations.Brand;
 using market_tracker_webapi.Application.Repository.Operations.Category;
 using market_tracker_webapi.Application.Repository.Operations.City;
+using market_tracker_webapi.Application.Repository.Operations.Client;
 using market_tracker_webapi.Application.Repository.Operations.Company;
 using market_tracker_webapi.Application.Repository.Operations.Prices;
 using market_tracker_webapi.Application.Repository.Operations.List;
@@ -12,6 +13,7 @@ using market_tracker_webapi.Application.Repository.Operations.Token;
 using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Application.Service.Operations.Category;
 using market_tracker_webapi.Application.Service.Operations.City;
+using market_tracker_webapi.Application.Service.Operations.Client;
 using market_tracker_webapi.Application.Service.Operations.Company;
 using market_tracker_webapi.Application.Service.Operations.GoogleAuth;
 using market_tracker_webapi.Application.Service.Operations.List;
@@ -85,6 +87,9 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
             services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 
             services.AddScoped<IAccountRepository, AccountRepository>();
+
+            services.AddScoped<IClientService, ClientService>();
+            services.AddScoped<IClientRepository, ClientRepository>();
 
             return services;
         }
