@@ -14,7 +14,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
         : ControllerBase
     {
         [HttpGet]
-        [Authenticated("client")]
+        [Authorized(["client"])]
         public async Task<ActionResult<UsersOutputModel>> GetUsersAsync(
             [FromQuery] PaginationInputs paginationInputs,
             [FromQuery] string? username

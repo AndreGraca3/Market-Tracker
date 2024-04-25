@@ -48,7 +48,7 @@ public class TokenService(
             var token = await tokenRepository.GetTokenByUserIdAsync(user.Id);
             if (token is not null) // if token exists
             {
-                if (token.ExpiresAt >= DateTime.Now) // if it has expired
+                if (token.ExpiresAt <= DateTime.Now) // if it has expired
                 {
                     await tokenRepository.DeleteTokenAsync(token.TokenValue); // delete it
                     var newerToken = await tokenRepository.CreateTokenAsync(user.Id);

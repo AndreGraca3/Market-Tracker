@@ -83,7 +83,7 @@ static class Program
             .Services.AddControllers(options =>
             {
                 options.SuppressAsyncSuffixInActionNames = false;
-                options.Filters.Add<AuthenticationFilter>();
+                options.Filters.Add<AuthorizationFilter>();
             })
             /*.AddJsonOptions(o =>
                 o.JsonSerializerOptions.DefaultIgnoreCondition =

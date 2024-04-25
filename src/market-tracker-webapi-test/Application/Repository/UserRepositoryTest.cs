@@ -18,7 +18,8 @@ public class UserRepositoryTest
             Id = new Guid("33333333-3333-3333-3333-333333333333"),
             Name = "André",
             Username = "Graca",
-            Email = "André@gmail.com"
+            Email = "André@gmail.com",
+            Role = "client"
         };
 
         var mockEntities = new List<UserEntity>
@@ -28,14 +29,16 @@ public class UserRepositoryTest
                 Id = new Guid("11111111-1111-1111-1111-111111111111"),
                 Name = "Diogo",
                 Username = "Digo",
-                Email = "Diogo@gmail.com"
+                Email = "Diogo@gmail.com",
+                Role = "client"
             },
             new()
             {
                 Id = new Guid("22222222-2222-2222-2222-222222222222"),
                 Name = "Daniel",
                 Username = "Dani",
-                Email = "Daniel@gmail.com"
+                Email = "Daniel@gmail.com",
+                Role = "client"
             },
             expectedUser
         };
@@ -77,6 +80,7 @@ public class UserRepositoryTest
             "André",
             "Graca",
             "André@gmail.com",
+            "client",
             default
         );
 
@@ -87,21 +91,24 @@ public class UserRepositoryTest
                 Id = new Guid("11111111-1111-1111-1111-111111111111"),
                 Name = "Diogo",
                 Username = "Digo",
-                Email = "Diogo@gmail.com"
+                Email = "Diogo@gmail.com",
+                Role = "client"
             },
             new()
             {
                 Id = new Guid("22222222-2222-2222-2222-222222222222"),
                 Name = "Daniel",
                 Username = "Dani",
-                Email = "Daniel@gmail.com"
+                Email = "Daniel@gmail.com",
+                Role = "client"
             },
             new()
             {
                 Id = expectedUser.Id,
                 Name = expectedUser.Name,
                 Username = expectedUser.Username,
-                Email = expectedUser.Email
+                Email = expectedUser.Email,
+                Role = expectedUser.Role
             }
         };
 
@@ -140,6 +147,7 @@ public class UserRepositoryTest
             "André",
             "Graca",
             "André@gmail.com",
+            "client",
             default
         );
 
@@ -150,21 +158,24 @@ public class UserRepositoryTest
                 Id = new Guid("11111111-1111-1111-1111-111111111111"),
                 Name = "Diogo",
                 Username = "Digo",
-                Email = "Diogo@gmail.com"
+                Email = "Diogo@gmail.com",
+                Role = "client"
             },
             new()
             {
                 Id = new Guid("22222222-2222-2222-2222-222222222222"),
                 Name = "Daniel",
                 Username = "Dani",
-                Email = "Daniel@gmail.com"
+                Email = "Daniel@gmail.com",
+                Role = "client"
             },
             new()
             {
                 Id = expectedUser.Id,
                 Name = expectedUser.Name,
                 Username = expectedUser.Username,
-                Email = expectedUser.Email
+                Email = expectedUser.Email,
+                Role = "client"
             }
         };
 
@@ -207,7 +218,8 @@ public class UserRepositoryTest
         var actualId = await userRepo.CreateUserAsync(
             "Diogo",
             "Digo",
-            "Diogo@gmail.com"
+            "Diogo@gmail.com",
+            "client"
         );
 
         // Assert
@@ -227,7 +239,8 @@ public class UserRepositoryTest
                 Id = expectedUserId,
                 Name = "Diogo",
                 Username = "Digo",
-                Email = "Diogo@gmail.com"
+                Email = "Diogo@gmail.com",
+                Role = "client"
             }
         };
 
@@ -276,7 +289,8 @@ public class UserRepositoryTest
             Id = new Guid("11111111-1111-1111-1111-111111111111"),
             Name = "Diogo",
             Username = "Digo",
-            Email = "digo@gmail.com"
+            Email = "digo@gmail.com",
+            Role = "client"
         };
 
         var context = CreateDatabase([expectedDeletedUser]);
