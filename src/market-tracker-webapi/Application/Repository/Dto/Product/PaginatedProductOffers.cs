@@ -15,20 +15,19 @@ public class PaginatedProductOffers(
 public class ProductsFacetsCounters(
     IEnumerable<FacetCounter> brandFacets,
     IEnumerable<FacetCounter> categoryFacets,
-    IEnumerable<FacetCounter> companyFacets,
-    BooleanFacetsCounter promotionFacets)
+    IEnumerable<FacetCounter> companyFacets)
 {
     public IEnumerable<FacetCounter> Brands { get; set; } = brandFacets;
     public IEnumerable<FacetCounter> Categories { get; set; } = categoryFacets;
     public IEnumerable<FacetCounter> Companies { get; set; } = companyFacets;
-    public BooleanFacetsCounter Promotions { get; set; } = promotionFacets;
 
+    public ProductsFacetsCounters(): this(null, null, null) {}
+    
     public ProductsFacetsCounters(IEnumerable<FacetCounter> brandFacets, IEnumerable<FacetCounter> categoryFacets) :
         this(
             brandFacets,
             categoryFacets,
-            new List<FacetCounter>(),
-            new BooleanFacetsCounter()
+            new List<FacetCounter>()
         )
     {
     }
@@ -41,11 +40,4 @@ public class FacetCounter
     public required string Name { get; set; }
 
     public int Count { get; set; }
-}
-
-public record BooleanFacetsCounter
-{
-    public int False { get; set; } = 0;
-
-    public int True { get; set; } = 0;
 }

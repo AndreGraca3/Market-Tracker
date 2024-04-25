@@ -64,7 +64,6 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 Count = grouping.Count()
             }).ToListAsync();
 
-
         var brandFacets = await query
             .GroupBy(p => p.Product.BrandId)
             .Select(grouping => new FacetCounter
@@ -74,28 +73,17 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 Count = grouping.Count()
             }).ToListAsync();
 
-        Console.WriteLine("This will never work :)");
+        var bestOffersQuery = query
+            .GroupBy(g => g.Product.Id)
+            .Select(grouping =>
+                new ProductOffer(ProductInfo.ToProductInfo(grouping.First().Product.ToProduct(),
+                        grouping.First().Brand.ToBrand(), grouping.First().Category.ToCategory()),
+                    grouping.First().StorePrice)
+            )
+            .Skip(skip)
+            .Take(take);
 
-        var queryLookup = query.ToLookup(q => q.Product.Id);
-
-        var companyFacets = queryLookup
-            .SelectMany(offer => offer.Select(q => q.StorePrice.Store.Company))
-            .GroupBy(company => company.Id)
-            .Select(grouping => new FacetCounter
-            {
-                Id = grouping.Key,
-                Name = grouping.First().Name,
-                Count = grouping.Count()
-            });
-
-        var promotionFacets = queryLookup
-            .SelectMany(grouping => grouping.Select(q => q.StorePrice.PriceData.Promotion))
-            .GroupBy(promotion => promotion != null)
-            .Select(grouping => new BooleanFacetsCounter
-            {
-                False = grouping.Key ? 0 : grouping.Count(),
-                True = grouping.Key ? grouping.Count() : 0
-            });
+        Console.WriteLine("never working");
 
         /*query = sortBy switch
         {
@@ -109,29 +97,17 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             _ => query
         };*/
 
-        var productsFacetsCounters = new ProductsFacetsCounters(brandFacets, categoryFacets);
+        var productsFacetsCounters = new ProductsFacetsCounters();
 
-        var resList = query
-            .Select(queryRes => new ProductOffer(
-                ProductInfo.ToProductInfo(queryRes.Product.ToProduct(), queryRes.Brand.ToBrand(),
-                    queryRes.Category.ToCategory()),
-                queryRes.StorePrice
-            ))
+        var res = query
+            .Select(grouping =>
+                new ProductOffer(
+                    ProductInfo.ToProductInfo(grouping.Product.ToProduct(), grouping.Brand.ToBrand(),
+                        grouping.Category.ToCategory()),
+                    grouping.StorePrice))
             .ToList();
 
-        /*var res = await query
-            .Skip(skip)
-            .Take(take)
-            .Select(queryRes => new ProductOffer(
-                ProductInfo.ToProductInfo(queryRes.Product.ToProduct(), queryRes.Brand.ToBrand(),
-                    queryRes.Category.ToCategory()),
-                queryRes.StorePrice
-            ))
-            .GroupBy(productOffer => productOffer.Product.Id)
-            .Select(grouping => grouping.MinBy(productOffer => productOffer.StorePrice.PriceData.Price))
-            .ToListAsync();*/
-
-        var paginatedProducts = new PaginatedResult<ProductOffer>(resList, query.Count(), skip, take);
+        var paginatedProducts = new PaginatedResult<ProductOffer>(res, query.Count(), skip, take);
 
         return new PaginatedProductOffers(paginatedProducts, productsFacetsCounters);
     }
