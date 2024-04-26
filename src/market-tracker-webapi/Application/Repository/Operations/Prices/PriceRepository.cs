@@ -11,6 +11,10 @@ namespace market_tracker_webapi.Application.Repository.Operations.Prices;
 
 public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepository
 {
+    private const double SimilarityThreshold = 0.1;
+
+    // group by product id approach
+    /*
     public async Task<PaginatedProductOffers> GetAvailableProductsOffersAsync(int skip, int take,
         SortByType? sortBy = null, string? name = null, IList<int>? categoryIds = null, IList<int>? brandIds = null,
         int? minPrice = null,
@@ -43,7 +47,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                   && (cityIds == null || cityIds.Contains(city.Id))
                   && (minPrice == null || price.Price >= minPrice)
                   && (maxPrice == null || price.Price <= maxPrice)
-            select new
+            group new
             {
                 Product = product,
                 Brand = brand,
@@ -53,17 +57,23 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 City = city,
                 Price = price,
                 Promotion = promotion
-            };
+            } by product.Id;
 
-        var categoryFacets = await query
-            .GroupBy(g => g.Category.Id)
+        // query contains set of products, inside each product there is a set of storeprices
+
+
+        var categoryCounts = query
+            .GroupBy(p => p.Product.CategoryId)
             .Select(grouping => new FacetCounter
             {
                 Id = grouping.Key,
                 Name = grouping.First().Category.Name,
-                Count = grouping.Count()
-            }).ToListAsync();
+                Count = grouping.GroupBy(g => g.Product.Id).Count()
+            });
 
+        Console.WriteLine("never working");
+
+/*
         var brandFacets = await query
             .GroupBy(p => p.Product.BrandId)
             .Select(grouping => new FacetCounter
@@ -96,24 +106,158 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
 
             bestOffers.Add(bestOffer);
         }
+*/
 
-        Console.WriteLine("never working");
+    /*query = sortBy switch
+    {
+        SortByType.Popularity => query.OrderBy(queryRes => queryRes.Product.Views),
+        SortByType.NameLowToHigh => query.OrderBy(queryRes => queryRes.Product.Name),
+        SortByType.NameHighToLow => query.OrderByDescending(queryRes => queryRes.Product.Name),
+        SortByType.RatingLowToHigh => query.OrderBy(queryRes => queryRes.Product.Rating),
+        SortByType.RatingHighToLow => query.OrderByDescending(queryRes => queryRes.Product.Rating),
+        SortByType.PriceLowToHigh => query.OrderBy(queryRes => queryRes.StorePrice.PriceData.Price),
+        SortByType.PriceHighToLow => query.OrderByDescending(queryRes => queryRes.StorePrice.PriceData.Price),
+        _ => query
+    };
 
-        /*query = sortBy switch
+    var productsFacetsCounters
+        = new ProductsFacetsCounters(); // new ProductsFacetsCounters(brandFacets, categoryFacets, companyFacets);
+
+    var dummyOffers = new List<ProductOffer>();
+
+    var paginatedProducts = new PaginatedResult<ProductOffer>(dummyOffers, query.Count(), skip, take);
+
+    return new PaginatedProductOffers(paginatedProducts, productsFacetsCounters);
+}*/
+
+    // scuff approach without grouping in main query
+    public async Task<PaginatedProductOffers> GetAvailableProductsOffersAsync(int skip, int take,
+        SortByType? sortBy = null, string? name = null, IList<int>? categoryIds = null, IList<int>? brandIds = null,
+        int? minPrice = null,
+        int? maxPrice = null, int? minRating = null, int? maxRating = null, IList<int>? companyIds = null,
+        IList<int>? storeIds = null, IList<int>? cityIds = null)
+    {
+        var query = from product in dataContext.Product
+            join price in dataContext.PriceEntry on product.Id equals price.ProductId
+            join brand in dataContext.Brand on product.BrandId equals brand.Id
+            join category in dataContext.Category on product.CategoryId equals category.Id
+            join store in dataContext.Store on price.StoreId equals store.Id
+            join availability in dataContext.ProductAvailability on store.Id equals availability.StoreId
+            where availability.ProductId == product.Id
+            join company in dataContext.Company on store.CompanyId equals company.Id
+            join city in dataContext.City on store.CityId equals city.Id into cityGroup
+            from city in cityGroup.DefaultIfEmpty()
+            join promotion in dataContext.Promotion on price.Id equals promotion.PriceEntryId into promotionGroup
+            from promotion in promotionGroup.DefaultIfEmpty()
+            where price.CreatedAt == dataContext.PriceEntry
+                      .Where(pe => pe.ProductId == product.Id && pe.StoreId == store.Id)
+                      .Max(pe => pe.CreatedAt)
+                  && availability.IsAvailable
+                  && (categoryIds == null || categoryIds.Contains(product.CategoryId))
+                  && (brandIds == null || brandIds.Contains(product.BrandId))
+                  && (minRating == null || product.Rating >= minRating)
+                  && (maxRating == null || product.Rating <= maxRating)
+                  && (name == null || EF.Functions.ILike(product.Name, $"%{name}%") ||
+                      EF.Functions.TrigramsWordSimilarity(product.Name, name) > SimilarityThreshold)
+                  && (companyIds == null || companyIds.Contains(company.Id))
+                  && (storeIds == null || storeIds.Contains(store.Id))
+                  && (cityIds == null || cityIds.Contains(city.Id))
+                  && (minPrice == null ||
+                      price.Price - (promotion == null ? 0 : price.Price * promotion.Percentage / 100) >= minPrice)
+                  && (maxPrice == null ||
+                      price.Price - (promotion == null ? 0 : price.Price * promotion.Percentage / 100) <= maxPrice)
+            select new
+            {
+                Product = product,
+                Brand = brand,
+                Category = category,
+                Store = store,
+                Company = company,
+                City = city,
+                Price = price,
+                Promotion = promotion
+            };
+
+        var categoryFacets = query
+            .GroupBy(p => p.Product.CategoryId)
+            .Select(grouping => new FacetCounter
+            {
+                Id = grouping.Key,
+                Name = grouping.First().Category.Name,
+                Count = grouping.GroupBy(g => g.Product.Id).Count()
+            });
+
+        var brandFacets = await query
+            .GroupBy(p => p.Product.BrandId)
+            .Select(grouping => new FacetCounter
+            {
+                Id = grouping.Key,
+                Name = grouping.First().Brand.Name,
+                Count = grouping.GroupBy(g => g.Product.Id).Count()
+            }).ToListAsync();
+
+        var companyFacets = await query
+            .GroupBy(p => p.Company.Id)
+            .Select(grouping => new FacetCounter
+            {
+                Id = grouping.Key,
+                Name = grouping.First().Company.Name,
+                Count = grouping.GroupBy(g => g.Product.Id).Count()
+            }).ToListAsync();
+
+        var orderedQuery = sortBy switch
         {
             SortByType.Popularity => query.OrderBy(queryRes => queryRes.Product.Views),
             SortByType.NameLowToHigh => query.OrderBy(queryRes => queryRes.Product.Name),
             SortByType.NameHighToLow => query.OrderByDescending(queryRes => queryRes.Product.Name),
             SortByType.RatingLowToHigh => query.OrderBy(queryRes => queryRes.Product.Rating),
             SortByType.RatingHighToLow => query.OrderByDescending(queryRes => queryRes.Product.Rating),
-            SortByType.PriceLowToHigh => query.OrderBy(queryRes => queryRes.StorePrice.PriceData.Price),
-            SortByType.PriceHighToLow => query.OrderByDescending(queryRes => queryRes.StorePrice.PriceData.Price),
+            SortByType.PriceLowToHigh => query.OrderBy(queryRes =>
+                queryRes.Price.Price - (queryRes.Promotion == null
+                    ? 0
+                    : queryRes.Price.Price * queryRes.Promotion.Percentage / 100)),
+            SortByType.PriceHighToLow => query.OrderByDescending(queryRes =>
+                queryRes.Price.Price - (queryRes.Promotion == null
+                    ? 0
+                    : queryRes.Price.Price * queryRes.Promotion.Percentage / 100)),
             _ => query
-        };*/
+        };
+
+        var bestOffers = orderedQuery
+            .GroupBy(g => g.Product.Id)
+            .Select(group =>
+                group.Select(g => new ProductOffer(
+                    ProductInfo.ToProductInfo(g.Product.ToProduct(), g.Brand.ToBrand(), g.Category.ToCategory()),
+                    new StorePrice(
+                        StoreInfo.ToStoreInfo(g.Store.ToStore(), g.City == null ? null : g.City.ToCity(),
+                            g.Company.ToCompany()),
+                        PriceInfo.Calculate(g.Price.Price,
+                            g.Promotion == null ? null : g.Promotion.ToPromotion(g.Price.Price),
+                            g.Price.CreatedAt))
+                ))
+            )
+            .Skip(skip)
+            .Take(take)
+            .ToList()
+            .Select(group => group.MinBy(g => g.StorePrice.PriceData.Price));
+
+        bestOffers = sortBy switch
+        {
+            SortByType.Popularity => bestOffers.OrderBy(queryRes => queryRes.Product.Id).ToList(),
+            SortByType.NameLowToHigh => bestOffers.OrderBy(queryRes => queryRes.Product.Name).ToList(),
+            SortByType.NameHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.Product.Name).ToList(),
+            SortByType.RatingLowToHigh => bestOffers.OrderBy(queryRes => queryRes.Product.Rating).ToList(),
+            SortByType.RatingHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.Product.Rating).ToList(),
+            SortByType.PriceLowToHigh => bestOffers.OrderBy(queryRes => queryRes.StorePrice.PriceData.Price).ToList(),
+            SortByType.PriceHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.StorePrice.PriceData.Price)
+                .ToList(),
+            _ => bestOffers
+        };
 
         var productsFacetsCounters = new ProductsFacetsCounters(brandFacets, categoryFacets, companyFacets);
 
-        var paginatedProducts = new PaginatedResult<ProductOffer>(bestOffers, query.Count(), skip, take);
+        var paginatedProducts = new PaginatedResult<ProductOffer>(bestOffers,
+            query.GroupBy(g => g.Product.Id).Count(), skip, take);
 
         return new PaginatedProductOffers(paginatedProducts, productsFacetsCounters);
     }
