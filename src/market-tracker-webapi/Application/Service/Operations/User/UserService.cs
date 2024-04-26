@@ -68,8 +68,8 @@ namespace market_tracker_webapi.Application.Service.Operations.User
             string username,
             string name,
             string email,
-            string password,
-            string role 
+            string? password,
+            string role
         )
         {
             return await transactionManager.ExecuteAsync(async () =>
@@ -80,7 +80,7 @@ namespace market_tracker_webapi.Application.Service.Operations.User
                         new UserCreationError.EmailAlreadyInUse(email)
                     );
                 }
-                
+
                 var userId = await userRepository.CreateUserAsync(username, name, email, role);
                 await accountRepository.CreatePasswordAsync(userId, password);
 
@@ -128,7 +128,7 @@ namespace market_tracker_webapi.Application.Service.Operations.User
                         new UserFetchingError.UserByIdNotFound(id)
                     );
                 }
-
+                
                 return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
                     new UserOutputModel(id, user.Username, user.Name, user.CreatedAt)
                 );

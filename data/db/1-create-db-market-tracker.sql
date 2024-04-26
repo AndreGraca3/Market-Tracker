@@ -181,8 +181,7 @@ create table if not exists product_stats_counts
 (
     product_id varchar(18) primary key references product (id) on delete cascade,
     favourites int not null default 0,
-    ratings    int not null default 0,
-    lists      int not null default 0
+    ratings    int not null default 0
 );
 
 create table if not exists list
