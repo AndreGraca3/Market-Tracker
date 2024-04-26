@@ -37,8 +37,10 @@ public class ListEntryController(
                         => new ListProblem.ListByIdNotFound(idNotFoundError).ToActionResult(),
                     ListUpdateError.ListIsArchived listIsArchivedError
                         => new ListProblem.ListIsArchived(listIsArchivedError).ToActionResult(),
-                    ProductFetchingError.UnavailableProductInStore productUnavailableError
-                        => new ProductProblem.UnavailableProductInStore(productUnavailableError).ToActionResult(),
+                    ProductFetchingError.ProductNotFoundInStore productNotFoundError
+                        => new ProductProblem.ProductNotFoundInStore(productNotFoundError).ToActionResult(),
+                    ProductFetchingError.OutOfStockInStore outOfStockError
+                        => new ProductProblem.OutOfStockInStore(outOfStockError).ToActionResult(),
                     ProductFetchingError.ProductByIdNotFound productNotFoundError
                         => new ProductProblem.ProductByIdNotFound(productNotFoundError).ToActionResult(),
                     StoreFetchingError.StoreByIdNotFound storeNotFoundError
@@ -75,8 +77,10 @@ public class ListEntryController(
                 {
                     ListEntryFetchingError.ListEntryByIdNotFound idNotFoundError
                         => new ListEntryProblem.ListEntryByIdNotFound(idNotFoundError).ToActionResult(),
-                    ProductFetchingError.UnavailableProductInStore productUnavailableError
-                        => new ProductProblem.UnavailableProductInStore(productUnavailableError).ToActionResult(),
+                    ProductFetchingError.ProductNotFoundInStore productNotFoundError
+                        => new ProductProblem.ProductNotFoundInStore(productNotFoundError).ToActionResult(),
+                    ProductFetchingError.OutOfStockInStore outOfStockError
+                        => new ProductProblem.OutOfStockInStore(outOfStockError).ToActionResult(),
                     ListEntryCreationError.ListEntryQuantityInvalid quantityInvalidError
                         => new ListEntryProblem.ListEntryQuantityInvalid(quantityInvalidError).ToActionResult(),
                     ProductFetchingError.ProductByIdNotFound productNotFoundError
@@ -119,7 +123,7 @@ public class ListEntryController(
     [HttpGet(Uris.Lists.ProductsByListId)]
     public async Task<ActionResult<ShoppingListEntriesOutputModel>> GetListEntriesAsync(
         int listId,
-        [FromQuery] ShoppingListAlternativeType alternativeType,
+        [FromQuery] ShoppingListAlternativeType? alternativeType,
         [FromQuery] ListAlternativeFiltersInputModel filters,
         [Required] Guid clientId
     )

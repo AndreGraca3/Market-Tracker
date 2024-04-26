@@ -11,7 +11,7 @@ public interface IPriceRepository
     /**
      *  Get the best offers products available in the market applying filters at current time.
      */
-    public Task<PaginatedProductOffers> GetAvailableProductsOffersAsync(
+    public Task<PaginatedProductOffers> GetBestAvailableProductsOffersAsync(
         int skip,
         int take,
         SortByType? sortBy = null,
@@ -28,11 +28,10 @@ public interface IPriceRepository
     );
 
     /**
-     * Get the cheapest store price available for a product at a given time.
+     * Get the cheapest store price available for a product at current time.
      */
     public Task<StorePrice?> GetCheapestStorePriceAvailableByProductIdAsync(
         string productId,
-        DateTime priceAt,
         IList<int>? companyIds = null,
         IList<int>? storeIds = null,
         IList<int>? cityIds = null

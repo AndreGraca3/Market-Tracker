@@ -12,7 +12,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Product;
 
 public interface IProductService
 {
-    public Task<Either<IServiceError, PaginatedProductOffers>> GetProductOffersAsync(
+    public Task<Either<IServiceError, PaginatedProductOffers>> GetBestAvailableProductsOffersAsync(
         int skip,
         int take,
         SortByType? sortBy,

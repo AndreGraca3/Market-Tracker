@@ -162,7 +162,7 @@ public class PriceRepositoryTest
         var priceRepo = new PriceRepository(context);
 
         // Act
-        var actualProductOffers = await priceRepo.GetAvailableProductsOffersAsync(0, 10);
+        var actualProductOffers = await priceRepo.GetBestAvailableProductsOffersAsync(0, 10);
 
         // Assert
         actualProductOffers.Should().BeEquivalentTo(expectedProductOffers);

@@ -13,7 +13,7 @@ namespace market_tracker_webapi.Application.Service.Operations.List;
 public interface IListEntryService
 {
     Task<Either<ListFetchingError, ShoppingListEntriesOutputModel>> GetListEntriesAsync(int listId, Guid clientId,
-        ShoppingListAlternativeType alternativeType,
+        ShoppingListAlternativeType? alternativeType,
         IList<int>? companyIds,
         IList<int>? storeIds,
         IList<int>? cityIds);

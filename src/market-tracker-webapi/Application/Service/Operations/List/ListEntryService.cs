@@ -64,9 +64,13 @@ public class ListEntryService(
                 );
 
             var storeAvailability = await priceRepository.GetStoreAvailabilityAsync(productId, storeId);
-            if (storeAvailability is null || !storeAvailability.IsAvailable)
+            if (storeAvailability is null)
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
-                    new ProductFetchingError.UnavailableProductInStore(productId, storeId)
+                    new ProductFetchingError.ProductNotFoundInStore(productId, storeId)
+                );
+            if (!storeAvailability.IsAvailable)
+                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
+                    new ProductFetchingError.OutOfStockInStore(productId, storeId)
                 );
 
             var id = await listEntryRepository.AddListEntryAsync(listId, productId, storeId, quantity);
@@ -110,9 +114,12 @@ public class ListEntryService(
                         new StoreFetchingError.StoreByIdNotFound(storeId.Value));
 
                 var storeAvailability = await priceRepository.GetStoreAvailabilityAsync(productId, storeId.Value);
-                if (storeAvailability is null || !storeAvailability.IsAvailable)
+                if (storeAvailability is null)
                     return EitherExtensions.Failure<IServiceError, ListEntry>(
-                        new ProductFetchingError.UnavailableProductInStore(productId, storeId.Value));
+                        new ProductFetchingError.ProductNotFoundInStore(productId, storeId.Value));
+                if (!storeAvailability.IsAvailable)
+                    return EitherExtensions.Failure<IServiceError, ListEntry>(
+                        new ProductFetchingError.OutOfStockInStore(productId, storeId.Value));
             }
 
             var updatedProductInList =
@@ -147,7 +154,7 @@ public class ListEntryService(
 
     public async Task<Either<ListFetchingError, ShoppingListEntriesOutputModel>> GetListEntriesAsync(int listId,
         Guid clientId,
-        ShoppingListAlternativeType alternativeType,
+        ShoppingListAlternativeType? alternativeType,
         IList<int>? companyIds,
         IList<int>? storeIds,
         IList<int>? cityIds
@@ -174,8 +181,7 @@ public class ListEntryService(
                     var getEntryDetailsByCriteria = new Func<ListEntry, Task<ListEntryDetails>>(async entry =>
                     {
                         var storePrice = await priceRepository.GetCheapestStorePriceAvailableByProductIdAsync(
-                            entry.ProductId,
-                            list.ArchivedAt ?? DateTime.Now
+                            entry.ProductId
                         );
                         var isAvailable = storePrice is not null;
                         return new ListEntryDetails
@@ -192,8 +198,7 @@ public class ListEntryService(
                     });
                     entriesResult = await BuildShoppingListEntriesResult(listEntries, getEntryDetailsByCriteria);
                     break;
-                case ShoppingListAlternativeType.None:
-                    Console.WriteLine("None");
+                default:
                     entriesResult = await BuildShoppingListEntriesResult(listEntries, async entry =>
                     {
                         var isAvailable =
@@ -227,7 +232,7 @@ public class ListEntryService(
     }
 
     // helper method
-    private async Task<ShoppingListEntriesOutputModel> BuildShoppingListEntriesResult(
+    private static async Task<ShoppingListEntriesOutputModel> BuildShoppingListEntriesResult(
         IEnumerable<ListEntry> listEntries, Func<ListEntry, Task<ListEntryDetails>> getEntryDetailsByCriteria
     )
     {
@@ -239,7 +244,7 @@ public class ListEntryService(
         foreach (var product in listEntries)
         {
             var listEntry = await getEntryDetailsByCriteria(product);
-            
+
             if (listEntry.StorePrice is not null)
             {
                 totalPrice += listEntry.StorePrice.PriceData.Price * product.Quantity;

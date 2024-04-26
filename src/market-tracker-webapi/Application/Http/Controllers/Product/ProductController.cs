@@ -23,7 +23,7 @@ public class ProductController(IProductService productService, IProductPriceServ
     )
     {
         var res =
-            await productService.GetProductOffersAsync(
+            await productService.GetBestAvailableProductsOffersAsync(
                 paginationInputs.Skip,
                 paginationInputs.ItemsPerPage,
                 sortBy,
