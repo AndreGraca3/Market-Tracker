@@ -21,7 +21,7 @@ public class ListEntryController(
     public async Task<ActionResult<IntIdOutputModel>> AddListEntryAsync(
         int listId,
         [Required] Guid clientId,
-        [FromBody] CreationListEntryInputModel inputModel)
+        [FromBody] ListEntryCreationInputModel inputModel)
     {
         var res = await listEntryService.AddListEntryAsync(listId, clientId, inputModel.ProductId, inputModel.StoreId,
             inputModel.Quantity
@@ -63,7 +63,7 @@ public class ListEntryController(
         int listId,
         [Required] Guid clientId,
         string productId,
-        [FromBody] UpdateListEntryInputModel inputModel)
+        [FromBody] ListEntryUpdateInputModel inputModel)
     {
         var res = await listEntryService.UpdateListEntryAsync(listId, clientId, productId, inputModel.StoreId,
             inputModel.Quantity

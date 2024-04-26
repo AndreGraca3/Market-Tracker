@@ -181,8 +181,7 @@ public class ListEntryService(
                     var getEntryDetailsByCriteria = new Func<ListEntry, Task<ListEntryDetails>>(async entry =>
                     {
                         var storePrice = await priceRepository.GetCheapestStorePriceAvailableByProductIdAsync(
-                            entry.ProductId
-                        );
+                            entry.ProductId, companyIds, storeIds, cityIds);
                         var isAvailable = storePrice is not null;
                         return new ListEntryDetails
                         {
@@ -201,12 +200,11 @@ public class ListEntryService(
                 default:
                     entriesResult = await BuildShoppingListEntriesResult(listEntries, async entry =>
                     {
-                        var isAvailable =
-                            (await priceRepository.GetStoreAvailabilityAsync(entry.ProductId, entry.StoreId))
-                            ?.IsAvailable ?? false;
+                        var isAvailable = entry.StoreId is not null && ((await priceRepository.GetStoreAvailabilityAsync(entry.ProductId, entry.StoreId.Value))
+                            ?.IsAvailable ?? false);
 
-                        var storePrice = isAvailable
-                            ? await priceRepository.GetStorePriceByProductIdAsync(entry.ProductId, entry.StoreId,
+                        var storePrice = entry.StoreId is not null && isAvailable
+                            ? await priceRepository.GetStorePriceByProductIdAsync(entry.ProductId, entry.StoreId.Value,
                                 DateTime.Now)
                             : null;
 
