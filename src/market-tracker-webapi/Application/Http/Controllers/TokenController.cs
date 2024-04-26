@@ -1,8 +1,10 @@
 ﻿using market_tracker_webapi.Application.Http.Models.Token;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.Errors.Token;
 using market_tracker_webapi.Application.Service.Operations.Token;
 using Microsoft.AspNetCore.Mvc;
+using CookieOptions = Microsoft.AspNetCore.Http.CookieOptions;
 
 namespace market_tracker_webapi.Application.Http.Controllers
 {
@@ -33,13 +35,22 @@ namespace market_tracker_webapi.Application.Http.Controllers
                             => new TokenProblem.InvalidCredentials().ToActionResult()
                     };
                 },
-                tokenOutputModel => new CreatedResult("", tokenOutputModel)
-            );
+                tokenOutputModel =>
+                {
+                    HttpContext.Response.Cookies.Append(AuthenticationDetails.NameAuthorizationCookie,
+                        tokenOutputModel.TokenValue.ToString(), new CookieOptions
+                        {
+                            HttpOnly = true,
+                            SameSite = SameSiteMode.Strict,
+                            Expires = tokenOutputModel.ExpiresAt
+                        });
+                    return new CreatedResult("", tokenOutputModel);
+                });
         }
 
         [HttpDelete]
         public async Task<ActionResult<TokenOutputModel>> DeleteTokenAsync(
-            [FromBody] Guid tokenValue
+            [FromBody] String tokenValue
         )
         {
             logger.LogDebug($"Call {nameof(DeleteTokenAsync)} with {tokenValue}");

@@ -13,6 +13,7 @@ drop table if exists fcm_registration;
 drop table if exists moderator;
 drop table if exists operator;
 drop table if exists client;
+drop table if exists account;
 drop table if exists "user";
 drop table if exists promotion;
 drop index if exists price_entry_index;
@@ -105,8 +106,14 @@ create table if not exists "user"
     username   varchar(20) unique  not null,
     name       varchar(30),
     email      varchar(200) unique not null,
-    password   varchar(30)         not null,
+    role       varchar(20)         not null check (role in ('operator', 'moderator', 'client')),
     created_at timestamp           not null default now()
+);
+
+create table if not exists account
+(
+    user_id  uuid primary key references "user" (id) on delete cascade,
+    password varchar(30) not null
 );
 
 create table if not exists client
@@ -129,7 +136,7 @@ create table if not exists moderator
 
 create table if not exists token
 (
-    token_value VARCHAR(256) primary key,
+    token_value uuid primary key,
     created_at  timestamp not null default now(),
     expires_at  timestamp not null,
     user_id     uuid references "user" (id) on delete cascade
@@ -174,8 +181,7 @@ create table if not exists product_stats_counts
 (
     product_id varchar(18) primary key references product (id) on delete cascade,
     favourites int not null default 0,
-    ratings    int not null default 0,
-    lists      int not null default 0
+    ratings    int not null default 0
 );
 
 create table if not exists list
@@ -183,7 +189,7 @@ create table if not exists list
     id          int generated always as identity primary key,
     name        varchar(30) NOT NULL,
     archived_at timestamp,
-    created_at  timestamp not null default now(),
+    created_at  timestamp   not null default now(),
     owner_id    uuid references client (id) on delete cascade
 );
 
@@ -198,8 +204,8 @@ create table if not exists list_entry
 
 create table if not exists list_client
 (
-    list_id    int references list (id) on delete cascade,
-    client_id  uuid references client (id) on delete cascade,
+    list_id   int references list (id) on delete cascade,
+    client_id uuid references client (id) on delete cascade,
     primary key (list_id, client_id)
 );
 

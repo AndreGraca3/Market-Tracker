@@ -19,6 +19,17 @@ public static class Uris
         public const string Base = $"{ApiBase}/tokens";
     }
 
+    public static class Clients
+    {
+        public const string Base = $"{ApiBase}/clients";
+        public const string ClientById = $"{Base}/{{id}}";
+    }
+
+    public static class Google
+    {
+        public const string Base = $"{ApiBase}/googleAuthentication";
+    }
+
     public static class Products
     {
         public const string Base = $"{ApiBase}/products";

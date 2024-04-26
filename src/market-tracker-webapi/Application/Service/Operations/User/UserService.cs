@@ -1,5 +1,6 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.User;
+using market_tracker_webapi.Application.Repository.Operations.Account;
 using market_tracker_webapi.Application.Repository.Operations.Token;
 using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Application.Service.Errors.User;
@@ -11,6 +12,7 @@ namespace market_tracker_webapi.Application.Service.Operations.User
     public class UserService(
         IUserRepository userRepository,
         ITokenRepository tokenRepository,
+        IAccountRepository accountRepository,
         ITransactionManager transactionManager
     ) : IUserService
     {
@@ -21,8 +23,8 @@ namespace market_tracker_webapi.Application.Service.Operations.User
         )
         {
             var users = (
-                await userRepository.GetUsersAsync(username, skip, take)
-            )
+                    await userRepository.GetUsersAsync(username, skip, take)
+                )
                 .Select(it => new UserOutputModel(it.Id, it.Username, it.Name, it.CreatedAt))
                 .ToArray();
 
@@ -66,8 +68,8 @@ namespace market_tracker_webapi.Application.Service.Operations.User
             string username,
             string name,
             string email,
-            string password,
-            int? code
+            string? password,
+            string role
         )
         {
             return await transactionManager.ExecuteAsync(async () =>
@@ -79,9 +81,8 @@ namespace market_tracker_webapi.Application.Service.Operations.User
                     );
                 }
 
-                // if(!code?.isValid) { return Failure<UserCreationError, > }
-
-                var userId = await userRepository.CreateUserAsync(username, name, email, password);
+                var userId = await userRepository.CreateUserAsync(username, name, email, role);
+                await accountRepository.CreatePasswordAsync(userId, password);
 
                 return EitherExtensions.Success<UserCreationError, UserCreationOutputModel>(
                     new UserCreationOutputModel(userId, UserCreationOutputModel.Client)
@@ -127,7 +128,7 @@ namespace market_tracker_webapi.Application.Service.Operations.User
                         new UserFetchingError.UserByIdNotFound(id)
                     );
                 }
-
+                
                 return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
                     new UserOutputModel(id, user.Username, user.Name, user.CreatedAt)
                 );

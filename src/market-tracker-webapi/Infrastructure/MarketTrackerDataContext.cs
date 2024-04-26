@@ -7,6 +7,10 @@ namespace market_tracker_webapi.Infrastructure
     {
         public DbSet<UserEntity> User { get; set; }
 
+        public DbSet<ClientEntity> Client { get; set; }
+
+        public DbSet<AccountEntity> Account { get; set; }
+
         public DbSet<TokenEntity> Token { get; set; }
 
         public DbSet<ProductEntity> Product { get; set; }
@@ -34,18 +38,18 @@ namespace market_tracker_webapi.Infrastructure
         public DbSet<CompanyEntity> Company { get; set; }
 
         public DbSet<CityEntity> City { get; set; }
-        
+
         public DbSet<ListEntity> List { get; set; }
-        
+
         public DbSet<ListEntryEntity> ListEntry { get; set; }
-        
+
         public DbSet<ListClientEntity> ListClient { get; set; }
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ListEntryEntity>()
                 .HasKey(le => new { le.ListId, le.ProductId });
-            
+
             modelBuilder.Entity<ListClientEntity>()
                 .HasKey(lc => new { lc.ListId, lc.ClientId });
         }

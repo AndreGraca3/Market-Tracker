@@ -18,7 +18,7 @@ public interface IUserService
         string name,
         string email,
         string password,
-        int? code = null
+        string role = "operator"
     );
 
     Task<Either<UserFetchingError, UserOutputModel>> UpdateUserAsync(

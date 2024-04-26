@@ -83,8 +83,7 @@ static class Program
             .Services.AddControllers(options =>
             {
                 options.SuppressAsyncSuffixInActionNames = false;
-                options.Filters.Add<AuthenticationFilter>();
-                // options.ModelBinderProviders.Insert(0, new AuthUserBinderProvider());
+                options.Filters.Add<AuthorizationFilter>();
             })
             /*.AddJsonOptions(o =>
                 o.JsonSerializerOptions.DefaultIgnoreCondition =
@@ -115,9 +114,10 @@ static class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
+        
         builder.Services.AddPgSqlServer(builder.Configuration);
         builder.Services.AddMarketTrackerDataServices();
+        builder.Services.AddGoogleAuthAuthentication(builder.Configuration);
     }
 
     private static IEdmModel GetEdmModel()
