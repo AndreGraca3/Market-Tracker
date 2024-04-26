@@ -121,7 +121,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             .Skip(skip)
             .Take(take)
             .ToList()
-            .Select(group => group.MinBy(g => g.StorePrice.PriceData.Price));
+            .Select(group => group.MinBy(g => g.StorePrice!.PriceData.Price)!);
 
         bestOffers = sortBy switch
         {
@@ -130,8 +130,8 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             SortByType.NameHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.Product.Name).ToList(),
             SortByType.RatingLowToHigh => bestOffers.OrderBy(queryRes => queryRes.Product.Rating).ToList(),
             SortByType.RatingHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.Product.Rating).ToList(),
-            SortByType.PriceLowToHigh => bestOffers.OrderBy(queryRes => queryRes.StorePrice.PriceData.Price).ToList(),
-            SortByType.PriceHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.StorePrice.PriceData.Price)
+            SortByType.PriceLowToHigh => bestOffers.OrderBy(queryRes => queryRes.StorePrice!.PriceData.Price).ToList(),
+            SortByType.PriceHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.StorePrice!.PriceData.Price)
                 .ToList(),
             _ => bestOffers
         };
@@ -154,8 +154,8 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         var query = await (
             from priceEntry in dataContext.PriceEntry
             where priceEntry.CreatedAt == dataContext.PriceEntry
-                      .Where(pe => pe.ProductId == productId && pe.StoreId == priceEntry.StoreId)
-                      .Max(pe => pe.CreatedAt)
+                .Where(pe => pe.ProductId == productId && pe.StoreId == priceEntry.StoreId)
+                .Max(pe => pe.CreatedAt)
             join store in dataContext.Store on priceEntry.StoreId equals store.Id
             join company in dataContext.Company on store.CompanyId equals company.Id
             join city in dataContext.City on store.CityId equals city.Id into cityGroup
