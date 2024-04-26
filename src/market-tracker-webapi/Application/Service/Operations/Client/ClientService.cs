@@ -76,16 +76,25 @@ public class ClientService(
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var client = await clientRepository.UpdateClientAsync(
-                id,
-                avatarUrl
-            );
+            var user = await userRepository.GetUserByIdAsync(id);
 
-            if (client is null)
+            if (user is null)
             {
                 return EitherExtensions.Failure<UserFetchingError, Client>(
                     new UserFetchingError.UserByIdNotFound(id)
                 );
+            }
+
+            if (await clientRepository.GetClientByIdAsync(id) is not null)
+            {
+                await clientRepository.UpdateClientAsync(
+                    id,
+                    avatarUrl
+                );
+            }
+            else
+            {
+                await clientRepository.CreateClientAsync(id, avatarUrl);
             }
 
             return EitherExtensions.Success<UserFetchingError, Client>(
@@ -94,20 +103,29 @@ public class ClientService(
         });
     }
 
-    public async Task<Either<UserFetchingError, Client>> DeleteClientAsync(Guid id)
+    public async Task<Either<UserFetchingError, ClientOutputModel>> DeleteClientAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var client = await clientRepository.DeleteClientAsync(id);
-            if (client is null)
+            var user = await userRepository.DeleteUserAsync(id);
+            if (user is null)
             {
-                return EitherExtensions.Failure<UserFetchingError, Client>(
+                return EitherExtensions.Failure<UserFetchingError, ClientOutputModel>(
                     new UserFetchingError.UserByIdNotFound(id)
                 );
             }
-            
-            return EitherExtensions.Success<UserFetchingError, Client>(
-                client
+
+            var client = await clientRepository.DeleteClientAsync(id);
+
+            return EitherExtensions.Success<UserFetchingError, ClientOutputModel>(
+                new ClientOutputModel(
+                    user.Id,
+                    user.Username,
+                    user.Name,
+                    user.Email,
+                    user.CreatedAt,
+                    client?.AvatarUrl
+                )
             );
         });
     }

@@ -27,5 +27,5 @@ public interface IClientService
         string avatarUrl
     );
 
-    Task<Either<UserFetchingError, Client>> DeleteClientAsync(Guid id);
+    Task<Either<UserFetchingError, ClientOutputModel>> DeleteClientAsync(Guid id);
 }

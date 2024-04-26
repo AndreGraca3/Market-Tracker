@@ -90,30 +90,3 @@ CREATE TRIGGER update_favorite_stats_trigger
     ON product_favourite
     FOR EACH ROW
 EXECUTE FUNCTION update_favorite_stats();
-
--- Trigger function to update product_stats_counts table when a product is added to a user's list
-CREATE OR REPLACE FUNCTION update_list_stats()
-    RETURNS TRIGGER AS
-$$
-BEGIN
-    IF TG_OP = 'INSERT' THEN
-        UPDATE product_stats_counts
-        SET lists = lists + 1
-        WHERE product_id = NEW.product_id;
-
-    ELSIF TG_OP = 'DELETE' THEN
-        UPDATE product_stats_counts
-        SET lists = lists - 1
-        WHERE product_id = OLD.product_id;
-
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_list_stats_trigger
-    AFTER INSERT OR DELETE
-    ON list_entry
-    FOR EACH ROW
-EXECUTE FUNCTION update_list_stats();

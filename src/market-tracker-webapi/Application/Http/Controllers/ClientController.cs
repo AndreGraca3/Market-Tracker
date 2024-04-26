@@ -93,7 +93,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpDelete(Uris.Clients.ClientById)]
-        public async Task<ActionResult<Client>> DeleteUserAsync(Guid id)
+        public async Task<ActionResult<ClientOutputModel>> DeleteUserAsync(Guid id)
         {
             return ResultHandler.Handle(
                 await clientService.DeleteClientAsync(id),
