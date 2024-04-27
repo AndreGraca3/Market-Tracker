@@ -41,7 +41,7 @@ public interface IPriceRepository
 
     public Task<StoreAvailability?> GetStoreAvailabilityAsync(string productId, int storeId);
 
-    public Task<StorePrice> GetStorePriceByProductIdAsync(
+    public Task<StorePrice?> GetStorePriceAsync(
         string productId,
         int storeId,
         DateTime priceAt
@@ -58,7 +58,6 @@ public interface IPriceRepository
         string productId,
         int storeId,
         int price,
-        DateTime createdAt,
         int? promotionPercentage
     );
 }

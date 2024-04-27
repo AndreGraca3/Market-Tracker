@@ -8,8 +8,10 @@ namespace market_tracker_webapi.Application.Repository.Operations.Store
 
         Task<Domain.Store?> GetStoreByIdAsync(int id);
 
-        public Task<Domain.Store?> GetStoreByNameAsync(string name);
-        
+        Task<Domain.Store?> GetStoreByNameAsync(string name);
+
+        Task<Domain.Store?> GetStoreByOperatorIdAsync(Guid operatorId);
+
         Task<int> AddStoreAsync(string name, string address, int? cityId, int companyId);
 
         Task<Domain.Store?> UpdateStoreAsync(int id, string address, int cityId, int companyId);

@@ -121,7 +121,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             .Skip(skip)
             .Take(take)
             .ToList()
-            .Select(group => group.MinBy(g => g.StorePrice!.PriceData.Price)!);
+            .Select(group => group.MinBy(g => g.StorePrice!.PriceData.FinalPrice)!);
 
         bestOffers = sortBy switch
         {
@@ -130,8 +130,8 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             SortByType.NameHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.Product.Name).ToList(),
             SortByType.RatingLowToHigh => bestOffers.OrderBy(queryRes => queryRes.Product.Rating).ToList(),
             SortByType.RatingHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.Product.Rating).ToList(),
-            SortByType.PriceLowToHigh => bestOffers.OrderBy(queryRes => queryRes.StorePrice!.PriceData.Price).ToList(),
-            SortByType.PriceHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.StorePrice!.PriceData.Price)
+            SortByType.PriceLowToHigh => bestOffers.OrderBy(queryRes => queryRes.StorePrice!.PriceData.FinalPrice).ToList(),
+            SortByType.PriceHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.StorePrice!.PriceData.FinalPrice)
                 .ToList(),
             _ => bestOffers
         };
@@ -189,7 +189,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 new StorePrice(StoreInfo.ToStoreInfo(group.Store.ToStore(), group.City?.ToCity(),
                     group.Company.ToCompany()), PriceInfo.Calculate(group.PriceEntry.Price,
                     group.Promotion?.ToPromotion(group.PriceEntry.Price), group.PriceEntry.CreatedAt))
-            ).MinBy(group => group.PriceData.Price);
+            ).MinBy(group => group.PriceData.FinalPrice);
 
         return cheapestStore;
     }
@@ -239,13 +239,13 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         );
     }
 
-    public async Task<StorePrice> GetStorePriceByProductIdAsync(
+    public async Task<StorePrice?> GetStorePriceAsync(
         string productId,
         int storeId,
         DateTime priceAt
     )
     {
-        var query = await (
+        var queryRes = await (
             from priceEntry in dataContext.PriceEntry
             where
                 priceEntry.ProductId == productId
@@ -268,18 +268,23 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 PriceEntry = priceEntry,
                 Promotion = promotion
             }
-        ).FirstAsync();
+        ).FirstOrDefaultAsync();
+        
+        if (queryRes is null)
+        {
+            return null;
+        }
 
         return new StorePrice(
             StoreInfo.ToStoreInfo(
-                query.Store.ToStore(),
-                query.City?.ToCity(),
-                query.Company.ToCompany()
+                queryRes.Store.ToStore(),
+                queryRes.City?.ToCity(),
+                queryRes.Company.ToCompany()
             ),
             PriceInfo.Calculate(
-                query.PriceEntry.Price,
-                query.Promotion?.ToPromotion(query.PriceEntry.Price),
-                query.PriceEntry.CreatedAt
+                queryRes.PriceEntry.Price,
+                queryRes.Promotion?.ToPromotion(queryRes.PriceEntry.Price),
+                queryRes.PriceEntry.CreatedAt
             )
         );
     }
@@ -318,7 +323,6 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         string productId,
         int storeId,
         int price,
-        DateTime createdAt,
         int? promotionPercentage
     )
     {
@@ -326,8 +330,8 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         {
             ProductId = productId,
             StoreId = storeId,
-            Price = price,
-            CreatedAt = createdAt
+            CreatedAt = DateTime.Now, 
+            Price = price
         };
 
         await dataContext.PriceEntry.AddAsync(priceEntry);
@@ -339,7 +343,8 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             var promotion = new PromotionEntity
             {
                 Percentage = promotionPercentage.Value,
-                PriceEntryId = priceEntry.Id
+                PriceEntryId = priceEntry.Id,
+                CreatedAt = DateTime.Now
             };
 
             await dataContext.Promotion.AddAsync(promotion);

@@ -33,6 +33,15 @@ public class StoreRepository(MarketTrackerDataContext marketTrackerDataContext) 
         return storeEntity?.ToStore();
     }
     
+    public async Task<Domain.Store?> GetStoreByOperatorIdAsync(Guid operatorId)
+    {
+        var storeEntity = await marketTrackerDataContext.Store
+            .Where(s => s.OperatorId == operatorId)
+            .FirstOrDefaultAsync();
+
+        return storeEntity?.ToStore();
+    }
+    
     public async Task<int> AddStoreAsync(string name, string address, int? cityId, int companyId)
     {
         var newStore = new StoreEntity

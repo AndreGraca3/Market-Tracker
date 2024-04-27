@@ -9,35 +9,32 @@ public class AuthorizationFilter(RequestTokenProcessor tokenProcessor) : IAsyncA
     {
         try
         {
-            var authorizedAttribute = context.ActionDescriptor.EndpointMetadata.FirstOrDefault(e =>
-                e.GetType() == typeof(AuthorizedAttribute)) as AuthorizedAttribute;
+            if (context.ActionDescriptor.EndpointMetadata.FirstOrDefault(e =>
+                    e is AuthorizedAttribute) is not AuthorizedAttribute authorizedAttribute) return;
 
-            if (authorizedAttribute is null)
+            var tokenValue =
+                context.HttpContext.Request.Headers[AuthenticationDetails.NameAuthorizationCookie].ToString();
+            
+            if (string.IsNullOrWhiteSpace(tokenValue))
             {
+                context.Result = new AuthenticationProblem.InvalidToken().ToActionResult();
                 return;
             }
 
-            var tokenValue = new Guid(
-                context.HttpContext.Request.Cookies[AuthenticationDetails.NameAuthorizationCookie] ?? string.Empty
-            );
-
-            var authenticatedUser = await tokenProcessor.ProcessAuthorizationHeaderValue(tokenValue);
+            var authenticatedUser = await tokenProcessor.ProcessAuthorizationHeaderValue(Guid.Parse(tokenValue));
 
             if (authenticatedUser is null)
             {
-                context.Result =
-                    new AuthenticationProblem.InvalidToken().ToActionResult();
+                context.Result = new AuthenticationProblem.InvalidToken().ToActionResult();
                 return;
             }
 
-            if (!authorizedAttribute.Roles.Contains(authenticatedUser.User.Role))
+            if (!authorizedAttribute.Roles.ContainsRole(authenticatedUser.User.Role))
             {
                 context.Result =
                     new AuthenticationProblem.UnauthorizedResource().ToActionResult();
                 return;
             }
-
-            Console.WriteLine($"Authenticated User in Filter: {authenticatedUser}");
 
             context.HttpContext.Items[AuthenticationDetails.KeyUser] = authenticatedUser;
         }
@@ -47,6 +44,7 @@ public class AuthorizationFilter(RequestTokenProcessor tokenProcessor) : IAsyncA
             {
                 ArgumentNullException => new AuthenticationProblem.InvalidToken().ToActionResult(),
                 FormatException => new AuthenticationProblem.InvalidFormat().ToActionResult(),
+                _ => new ServerProblem.InternalServerError().ToActionResult()
             };
         }
     }

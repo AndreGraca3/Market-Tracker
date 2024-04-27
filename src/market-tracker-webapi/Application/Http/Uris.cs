@@ -27,7 +27,7 @@ public static class Uris
 
     public static class Google
     {
-        public const string Base = $"{ApiBase}/googleAuthentication";
+        public const string Base = $"{ApiBase}/google-signin";
     }
 
     public static class Products

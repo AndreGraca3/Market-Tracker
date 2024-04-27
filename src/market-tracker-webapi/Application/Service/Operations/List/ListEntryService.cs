@@ -204,7 +204,7 @@ public class ListEntryService(
                             ?.IsAvailable ?? false);
 
                         var storePrice = entry.StoreId is not null && isAvailable
-                            ? await priceRepository.GetStorePriceByProductIdAsync(entry.ProductId, entry.StoreId.Value,
+                            ? await priceRepository.GetStorePriceAsync(entry.ProductId, entry.StoreId.Value,
                                 DateTime.Now)
                             : null;
 
@@ -245,7 +245,7 @@ public class ListEntryService(
 
             if (listEntry.StorePrice is not null)
             {
-                totalPrice += listEntry.StorePrice.PriceData.Price * product.Quantity;
+                totalPrice += listEntry.StorePrice.PriceData.FinalPrice * product.Quantity;
                 totalProducts++;
             }
 

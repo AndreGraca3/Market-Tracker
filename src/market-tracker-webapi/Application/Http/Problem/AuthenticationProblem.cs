@@ -19,7 +19,7 @@ public class AuthenticationProblem(
         401,
         "invalid-token",
         "invalid token",
-        "Request's token is missing"
+        "Request's token is invalid"
     );
 
     public class UnauthorizedResource() : AuthenticationProblem(

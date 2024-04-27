@@ -12,8 +12,8 @@ namespace market_tracker_webapi.Application.Http.Controllers;
 [Route(Uris.Google.Base)]
 public class GoogleAuthController(IGoogleAuthService googleAuthService) : Controller
 {
-    [HttpPut]
-    public async Task<ActionResult<TokenOutputModel>> CreateGoogleTokenAsync(
+    [HttpPost]
+    public async Task<ActionResult<TokenOutputModel>> CreateGoogleAccountAsync(
         [FromBody] GoogleTokenCreationInputModel googleJsonWebToken
     )
     {

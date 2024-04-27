@@ -13,7 +13,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
     public class TokenController(ITokenService tokenService, ILogger<TokenController> logger)
         : ControllerBase
     {
-        [HttpPut]
+        [HttpPost]
         public async Task<ActionResult<TokenOutputModel>> CreateTokenAsync(
             [FromBody] TokenCreationInputModel userCredentials
         )

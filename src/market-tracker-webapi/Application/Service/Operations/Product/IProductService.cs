@@ -28,15 +28,17 @@ public interface IProductService
 
     public Task<Either<ProductFetchingError, ProductInfo>> GetProductByIdAsync(string productId);
 
-    public Task<Either<IServiceError, StringIdOutputModel>> AddProductAsync(
+    public Task<Either<IServiceError, ProductCreationOutputModel>> AddProductAsync(
+        AuthenticatedUser authUser,
         string productId,
         string name,
         string imageUrl,
         int quantity,
-        string unit,
+        ProductUnit unit,
         string brandName,
-        int categoryId
-        // int price
+        int categoryId,
+        int price,
+        int? promotionPercentage
     );
 
     public Task<Either<IServiceError, ProductInfoOutputModel>> UpdateProductAsync(

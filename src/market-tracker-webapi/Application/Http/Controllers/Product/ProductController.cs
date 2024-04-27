@@ -2,10 +2,12 @@ using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Errors.Product;
+using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Operations.Product;
 using Microsoft.AspNetCore.Mvc;
 
@@ -82,18 +84,23 @@ public class ProductController(IProductService productService, IProductPriceServ
     }
 
     [HttpPost(Uris.Products.Base)]
-    public async Task<ActionResult<StringIdOutputModel>> AddProductAsync(
+    [Authorized([Role.Operator])]
+    public async Task<ActionResult<ProductCreationOutputModel>> AddProductAsync(
         [FromBody] ProductCreationInputModel productInput
     )
     {
+        var user = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
         var res = await productService.AddProductAsync(
+            user,
             productInput.Id,
             productInput.Name,
             productInput.ImageUrl,
             productInput.Quantity,
             productInput.Unit,
             productInput.BrandName,
-            productInput.CategoryId!.Value
+            productInput.CategoryId!.Value,
+            productInput.Price!.Value,
+            productInput.PromotionPercentage
         );
 
         return ResultHandler.Handle(
@@ -102,18 +109,20 @@ public class ProductController(IProductService productService, IProductPriceServ
             {
                 return error switch
                 {
-                    ProductCreationError.ProductAlreadyExists alreadyExists
-                        => new ProductProblem.ProductAlreadyExists(alreadyExists).ToActionResult(),
-
                     CategoryFetchingError.CategoryByIdNotFound categoryNotFound
                         => new CategoryProblem.CategoryByIdNotFound(
                             categoryNotFound
                         ).ToActionResult(),
+                    StoreFetchingError.StoreByOperatorIdNotFound storeNotFound
+                        => new StoreProblem.StoreByOperatorIdNotFound(storeNotFound).ToActionResult(),
+                    
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
-            outputModel => Created(Uris.Products.BuildProductByIdUri(outputModel.Id), outputModel)
-        );
+            outputModel =>
+                outputModel.IsNew
+                    ? Created(Uris.Products.BuildProductByIdUri(outputModel.Id), outputModel)
+                    : Ok(outputModel));
     }
 
     [HttpPatch(Uris.Products.ProductById)]
