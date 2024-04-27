@@ -1,6 +1,4 @@
-using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Product;
@@ -24,65 +22,27 @@ public class ProductService(
     ITransactionManager transactionManager
 ) : IProductService
 {
-    public async Task<Either<IServiceError, PaginatedProductsOutputModel>> GetProductsAsync(
-        int skip,
-        int take,
-        SortByType? sortBy,
-        string? searchName,
-        IList<int>? categoryIds,
-        IList<int>? brandIds,
-        IList<int>? companyIds,
-        int? minRating,
-        int? maxRating
-    )
+    public async Task<Either<IServiceError, PaginatedProductOffers>> GetBestAvailableProductsOffersAsync(int skip, int take,
+        SortByType? sortBy, string? searchName, IList<int>? categoryIds, IList<int>? brandIds,
+        IList<int>? companyIds, int? minPrice, int? maxPrice, int? minRating, int? maxRating)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var paginatedProducts = await productRepository.GetProductsAsync(
+            var paginatedOffers = await priceRepository.GetBestAvailableProductsOffersAsync(
                 skip,
                 take,
                 sortBy,
                 searchName,
                 categoryIds,
                 brandIds,
+                minPrice,
+                maxPrice,
                 minRating,
-                maxRating
+                maxRating,
+                companyIds
             );
 
-            var productsOffers = new List<ProductOffer>();
-            var facetsCounters = new ProductsFacetsCounters();
-
-            foreach (var product in paginatedProducts.Items)
-            {
-                var cheapestStorePrice =
-                    await priceRepository.GetCheapestStorePriceByProductIdAsync(product.Id, DateTime.Now, companyIds);
-
-                if (cheapestStorePrice is null)
-                {
-                    continue; // Skip product if no price is found
-                }
-
-                productsOffers.Add(new ProductOffer(product, cheapestStorePrice));
-
-                var productBrandId = product.Brand.Id;
-                var productCategoryId = product.Category.Id;
-                var hasPromotion = cheapestStorePrice.PriceData.Promotion != null;
-
-                facetsCounters.AddOrUpdateBrandFacetCounter(productBrandId, product.Brand.Name);
-                facetsCounters.AddOrUpdateCategoryFacetCounter(productCategoryId, product.Category.Name);
-                facetsCounters.AddOrUpdateCompanyFacetCounter(
-                    cheapestStorePrice.Store.Company.Id,
-                    cheapestStorePrice.Store.Company.Name
-                );
-                facetsCounters.AddOrUpdatePromotionFacetCounter(hasPromotion);
-            }
-
-            var paginatedProductOffers =
-                new PaginatedResult<ProductOffer>(productsOffers, paginatedProducts.TotalItems, skip, take);
-
-            return EitherExtensions.Success<IServiceError, PaginatedProductsOutputModel>(
-                new PaginatedProductsOutputModel(paginatedProductOffers, facetsCounters)
-            );
+            return EitherExtensions.Success<IServiceError, PaginatedProductOffers>(paginatedOffers);
         });
     }
 
@@ -207,9 +167,7 @@ public class ProductService(
         });
     }
 
-    public async Task<Either<ProductFetchingError, StringIdOutputModel>> RemoveProductAsync(
-        string productId
-    )
+    public async Task<Either<ProductFetchingError, StringIdOutputModel>> RemoveProductAsync(string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {

@@ -10,17 +10,17 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
 {
     public async Task<PaginatedResult<ProductReview>> GetReviewsByProductIdAsync(string productId, int skip, int take)
     {
-        var reviews = await dataContext
+        var query = dataContext
             .ProductReview
             .Where(review => review.ProductId == productId)
             .OrderByDescending(review => review.CreatedAt)
             .Skip(skip)
             .Take(take)
-            .Select(productReviewEntity => productReviewEntity.ToProductReview())
-            .ToListAsync();
+            .Select(productReviewEntity => productReviewEntity.ToProductReview());
 
-        var totalItems = await dataContext.ProductReview.CountAsync(review => review.ProductId == productId);
-        return new PaginatedResult<ProductReview>(reviews, totalItems, skip, take);
+        var reviews = await query.ToListAsync();
+
+        return new PaginatedResult<ProductReview>(reviews, query.Count(), skip, take);
     }
 
     public async Task<int> AddReviewAsync(

@@ -11,6 +11,10 @@ public class ProductsFiltersInputModel
     public IList<int>? BrandIds { get; set; }
 
     public IList<int>? CompanyIds { get; set; }
+    
+    [Range(0, int.MaxValue)] public int? MinPrice { get; set; }
+
+    [Range(0, int.MaxValue)] public int? MaxPrice { get; set; }
 
     [Range(1, 5)] public int? MinRating { get; set; }
 

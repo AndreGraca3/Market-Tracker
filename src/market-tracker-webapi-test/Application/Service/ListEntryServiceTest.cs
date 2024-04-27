@@ -18,9 +18,10 @@ using DateTime = System.DateTime;
 
 namespace market_tracker_webapi_test.Application.Service;
 
+/*
 public class ListEntryServiceTest
 {
-    /*private readonly Mock<IListRepository> _listRepositoryMock; 
+    private readonly Mock<IListRepository> _listRepositoryMock; 
     private readonly Mock<IPriceRepository> _priceRepositoryMock;
     private readonly Mock<IProductRepository> _productRepositoryMock;
     private readonly Mock<IListEntryRepository> _listEntryRepositoryMock;
@@ -129,10 +130,10 @@ public class ListEntryServiceTest
         const int quantity = 1;
         
         _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new ListOfProducts()
+            .ReturnsAsync(new ShoppingList()
             {
                 Id = It.IsAny<int>(),
-                ListName = "List1",
+                Name = "List1",
                 ArchivedAt = null,
                 CreatedAt = It.IsAny<DateTime>(),
                 ClientId = It.IsAny<Guid>()
@@ -206,7 +207,7 @@ public class ListEntryServiceTest
         const int quantity = 1;
         
         _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync((ListOfProducts)null!);
+            .ReturnsAsync((ShoppingList)null!);
         
         // Act
         var result = await _listEntryService.AddListEntryAsync(listId, productId, storeId, quantity);
@@ -225,10 +226,10 @@ public class ListEntryServiceTest
         const int quantity = 1;
         
         _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new ListOfProducts()
+            .ReturnsAsync(new ShoppingList()
             {
                 Id = It.IsAny<int>(),
-                ListName = "List1",
+                Name = "List1",
                 ArchivedAt = DateTime.Now,
                 CreatedAt = It.IsAny<DateTime>(),
                 ClientId = It.IsAny<Guid>()
@@ -251,10 +252,10 @@ public class ListEntryServiceTest
         const int quantity = 1;
         
         _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new ListOfProducts()
+            .ReturnsAsync(new ShoppingList()
             {
                 Id = It.IsAny<int>(),
-                ListName = "List1",
+                Name = "List1",
                 ArchivedAt = null,
                 CreatedAt = It.IsAny<DateTime>(),
                 ClientId = It.IsAny<Guid>()
@@ -280,10 +281,10 @@ public class ListEntryServiceTest
         const int quantity = 1;
         
         _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new ListOfProducts()
+            .ReturnsAsync(new ShoppingList()
             {
                 Id = It.IsAny<int>(),
-                ListName = "List1",
+                Name = "List1",
                 ArchivedAt = null,
                 CreatedAt = It.IsAny<DateTime>(),
                 ClientId = It.IsAny<Guid>()
@@ -321,10 +322,10 @@ public class ListEntryServiceTest
         const int quantity = 1;
         
         _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new ListOfProducts()
+            .ReturnsAsync(new ShoppingList()
             {
                 Id = It.IsAny<int>(),
-                ListName = "List1",
+                Name = "List1",
                 ArchivedAt = null,
                 CreatedAt = It.IsAny<DateTime>(),
                 ClientId = It.IsAny<Guid>()
@@ -523,5 +524,6 @@ public class ListEntryServiceTest
         
         // Assert
         result.Error.Should().BeEquivalentTo(new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId));
-    }*/
+    }
 }
+*/

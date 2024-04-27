@@ -16,7 +16,7 @@ public class ListEntryEntity
     public required string ProductId { get; set; }
     
     [Column("store_id")]
-    public int StoreId { get; set; }
+    public int? StoreId { get; set; }
     
     [Column("quantity")]
     public int Quantity { get; set; }

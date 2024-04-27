@@ -78,7 +78,7 @@ create table if not exists price_entry
     id         varchar(25) primary key default substr(md5(random()::text), 1, 10),
     price      integer   not null,
     created_at timestamp not null      default now(),
-    store_id   int references store (id) on delete cascade,
+    store_id   int       not null references store (id) on delete cascade,
     product_id varchar(18) references product (id) on delete cascade
 );
 
@@ -197,7 +197,7 @@ create table if not exists list_entry
 (
     list_id    int references list (id) on delete cascade,
     product_id varchar(18) references product (id) on delete cascade,
-    store_id   int references store (id) on delete cascade,
+    store_id   int references store (id) on delete SET NULL,
     quantity   int not null,
     primary key (list_id, product_id)
 );
