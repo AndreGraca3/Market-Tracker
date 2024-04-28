@@ -113,7 +113,7 @@ static class Program
             options.AddSecurityDefinition("Token", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
-                Name = AuthenticationDetails.NameAuthorizationCookie,
+                Name = AuthenticationDetails.NameAuthorizationHeader,
                 Description = "API token",
                 Type = SecuritySchemeType.ApiKey,
                 BearerFormat = "UUID",
@@ -125,7 +125,7 @@ static class Program
                 {
                     new OpenApiSecurityScheme
                     {
-                        Name = AuthenticationDetails.NameAuthorizationCookie,
+                        Name = AuthenticationDetails.NameAuthorizationHeader,
                         In = ParameterLocation.Header,
                         Reference = new OpenApiReference
                         {

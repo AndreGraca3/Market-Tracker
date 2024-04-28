@@ -89,9 +89,9 @@ public class ProductController(IProductService productService, IProductPriceServ
         [FromBody] ProductCreationInputModel productInput
     )
     {
-        var user = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
         var res = await productService.AddProductAsync(
-            user,
+            authUser.User.Id,
             productInput.Id,
             productInput.Name,
             productInput.ImageUrl,
@@ -115,7 +115,7 @@ public class ProductController(IProductService productService, IProductPriceServ
                         ).ToActionResult(),
                     StoreFetchingError.StoreByOperatorIdNotFound storeNotFound
                         => new StoreProblem.StoreByOperatorIdNotFound(storeNotFound).ToActionResult(),
-                    
+
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
@@ -125,10 +125,40 @@ public class ProductController(IProductService productService, IProductPriceServ
                     : Ok(outputModel));
     }
 
+    [HttpPut(Uris.Products.AvailabilityByProductId)]
+    [Authorized([Role.Operator])]
+    public async Task<ActionResult<StringIdOutputModel>> SetProductAvailabilityAsync(
+        string productId, [FromBody] ProductAvailabilityInputModel availabilityInput
+    )
+    {
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var res = await productService.SetProductAvailabilityAsync(
+            authUser.User.Id,
+            productId,
+            availabilityInput.IsAvailable
+        );
+
+        return ResultHandler.Handle(
+            res,
+            error =>
+            {
+                return error switch
+                {
+                    ProductFetchingError.ProductByIdNotFound idNotFoundError
+                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
+                    StoreFetchingError.StoreByOperatorIdNotFound storeNotFound
+                        => new StoreProblem.StoreByOperatorIdNotFound(storeNotFound).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
+                };
+            },
+            _ => NoContent()
+        );
+    }
+
     [HttpPatch(Uris.Products.ProductById)]
+    [Authorized([Role.Moderator])]
     public async Task<ActionResult<ProductInfoOutputModel>> UpdateProductAsync(
-        string productId,
-        [FromBody] ProductUpdateInputModel productInput
+        string productId, [FromBody] ProductUpdateInputModel productInput
     )
     {
         var res = await productService.UpdateProductAsync(
@@ -161,6 +191,7 @@ public class ProductController(IProductService productService, IProductPriceServ
     }
 
     [HttpDelete(Uris.Products.ProductById)]
+    [Authorized([Role.Moderator])]
     public async Task<ActionResult<StringIdOutputModel>> RemoveProductAsync(string productId)
     {
         var res = await productService.RemoveProductAsync(productId);

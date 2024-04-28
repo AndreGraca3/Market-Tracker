@@ -69,7 +69,7 @@ public class ProductService(
     }
 
     public async Task<Either<IServiceError, ProductCreationOutputModel>> AddProductAsync(
-        AuthenticatedUser authUser,
+        Guid operatorId,
         string productId,
         string name,
         string imageUrl,
@@ -109,12 +109,12 @@ public class ProductService(
                 );
             }
 
-            var store = await storeRepository.GetStoreByOperatorIdAsync(authUser.User.Id);
+            var store = await storeRepository.GetStoreByOperatorIdAsync(operatorId);
 
             if (store is null)
             {
                 return EitherExtensions.Failure<IServiceError, ProductCreationOutputModel>(
-                    new StoreFetchingError.StoreByOperatorIdNotFound(authUser.User.Id)
+                    new StoreFetchingError.StoreByOperatorIdNotFound(operatorId)
                 );
             }
 
@@ -131,6 +131,8 @@ public class ProductService(
                 await priceRepository.AddPriceAsync(productId, store.Id, price, promotionPercentage);
             }
 
+            await productRepository.SetProductAvailabilityAsync(productId, store.Id, true);
+
             return EitherExtensions.Success<IServiceError, ProductCreationOutputModel>(
                 new ProductCreationOutputModel
                 {
@@ -138,6 +140,34 @@ public class ProductService(
                     IsNew = oldProduct is null,
                     PriceChanged = priceChanged
                 });
+        });
+    }
+
+    public async Task<Either<IServiceError, StringIdOutputModel>> SetProductAvailabilityAsync(
+        Guid operatorId,
+        string productId, bool isAvailable)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var store = await storeRepository.GetStoreByOperatorIdAsync(operatorId);
+            if (store is null)
+            {
+                return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
+                    new StoreFetchingError.StoreByOperatorIdNotFound(operatorId)
+                );
+            }
+
+            var product = await productRepository.GetProductByIdAsync(productId);
+            if (product is null)
+            {
+                return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
+                    new ProductFetchingError.ProductByIdNotFound(productId)
+                );
+            }
+
+            await productRepository.SetProductAvailabilityAsync(productId, store.Id, isAvailable);
+
+            return EitherExtensions.Success<IServiceError, StringIdOutputModel>(new StringIdOutputModel(productId));
         });
     }
 

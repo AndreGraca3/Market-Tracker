@@ -29,7 +29,7 @@ public interface IProductService
     public Task<Either<ProductFetchingError, ProductInfo>> GetProductByIdAsync(string productId);
 
     public Task<Either<IServiceError, ProductCreationOutputModel>> AddProductAsync(
-        AuthenticatedUser authUser,
+        Guid operatorId,
         string productId,
         string name,
         string imageUrl,
@@ -39,6 +39,12 @@ public interface IProductService
         int categoryId,
         int price,
         int? promotionPercentage
+    );
+    
+    public Task<Either<IServiceError, StringIdOutputModel>> SetProductAvailabilityAsync(
+        Guid operatorId,
+        string productId,
+        bool isAvailable
     );
 
     public Task<Either<IServiceError, ProductInfoOutputModel>> UpdateProductAsync(

@@ -11,7 +11,7 @@ public class PriceEntryEntity
 
     [Column("price")] public required int Price { get; set; }
 
-    [Column("created_at")] public required DateTime CreatedAt { get; set; }
+    [Column("created_at")] public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     [Column("store_id")] public int StoreId { get; set; }
 

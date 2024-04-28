@@ -4,7 +4,6 @@ using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.Errors.Token;
 using market_tracker_webapi.Application.Service.Operations.Token;
 using Microsoft.AspNetCore.Mvc;
-using CookieOptions = Microsoft.AspNetCore.Http.CookieOptions;
 
 namespace market_tracker_webapi.Application.Http.Controllers
 {
@@ -32,20 +31,11 @@ namespace market_tracker_webapi.Application.Http.Controllers
                     return error switch
                     {
                         TokenCreationError.InvalidCredentials invalidCredentials
-                            => new TokenProblem.InvalidCredentials().ToActionResult()
+                            => new TokenProblem.InvalidCredentials().ToActionResult(),
+                        _ => new ServerProblem.InternalServerError().ToActionResult()
                     };
                 },
-                tokenOutputModel =>
-                {
-                    HttpContext.Response.Cookies.Append(AuthenticationDetails.NameAuthorizationCookie,
-                        tokenOutputModel.TokenValue.ToString(), new CookieOptions
-                        {
-                            HttpOnly = true,
-                            SameSite = SameSiteMode.Strict,
-                            Expires = tokenOutputModel.ExpiresAt
-                        });
-                    return new CreatedResult("", tokenOutputModel);
-                });
+                tokenOutputModel => new CreatedResult("", tokenOutputModel));
         }
 
         [HttpDelete]

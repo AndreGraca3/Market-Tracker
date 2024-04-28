@@ -34,6 +34,7 @@ public static class Uris
     {
         public const string Base = $"{ApiBase}/products";
         public const string ProductById = $"{Base}/{{productId}}";
+        public const string AvailabilityByProductId = $"{ProductById}/availability";
         public const string ReviewsByProductId = $"{ProductById}/reviews";
         public const string StatsByProductId = $"{ProductById}/stats";
         public const string PricesByProductId = $"{ProductById}/prices";

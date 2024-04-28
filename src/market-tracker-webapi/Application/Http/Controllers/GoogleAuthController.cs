@@ -27,20 +27,10 @@ public class GoogleAuthController(IGoogleAuthService googleAuthService) : Contro
                         => new GoogleProblem.InvalidIssuer(invalidIssuer).ToActionResult(),
 
                     GoogleTokenCreationError.InvalidValue =>
-                        new GoogleProblem.InvalidTokenFormat().ToActionResult()
+                        new GoogleProblem.InvalidTokenFormat().ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
-            tokenOutputModel =>
-            {
-                HttpContext.Response.Cookies.Append(AuthenticationDetails.NameAuthorizationCookie,
-                    tokenOutputModel.TokenValue.ToString(), new CookieOptions
-                    {
-                        HttpOnly = true,
-                        SameSite = SameSiteMode.Strict,
-                        Expires = tokenOutputModel.ExpiresAt
-                    });
-                return new OkObjectResult(tokenOutputModel);
-            }
-        );
+            tokenOutputModel => new OkObjectResult(tokenOutputModel));
     }
 }

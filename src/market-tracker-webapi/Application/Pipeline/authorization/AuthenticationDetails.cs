@@ -3,6 +3,6 @@
 public class AuthenticationDetails
 {
     public const string KeyUser = "User";
-    public const string NameAuthorizationCookie = "Authorization";
+    public const string NameAuthorizationHeader = "Authorization";
     public const string NameWwwAuthenticateHeader = "WWW-Authenticate";
 }

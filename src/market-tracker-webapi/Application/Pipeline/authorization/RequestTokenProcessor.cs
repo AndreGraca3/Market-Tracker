@@ -5,6 +5,8 @@ namespace market_tracker_webapi.Application.Pipeline.Authorization;
 
 public class RequestTokenProcessor(IUserService userService)
 {
+    public static string Scheme = "Bearer";
+
     public async Task<AuthenticatedUser?> ProcessAuthorizationHeaderValue(Guid authorizationValue)
     {
         return await userService.GetUserByToken(authorizationValue);

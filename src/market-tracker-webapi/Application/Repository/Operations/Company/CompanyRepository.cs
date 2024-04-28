@@ -1,5 +1,4 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Infrastructure;
+﻿using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,13 +10,13 @@ public class CompanyRepository(MarketTrackerDataContext marketTrackerDataContext
     public async Task<IEnumerable<Domain.Company>> GetCompaniesAsync()
     {
         var companies = await marketTrackerDataContext.Company.ToListAsync();
-        return companies.Select(MapCompanyEntity);
+        return companies.Select(c => c.ToCompany());
     }
 
     public async Task<Domain.Company?> GetCompanyByIdAsync(int id)
     {
         var companyEntity = await marketTrackerDataContext.Company.FindAsync(id);
-        return companyEntity != null ? MapCompanyEntity(companyEntity) : null;
+        return companyEntity?.ToCompany();
     }
 
     public async Task<Domain.Company?> GetCompanyByNameAsync(string name)
@@ -25,7 +24,7 @@ public class CompanyRepository(MarketTrackerDataContext marketTrackerDataContext
         var companyEntity = await marketTrackerDataContext.Company.FirstOrDefaultAsync(c =>
             c.Name == name
         );
-        return companyEntity != null ? MapCompanyEntity(companyEntity) : null;
+        return companyEntity?.ToCompany();
     }
 
     public async Task<int> AddCompanyAsync(string name)
@@ -50,7 +49,7 @@ public class CompanyRepository(MarketTrackerDataContext marketTrackerDataContext
         currentCompany.Name = name;
 
         await marketTrackerDataContext.SaveChangesAsync();
-        return MapCompanyEntity(currentCompany);
+        return currentCompany.ToCompany();
     }
 
     public async Task<Domain.Company?> DeleteCompanyAsync(int id)
@@ -65,16 +64,6 @@ public class CompanyRepository(MarketTrackerDataContext marketTrackerDataContext
         marketTrackerDataContext.Company.Remove(companyEntity);
         await marketTrackerDataContext.SaveChangesAsync();
 
-        return MapCompanyEntity(companyEntity);
-    }
-
-    private static Domain.Company MapCompanyEntity(CompanyEntity companyEntity)
-    {
-        return new Domain.Company
-        {
-            Id = companyEntity.Id,
-            Name = companyEntity.Name,
-            CreatedAt = companyEntity.CreatedAt
-        };
+        return companyEntity.ToCompany();
     }
 }

@@ -9,7 +9,7 @@ namespace market_tracker_webapi.Infrastructure.PostgreSQLTables
     {
         [Key] [Column("token_value")] public Guid TokenValue { get; set; }
 
-        [Column("created_at")] public DateTime CreatedAt { get; }
+        [Column("created_at")] public DateTime CreatedAt { get; } = DateTime.Now;
 
         [Column("expires_at")] public DateTime ExpiresAt { get; set; }
 

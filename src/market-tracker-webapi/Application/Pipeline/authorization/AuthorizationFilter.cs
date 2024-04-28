@@ -13,10 +13,12 @@ public class AuthorizationFilter(RequestTokenProcessor tokenProcessor) : IAsyncA
                     e is AuthorizedAttribute) is not AuthorizedAttribute authorizedAttribute) return;
 
             var tokenValue =
-                context.HttpContext.Request.Headers[AuthenticationDetails.NameAuthorizationCookie].ToString();
-            
+                context.HttpContext.Request.Headers[AuthenticationDetails.NameAuthorizationHeader].ToString();
+
             if (string.IsNullOrWhiteSpace(tokenValue))
             {
+                context.HttpContext.Response.Headers.Append(AuthenticationDetails.NameWwwAuthenticateHeader,
+                    RequestTokenProcessor.Scheme);
                 context.Result = new AuthenticationProblem.InvalidToken().ToActionResult();
                 return;
             }

@@ -118,6 +118,34 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         return productEntity.Id;
     }
 
+    public async Task SetProductAvailabilityAsync(
+        string productId,
+        int storeId,
+        bool isAvailable
+    )
+    {
+        var availability = await dataContext.ProductAvailability
+            .Where(availability => availability.ProductId == productId && availability.StoreId == storeId)
+            .FirstOrDefaultAsync();
+
+        if (availability is null)
+        {
+            availability = new ProductAvailabilityEntity()
+            {
+                ProductId = productId,
+                StoreId = storeId,
+                IsAvailable = isAvailable
+            };
+            await dataContext.ProductAvailability.AddAsync(availability);
+        }
+        else
+        {
+            availability.IsAvailable = isAvailable;
+        }
+
+        await dataContext.SaveChangesAsync();
+    }
+
     public async Task<Product?> UpdateProductAsync(
         string productId,
         string? name,
