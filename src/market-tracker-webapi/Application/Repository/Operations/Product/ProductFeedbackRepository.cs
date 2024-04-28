@@ -23,7 +23,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         return new PaginatedResult<ProductReview>(reviews, query.Count(), skip, take);
     }
 
-    public async Task<int> AddReviewAsync(
+    public async Task<ProductReview> AddReviewAsync(
         Guid clientId,
         string productId,
         int rating,
@@ -39,7 +39,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         };
         await dataContext.ProductReview.AddAsync(productReviewEntity);
         await dataContext.SaveChangesAsync();
-        return productReviewEntity.Id;
+        return productReviewEntity.ToProductReview();
     }
 
     public async Task<ProductReview?> UpsertReviewAsync(
@@ -49,14 +49,17 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         string? comment
     )
     {
-        var reviewEntity = new ProductReviewEntity()
+        var reviewEntity = await dataContext.ProductReview.FirstOrDefaultAsync(review =>
+            review.ProductId == productId && review.ClientId == clientId
+        );
+        if (reviewEntity is null)
         {
-            ProductId = productId,
-            ClientId = clientId,
-            Rating = rating,
-            Text = comment
-        };
-        await dataContext.ProductReview.Upsert(reviewEntity).RunAsync();
+            return await AddReviewAsync(clientId, productId, rating, comment);
+        }
+
+        reviewEntity.Rating = rating;
+        reviewEntity.Text = comment;
+
         await dataContext.SaveChangesAsync();
         return reviewEntity.ToProductReview();
     }
@@ -75,19 +78,39 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         return reviewEntity.ToProductReview();
     }
 
+    public async Task<PriceAlert> AddPriceAlertAsync(
+        Guid clientId,
+        string productId,
+        int priceThreshold
+    )
+    {
+        var priceAlertEntity = new PriceAlertEntity
+        {
+            ProductId = productId,
+            ClientId = clientId,
+            PriceThreshold = priceThreshold
+        };
+        await dataContext.PriceAlert.AddAsync(priceAlertEntity);
+        await dataContext.SaveChangesAsync();
+        return priceAlertEntity.ToPriceAlert();
+    }
+
     public async Task<PriceAlert> UpsertPriceAlertAsync(
         Guid clientId,
         string productId,
         int priceThreshold
     )
     {
-        var priceAlertEntity = new PriceAlertEntity()
+        var priceAlertEntity = await dataContext.PriceAlert.FirstOrDefaultAsync(alert =>
+            alert.ProductId == productId && alert.ClientId == clientId);
+
+        if (priceAlertEntity is null)
         {
-            ProductId = productId,
-            ClientId = clientId,
-            PriceThreshold = priceThreshold
-        };
-        await dataContext.PriceAlert.Upsert(priceAlertEntity).RunAsync();
+            return await AddPriceAlertAsync(clientId, productId, priceThreshold);
+        }
+
+        priceAlertEntity.PriceThreshold = priceThreshold;
+
         await dataContext.SaveChangesAsync();
         return priceAlertEntity.ToPriceAlert();
     }
@@ -155,19 +178,14 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
 
     public async Task<ProductStats?> GetProductStatsByIdAsync(string productId)
     {
-        return await dataContext
-            .ProductStatsCounts.Where(stats => stats.ProductId == productId)
-            .Join(
-                dataContext.Product,
-                stats => stats.ProductId,
-                product => product.Id,
-                (stats, product) =>
-                    new ProductStats(
-                        productId,
-                        new ProductStatsCounts(stats.Favourites, stats.Ratings, stats.Lists),
-                        product.Rating
-                    )
-            )
-            .FirstOrDefaultAsync();
+        return await (from stats in dataContext.ProductStatsCounts
+                where stats.ProductId == productId
+                join product in dataContext.Product on stats.ProductId equals product.Id
+                select new ProductStats(
+                    productId,
+                    new ProductStatsCounts(stats.Favourites, stats.Ratings),
+                    product.Rating
+                )
+            ).FirstOrDefaultAsync();
     }
 }

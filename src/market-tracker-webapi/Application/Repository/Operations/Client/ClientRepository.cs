@@ -29,11 +29,15 @@ public class ClientRepository(
         return new PaginatedResult<ClientInfo>(clients, query.Count(), skip, take);
     }
 
-    public async Task<Client?> GetClientByIdAsync(Guid id)
+    public async Task<ClientInfo?> GetClientByIdAsync(Guid id)
     {
-        return (await dataContext.Client.FindAsync(id))?.ToClient();
+        return await (from user in dataContext.User
+                join client in dataContext.Client on user.Id equals client.UserId
+                where user.Id == id
+                select new ClientInfo(user.Id, user.Username, user.Name, user.Email, user.CreatedAt, client.Avatar))
+            .FirstOrDefaultAsync();
     }
-    
+
     public async Task<Guid> CreateClientAsync(Guid userId, string avatarUrl)
     {
         var newClient = new ClientEntity
@@ -71,5 +75,41 @@ public class ClientRepository(
         dataContext.Remove(deletedClientEntity);
         await dataContext.SaveChangesAsync();
         return deletedClientEntity.ToClient();
+    }
+
+    public async Task<bool> UpsertFirebaseTokenAsync(Guid clientId, string deviceId, string firebaseToken)
+    {
+        var registerEntity =
+            await dataContext.FcmRegister.FirstOrDefaultAsync(r => r.ClientId == clientId && r.DeviceId == deviceId);
+        if (registerEntity is null)
+        {
+            registerEntity = new FcmRegisterEntity
+            {
+                ClientId = clientId,
+                DeviceId = deviceId,
+                FirebaseToken = firebaseToken
+            };
+            await dataContext.FcmRegister.AddAsync(registerEntity);
+            await dataContext.SaveChangesAsync();
+            return true;
+        }
+
+        registerEntity.FirebaseToken = firebaseToken;
+
+        await dataContext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RemoveFirebaseTokenAsync(Guid id, string deviceId)
+    {
+        var registerEntity = await dataContext.FcmRegister.FirstOrDefaultAsync(r => r.ClientId == id && r.DeviceId == deviceId);
+        if (registerEntity is null)
+        {
+            return false;
+        }
+
+        dataContext.Remove(registerEntity);
+        await dataContext.SaveChangesAsync();
+        return true;
     }
 }

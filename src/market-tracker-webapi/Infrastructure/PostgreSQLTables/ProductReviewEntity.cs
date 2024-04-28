@@ -9,7 +9,6 @@ namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 [PrimaryKey(nameof(ClientId), nameof(ProductId))]
 public class ProductReviewEntity
 {
-    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
     public int Id { get; set; }

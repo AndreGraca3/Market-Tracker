@@ -145,9 +145,9 @@ create table if not exists product_availability
 create table if not exists fcm_registration
 (
     client_id uuid references client (id) on delete cascade,
-    token     varchar(255) not null,
     device_id varchar(255) not null,
-    primary key (client_id, token, device_id)
+    firebase_token     varchar(255) not null,
+    primary key (client_id, device_id)
 );
 
 create table if not exists product_review

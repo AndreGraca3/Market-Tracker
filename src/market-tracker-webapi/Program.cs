@@ -138,6 +138,7 @@ static class Program
             });
         });
 
+        builder.Services.AddFirebaseServices(builder.Configuration);
         builder.Services.AddPgSqlServer(builder.Configuration);
         builder.Services.AddMarketTrackerDataServices();
         builder.Services.AddGoogleAuthAuthentication(builder.Configuration);

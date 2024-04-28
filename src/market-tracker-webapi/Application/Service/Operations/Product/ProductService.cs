@@ -144,8 +144,7 @@ public class ProductService(
     }
 
     public async Task<Either<IServiceError, StringIdOutputModel>> SetProductAvailabilityAsync(
-        Guid operatorId,
-        string productId, bool isAvailable)
+        Guid operatorId, string productId, bool isAvailable)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {

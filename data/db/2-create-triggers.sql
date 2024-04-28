@@ -29,8 +29,11 @@ DECLARE
     old_count  INTEGER;
     new_count  INTEGER;
 BEGIN
-    SELECT rating INTO old_rating FROM "MarketTracker".product WHERE id = NEW.product_id;
-    SELECT ratings INTO old_count FROM "MarketTracker".product_stats_counts WHERE product_id = NEW.product_id;
+    SELECT rating INTO old_rating FROM "MarketTracker".product WHERE id = COALESCE(OLD.product_id, NEW.product_id);
+    SELECT ratings
+    INTO old_count
+    FROM "MarketTracker".product_stats_counts
+    WHERE product_id = COALESCE(OLD.product_id, NEW.product_id);
 
     IF TG_OP = 'INSERT' THEN
         UPDATE "MarketTracker".product_stats_counts
@@ -53,9 +56,15 @@ BEGIN
         WHERE id = NEW.product_id;
     ELSIF TG_OP = 'DELETE' THEN
         new_count := old_count - 1;
-        UPDATE "MarketTracker".product
-        SET rating = old_rating + (NEW.rating - old_rating) / new_count
-        WHERE id = OLD.product_id;
+        IF new_count = 0 THEN
+            UPDATE "MarketTracker".product
+            SET rating = 0
+            WHERE id = OLD.product_id;
+        ELSE
+            UPDATE "MarketTracker".product
+            SET rating = (old_rating * old_count) - OLD.rating / new_count
+            WHERE id = OLD.product_id;
+        END IF;
     END IF;
 
     RETURN NEW;

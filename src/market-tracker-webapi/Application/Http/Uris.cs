@@ -23,6 +23,9 @@ public static class Uris
     {
         public const string Base = $"{ApiBase}/clients";
         public const string ClientById = $"{Base}/{{id}}";
+        public const string Me = $"{Base}/me";
+        public const string RegisterPushNotifications = $"{Me}/register-push-notifications";
+        public const string DeRegisterPushNotifications = $"{Me}/deregister-push-notifications";
     }
 
     public static class Google

@@ -1,4 +1,6 @@
-﻿using market_tracker_webapi.Application.Pipeline.Authorization;
+﻿using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Operations.Account;
 using market_tracker_webapi.Application.Repository.Operations.Brand;
 using market_tracker_webapi.Application.Repository.Operations.Category;
@@ -11,6 +13,7 @@ using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Repository.Operations.Store;
 using market_tracker_webapi.Application.Repository.Operations.Token;
 using market_tracker_webapi.Application.Repository.Operations.User;
+using market_tracker_webapi.Application.Service.External;
 using market_tracker_webapi.Application.Service.Operations.Category;
 using market_tracker_webapi.Application.Service.Operations.City;
 using market_tracker_webapi.Application.Service.Operations.Client;
@@ -37,6 +40,24 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
             services.AddDbContext<MarketTrackerDataContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("WebApiDatabase")
                 )
+            );
+
+            return services;
+        }
+
+        public static IServiceCollection AddFirebaseServices(
+            this IServiceCollection services,
+            IConfiguration configuration
+        )
+        {
+            FirebaseApp.Create(
+                new AppOptions
+                {
+                    Credential = GoogleCredential.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                        configuration["FirebaseServiceAccountJsonFile"] ?? throw new InvalidOperationException(
+                            "FirebaseServiceAccountJsonFile is not set in appsettings.json"))
+                    )
+                }
             );
 
             return services;
@@ -85,6 +106,7 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
 
             services.AddScoped<RequestTokenProcessor>();
             services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+            services.AddScoped<INotificationSenderService, NotificationSenderService>();
 
             services.AddScoped<IAccountRepository, AccountRepository>();
 

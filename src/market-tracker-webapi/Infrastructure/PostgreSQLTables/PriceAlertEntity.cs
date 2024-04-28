@@ -19,7 +19,7 @@ public class PriceAlertEntity
     public required int PriceThreshold { get; set; }
 
     [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     public PriceAlert ToPriceAlert()
     {

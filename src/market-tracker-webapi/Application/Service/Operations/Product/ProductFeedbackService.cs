@@ -3,6 +3,7 @@ using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Http.Models.User;
 using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Operations.Client;
 using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -14,12 +15,13 @@ namespace market_tracker_webapi.Application.Service.Operations.Product;
 public class ProductFeedbackService(
     IProductRepository productRepository,
     IProductFeedbackRepository productFeedbackRepository,
+    IClientRepository clientRepository,
     ITransactionManager transactionManager
 ) : IProductFeedbackService
 {
-    public async Task<Either<ProductFetchingError, PaginatedResult<ProductReviewOutputModel>>> GetReviewsByProductIdAsync(
-        string productId, int skip, int take
-    ) {
+    public async Task<Either<ProductFetchingError, PaginatedResult<ProductReviewOutputModel>>>
+        GetReviewsByProductIdAsync(string productId, int skip, int take)
+    {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await productRepository.GetProductByIdAsync(productId) is null)
@@ -32,13 +34,18 @@ public class ProductFeedbackService(
             var paginatedReviews =
                 await productFeedbackRepository.GetReviewsByProductIdAsync(productId, skip, take);
 
+            var clientReviewsTasks = paginatedReviews.Items.Select(async review =>
+            {
+                var client = await clientRepository.GetClientByIdAsync(review.ClientId);
+                var user = new UserInfoOutputModel(review.ClientId, client!.Username, client.AvatarUrl);
+                return ProductReviewOutputModel.ToProductReviewOutputModel(user, review);
+            });
+
+            var clientReviews = await Task.WhenAll(clientReviewsTasks);
+
             return EitherExtensions.Success<ProductFetchingError, PaginatedResult<ProductReviewOutputModel>>(
                 new PaginatedResult<ProductReviewOutputModel>(
-                    paginatedReviews.Items.Select(review =>
-                    {
-                        var user = new UserInfoOutputModel(review.ClientId, "dummy", "dummy");
-                        return ProductReviewOutputModel.ToProductReviewOutputModel(user, review);
-                    }),
+                    clientReviews,
                     paginatedReviews.TotalItems,
                     skip,
                     take
@@ -57,8 +64,6 @@ public class ProductFeedbackService(
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            // TODO: search if client exists
-
             if (await productRepository.GetProductByIdAsync(productId) is null)
             {
                 return EitherExtensions.Failure<IServiceError, ProductPreferences>(
@@ -67,9 +72,7 @@ public class ProductFeedbackService(
             }
 
             var oldPreferences = await productFeedbackRepository.GetProductsPreferencesAsync(
-                clientId,
-                productId
-            );
+                clientId, productId);
 
             var updatedReview = oldPreferences.Review;
 
@@ -127,10 +130,8 @@ public class ProductFeedbackService(
         });
     }
 
-    public async Task<Either<IServiceError, ProductPreferences>> GetProductsPreferencesAsync(
-        Guid clientId,
-        string productId
-    )
+    public async Task<Either<IServiceError, ProductPreferences>> GetProductsPreferencesAsync(Guid clientId,
+        string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
@@ -150,9 +151,7 @@ public class ProductFeedbackService(
         });
     }
 
-    public async Task<Either<ProductFetchingError, ProductStats>> GetProductStatsByIdAsync(
-        string productId
-    )
+    public async Task<Either<ProductFetchingError, ProductStats>> GetProductStatsByIdAsync(string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {

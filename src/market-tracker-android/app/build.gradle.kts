@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.gms.google-services")
     id("kotlin-parcelize")
 }
 
@@ -83,7 +84,9 @@ dependencies {
 
     implementation("com.exyte:animated-navigation-bar:1.0.0")
     implementation("com.github.tfaki:ComposableSweetToast:1.0.1")
+
     implementation("com.google.android.gms:play-services-auth:21.0.0")
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk-android:1.13.8")

@@ -5,7 +5,7 @@ using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.User;
 
-public interface IUserService
+public interface IUserService // get rid of this interface, separate into different services
 {
     Task<UsersOutputModel> GetUsersAsync(string? username, int skip, int take);
 
@@ -18,7 +18,7 @@ public interface IUserService
         string name,
         string email,
         string password,
-        string role = "operator"
+        string role = "operator" // change to enum
     );
 
     Task<Either<UserFetchingError, UserOutputModel>> UpdateUserAsync(

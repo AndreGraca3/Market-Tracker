@@ -1,6 +1,7 @@
 ﻿using market_tracker_webapi.Application.Http.Models.Client;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Utils;
 
@@ -12,7 +13,7 @@ public interface IClientService
 {
     Task<PaginatedResult<ClientInfo>> GetClientsAsync(string? username, int skip, int take);
 
-    Task<Either<UserFetchingError, ClientOutputModel>> GetClientAsync(Guid id);
+    Task<Either<UserFetchingError, ClientOutputModel>> GetClientByIdAsync(Guid id);
 
     Task<Either<UserCreationError, ClientCreationOutputModel>> CreateClientAsync(
         string username,
@@ -22,10 +23,11 @@ public interface IClientService
         string? avatarUrl = null
     );
 
-    Task<Either<UserFetchingError, Client>> UpdateClientAsync(
-        Guid id,
-        string avatarUrl
-    );
+    Task<Either<UserFetchingError, Client>> UpdateClientAsync(Guid id, string avatarUrl);
 
     Task<Either<UserFetchingError, ClientOutputModel>> DeleteClientAsync(Guid id);
+
+    Task<Either<IServiceError, bool>> RegisterPushNotificationsAsync(Guid id, string deviceId, string firebaseToken);
+
+    Task<Either<IServiceError, bool>> DeRegisterPushNotificationsAsync(Guid id, string deviceId);
 }
