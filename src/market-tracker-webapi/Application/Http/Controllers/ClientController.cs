@@ -1,8 +1,9 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Client;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.Client;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,8 @@ namespace market_tracker_webapi.Application.Http.Controllers
     public class ClientController(IClientService clientService) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<PaginatedResult<ClientOutputModel>>> GetClientsAsync(
+        [Authorized([Role.Client])]
+        public async Task<ActionResult<PaginatedResult<ClientInfo>>> GetClientsAsync(
             [FromQuery] PaginationInputs paginationInputs,
             [FromQuery] string? username
         )
@@ -25,7 +27,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpGet(Uris.Clients.ClientById)]
-        public async Task<ActionResult<ClientOutputModel>> GetClientAsync(Guid id)
+        public async Task<ActionResult<ClientInfo>> GetClientAsync(Guid id)
         {
             return ResultHandler.Handle(
                 await clientService.GetClientAsync(id),
@@ -41,7 +43,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ClientCreationOutputModel>> CreateClientAsync(
+        public async Task<ActionResult<GuidOutputModel>> CreateClientAsync(
             [FromBody] ClientCreationInputModel clientInput
         )
         {
@@ -74,7 +76,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpPut(Uris.Clients.ClientById)]
-        public async Task<ActionResult<Client>> UpdateUserAsync(
+        public async Task<ActionResult<ClientInfo>> UpdateUserAsync(
             Guid id,
             [FromBody] ClientUpdateInputModel clientInput
         )
@@ -89,23 +91,6 @@ namespace market_tracker_webapi.Application.Http.Controllers
                             => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult()
                     };
                 }
-            );
-        }
-
-        [HttpDelete(Uris.Clients.ClientById)]
-        public async Task<ActionResult<ClientOutputModel>> DeleteUserAsync(Guid id)
-        {
-            return ResultHandler.Handle(
-                await clientService.DeleteClientAsync(id),
-                error =>
-                {
-                    return error switch
-                    {
-                        UserFetchingError.UserByIdNotFound userByIdNotFound
-                            => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
-                    };
-                },
-                _ => NoContent()
             );
         }
     }

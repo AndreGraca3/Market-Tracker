@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto.User;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
@@ -31,6 +32,15 @@ public class UserEntity
             Email,
             Role,
             CreatedAt
+        );
+    }
+
+    public UserItem ToUserItem()
+    {
+        return new UserItem(
+            Id,
+            Username,
+            Role
         );
     }
 }

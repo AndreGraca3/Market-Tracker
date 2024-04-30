@@ -2,6 +2,7 @@
 using market_tracker_webapi.Application.Http.Models.User;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Pipeline.Authorization;
+using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.User;
 using Microsoft.AspNetCore.Mvc;
@@ -14,20 +15,19 @@ namespace market_tracker_webapi.Application.Http.Controllers
         : ControllerBase
     {
         [HttpGet]
-        [Authorized(["client"])]
-        public async Task<ActionResult<UsersOutputModel>> GetUsersAsync(
+        [Authorized([Role.Moderator])]
+        public async Task<ActionResult<PaginatedResult<UserOutputModel>>> GetUsersAsync(
             [FromQuery] PaginationInputs paginationInputs,
-            [FromQuery] string? username
+            [FromQuery] string? username,
+            [FromQuery] string? role
         )
         {
-            var user = HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser;
-            Console.WriteLine($"Authenticated User in controller method : {user?.User.Name}");
-            logger.LogDebug($"Call {nameof(GetUsersAsync)} with {username}");
-
-            return Ok(await userService.GetUsersAsync(username, paginationInputs.Skip, paginationInputs.ItemsPerPage));
+            return Ok(await userService.GetUsersAsync(username, role, paginationInputs.Skip,
+                paginationInputs.ItemsPerPage));
         }
 
         [HttpGet(Uris.Users.UserById)]
+        [Authorized([Role.Moderator])]
         public async Task<ActionResult<UserOutputModel>> GetUserAsync(Guid id)
         {
             logger.LogDebug($"Call {nameof(GetUserAsync)} with {id}");
@@ -46,6 +46,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpPost]
+        [Authorized([Role.Moderator])]
         public async Task<ActionResult<UserCreationOutputModel>> CreateUserAsync(
             [FromBody] UserCreationInputModel userInput
         )
@@ -58,7 +59,8 @@ namespace market_tracker_webapi.Application.Http.Controllers
                 userInput.Username,
                 userInput.Name,
                 userInput.Email,
-                userInput.Password
+                userInput.Password,
+                userInput.Role
             );
 
             return ResultHandler.Handle(
@@ -82,6 +84,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpPut(Uris.Users.UserById)]
+        [Authorized([Role.Moderator])]
         public async Task<ActionResult<UserOutputModel>> UpdateUserAsync(
             Guid id,
             [FromBody] UserUpdateInputModel userInput
@@ -103,6 +106,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpDelete(Uris.Users.UserById)]
+        [Authorized([Role.Moderator])]
         public async Task<ActionResult<UserOutputModel>> DeleteUserAsync(Guid id)
         {
             logger.LogDebug($"Call {nameof(DeleteUserAsync)} with {id}");
@@ -116,8 +120,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
                         UserFetchingError.UserByIdNotFound userByIdNotFound
                             => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
                     };
-                },
-                _ => NoContent()
+                }
             );
         }
     }

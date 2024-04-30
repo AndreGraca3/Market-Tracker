@@ -9,10 +9,8 @@ public class AuthorizationFilter(RequestTokenProcessor tokenProcessor) : IAsyncA
     {
         try
         {
-            var authorizedAttribute = context.ActionDescriptor.EndpointMetadata.FirstOrDefault(e =>
-                e.GetType() == typeof(AuthorizedAttribute)) as AuthorizedAttribute;
-
-            if (authorizedAttribute is null)
+            if (context.ActionDescriptor.EndpointMetadata.FirstOrDefault(e =>
+                    e.GetType() == typeof(AuthorizedAttribute)) is not AuthorizedAttribute authorizedAttribute)
             {
                 return;
             }
@@ -30,7 +28,7 @@ public class AuthorizationFilter(RequestTokenProcessor tokenProcessor) : IAsyncA
                 return;
             }
 
-            if (!authorizedAttribute.Roles.Contains(authenticatedUser.User.Role))
+            if (!authorizedAttribute.Roles.ContainsRole(authenticatedUser.User.Role))
             {
                 context.Result =
                     new AuthenticationProblem.UnauthorizedResource().ToActionResult();

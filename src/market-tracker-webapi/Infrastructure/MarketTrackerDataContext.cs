@@ -8,6 +8,9 @@ namespace market_tracker_webapi.Infrastructure
         public DbSet<UserEntity> User { get; set; }
 
         public DbSet<ClientEntity> Client { get; set; }
+        
+        
+        public DbSet<OperatorEntity> Operator { get; set; }
 
         public DbSet<AccountEntity> Account { get; set; }
 

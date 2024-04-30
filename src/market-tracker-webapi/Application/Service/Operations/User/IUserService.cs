@@ -1,13 +1,17 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.User;
+using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.User;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.User;
 
+using User = Domain.User;
+
 public interface IUserService
 {
-    Task<UsersOutputModel> GetUsersAsync(string? username, int skip, int take);
+    Task<PaginatedResult<UserItem>> GetUsersAsync(string? username, string? role, int skip, int take);
 
     Task<Either<UserFetchingError, UserOutputModel>> GetUserAsync(Guid id);
 

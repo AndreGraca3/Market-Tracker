@@ -1,11 +1,14 @@
-﻿namespace market_tracker_webapi.Application.Repository.Operations.User;
+﻿using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.User;
+
+namespace market_tracker_webapi.Application.Repository.Operations.User;
 
 using User = Domain.User;
 
 public interface IUserRepository
 {
-    Task<IEnumerable<User>> GetUsersAsync(string? username, int skip, int take);
-    
+    Task<PaginatedResult<UserItem>> GetUsersAsync(string? username, string? role, int skip, int take);
+
     Task<User?> GetUserByIdAsync(Guid id);
 
     Task<User?> GetUserByUsernameAsync(string username);

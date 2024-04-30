@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Http.Models.Client;
+﻿using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Client;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Application.Service.Errors.User;
@@ -10,11 +11,11 @@ using Client = Domain.Client;
 
 public interface IClientService
 {
-    Task<PaginatedResult<ClientInfo>> GetClientsAsync(string? username, int skip, int take);
+    Task<PaginatedResult<ClientInfo>> GetClientsAsync(string? username, int skip, int limit);
 
-    Task<Either<UserFetchingError, ClientOutputModel>> GetClientAsync(Guid id);
+    Task<Either<UserFetchingError, ClientInfo>> GetClientAsync(Guid id);
 
-    Task<Either<UserCreationError, ClientCreationOutputModel>> CreateClientAsync(
+    Task<Either<UserCreationError, GuidOutputModel>> CreateClientAsync(
         string username,
         string name,
         string email,
@@ -22,10 +23,8 @@ public interface IClientService
         string? avatarUrl = null
     );
 
-    Task<Either<UserFetchingError, Client>> UpdateClientAsync(
+    Task<Either<UserFetchingError, ClientInfo>> UpdateClientAsync(
         Guid id,
         string avatarUrl
     );
-
-    Task<Either<UserFetchingError, ClientOutputModel>> DeleteClientAsync(Guid id);
 }

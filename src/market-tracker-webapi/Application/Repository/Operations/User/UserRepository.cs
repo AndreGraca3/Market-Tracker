@@ -1,4 +1,6 @@
-﻿using market_tracker_webapi.Infrastructure;
+﻿using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.User;
+using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +12,16 @@ public class UserRepository(
     MarketTrackerDataContext dataContext
 ) : IUserRepository
 {
-    public async Task<IEnumerable<User>> GetUsersAsync(string? username, int skip, int limit)
+    public async Task<PaginatedResult<UserItem>> GetUsersAsync(string? username, string? role, int skip, int limit)
     {
-        return await dataContext.User.Where(user => username == null || user.Username.Contains(username)).Skip(skip)
-            .Take(limit).Select(userEntity => userEntity.ToUser()).ToListAsync();
+        var allUsers = dataContext.User.Where(user =>
+            (username == null || user.Username.Contains(username)) && (role == null || user.Role.Equals(role)));
+
+        var users = await allUsers
+            .Skip(skip)
+            .Take(limit).Select(userEntity => userEntity.ToUserItem()).ToListAsync();
+
+        return new PaginatedResult<UserItem>(users, allUsers.Count(), skip, limit);
     }
 
     public async Task<User?> GetUserByIdAsync(Guid id)

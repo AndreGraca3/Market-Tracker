@@ -6,5 +6,17 @@ public record ClientInfo(
     string Name,
     string Email,
     DateTime CreatedAt,
-    string AvatarUrl
-);
+    string? AvatarUrl
+)
+{
+    public ClientInfo(Domain.User user, string? avatar) : this(
+        user.Id,
+        user.Username,
+        user.Name,
+        user.Email,
+        user.CreatedAt,
+        avatar
+    )
+    {
+    }
+};

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.OData.Batch;
 using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
+using Microsoft.OpenApi.Models;
 
 namespace market_tracker_webapi;
 
@@ -38,10 +39,7 @@ static class Program
 
     private static void Configure(WebApplication app)
     {
-        app.UseSwagger(c =>
-        {
-            c.RouteTemplate = "swagger/{documentName}/swagger.json";
-        });
+        app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
 
         app.UseSwaggerUI(options =>
         {
@@ -89,7 +87,8 @@ static class Program
                 o.JsonSerializerOptions.DefaultIgnoreCondition =
                     JsonIgnoreCondition.WhenWritingDefault
             )*/
-            .AddJsonOptions(o => {
+            .AddJsonOptions(o =>
+            {
                 o.JsonSerializerOptions.Converters.Add(new OptionalConverter());
                 o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             })

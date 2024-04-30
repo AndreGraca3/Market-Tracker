@@ -14,9 +14,10 @@ public static class Uris
         public static string BuildUserByIdUri(Guid id) => $"{Base}/{id}";
     }
 
-    public static class Tokens
+    public static class Auth
     {
-        public const string Base = $"{ApiBase}/tokens";
+        public const string Base = $"{ApiBase}/auth";
+        public const string GoogleAuth = $"{ApiBase}/google-signin";
     }
 
     public static class Clients
@@ -25,9 +26,10 @@ public static class Uris
         public const string ClientById = $"{Base}/{{id}}";
     }
 
-    public static class Google
+    public static class Operator
     {
-        public const string Base = $"{ApiBase}/googleAuthentication";
+        public const string Base = $"{ApiBase}/operators";
+        public const string OperatorById = $"{Base}/{{id}}";
     }
 
     public static class Products
@@ -45,7 +47,7 @@ public static class Uris
         public static string BuildReviewsByProductIdUri(string id) =>
             ReviewsByProductId.ExpandUri(id);
     }
-    
+
     public static class Lists
     {
         public const string Base = $"{ApiBase}/lists";
