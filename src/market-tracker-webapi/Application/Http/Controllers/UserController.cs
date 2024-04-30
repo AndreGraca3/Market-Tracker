@@ -69,7 +69,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
                 {
                     return error switch
                     {
-                        UserCreationError.EmailAlreadyInUse emailAlreadyInUse
+                        UserCreationError.CredentialAlreadyInUse emailAlreadyInUse
                             => new UserProblem.UserAlreadyExists(
                                 emailAlreadyInUse
                             ).ToActionResult(),
@@ -107,7 +107,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
 
         [HttpDelete(Uris.Users.UserById)]
         [Authorized([Role.Moderator])]
-        public async Task<ActionResult<UserOutputModel>> DeleteUserAsync(Guid id)
+        public async Task<ActionResult<GuidOutputModel>> DeleteUserAsync(Guid id)
         {
             logger.LogDebug($"Call {nameof(DeleteUserAsync)} with {id}");
 

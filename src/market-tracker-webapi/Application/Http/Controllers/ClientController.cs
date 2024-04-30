@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Client;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Pipeline.Authorization;
@@ -16,7 +17,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
     {
         [HttpGet]
         [Authorized([Role.Client])]
-        public async Task<ActionResult<PaginatedResult<ClientInfo>>> GetClientsAsync(
+        public async Task<ActionResult<PaginatedResult<ClientItem>>> GetClientsAsync(
             [FromQuery] PaginationInputs paginationInputs,
             [FromQuery] string? username
         )
@@ -27,6 +28,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpGet(Uris.Clients.ClientById)]
+        [Authorized([Role.Client])]
         public async Task<ActionResult<ClientInfo>> GetClientAsync(Guid id)
         {
             return ResultHandler.Handle(
@@ -40,6 +42,14 @@ namespace market_tracker_webapi.Application.Http.Controllers
                     };
                 }
             );
+        }
+
+        [HttpGet(Uris.Clients.Me)]
+        [Authorized([Role.Client])]
+        public Task<ActionResult<User>> GetAuthenticatedClientAsync()
+        {
+            return Task.FromResult<ActionResult<User>>(
+                Ok((HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser)!.User));
         }
 
         [HttpPost]
@@ -61,13 +71,13 @@ namespace market_tracker_webapi.Application.Http.Controllers
                 {
                     return error switch
                     {
-                        UserCreationError.EmailAlreadyInUse emailAlreadyInUse
+                        UserCreationError.CredentialAlreadyInUse credentialAlreadyInUse
                             => new UserProblem.UserAlreadyExists(
-                                emailAlreadyInUse
+                                credentialAlreadyInUse 
                             ).ToActionResult(),
 
                         UserCreationError.InvalidEmail invalidEmail
-                            => new UserProblem.InvalidEmail(invalidEmail).ToActionResult()
+                            => new UserProblem.InvalidEmail(invalidEmail).ToActionResult(),
                     };
                 },
                 idOutputModel =>
@@ -75,14 +85,17 @@ namespace market_tracker_webapi.Application.Http.Controllers
             );
         }
 
-        [HttpPut(Uris.Clients.ClientById)]
+        [HttpPut]
+        [Authorized([Role.Client])]
         public async Task<ActionResult<ClientInfo>> UpdateUserAsync(
-            Guid id,
             [FromBody] ClientUpdateInputModel clientInput
         )
         {
+            var user = HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser;
+
             return ResultHandler.Handle(
-                await clientService.UpdateClientAsync(id, clientInput.Avatar),
+                await clientService.UpdateClientAsync(user!.User.Id, clientInput.Name, clientInput.Username,
+                    clientInput.Avatar),
                 error =>
                 {
                     return error switch
@@ -90,6 +103,30 @@ namespace market_tracker_webapi.Application.Http.Controllers
                         UserFetchingError.UserByIdNotFound userByIdNotFound
                             => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult()
                     };
+                }
+            );
+        }
+
+        [HttpDelete]
+        [Authorized([Role.Client])]
+        public async Task<ActionResult<GuidOutputModel>> DeleteUserAsync()
+        {
+            var user = HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser;
+
+            return ResultHandler.Handle(
+                await clientService.DeleteClientAsync(user!.User.Id),
+                error =>
+                {
+                    return error switch
+                    {
+                        UserFetchingError.UserByIdNotFound userByIdNotFound
+                            => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult()
+                    };
+                },
+                _ =>
+                {
+                    HttpContext.Response.Cookies.Delete(AuthenticationDetails.NameAuthorizationCookie);
+                    return new NoContentResult();
                 }
             );
         }

@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Repository.Dto;
+﻿using market_tracker_webapi.Application.Pipeline.Authorization;
+using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
@@ -12,21 +13,20 @@ public class ClientRepository(
     MarketTrackerDataContext dataContext
 ) : IClientRepository
 {
-    public async Task<PaginatedResult<ClientInfo>> GetClientsAsync(string? username, int skip, int take)
+    public async Task<PaginatedResult<ClientItem>> GetClientsAsync(string? username, int skip, int take)
     {
         var query = from user in dataContext.User
             join client in dataContext.Client on user.Id equals client.UserId into clientGroup
             from client in clientGroup.DefaultIfEmpty()
-            where user.Role == "client"
-            select new ClientInfo(user.Id, user.Username, user.Name, user.Email, user.CreatedAt, client.Avatar);
+            where user.Role == Role.Client.ToString() && (username == null || user.Username.Contains(username))
+            select new ClientItem(user.Id, user.Username, client.Avatar);
 
         var clients = await query
-            .Where(c => username == null || c.Username.Contains(username))
             .Skip(skip)
             .Take(take)
             .ToListAsync();
 
-        return new PaginatedResult<ClientInfo>(clients, query.Count(), skip, take);
+        return new PaginatedResult<ClientItem>(clients, query.Count(), skip, take);
     }
 
     public async Task<ClientInfo?> GetClientByIdAsync(Guid id)
@@ -34,8 +34,8 @@ public class ClientRepository(
         var query = from user in dataContext.User
             join client in dataContext.Client on user.Id equals client.UserId into clientGroup
             from client in clientGroup.DefaultIfEmpty()
-            where user.Role == "client" && user.Id == id
-            select new ClientInfo(user.Id, user.Username, user.Name, user.Email, user.CreatedAt, client.Avatar);
+            where user.Role == Role.Client.ToString() && user.Id == id
+            select new ClientInfo(user.Id, user.Username, user.Name, user.CreatedAt, client.Avatar);
 
         return await query.FirstOrDefaultAsync();
     }

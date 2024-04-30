@@ -104,6 +104,11 @@ namespace market_tracker_webapi.Application.Http.Controllers
                                 tokenByTokenValueNotFound
                             ).ToActionResult()
                     };
+                },
+                _ =>
+                {
+                    HttpContext.Response.Cookies.Delete(AuthenticationDetails.NameAuthorizationCookie);
+                    return new NoContentResult();
                 }
             );
         }

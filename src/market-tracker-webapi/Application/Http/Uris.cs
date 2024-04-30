@@ -24,6 +24,7 @@ public static class Uris
     {
         public const string Base = $"{ApiBase}/clients";
         public const string ClientById = $"{Base}/{{id}}";
+        public const string Me = $"{Base}/me";
     }
 
     public static class Operator

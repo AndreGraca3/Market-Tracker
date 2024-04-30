@@ -76,7 +76,7 @@ public class UserService(
             if (await userRepository.GetUserByEmailAsync(email) is not null)
             {
                 return EitherExtensions.Failure<UserCreationError, UserCreationOutputModel>(
-                    new UserCreationError.EmailAlreadyInUse(email)
+                    new UserCreationError.CredentialAlreadyInUse(email, nameof(email))
                 );
             }
 
@@ -116,20 +116,20 @@ public class UserService(
         });
     }
 
-    public async Task<Either<UserFetchingError, UserOutputModel>> DeleteUserAsync(Guid id)
+    public async Task<Either<UserFetchingError, GuidOutputModel>> DeleteUserAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var user = await userRepository.DeleteUserAsync(id);
             if (user is null)
             {
-                return EitherExtensions.Failure<UserFetchingError, UserOutputModel>(
+                return EitherExtensions.Failure<UserFetchingError, GuidOutputModel>(
                     new UserFetchingError.UserByIdNotFound(id)
                 );
             }
 
-            return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
-                new UserOutputModel(id, user.Username, user.Name, user.CreatedAt)
+            return EitherExtensions.Success<UserFetchingError, GuidOutputModel>(
+                new GuidOutputModel(id)
             );
         });
     }

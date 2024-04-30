@@ -36,11 +36,11 @@ public class UserProblem(
             data
         );
 
-    public class UserAlreadyExists(UserCreationError.EmailAlreadyInUse data) : UserProblem(
+    public class UserAlreadyExists(UserCreationError.CredentialAlreadyInUse data) : UserProblem(
         409,
         "user-already-exists",
         "User already exists",
-        $"The email {data.Email} is already in use",
+        $"The {data.CredentialName} {data.CredentialValue} is already in use",
         data
     );
 }

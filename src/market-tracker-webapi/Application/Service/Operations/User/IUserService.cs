@@ -31,5 +31,5 @@ public interface IUserService
         string? username
     );
 
-    Task<Either<UserFetchingError, UserOutputModel>> DeleteUserAsync(Guid id);
+    Task<Either<UserFetchingError, GuidOutputModel>> DeleteUserAsync(Guid id);
 }
