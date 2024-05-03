@@ -3,7 +3,7 @@ package pt.isel.markettracker.http.service.operations.user
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
-import pt.isel.markettracker.domain.user.User
+import pt.isel.markettracker.domain.model.user.User
 import pt.isel.markettracker.dummy.dummyUsers
 import pt.isel.markettracker.http.models.StringIdOutputModel
 import pt.isel.markettracker.http.models.user.UserCreationInputModel

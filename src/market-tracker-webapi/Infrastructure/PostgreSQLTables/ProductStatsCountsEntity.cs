@@ -15,9 +15,4 @@ public class ProductStatsCountsEntity
 
     [Column("ratings")]
     public int Ratings { get; set; }
-
-    [Column("lists")]
-    public int Lists { get; set; }
-
-    // public double AverageRating { get; set; }
 }

@@ -24,12 +24,12 @@ public class ListEntity
     [Column("owner_id")]
     public required Guid OwnerId { get; set; }
     
-    public ListOfProducts ToListOfProducts()
+    public ShoppingList ToShoppingList()
     {
-        return new ListOfProducts
+        return new ShoppingList
         {
             Id = Id,
-            ListName = Name,
+            Name = Name,
             ArchivedAt = ArchivedAt,
             CreatedAt = CreatedAt,
             OwnerId = OwnerId

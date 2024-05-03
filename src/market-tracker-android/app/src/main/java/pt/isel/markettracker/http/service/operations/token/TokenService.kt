@@ -1,8 +1,10 @@
 package pt.isel.markettracker.http.service.operations.token
 
+import android.util.Log
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
-import pt.isel.markettracker.domain.token.Token
+import pt.isel.markettracker.domain.model.token.Token
 import pt.isel.markettracker.dummy.dummyTokens
 import pt.isel.markettracker.dummy.dummyUsers
 import pt.isel.markettracker.http.models.token.TokenCreationInputModel
@@ -27,9 +29,11 @@ class TokenService(
         //        method = HttpMethod.PUT
         //    )
         //)
+        Log.v("TokenService", "createToken")
         val user =
             dummyUsers.find { it.email == input.email && it.password == input.password }
-        return if (user != null) {
+        Log.v("TokenService", user.toString())
+        if (user != null) {
             val newToken = "token"
             dummyTokens.add(
                 Token(
@@ -37,9 +41,18 @@ class TokenService(
                     userId = user.id
                 )
             )
-            TokenOutputModel(newToken)
+            Log.v("TokenService", "Token created")
+            // obtain FCM token after successful login so that it can be uploaded to the server
+            FirebaseMessaging.getInstance().token.addOnCompleteListener {
+                if (!it.isSuccessful) {
+                    return@addOnCompleteListener
+                }
+                val token = it.result
+                Log.v("TokenService", token) // TODO: upload token to server
+            }
+            return TokenOutputModel(newToken)
         } else {
-            TokenOutputModel("")
+            return TokenOutputModel("")
         }
     }
 

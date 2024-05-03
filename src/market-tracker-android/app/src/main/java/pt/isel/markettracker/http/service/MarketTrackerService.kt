@@ -12,6 +12,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okio.IOException
+import pt.isel.markettracker.http.problem.InternalServerErrorProblem
 import pt.isel.markettracker.http.problem.Problem
 import pt.isel.markettracker.http.service.result.APIException
 import java.net.URL
@@ -36,13 +37,14 @@ abstract class MarketTrackerService {
                 override fun onResponse(call: Call, response: Response) {
                     val body = response.body
                     if (!response.isSuccessful) {
-                        if (response.code >= 500) {
-                            it.resumeWithException(APIException(Problem.INTERNAL_SERVER_ERROR))
+                        if (response.code < 500 && response.body?.contentType() == Problem.MEDIA_TYPE) {
+                            val problem = gson.fromJson(body?.string(), Problem::class.java)
+                            Log.v("requestHandler", "Result of call to API: $problem")
+                            it.resumeWithException(APIException(problem))
+                        } else {
+                            it.resumeWithException(APIException(InternalServerErrorProblem()))
                             return
                         }
-                        val problem = gson.fromJson(body?.string(), Problem::class.java)
-                        Log.v("requestHandler", "Result of call to API: $problem")
-                        it.resumeWithException(APIException(problem))
                     } else {
                         val type = object : TypeToken<T>() {}.type
                         val res = gson.fromJson<T>(

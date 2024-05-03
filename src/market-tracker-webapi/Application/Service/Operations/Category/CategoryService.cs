@@ -14,13 +14,13 @@ public class CategoryService(
     ITransactionManager transactionManager
 ) : ICategoryService
 {
-    public async Task<Either<IServiceError, CollectionOutputModel>> GetCategoriesAsync()
+    public async Task<Either<IServiceError, CollectionOutputModel<Category>>> GetCategoriesAsync()
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var categories = await categoryRepository.GetCategoriesAsync();
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel>(
-                new CollectionOutputModel(categories)
+            return EitherExtensions.Success<IServiceError, CollectionOutputModel<Category>>(
+                new CollectionOutputModel<Category>(categories)
             );
         });
     }

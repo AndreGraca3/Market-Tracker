@@ -19,9 +19,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.domain.product.ProductInfo
+import pt.isel.markettracker.domain.model.product.Product
 import pt.isel.markettracker.dummy.dummyCompanyPrices
-import pt.isel.markettracker.dummy.dummyProducts
 import pt.isel.markettracker.dummy.dummyStores
 import pt.isel.markettracker.ui.components.LoadableImage
 import pt.isel.markettracker.ui.components.buttons.AddToListButton
@@ -30,7 +29,7 @@ import pt.isel.markettracker.ui.theme.Primary900
 import pt.isel.markettracker.utils.advanceShadow
 
 @Composable
-fun ProductCard(product: ProductInfo, onProductClick: (String) -> Unit) {
+fun ProductCard(product: Product, onProductClick: (String) -> Unit) {
     val shape = RoundedCornerShape(8.dp)
     Card(
         modifier = Modifier
@@ -76,6 +75,9 @@ fun ProductCard(product: ProductInfo, onProductClick: (String) -> Unit) {
 @Composable
 fun ProductCardPreview() {
     MarkettrackerTheme {
-        ProductCard(dummyProducts.first(), onProductClick = {})
+        ProductCard(
+            Product("id", "name", "image", 1, "uni", 1.0, "brand", "category"),
+            onProductClick = {}
+        )
     }
 }

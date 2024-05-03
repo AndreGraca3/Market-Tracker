@@ -13,9 +13,9 @@ namespace market_tracker_webapi.Application.Http.Controllers.Store;
 public class StoreController(IStoreService storeService) : ControllerBase
 {
     [HttpGet(Uris.Stores.Base)]
-    public async Task<ActionResult<CollectionOutputModel>> GetStoresAsync()
+    public async Task<ActionResult<CollectionOutputModel<Domain.Store>>> GetStoresAsync(int? companyId, int? cityId, string? name)
     {
-        var res = await storeService.GetStoresAsync();
+        var res = await storeService.GetStoresAsync(companyId, cityId, name);
         return ResultHandler.Handle(
             res,
             _ => new ServerProblem.InternalServerError().ToActionResult()
@@ -43,56 +43,6 @@ public class StoreController(IStoreService storeService) : ControllerBase
         );
     }
 
-    [HttpGet(Uris.Stores.StoresFromCompany)]
-    public async Task<ActionResult<IEnumerable<Domain.Store>>> GetStoresFromCompanyAsync(
-        int companyId
-    )
-    {
-        var res = await storeService.GetStoresFromCompanyAsync(companyId);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    CompanyFetchingError.CompanyByIdNotFound companyIdNotFoundError
-                        => new CompanyProblem.CompanyByIdNotFound(
-                            companyIdNotFoundError
-                        ).ToActionResult(),
-                    _
-                        => new ServerProblem.InternalServerError(
-                            nameof(StoreController)
-                        ).ToActionResult()
-                };
-            }
-        );
-    }
-
-    [HttpGet(Uris.Stores.StoresByCityName)]
-    public async Task<ActionResult<IEnumerable<Domain.Store>>> GetStoresByCityNameAsync(
-        string cityName
-    )
-    {
-        var res = await storeService.GetStoresByCityNameAsync(cityName);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    CityFetchingError.CityByNameNotFound cityNotFoundError
-                        => new CityProblem.CityNameNotFound(
-                            cityNotFoundError
-                        ).ToActionResult(),
-                    _
-                        => new ServerProblem.InternalServerError(
-                            nameof(StoreController)
-                        ).ToActionResult()
-                };
-            }
-        );
-    }
-
     [HttpPost(Uris.Stores.Base)]
     public async Task<ActionResult<IntIdOutputModel>> AddStoreAsync(
         [FromBody] StoreCreationInputModel model
@@ -110,10 +60,6 @@ public class StoreController(IStoreService storeService) : ControllerBase
             {
                 return error switch
                 {
-                    StoreCreationError.StoreAddressAlreadyExists addressAlreadyExistsError
-                        => new StoreProblem.StoreAddressAlreadyExists(
-                            addressAlreadyExistsError
-                        ).ToActionResult(),
                     StoreCreationError.StoreNameAlreadyExists nameAlreadyExistsError
                         => new StoreProblem.StoreNameAlreadyExists(
                             nameAlreadyExistsError

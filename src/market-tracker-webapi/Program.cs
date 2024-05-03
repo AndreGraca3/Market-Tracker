@@ -83,10 +83,6 @@ static class Program
                 options.SuppressAsyncSuffixInActionNames = false;
                 options.Filters.Add<AuthorizationFilter>();
             })
-            /*.AddJsonOptions(o =>
-                o.JsonSerializerOptions.DefaultIgnoreCondition =
-                    JsonIgnoreCondition.WhenWritingDefault
-            )*/
             .AddJsonOptions(o =>
             {
                 o.JsonSerializerOptions.Converters.Add(new OptionalConverter());
@@ -114,6 +110,7 @@ static class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         
+        builder.Services.AddFirebaseServices(builder.Configuration);
         builder.Services.AddPgSqlServer(builder.Configuration);
         builder.Services.AddMarketTrackerDataServices();
         builder.Services.AddGoogleAuthAuthentication(builder.Configuration);

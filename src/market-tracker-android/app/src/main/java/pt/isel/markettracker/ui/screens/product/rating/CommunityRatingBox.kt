@@ -1,7 +1,6 @@
 package pt.isel.markettracker.ui.screens.product.rating
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -19,10 +18,9 @@ import com.example.markettracker.R
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.Loaded
 import pt.isel.markettracker.domain.extractValue
-import pt.isel.markettracker.domain.product.ProductStats
+import pt.isel.markettracker.domain.model.product.ProductStats
 import pt.isel.markettracker.ui.components.icons.StarIcon
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
-import pt.isel.markettracker.utils.shimmerEffect
 
 @Composable
 fun CommunityRatingBox(

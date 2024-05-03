@@ -43,7 +43,6 @@ class ProductDetailsActivity : ComponentActivity() {
             vm.product.collect { state ->
                 if (state is Idle) vm.fetchProductById(productId)
                 if(state is Loaded) {
-                    Log.v("ProductDetailsActivity", "Product loaded")
                     vm.fetchProductStats(productId)
                     vm.fetchProductPrices(productId)
                     vm.fetchProductPreferences(productId)

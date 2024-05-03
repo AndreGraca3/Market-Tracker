@@ -1,19 +1,19 @@
 package pt.isel.markettracker.ui.screens.products
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import pt.isel.markettracker.domain.IOState
-import pt.isel.markettracker.domain.Idle
-import pt.isel.markettracker.domain.fail
-import pt.isel.markettracker.domain.idle
-import pt.isel.markettracker.domain.loaded
-import pt.isel.markettracker.domain.loading
-import pt.isel.markettracker.domain.product.ProductInfo
 import pt.isel.markettracker.http.service.operations.product.IProductService
+import pt.isel.markettracker.ui.screens.ProductsQuery
+import pt.isel.markettracker.ui.screens.ProductsScreenState
+import pt.isel.markettracker.ui.screens.extractProducts
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,70 +24,73 @@ class ProductsScreenViewModel @Inject constructor(
         const val MAX_GRID_COLUMNS = 2
     }
 
-    // search and filters
-    private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
-    val searchQuery
-        get() = searchQueryFlow.asStateFlow()
-
-    fun onSearchQueryChange(query: String) {
-        searchQueryFlow.value = query
-    }
-
-    private val filtersFlow: MutableStateFlow<ProductsFilters> =
-        MutableStateFlow(ProductsFilters())
-    val filters
-        get() = filtersFlow.asStateFlow()
-
-    fun onFiltersChange(filters: ProductsFilters) {
-        filtersFlow.value = filters
-    }
-
-    private val sortOptionFlow: MutableStateFlow<ProductsSortOption> =
-        MutableStateFlow(ProductsSortOption.Popularity)
-    val sortOption
-        get() = sortOptionFlow.asStateFlow()
-
-    fun onSortOptionChange(option: String) {
-        sortOptionFlow.value =
-            ProductsSortOption.entries.first { it.title == option }
-    }
-
     // actual listed products
-    private val productsFlow: MutableStateFlow<IOState<List<ProductInfo>>> =
-        MutableStateFlow(idle())
-    val products
-        get() = productsFlow.asStateFlow()
+    private val _stateFlow: MutableStateFlow<ProductsScreenState> =
+        MutableStateFlow(ProductsScreenState.Idle)
+    val stateFlow
+        get() = _stateFlow.asStateFlow()
 
-    fun fetchProducts(forceRefresh: Boolean = false) {
-        if (productsFlow.value !is Idle && !forceRefresh) return
+    private var currentPage by mutableIntStateOf(1)
+    private var hasMore by mutableStateOf(true)
 
-        productsFlow.value = loading()
+    fun fetchProducts(
+        productsQuery: ProductsQuery,
+        forceRefresh: Boolean = false
+    ) {
+        if (_stateFlow.value !is ProductsScreenState.Idle) return
+
+        val oldProducts = _stateFlow.value.extractProducts()
+        _stateFlow.value = ProductsScreenState.Loading
+        currentPage = 1
+        hasMore = true
+
         viewModelScope.launch {
             val res = kotlin.runCatching {
                 productService.getProducts(
-                    if (searchQueryFlow.value.isBlank()) null else searchQuery.value,
-                    sortOption.value.name,
+                    currentPage,
+                    searchQuery = productsQuery.searchTerm,
+                    sortOption = productsQuery.sortOption.name
                 )
             }
-            productsFlow.value = when (res.isSuccess) {
-                true -> loaded(res)
-                false -> fail(res.exceptionOrNull()!!) // TODO: handle error
+
+            _stateFlow.value = when (res.isSuccess) {
+                true -> {
+                    val resValue = res.getOrThrow()
+                    if (!resValue.hasMore) hasMore = false else currentPage++
+                    val allProducts = oldProducts + resValue.items
+                    ProductsScreenState.Loaded(productsQuery, allProducts)
+                }
+
+                false -> ProductsScreenState.Error(productsQuery, res.exceptionOrNull()!!)
             }
         }
     }
-}
 
-data class ProductsFilters(
-    val brandId: Int? = null,
-    val categoryId: Int? = null,
-    val minRating: String? = null,
-    val maxRating: String? = null
-)
+    fun loadMoreProducts(productsQuery: ProductsQuery) {
+        if (!hasMore || _stateFlow.value !is ProductsScreenState.Loaded) return
 
-enum class ProductsSortOption(val title: String) {
-    Popularity("Popularidade"),
-    NameLowToHigh("Nome (A-Z)"),
-    NameHighToLow("Nome (Z-A)"),
-    RatingLowToHigh("Menor Avaliação"),
-    RatingHighToLow("Maior Avaliação")
+        val oldProducts = _stateFlow.value.extractProducts()
+        _stateFlow.value = ProductsScreenState.Loading
+
+        viewModelScope.launch {
+            val res = kotlin.runCatching {
+                productService.getProducts(
+                    currentPage,
+                    searchQuery = productsQuery.searchTerm,
+                    sortOption = productsQuery.sortOption.name
+                )
+            }
+
+            _stateFlow.value = when (res.isSuccess) {
+                true -> {
+                    val resValue = res.getOrThrow()
+                    if (!resValue.hasMore) hasMore = false else currentPage++
+                    val allProducts = oldProducts + resValue.items
+                    ProductsScreenState.Loaded(productsQuery, allProducts)
+                }
+
+                false -> ProductsScreenState.Error(productsQuery, res.exceptionOrNull()!!)
+            }
+        }
+    }
 }

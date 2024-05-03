@@ -4,13 +4,17 @@ namespace market_tracker_webapi.Application.Http.Models.Product;
 
 public class ProductsFiltersInputModel
 {
-    public string? SearchName { get; set; }
+    public string? Name { get; set; }
 
     public IList<int>? CategoryIds { get; set; }
 
     public IList<int>? BrandIds { get; set; }
 
     public IList<int>? CompanyIds { get; set; }
+    
+    [Range(0, int.MaxValue)] public int? MinPrice { get; set; }
+
+    [Range(0, int.MaxValue)] public int? MaxPrice { get; set; }
 
     [Range(1, 5)] public int? MinRating { get; set; }
 

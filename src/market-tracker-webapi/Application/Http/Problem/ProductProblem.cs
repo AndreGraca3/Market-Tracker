@@ -19,21 +19,21 @@ public class ProductProblem(
             data
         );
 
-    public class ProductAlreadyExists(ProductCreationError.ProductAlreadyExists data)
+    public class OutOfStockInStore(ProductFetchingError.OutOfStockInStore data)
         : ProductProblem(
             409,
-            "product-already-exists",
-            "Product already exists",
-            $"Product with id {data.ProductId} already exists",
+            "product-out-of-stock",
+            "Product out of stock",
+            "This store does not have that product in stock",
             data
         );
-    
-    public class UnavailableProductInStore(ProductFetchingError.UnavailableProductInStore data)
+
+    public class ProductNotFoundInStore(ProductFetchingError.ProductNotFoundInStore data)
         : ProductProblem(
             404,
-            "product-not-available-in-store",
-            "Product not available in store",
-            $"Product with id {data.ProductId} not available in store with id {data.StoreId}",
+            "product-not-in-store",
+            "Product not in store",
+            "This store does not have that product",
             data
         );
 }

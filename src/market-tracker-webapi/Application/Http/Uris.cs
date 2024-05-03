@@ -25,6 +25,8 @@ public static class Uris
         public const string Base = $"{ApiBase}/clients";
         public const string ClientById = $"{Base}/{{id}}";
         public const string Me = $"{Base}/me";
+        public const string RegisterPushNotifications = $"{Me}/register-push-notifications";
+        public const string DeRegisterPushNotifications = $"{Me}/deregister-push-notifications";
     }
 
     public static class Operator
@@ -37,6 +39,7 @@ public static class Uris
     {
         public const string Base = $"{ApiBase}/products";
         public const string ProductById = $"{Base}/{{productId}}";
+        public const string AvailabilityByProductId = $"{ProductById}/availability";
         public const string ReviewsByProductId = $"{ProductById}/reviews";
         public const string StatsByProductId = $"{ProductById}/stats";
         public const string PricesByProductId = $"{ProductById}/prices";
@@ -49,20 +52,24 @@ public static class Uris
             ReviewsByProductId.ExpandUri(id);
     }
 
+    public static class Alerts
+    {
+        public const string Base = $"{ApiBase}/alerts";
+        public const string AlertById = $"{Base}/{{alertId}}";
+
+        public static string BuildAlertByIdUri(string id) => AlertById.ExpandUri(id);
+    }
+
     public static class Lists
     {
         public const string Base = $"{ApiBase}/lists";
         public const string ListById = $"{Base}/{{listId}}";
-        public const string ListProductsByListId = $"{ListById}/products";
-        public const string ListEntriesByListIdAndProductId = $"{ListProductsByListId}/{{productId}}";
-        public const string Clients = $"{ListById}/clients";
+        public const string ProductsByListId = $"{ListById}/products";
+        public const string ProductByListId = $"{ProductsByListId}/{{productId}}";
+        public const string ClientsByListId = $"{ListById}/clients";
+        public const string ClientByListId = $"{ClientsByListId}/{{clientId}}";
 
         public static string BuildListByIdUri(int id) => ListById.ExpandUri(id);
-
-        public static string BuildListProductsByListIdUri(int id) => ListProductsByListId.ExpandUri(id);
-
-        public static string BuildListProductsByListIdAndProductIdUri(int listId, string productId) =>
-            ListEntriesByListIdAndProductId.ExpandUri(listId, productId);
     }
 
     public static class Categories

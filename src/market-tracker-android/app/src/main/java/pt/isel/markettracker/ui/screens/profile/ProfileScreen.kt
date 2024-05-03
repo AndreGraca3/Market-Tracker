@@ -1,5 +1,7 @@
 package pt.isel.markettracker.ui.screens.profile
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import pt.isel.markettracker.ui.components.common.IOResourceLoader
 import pt.isel.markettracker.ui.screens.profile.components.AvatarIcon
 import pt.isel.markettracker.ui.screens.profile.components.SettingsButton
@@ -27,10 +30,20 @@ const val ProfileScreenTestTag = "SignUpScreenTag"
 
 @Composable
 fun ProfileScreen(
-    onChangeAvatarRequested: () -> Unit,
     profileScreenViewModel: ProfileScreenViewModel
 ) {
     val user by profileScreenViewModel.userPhase.collectAsState()
+
+    val launcher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent(),
+            onResult = { contentPath ->
+                if (contentPath != null) {
+                    profileScreenViewModel.avatarPath = contentPath
+                    profileScreenViewModel.updateUser()
+                }
+            }
+        )
 
     LaunchedEffect(Unit) {
         profileScreenViewModel.fetchUser()
@@ -71,7 +84,9 @@ fun ProfileScreen(
 
                 AvatarIcon(
                     avatarIcon = userDetails.avatar,
-                    onIconClick = onChangeAvatarRequested,
+                    onIconClick = {
+                        launcher.launch("image/*")
+                    },
                 )
 
                 Text(

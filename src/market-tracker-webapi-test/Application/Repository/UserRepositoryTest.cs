@@ -1,9 +1,11 @@
 using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Pipeline.authorization;
 using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Extensions;
 
 namespace market_tracker_webapi_test.Application.Repository;
 
@@ -19,7 +21,7 @@ namespace market_tracker_webapi_test.Application.Repository;
             Name = "André",
             Username = "Graca",
             Email = "André@gmail.com",
-            Role = "client"
+            Role = Role.Client.GetDisplayName()
         };
 
         var mockEntities = new List<UserEntity>
@@ -30,7 +32,7 @@ namespace market_tracker_webapi_test.Application.Repository;
                 Name = "Diogo",
                 Username = "Digo",
                 Email = "Diogo@gmail.com",
-                Role = "client"
+                Role = Role.Client.GetDisplayName()
             },
             new()
             {
@@ -38,7 +40,7 @@ namespace market_tracker_webapi_test.Application.Repository;
                 Name = "Daniel",
                 Username = "Dani",
                 Email = "Daniel@gmail.com",
-                Role = "client"
+                Role = Role.Client.GetDisplayName()
             },
             expectedUser
         };
@@ -92,7 +94,7 @@ namespace market_tracker_webapi_test.Application.Repository;
                 Name = "Diogo",
                 Username = "Digo",
                 Email = "Diogo@gmail.com",
-                Role = "client"
+                Role = Role.Client.GetDisplayName()
             },
             new()
             {
@@ -100,7 +102,7 @@ namespace market_tracker_webapi_test.Application.Repository;
                 Name = "Daniel",
                 Username = "Dani",
                 Email = "Daniel@gmail.com",
-                Role = "client"
+                Role = Role.Client.GetDisplayName()
             },
             new()
             {
@@ -159,7 +161,7 @@ namespace market_tracker_webapi_test.Application.Repository;
                 Name = "Diogo",
                 Username = "Digo",
                 Email = "Diogo@gmail.com",
-                Role = "client"
+                Role = Role.Client.GetDisplayName()
             },
             new()
             {
@@ -167,7 +169,7 @@ namespace market_tracker_webapi_test.Application.Repository;
                 Name = "Daniel",
                 Username = "Dani",
                 Email = "Daniel@gmail.com",
-                Role = "client"
+                Role = Role.Client.GetDisplayName()
             },
             new()
             {
@@ -175,7 +177,7 @@ namespace market_tracker_webapi_test.Application.Repository;
                 Name = expectedUser.Name,
                 Username = expectedUser.Username,
                 Email = expectedUser.Email,
-                Role = "client"
+                Role = Role.Client.GetDisplayName()
             }
         };
 
@@ -240,7 +242,7 @@ namespace market_tracker_webapi_test.Application.Repository;
                 Name = "Diogo",
                 Username = "Digo",
                 Email = "Diogo@gmail.com",
-                Role = "client"
+                Role = Role.Client.GetDisplayName()
             }
         };
 
@@ -290,7 +292,7 @@ namespace market_tracker_webapi_test.Application.Repository;
             Name = "Diogo",
             Username = "Digo",
             Email = "digo@gmail.com",
-            Role = "client"
+            Role = Role.Client.GetDisplayName()
         };
 
         var context = CreateDatabase([expectedDeletedUser]);

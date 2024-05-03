@@ -2,6 +2,7 @@ using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Pipeline.authorization;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Operations.Product;
@@ -36,11 +37,12 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     }
 
     [HttpGet(Uris.Products.ProductPreferencesById)]
+    [Authorized([Role.Client])]
     public async Task<ActionResult<ProductPreferences>> GetProductsPreferencesAsync(string productId)
     {
-        var clientId = Guid.NewGuid(); // TODO: Implement authorization
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
         var res = await productFeedbackService.GetProductsPreferencesAsync(
-            clientId, productId
+            authUser.User.Id, productId
         );
         return ResultHandler.Handle(
             res,
@@ -57,18 +59,17 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     }
 
     [HttpPatch(Uris.Products.ProductPreferencesById)]
+    [Authorized([Role.Client])]
     public async Task<ActionResult<ProductPreferences>> AddUserFeedbackByProductIdAsync(
         string productId,
         [FromBody] ProductPreferencesInputModel preferencesInput
     )
     {
-        var clientId = Guid.NewGuid(); // TODO: Implement authorization
-
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
         var res = await productFeedbackService.UpsertProductPreferencesAsync(
-            clientId,
+            authUser.User.Id,
             productId,
             preferencesInput.IsFavourite,
-            preferencesInput.PriceAlert,
             preferencesInput.Review
         );
 
@@ -85,7 +86,7 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
             }
         );
     }
-
+    
     [HttpGet(Uris.Products.StatsByProductId)]
     public async Task<ActionResult<ProductStats>> GetStatsByProductIdAsync(string productId)
     {

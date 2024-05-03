@@ -10,17 +10,10 @@ namespace market_tracker_webapi.Application.Service.Operations.Store
 {
     public interface IStoreService
     {
-        Task<Either<IServiceError, CollectionOutputModel>> GetStoresAsync();
+        Task<Either<IServiceError, CollectionOutputModel<Domain.Store>>> GetStoresAsync(int? companyId = null,
+            int? cityId = null, string? name = null);
 
         Task<Either<StoreFetchingError, Domain.Store>> GetStoreByIdAsync(int id);
-
-        Task<Either<CompanyFetchingError, IEnumerable<Domain.Store>>> GetStoresFromCompanyAsync(
-            int companyId
-        );
-
-        Task<Either<CityFetchingError, IEnumerable<Domain.Store>>> GetStoresByCityNameAsync(
-            string cityName
-        );
 
         Task<Either<IServiceError, IntIdOutputModel>> AddStoreAsync(
             string name,

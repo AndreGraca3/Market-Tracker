@@ -11,7 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.ui.screens.products.ProductsSortOption
+import pt.isel.markettracker.ui.screens.ProductsSortOption
 
 @Composable
 fun FilterOptions(selectedSort: ProductsSortOption, onFiltersRequest: () -> Unit, onSortRequest: (String) -> Unit) {

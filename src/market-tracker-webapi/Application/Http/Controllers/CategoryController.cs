@@ -1,3 +1,4 @@
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Category;
 using market_tracker_webapi.Application.Http.Problem;
@@ -11,7 +12,7 @@ namespace market_tracker_webapi.Application.Http.Controllers;
 public class CategoryController(ICategoryService categoryService) : ControllerBase
 {
     [HttpGet(Uris.Categories.Base)]
-    public async Task<ActionResult<CollectionOutputModel>> GetCategoriesAsync()
+    public async Task<ActionResult<CollectionOutputModel<Category>>> GetCategoriesAsync()
     {
         var res = await categoryService.GetCategoriesAsync();
         return ResultHandler.Handle(

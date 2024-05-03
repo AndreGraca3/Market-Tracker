@@ -1,12 +1,13 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.List;
+using market_tracker_webapi.Application.Http.Models.ListEntry;
 using market_tracker_webapi.Application.Repository.Dto.List;
 using market_tracker_webapi.Application.Repository.Dto.Price;
 using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Repository.Dto.Store;
 using market_tracker_webapi.Application.Repository.Operations.List;
-using market_tracker_webapi.Application.Repository.Operations.Prices;
 using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Application.Service.Errors.List;
@@ -16,9 +17,10 @@ using Moq;
 
 namespace market_tracker_webapi_test.Application.Service;
 
+/*
 public class ListServiceTest
 {
-    /*private readonly Mock<IListRepository> _listRepositoryMock; 
+    private readonly Mock<IListRepository> _listRepositoryMock; 
     private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly Mock<IPriceRepository> _priceRepositoryMock;
     private readonly Mock<IProductRepository> _productRepositoryMock;
@@ -48,20 +50,20 @@ public class ListServiceTest
     public async Task GetListsAsync_ReturnsCollectionOutputModel()
     {
         // Arrange
-        var lists = new List<ListOfProducts>
+        var lists = new List<ShoppingList>
         {
             new()
             {
                 Id = 1,
                 ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                ListName = "List 1",
+                Name = "List 1",
                 CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
             },
             new()
             {
                 Id = 2,
                 ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                ListName = "List 2",
+                Name = "List 2",
                 CreatedAt = new DateTime(2024, 1, 2, 0, 0, 0, DateTimeKind.Unspecified)
             }
         };
@@ -81,7 +83,7 @@ public class ListServiceTest
     public async Task GetListByIdAsync_ReturnsListProduct()
     {
         // Arrange
-        var expectListProduct = new ListProduct
+        var expectListProduct = new ShoppingListOutputModel
         {
             Id = 1,
             Name = "List 1",
@@ -118,18 +120,18 @@ public class ListServiceTest
             }
         };
         
-        var listOfProducts = new ListOfProducts
+        var shoppingList = new ShoppingList
         {
             Id = 1,
             ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-            ListName = "List 1",
+            Name = "List 1",
             ArchivedAt = null,
             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
         };
         
         _listRepositoryMock
             .Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(listOfProducts);
+            .ReturnsAsync(shoppingList);
         
         _listEntryRepositoryMock
             .Setup(x => x.GetListEntriesAsync(It.IsAny<int?>(), It.IsAny<string?>(), It.IsAny<int?>(), It.IsAny<int?>()))
@@ -161,7 +163,7 @@ public class ListServiceTest
         // Arrange
         _listRepositoryMock
             .Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync((ListOfProducts)null!);
+            .ReturnsAsync((ShoppingList)null!);
         
         // Act
         var result = await _listService.GetListByIdAsync(It.IsAny<int>());
@@ -174,11 +176,11 @@ public class ListServiceTest
     public async Task AddListAsync_ReturnsIntIdOutputModel()
     {
         // Arrange
-        var list = new ListOfProducts
+        var list = new ShoppingList
         {
             Id = 1,
             ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-            ListName = "List 1",
+            Name = "List 1",
             ArchivedAt = null,
             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
         };
@@ -224,11 +226,11 @@ public class ListServiceTest
     public async Task AddListAsync_ReturnsListNameAlreadyExists()
     {
         // Arrange
-        var list = new ListOfProducts
+        var list = new ShoppingList
         {
             Id = 1,
             ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-            ListName = "List 1",
+            Name = "List 1",
             ArchivedAt = null,
             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
         };
@@ -250,7 +252,7 @@ public class ListServiceTest
                 It.IsAny<string?>(), 
                 It.IsAny<DateTime?>(), 
                 It.IsAny<DateTime?>()))
-            .ReturnsAsync(new List<ListOfProducts> { list });
+            .ReturnsAsync(new List<ShoppingList> { list });
         
         // Act
         var result = await _listService.AddListAsync(It.IsAny<Guid>(), It.IsAny<string>());
@@ -260,14 +262,14 @@ public class ListServiceTest
     }
     
     [Fact]
-    public async Task UpdateListAsync_ReturnsListOfProducts()
+    public async Task UpdateListAsync_ReturnsShoppingList()
     {
         // Arrange
-        var list = new ListOfProducts
+        var list = new ShoppingList
         {
             Id = 1,
             ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-            ListName = "List 1",
+            Name = "List 1",
             ArchivedAt = null,
             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
         };
@@ -293,7 +295,7 @@ public class ListServiceTest
         // Arrange
         _listRepositoryMock
             .Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync((ListOfProducts)null!);
+            .ReturnsAsync((ShoppingList)null!);
         
         // Act
         var result = await _listService.UpdateListAsync(It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<string?>(), null);
@@ -306,11 +308,11 @@ public class ListServiceTest
     public async Task UpdateListAsync_ReturnsUserDoNotOwnList()
     {
         // Arrange
-        var list = new ListOfProducts
+        var list = new ShoppingList
         {
             Id = 1,
             ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12"),
-            ListName = "List 1",
+            Name = "List 1",
             ArchivedAt = null,
             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
         };
@@ -330,11 +332,11 @@ public class ListServiceTest
     public async Task UpdateListAsync_ReturnsListIsArchived()
     {
         // Arrange
-        var list = new ListOfProducts
+        var list = new ShoppingList
         {
             Id = 1,
             ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-            ListName = "List 1",
+            Name = "List 1",
             ArchivedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified),
             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
         };
@@ -351,14 +353,14 @@ public class ListServiceTest
     }
     
     [Fact]
-    public async Task DeleteListAsync_ReturnsListOfProducts()
+    public async Task DeleteListAsync_ReturnsShoppingList()
     {
         // Arrange
-        var list = new ListOfProducts
+        var list = new ShoppingList
         {
             Id = 1,
             ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-            ListName = "List 1",
+            Name = "List 1",
             ArchivedAt = null,
             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
         };
@@ -384,12 +386,13 @@ public class ListServiceTest
         // Arrange
         _listRepositoryMock
             .Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync((ListOfProducts)null!);
+            .ReturnsAsync((ShoppingList)null!);
         
         // Act
         var result = await _listService.DeleteListAsync(It.IsAny<int>());
         
         // Assert
         result.Error.Should().BeEquivalentTo(new ListFetchingError.ListByIdNotFound(It.IsAny<int>()));
-    }*/
+    }
 }
+*/

@@ -9,126 +9,166 @@ using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.Client;
 using Microsoft.AspNetCore.Mvc;
 
-namespace market_tracker_webapi.Application.Http.Controllers
+namespace market_tracker_webapi.Application.Http.Controllers;
+
+[ApiController]
+public class ClientController(IClientService clientService) : ControllerBase
 {
-    [ApiController]
-    [Route(Uris.Clients.Base)]
-    public class ClientController(IClientService clientService) : ControllerBase
+    [HttpGet(Uris.Clients.Base)]
+    [Authorized([Role.Client])]
+    public async Task<ActionResult<PaginatedResult<ClientItem>>> GetClientsAsync(
+        [FromQuery] PaginationInputs paginationInputs, [FromQuery] string? username)
     {
-        [HttpGet]
-        [Authorized([Role.Client])]
-        public async Task<ActionResult<PaginatedResult<ClientItem>>> GetClientsAsync(
-            [FromQuery] PaginationInputs paginationInputs,
-            [FromQuery] string? username
-        )
-        {
-            return Ok(
-                await clientService.GetClientsAsync(username, paginationInputs.Skip, paginationInputs.ItemsPerPage)
-            );
-        }
-
-        [HttpGet(Uris.Clients.ClientById)]
-        [Authorized([Role.Client])]
-        public async Task<ActionResult<ClientInfo>> GetClientAsync(Guid id)
-        {
-            return ResultHandler.Handle(
-                await clientService.GetClientAsync(id),
-                error =>
-                {
-                    return error switch
-                    {
-                        UserFetchingError.UserByIdNotFound idNotFoundError
-                            => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult()
-                    };
-                }
-            );
-        }
-
-        [HttpGet(Uris.Clients.Me)]
-        [Authorized([Role.Client])]
-        public Task<ActionResult<User>> GetAuthenticatedClientAsync()
-        {
-            return Task.FromResult<ActionResult<User>>(
-                Ok((HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser)!.User));
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<GuidOutputModel>> CreateClientAsync(
-            [FromBody] ClientCreationInputModel clientInput
-        )
-        {
-            var res = await clientService.CreateClientAsync(
-                clientInput.Username,
-                clientInput.Name,
-                clientInput.Email,
-                clientInput.Password,
-                clientInput.Avatar
-            );
-
-            return ResultHandler.Handle(
-                res,
-                error =>
-                {
-                    return error switch
-                    {
-                        UserCreationError.CredentialAlreadyInUse credentialAlreadyInUse
-                            => new UserProblem.UserAlreadyExists(
-                                credentialAlreadyInUse 
-                            ).ToActionResult(),
-
-                        UserCreationError.InvalidEmail invalidEmail
-                            => new UserProblem.InvalidEmail(invalidEmail).ToActionResult(),
-                    };
-                },
-                idOutputModel =>
-                    Created(Uris.Users.BuildUserByIdUri(idOutputModel.Id), idOutputModel)
-            );
-        }
-
-        [HttpPut]
-        [Authorized([Role.Client])]
-        public async Task<ActionResult<ClientInfo>> UpdateUserAsync(
-            [FromBody] ClientUpdateInputModel clientInput
-        )
-        {
-            var user = HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser;
-
-            return ResultHandler.Handle(
-                await clientService.UpdateClientAsync(user!.User.Id, clientInput.Name, clientInput.Username,
-                    clientInput.Avatar),
-                error =>
-                {
-                    return error switch
-                    {
-                        UserFetchingError.UserByIdNotFound userByIdNotFound
-                            => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult()
-                    };
-                }
-            );
-        }
-
-        [HttpDelete]
-        [Authorized([Role.Client])]
-        public async Task<ActionResult<GuidOutputModel>> DeleteUserAsync()
-        {
-            var user = HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser;
-
-            return ResultHandler.Handle(
-                await clientService.DeleteClientAsync(user!.User.Id),
-                error =>
-                {
-                    return error switch
-                    {
-                        UserFetchingError.UserByIdNotFound userByIdNotFound
-                            => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult()
-                    };
-                },
-                _ =>
-                {
-                    HttpContext.Response.Cookies.Delete(AuthenticationDetails.NameAuthorizationCookie);
-                    return new NoContentResult();
-                }
-            );
-        }
+        return Ok(
+            await clientService.GetClientsAsync(username, paginationInputs.Skip, paginationInputs.ItemsPerPage)
+        );
     }
+
+    [HttpGet(Uris.Clients.ClientById)]
+    [Authorized([Role.Client])]
+    public async Task<ActionResult<ClientInfo>> GetClientAsync(Guid id)
+    {
+        return ResultHandler.Handle(
+            await clientService.GetClientByIdAsync(id),
+            error =>
+            {
+                return error switch
+                {
+                    UserFetchingError.UserByIdNotFound idNotFoundError
+                        => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
+                };
+            }
+        );
+    }
+
+    [HttpGet(Uris.Clients.Me)]
+    [Authorized([Role.Client])]
+    public Task<ActionResult<User>> GetAuthenticatedClientAsync()
+    {
+        return Task.FromResult<ActionResult<User>>(
+            Ok((HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser)!.User));
+    }
+
+    [HttpPost(Uris.Clients.Base)]
+    public async Task<ActionResult<GuidOutputModel>> CreateClientAsync(
+        [FromBody] ClientCreationInputModel clientInput
+    )
+    {
+        var res = await clientService.CreateClientAsync(
+            clientInput.Username,
+            clientInput.Name,
+            clientInput.Email,
+            clientInput.Password,
+            clientInput.Avatar
+        );
+
+        return ResultHandler.Handle(
+            res,
+            error =>
+            {
+                return error switch
+                {
+                    UserCreationError.EmailAlreadyInUse emailAlreadyInUse
+                        => new UserProblem.UserAlreadyExists(
+                            emailAlreadyInUse
+                        ).ToActionResult(),
+
+                    UserCreationError.InvalidEmail invalidEmail
+                        => new UserProblem.InvalidEmail(invalidEmail).ToActionResult()
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
+                };
+            },
+            idOutputModel =>
+                Created(Uris.Users.BuildUserByIdUri(idOutputModel.Id), idOutputModel)
+        );
+    }
+
+    [HttpPut(Uris.Clients.ClientById)]
+    public async Task<ActionResult<Client>> UpdateUserAsync(
+        Guid id,
+        [FromBody] ClientUpdateInputModel clientInput
+    )
+    {
+        return ResultHandler.Handle(
+            await clientService.UpdateClientAsync(id, clientInput.Avatar),
+            error =>
+            {
+                return error switch
+                {
+                    UserFetchingError.UserByIdNotFound userByIdNotFound
+                        => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
+                };
+            }
+        );
+    }
+
+    [HttpDelete(Uris.Clients.ClientById)]
+    public async Task<ActionResult<ClientOutputModel>> DeleteUserAsync(Guid id)
+    {
+        return ResultHandler.Handle(
+            await clientService.DeleteClientAsync(id),
+            error =>
+            {
+                return error switch
+                {
+                    UserFetchingError.UserByIdNotFound userByIdNotFound
+                        => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
+                };
+            },
+            _ => NoContent()
+        );
+    }
+}
+
+    [HttpDelete(Uris.Clients.ClientById)]
+    public async Task<ActionResult<ClientOutputModel>> DeleteUserAsync(Guid id)
+    {
+        return ResultHandler.Handle(
+            await clientService.DeleteClientAsync(id),
+            error =>
+            {
+                return error switch
+                {
+                    UserFetchingError.UserByIdNotFound userByIdNotFound
+                        => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
+                };
+            },
+            _ => NoContent()
+        );
+    }
+
+    [HttpPost(Uris.Clients.RegisterPushNotifications)]
+    [Authorized([Role.Client])]
+    public async Task<ActionResult<bool>> RegisterPushNotificationsAsync(
+        [FromBody] PushNotificationRegistrationInputModel pushNotificationRegistrationInput)
+    {
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        return ResultHandler.Handle(
+            await clientService.UpsertNotificationDeviceAsync(
+                authUser.User.Id,
+                pushNotificationRegistrationInput.DeviceId,
+                pushNotificationRegistrationInput.FirebaseToken
+            ),
+            _ => new ServerProblem.InternalServerError().ToActionResult(),
+            _ => NoContent()
+        );
+    }
+
+    [HttpPost(Uris.Clients.DeRegisterPushNotifications)]
+    [Authorized([Role.Client])]
+    public async Task<ActionResult<bool>> DeRegisterPushNotificationsAsync(
+        [FromBody] PushNotificationDeRegistrationInputModel pushNotificationRegistrationInput)
+    {
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        return ResultHandler.Handle(
+            await clientService.DeRegisterNotificationDeviceAsync(
+                authUser.User.Id,
+                pushNotificationRegistrationInput.DeviceId
+            ),
+            _ => new ServerProblem.InternalServerError().ToActionResult(),
+            _ => NoContent()
+        );
 }

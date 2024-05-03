@@ -1,4 +1,4 @@
-﻿using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
@@ -9,6 +9,7 @@ using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
+using Microsoft.OpenApi.Extensions;
 
 namespace market_tracker_webapi.Application.Service.Operations.Client;
 

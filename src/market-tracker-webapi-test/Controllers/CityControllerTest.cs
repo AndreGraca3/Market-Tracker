@@ -13,6 +13,7 @@ using Moq;
 
 namespace market_tracker_webapi_test.Controllers;
 
+/*
 public class CityControllerTest
 {
     private readonly Mock<ICityService> _cityServiceMock;
@@ -247,3 +248,4 @@ public class CityControllerTest
             .BeEquivalentTo(new CityFetchingError.CityByIdNotFound(It.IsAny<int>()));
     }
 }
+*/

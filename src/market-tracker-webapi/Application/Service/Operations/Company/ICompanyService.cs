@@ -7,7 +7,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Company;
 
 public interface ICompanyService
 {
-    Task<Either<IServiceError, CollectionOutputModel>> GetCompaniesAsync();
+    Task<Either<IServiceError, CollectionOutputModel<Domain.Company>>> GetCompaniesAsync();
 
     Task<Either<CompanyFetchingError, Domain.Company>> GetCompanyByIdAsync(int id);
 

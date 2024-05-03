@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Repository.Dto;
+﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
 
 namespace market_tracker_webapi.Application.Repository.Operations.Client;
@@ -16,4 +17,12 @@ public interface IClientRepository
     Task<Guid> CreateClientAsync(Guid userId, string username, string? avatarUrl);
 
     Task<Client?> UpdateClientAsync(Guid id, string? username, string? avatarUrl = null);
+    
+    Task<Client?> DeleteClientAsync(Guid id);
+
+    Task<IEnumerable<DeviceToken>> GetDeviceTokensAsync(Guid clientId);
+
+    Task<DeviceToken> UpsertDeviceTokenAsync(Guid clientId, string deviceId, string firebaseToken);
+    
+    Task<DeviceToken?> RemoveDeviceTokenAsync(Guid clientId, string deviceId);
 }

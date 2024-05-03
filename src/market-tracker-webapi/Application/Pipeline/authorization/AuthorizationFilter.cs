@@ -35,8 +35,6 @@ public class AuthorizationFilter(RequestTokenProcessor tokenProcessor) : IAsyncA
                 return;
             }
 
-            Console.WriteLine($"Authenticated User in Filter: {authenticatedUser}");
-
             context.HttpContext.Items[AuthenticationDetails.KeyUser] = authenticatedUser;
         }
         catch (Exception e)
@@ -45,6 +43,7 @@ public class AuthorizationFilter(RequestTokenProcessor tokenProcessor) : IAsyncA
             {
                 ArgumentNullException => new AuthenticationProblem.InvalidToken().ToActionResult(),
                 FormatException => new AuthenticationProblem.InvalidFormat().ToActionResult(),
+                _ => new ServerProblem.InternalServerError().ToActionResult()
             };
         }
     }

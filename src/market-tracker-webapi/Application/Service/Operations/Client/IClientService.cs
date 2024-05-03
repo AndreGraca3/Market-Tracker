@@ -29,4 +29,8 @@ public interface IClientService
     );
 
     Task<Either<UserFetchingError, GuidOutputModel>> DeleteClientAsync(Guid id);
+
+    Task<Either<IServiceError, bool>> UpsertNotificationDeviceAsync(Guid clientId, string deviceId, string firebaseToken);
+
+    Task<Either<IServiceError, bool>> DeRegisterNotificationDeviceAsync(Guid id, string deviceId);
 }

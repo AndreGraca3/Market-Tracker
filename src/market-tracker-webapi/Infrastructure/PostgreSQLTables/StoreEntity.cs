@@ -41,7 +41,8 @@ public class StoreEntity
             Name = Name,
             Address = Address,
             CityId = CityId,
-            CompanyId = CompanyId
+            CompanyId = CompanyId,
+            OperatorId = OperatorId
         };
     }
 }

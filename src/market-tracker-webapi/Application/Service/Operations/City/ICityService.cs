@@ -8,7 +8,7 @@ namespace market_tracker_webapi.Application.Service.Operations.City;
 
 public interface ICityService
 {
-    Task<Either<IServiceError, CollectionOutputModel>> GetCitiesAsync();
+    Task<Either<IServiceError, CollectionOutputModel<Domain.City>>> GetCitiesAsync();
 
     Task<Either<CityFetchingError, Domain.City>> GetCityByIdAsync(int id);
 

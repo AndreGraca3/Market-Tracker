@@ -20,6 +20,11 @@ drop table if exists operator;
 drop table if exists client;
 drop table if exists account;
 drop table if exists "user";
+drop table if exists promotion;
+drop index if exists price_entry_index;
+drop table if exists price_entry;
+drop table if exists product_availability;
+drop table if exists store;
 drop table if exists city;
 drop table if exists product;
 drop table if exists brand;
@@ -44,7 +49,7 @@ create table if not exists product
     name        varchar(100) not null,
     image_url   TEXT         not null,
     quantity    int                   default 1,
-    unit        varchar(20)  not null default 'unidades' check (unit in ('unidades', 'kilogramas', 'gramas', 'litros', 'mililitros')),
+    unit        varchar(20)  not null,
     views       int          not null default 0,
     rating      float        not null default 0,
     brand_id    int references brand (id) on delete cascade,
@@ -145,10 +150,11 @@ create table if not exists product_availability
 
 create table if not exists fcm_registration
 (
-    client_id uuid references client (id) on delete cascade,
-    token     varchar(255) not null,
-    device_id varchar(255) not null,
-    primary key (client_id, token, device_id)
+    client_id      uuid references client (id) on delete cascade,
+    device_id      varchar(255) not null,
+    token varchar(255) not null,
+    updated_at     timestamp    not null default now(),
+    primary key (client_id, device_id)
 );
 
 create table if not exists product_review
@@ -171,11 +177,11 @@ create table if not exists product_favourite
 
 create table if not exists price_alert
 (
+    id              varchar(25) primary key default substr(md5(random()::text), 1, 25) check ( length(id) = 25),
     client_id       uuid references client (id) on delete cascade,
     product_id      varchar(18) references product (id) on delete cascade,
     price_threshold int       not null,
-    created_at      timestamp not null default now(),
-    primary key (client_id, product_id)
+    created_at      timestamp not null      default now()
 );
 
 create table if not exists product_stats_counts

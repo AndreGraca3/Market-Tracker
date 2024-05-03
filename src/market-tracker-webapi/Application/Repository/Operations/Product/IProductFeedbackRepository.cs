@@ -7,6 +7,13 @@ public interface IProductFeedbackRepository
 {
     Task<PaginatedResult<ProductReview>> GetReviewsByProductIdAsync(string productId, int skip, int take);
 
+    Task<ProductReview> AddReviewAsync(
+        Guid clientId,
+        string productId,
+        int rating,
+        string? comment
+    );
+
     Task<ProductReview?> UpsertReviewAsync(
         Guid clientId,
         string productId,
@@ -15,10 +22,6 @@ public interface IProductFeedbackRepository
     );
 
     Task<ProductReview?> RemoveReviewAsync(Guid clientId, string productId);
-
-    Task<PriceAlert> UpsertPriceAlertAsync(Guid clientId, string productId, int priceThreshold);
-
-    Task<PriceAlert?> RemovePriceAlertAsync(Guid clientId, string productId);
 
     Task<bool> UpdateProductFavouriteAsync(Guid clientId, string productId, bool isFavourite);
 

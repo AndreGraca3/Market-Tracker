@@ -11,7 +11,7 @@ namespace market_tracker_webapi.Application.Http.Controllers;
 public class CompanyController(ICompanyService companyService) : ControllerBase
 {
     [HttpGet(Uris.Companies.Base)]
-    public async Task<ActionResult<CollectionOutputModel>> GetCompaniesAsync()
+    public async Task<ActionResult<CollectionOutputModel<Domain.Company>>> GetCompaniesAsync()
     {
         var res = await companyService.GetCompaniesAsync();
         return ResultHandler.Handle(
