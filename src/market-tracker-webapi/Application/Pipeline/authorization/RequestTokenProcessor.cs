@@ -1,7 +1,7 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Service.Operations.User;
 
-namespace market_tracker_webapi.Application.Pipeline.Authorization;
+namespace market_tracker_webapi.Application.Pipeline.authorization;
 
 public class RequestTokenProcessor(IUserService userService)
 {

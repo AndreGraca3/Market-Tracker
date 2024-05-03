@@ -144,9 +144,10 @@ create table if not exists product_availability
 
 create table if not exists fcm_registration
 (
-    client_id uuid references client (id) on delete cascade,
-    device_id varchar(255) not null,
-    firebase_token     varchar(255) not null,
+    client_id      uuid references client (id) on delete cascade,
+    device_id      varchar(255) not null,
+    token varchar(255) not null,
+    updated_at     timestamp    not null default now(),
     primary key (client_id, device_id)
 );
 
@@ -170,11 +171,11 @@ create table if not exists product_favourite
 
 create table if not exists price_alert
 (
+    id              varchar(25) primary key default substr(md5(random()::text), 1, 25) check ( length(id) = 25),
     client_id       uuid references client (id) on delete cascade,
     product_id      varchar(18) references product (id) on delete cascade,
     price_threshold int       not null,
-    created_at      timestamp not null default now(),
-    primary key (client_id, product_id)
+    created_at      timestamp not null      default now()
 );
 
 create table if not exists product_stats_counts

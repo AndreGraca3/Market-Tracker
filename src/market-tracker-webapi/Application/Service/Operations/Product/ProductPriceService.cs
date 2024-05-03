@@ -2,7 +2,7 @@ using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Store;
 using market_tracker_webapi.Application.Repository.Dto;
-using market_tracker_webapi.Application.Repository.Operations.Prices;
+using market_tracker_webapi.Application.Repository.Operations.Price;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Utils;
 

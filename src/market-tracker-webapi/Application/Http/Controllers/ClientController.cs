@@ -2,7 +2,7 @@
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Client;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Pipeline.Authorization;
+using market_tracker_webapi.Application.Pipeline.authorization;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.Client;
@@ -32,7 +32,8 @@ public class ClientController(IClientService clientService) : ControllerBase
                 return error switch
                 {
                     UserFetchingError.UserByIdNotFound idNotFoundError
-                        => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult()
+                        => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -63,7 +64,8 @@ public class ClientController(IClientService clientService) : ControllerBase
                         ).ToActionResult(),
 
                     UserCreationError.InvalidEmail invalidEmail
-                        => new UserProblem.InvalidEmail(invalidEmail).ToActionResult()
+                        => new UserProblem.InvalidEmail(invalidEmail).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
             idOutputModel =>
@@ -84,7 +86,8 @@ public class ClientController(IClientService clientService) : ControllerBase
                 return error switch
                 {
                     UserFetchingError.UserByIdNotFound userByIdNotFound
-                        => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult()
+                        => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
         );
@@ -101,6 +104,7 @@ public class ClientController(IClientService clientService) : ControllerBase
                 {
                     UserFetchingError.UserByIdNotFound userByIdNotFound
                         => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
+                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
             _ => NoContent()
@@ -108,32 +112,34 @@ public class ClientController(IClientService clientService) : ControllerBase
     }
 
     [HttpPost(Uris.Clients.RegisterPushNotifications)]
+    [Authorized([Role.Client])]
     public async Task<ActionResult<bool>> RegisterPushNotificationsAsync(
         [FromBody] PushNotificationRegistrationInputModel pushNotificationRegistrationInput)
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
         return ResultHandler.Handle(
-            await clientService.RegisterPushNotificationsAsync(
+            await clientService.UpsertNotificationDeviceAsync(
                 authUser.User.Id,
                 pushNotificationRegistrationInput.DeviceId,
                 pushNotificationRegistrationInput.FirebaseToken
             ),
-            error => new ServerProblem.InternalServerError().ToActionResult(),
+            _ => new ServerProblem.InternalServerError().ToActionResult(),
             _ => NoContent()
         );
     }
-    
+
     [HttpPost(Uris.Clients.DeRegisterPushNotifications)]
+    [Authorized([Role.Client])]
     public async Task<ActionResult<bool>> DeRegisterPushNotificationsAsync(
-        [FromBody] PushNotificationRegistrationInputModel pushNotificationRegistrationInput)
+        [FromBody] PushNotificationDeRegistrationInputModel pushNotificationRegistrationInput)
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
         return ResultHandler.Handle(
-            await clientService.DeRegisterPushNotificationsAsync(
+            await clientService.DeRegisterNotificationDeviceAsync(
                 authUser.User.Id,
                 pushNotificationRegistrationInput.DeviceId
             ),
-            error => new ServerProblem.InternalServerError().ToActionResult(),
+            _ => new ServerProblem.InternalServerError().ToActionResult(),
             _ => NoContent()
         );
     }

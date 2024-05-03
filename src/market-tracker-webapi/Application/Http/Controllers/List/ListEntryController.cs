@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.List;
 using market_tracker_webapi.Application.Http.Models.ListEntry;
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Pipeline.authorization;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.ListEntry;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -13,19 +13,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.List;
 
-public class ListEntryController(
-    IListEntryService listEntryService
-) : ControllerBase
+public class ListEntryController(IListEntryService listEntryService) : ControllerBase
 {
     [HttpPost(Uris.Lists.ProductsByListId)]
+    [Authorized([Role.Client])]
     public async Task<ActionResult<IntIdOutputModel>> AddListEntryAsync(
         int listId,
-        [Required] Guid clientId,
         [FromBody] ListEntryCreationInputModel inputModel)
     {
-        var res = await listEntryService.AddListEntryAsync(listId, clientId, inputModel.ProductId, inputModel.StoreId,
-            inputModel.Quantity
-        );
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var res =
+            await listEntryService.AddListEntryAsync(listId, authUser.User.Id, inputModel.ProductId,
+                inputModel.StoreId,
+                inputModel.Quantity
+            );
 
         return ResultHandler.Handle(
             res,
@@ -58,16 +59,18 @@ public class ListEntryController(
         );
     }
 
-    [HttpPatch(Uris.Lists.ProductByListIdAndProductId)]
+    [HttpPatch(Uris.Lists.ProductByListId)]
+    [Authorized([Role.Client])]
     public async Task<ActionResult<ListEntry>> UpdateListEntryAsync(
         int listId,
-        [Required] Guid clientId,
         string productId,
         [FromBody] ListEntryUpdateInputModel inputModel)
     {
-        var res = await listEntryService.UpdateListEntryAsync(listId, clientId, productId, inputModel.StoreId,
-            inputModel.Quantity
-        );
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var res
+            = await listEntryService.UpdateListEntryAsync(listId, authUser.User.Id, productId, inputModel.StoreId,
+                inputModel.Quantity
+            );
 
         return ResultHandler.Handle(
             res,
@@ -95,13 +98,14 @@ public class ListEntryController(
         );
     }
 
-    [HttpDelete(Uris.Lists.ProductByListIdAndProductId)]
+    [HttpDelete(Uris.Lists.ProductByListId)]
+    [Authorized([Role.Client])]
     public async Task<ActionResult<ListEntry>> DeleteListEntryAsync(
         int listId,
-        [Required] Guid clientId,
         string productId)
     {
-        var res = await listEntryService.DeleteListEntryAsync(listId, clientId, productId);
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var res = await listEntryService.DeleteListEntryAsync(listId, authUser.User.Id, productId);
 
         return ResultHandler.Handle(
             res,

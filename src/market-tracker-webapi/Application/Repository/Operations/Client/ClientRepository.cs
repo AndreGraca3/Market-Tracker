@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Repository.Dto;
+﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
@@ -77,39 +78,48 @@ public class ClientRepository(
         return deletedClientEntity.ToClient();
     }
 
-    public async Task<bool> UpsertFirebaseTokenAsync(Guid clientId, string deviceId, string firebaseToken)
+    public async Task<IEnumerable<DeviceToken>> GetDeviceTokensAsync(Guid clientId)
     {
-        var registerEntity =
+        return await dataContext.FcmRegister
+            .Where(r => r.ClientId == clientId)
+            .Select(r => r.ToDeviceToken())
+            .ToListAsync();
+    }
+
+    public async Task<DeviceToken> UpsertDeviceTokenAsync(Guid clientId, string deviceId, string firebaseToken)
+    {
+        var fcmRegisterEntity =
             await dataContext.FcmRegister.FirstOrDefaultAsync(r => r.ClientId == clientId && r.DeviceId == deviceId);
-        if (registerEntity is null)
+        if (fcmRegisterEntity is null)
         {
-            registerEntity = new FcmRegisterEntity
+            fcmRegisterEntity = new FcmRegisterEntity
             {
                 ClientId = clientId,
                 DeviceId = deviceId,
-                FirebaseToken = firebaseToken
+                Token = firebaseToken
             };
-            await dataContext.FcmRegister.AddAsync(registerEntity);
+            await dataContext.FcmRegister.AddAsync(fcmRegisterEntity);
             await dataContext.SaveChangesAsync();
-            return true;
+            return fcmRegisterEntity.ToDeviceToken();
         }
 
-        registerEntity.FirebaseToken = firebaseToken;
+        fcmRegisterEntity.Token = firebaseToken;
+        fcmRegisterEntity.UpdatedAt = DateTime.Now;
 
         await dataContext.SaveChangesAsync();
-        return true;
+        return fcmRegisterEntity.ToDeviceToken();
     }
 
-    public async Task<bool> RemoveFirebaseTokenAsync(Guid id, string deviceId)
+    public async Task<DeviceToken?> RemoveDeviceTokenAsync(Guid clientId, string deviceId)
     {
-        var registerEntity = await dataContext.FcmRegister.FirstOrDefaultAsync(r => r.ClientId == id && r.DeviceId == deviceId);
+        var registerEntity = await dataContext.FcmRegister.FirstOrDefaultAsync(r => r.ClientId == clientId && r.DeviceId == deviceId);
         if (registerEntity is null)
         {
-            return false;
+            return null;
         }
 
         dataContext.Remove(registerEntity);
         await dataContext.SaveChangesAsync();
-        return true;
+        return registerEntity.ToDeviceToken();
     }
 }

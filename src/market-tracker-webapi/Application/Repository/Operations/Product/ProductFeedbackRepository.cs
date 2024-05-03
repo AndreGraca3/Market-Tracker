@@ -78,56 +78,6 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         return reviewEntity.ToProductReview();
     }
 
-    public async Task<PriceAlert> AddPriceAlertAsync(
-        Guid clientId,
-        string productId,
-        int priceThreshold
-    )
-    {
-        var priceAlertEntity = new PriceAlertEntity
-        {
-            ProductId = productId,
-            ClientId = clientId,
-            PriceThreshold = priceThreshold
-        };
-        await dataContext.PriceAlert.AddAsync(priceAlertEntity);
-        await dataContext.SaveChangesAsync();
-        return priceAlertEntity.ToPriceAlert();
-    }
-
-    public async Task<PriceAlert> UpsertPriceAlertAsync(
-        Guid clientId,
-        string productId,
-        int priceThreshold
-    )
-    {
-        var priceAlertEntity = await dataContext.PriceAlert.FirstOrDefaultAsync(alert =>
-            alert.ProductId == productId && alert.ClientId == clientId);
-
-        if (priceAlertEntity is null)
-        {
-            return await AddPriceAlertAsync(clientId, productId, priceThreshold);
-        }
-
-        priceAlertEntity.PriceThreshold = priceThreshold;
-
-        await dataContext.SaveChangesAsync();
-        return priceAlertEntity.ToPriceAlert();
-    }
-
-    public async Task<PriceAlert?> RemovePriceAlertAsync(Guid clientId, string productId)
-    {
-        var priceAlertEntity = await dataContext.PriceAlert.FindAsync(clientId, productId);
-        if (priceAlertEntity is null)
-        {
-            return null;
-        }
-
-        dataContext.PriceAlert.Remove(priceAlertEntity);
-        await dataContext.SaveChangesAsync();
-        return priceAlertEntity.ToPriceAlert();
-    }
-
     public async Task<bool> UpdateProductFavouriteAsync(
         Guid clientId,
         string productId,
@@ -161,11 +111,6 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
             favourite.ProductId == productId && favourite.ClientId == clientId
         );
 
-        var priceAlert = await dataContext
-            .PriceAlert.Where(alert => alert.ProductId == productId && alert.ClientId == clientId)
-            .Select(alert => alert.ToPriceAlert())
-            .FirstOrDefaultAsync();
-
         var productReview = await dataContext
             .ProductReview.Where(review =>
                 review.ProductId == productId && review.ClientId == clientId
@@ -173,7 +118,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
             .Select(review => review.ToProductReview())
             .FirstOrDefaultAsync();
 
-        return new ProductPreferences(isFavourite, priceAlert, productReview);
+        return new ProductPreferences(isFavourite, productReview);
     }
 
     public async Task<ProductStats?> GetProductStatsByIdAsync(string productId)

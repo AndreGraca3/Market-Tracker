@@ -1,6 +1,6 @@
 package pt.isel.markettracker.dummy
 
-import pt.isel.markettracker.domain.product.ProductInfo
+import pt.isel.markettracker.domain.model.product.ProductInfo
 
 val dummyProducts = listOf(
     ProductInfo(

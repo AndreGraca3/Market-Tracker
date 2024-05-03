@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.domain.product.ProductInfo
+import pt.isel.markettracker.domain.model.product.ProductInfo
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.ui.theme.Primary600
 import pt.isel.markettracker.utils.shimmerEffect

@@ -18,4 +18,10 @@ public class ProductFetchingError : IProductError
         public string ProductId { get; } = productId;
         public int StoreId { get; } = storeId;
     }
+    
+    public class PriceAlertNotFound(Guid clientId, string productId) : ProductFetchingError
+    {
+        public string ProductId { get; } = productId;
+        public Guid ClientId { get; } = clientId;
+    }
 }

@@ -23,16 +23,6 @@ public interface IProductFeedbackRepository
 
     Task<ProductReview?> RemoveReviewAsync(Guid clientId, string productId);
 
-    Task<PriceAlert> AddPriceAlertAsync(
-        Guid clientId,
-        string productId,
-        int priceThreshold
-    );
-
-    Task<PriceAlert> UpsertPriceAlertAsync(Guid clientId, string productId, int priceThreshold);
-
-    Task<PriceAlert?> RemovePriceAlertAsync(Guid clientId, string productId);
-
     Task<bool> UpdateProductFavouriteAsync(Guid clientId, string productId, bool isFavourite);
 
     Task<ProductPreferences> GetProductsPreferencesAsync(Guid clientId, string productId);

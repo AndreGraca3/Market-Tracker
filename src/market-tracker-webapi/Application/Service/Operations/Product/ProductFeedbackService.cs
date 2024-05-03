@@ -1,5 +1,4 @@
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Http.Models.User;
 using market_tracker_webapi.Application.Repository.Dto;
@@ -58,7 +57,6 @@ public class ProductFeedbackService(
         Guid clientId,
         string productId,
         Optional<bool> isFavorite,
-        Optional<PriceAlertInputModel?> priceAlert,
         Optional<ProductReviewInputModel?> review
     )
     {
@@ -94,25 +92,6 @@ public class ProductFeedbackService(
                 }
             }
 
-            var updatedPriceAlert = oldPreferences.PriceAlert;
-
-            if (priceAlert.HasValue)
-            {
-                if (priceAlert.Value is not null)
-                {
-                    updatedPriceAlert = await productFeedbackRepository.UpsertPriceAlertAsync(
-                        clientId,
-                        productId,
-                        priceAlert.Value.PriceThreshold
-                    );
-                }
-                else
-                {
-                    await productFeedbackRepository.RemovePriceAlertAsync(clientId, productId);
-                    updatedPriceAlert = null;
-                }
-            }
-
             var updatedIsFavourite = oldPreferences.IsFavourite;
 
             if (isFavorite.HasValue)
@@ -125,7 +104,7 @@ public class ProductFeedbackService(
             }
 
             return EitherExtensions.Success<IServiceError, ProductPreferences>(
-                new ProductPreferences(updatedIsFavourite, updatedPriceAlert, updatedReview)
+                new ProductPreferences(updatedIsFavourite, updatedReview)
             );
         });
     }

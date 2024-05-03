@@ -1,7 +1,7 @@
 using market_tracker_webapi.Application.Http.Problem;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace market_tracker_webapi.Application.Pipeline.Authorization;
+namespace market_tracker_webapi.Application.Pipeline.authorization;
 
 public class AuthorizationFilter(RequestTokenProcessor tokenProcessor) : IAsyncAuthorizationFilter
 {
@@ -33,8 +33,7 @@ public class AuthorizationFilter(RequestTokenProcessor tokenProcessor) : IAsyncA
 
             if (!authorizedAttribute.Roles.ContainsRole(authenticatedUser.User.Role))
             {
-                context.Result =
-                    new AuthenticationProblem.UnauthorizedResource().ToActionResult();
+                context.Result = new AuthenticationProblem.AccessDenied().ToActionResult();
                 return;
             }
 

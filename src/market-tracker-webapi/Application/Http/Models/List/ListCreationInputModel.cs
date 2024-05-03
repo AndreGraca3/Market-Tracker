@@ -2,6 +2,5 @@
 
 public class ListCreationInputModel
 {
-    public Guid ClientId { get; set; }
     public required string ListName { get; set; }
 }

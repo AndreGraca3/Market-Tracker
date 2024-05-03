@@ -7,10 +7,4 @@ public class ListClientCreationError : IServiceError
         public int ListId { get; } = listId;
         public Guid ClientId { get; } = clientId;
     }
-
-    public class ClientInListNotFound(int listId, Guid clientId) : ListClientCreationError
-    {
-        public int ListId { get; } = listId;
-        public Guid ClientId { get; } = clientId;
-    }
 }

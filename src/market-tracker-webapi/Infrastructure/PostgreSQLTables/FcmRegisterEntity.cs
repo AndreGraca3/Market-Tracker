@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using market_tracker_webapi.Application.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
@@ -13,6 +14,13 @@ public class FcmRegisterEntity
     [Column("device_id")]
     public required string DeviceId { get; set; }
     
-    [Column("firebase_token")]
-    public required string FirebaseToken { get; set; }
+    [Column("token")]
+    public required string Token { get; set; }
+
+    [Column("updated_at")] public DateTime UpdatedAt { get; set; } = DateTime.Now;
+    
+    public DeviceToken ToDeviceToken()
+    {
+        return new DeviceToken(ClientId, DeviceId, Token);
+    }
 }

@@ -1,5 +1,5 @@
 ﻿using market_tracker_webapi.Application.Http.Models.Client;
-using market_tracker_webapi.Application.Pipeline.Authorization;
+using market_tracker_webapi.Application.Pipeline.authorization;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Application.Repository.Operations.Account;
@@ -131,21 +131,22 @@ public class ClientService(
         });
     }
 
-    public async Task<Either<IServiceError, bool>> RegisterPushNotificationsAsync(Guid id, string deviceId, string firebaseToken)
+    public async Task<Either<IServiceError, bool>> UpsertNotificationDeviceAsync(Guid clientId, string deviceId,
+        string firebaseToken)
     {
-        return  await transactionManager.ExecuteAsync(async () =>
+        return await transactionManager.ExecuteAsync(async () =>
         {
-            await clientRepository.UpsertFirebaseTokenAsync(id, deviceId, firebaseToken);
+            await clientRepository.UpsertDeviceTokenAsync(clientId, deviceId, firebaseToken);
 
             return EitherExtensions.Success<IServiceError, bool>(true);
         });
     }
 
-    public Task<Either<IServiceError, bool>> DeRegisterPushNotificationsAsync(Guid id, string deviceId)
+    public Task<Either<IServiceError, bool>> DeRegisterNotificationDeviceAsync(Guid id, string deviceId)
     {
         return transactionManager.ExecuteAsync(async () =>
         {
-            await clientRepository.RemoveFirebaseTokenAsync(id, deviceId);
+            await clientRepository.RemoveDeviceTokenAsync(id, deviceId);
 
             return EitherExtensions.Success<IServiceError, bool>(true);
         });

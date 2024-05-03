@@ -1,6 +1,6 @@
 package pt.isel.markettracker.dummy
 
-import pt.isel.markettracker.domain.user.User
+import pt.isel.markettracker.domain.model.user.User
 
 val dummyUsers = mutableListOf(
         User(

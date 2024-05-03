@@ -5,7 +5,7 @@ using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Repository.Operations.Brand;
 using market_tracker_webapi.Application.Repository.Operations.Category;
-using market_tracker_webapi.Application.Repository.Operations.Prices;
+using market_tracker_webapi.Application.Repository.Operations.Price;
 using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Repository.Operations.Store;
 using market_tracker_webapi.Application.Service.Errors;
