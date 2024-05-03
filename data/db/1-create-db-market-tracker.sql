@@ -20,6 +20,11 @@ drop table if exists operator;
 drop table if exists client;
 drop table if exists account;
 drop table if exists "user";
+drop table if exists promotion;
+drop index if exists price_entry_index;
+drop table if exists price_entry;
+drop table if exists product_availability;
+drop table if exists store;
 drop table if exists city;
 drop table if exists product;
 drop table if exists brand;
@@ -67,7 +72,6 @@ create table if not exists city
 create table if not exists "user"
 (
     id         uuid primary key             default gen_random_uuid(),
-    username   varchar(20) unique  not null,
     name       varchar(30),
     email      varchar(200) unique not null,
     role       varchar(20)         not null check (role in ('Operator', 'Moderator', 'Client')),
@@ -83,6 +87,7 @@ create table if not exists account
 create table if not exists client
 (
     id         uuid primary key references "user" (id) on delete cascade,
+    username   varchar(20) unique not null,
     avatar_url TEXT
 );
 
@@ -94,7 +99,8 @@ create table if not exists operator
 
 create table if not exists moderator
 (
-    user_id uuid primary key references "user" (id) on delete cascade
+    user_id  uuid primary key references "user" (id) on delete cascade,
+    username varchar(20) unique not null
 );
 
 create table if not exists token
@@ -117,7 +123,7 @@ create table if not exists store
 
 create table if not exists price_entry
 (
-    id         varchar(25) primary key default substr(md5(random()::text), 1, 25) check ( length(id) = 25),
+    id         varchar(25) primary key default substr(md5(random()::text), 1, 10),
     price      integer   not null,
     created_at timestamp not null      default now(),
     store_id   int       not null references store (id) on delete cascade,
@@ -144,10 +150,10 @@ create table if not exists product_availability
 
 create table if not exists fcm_registration
 (
-    client_id      uuid references client (id) on delete cascade,
-    device_id      varchar(255) not null,
-    token varchar(255) not null,
-    updated_at     timestamp    not null default now(),
+    client_id  uuid references client (id) on delete cascade,
+    device_id  varchar(255) not null,
+    token      varchar(255) not null,
+    updated_at timestamp    not null default now(),
     primary key (client_id, device_id)
 );
 
@@ -227,4 +233,23 @@ create table if not exists post_comment
     client_id  uuid references client (id) on delete cascade,
     post_id    int references post (id) on delete cascade,
     primary key (client_id, post_id)
+);
+
+create table if not exists pre_registration
+(
+    -- pre-operator
+    code          uuid primary key             default gen_random_uuid(),
+    operator_name varchar(30)         not null,
+    email         varchar(200) unique not null,
+    phone_number  int                 not null check (phone_number between 210000000 and 999999999),
+    -- pre-store
+    store_name    varchar(30)         not null,
+    store_address varchar(30)                  default null,
+    -- pre-company
+    company_name  varchar(30)         not null,
+    -- pre city
+    city_name     varchar(30),
+    created_at    timestamp           not null default now(),
+    document      Text unique         not null,
+    is_approved   boolean                      default false
 );

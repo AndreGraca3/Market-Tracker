@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Infrastructure;
@@ -13,37 +14,44 @@ public class ClientRepository(
     MarketTrackerDataContext dataContext
 ) : IClientRepository
 {
-    public async Task<PaginatedResult<ClientInfo>> GetClientsAsync(string? username, int skip, int take)
+    public async Task<PaginatedResult<ClientItem>> GetClientsAsync(string? username, int skip, int take)
     {
         var query = from user in dataContext.User
             join client in dataContext.Client on user.Id equals client.UserId into clientGroup
             from client in clientGroup.DefaultIfEmpty()
-            where user.Role == "client"
-            select new ClientInfo(user.Id, user.Username, user.Name, user.Email, user.CreatedAt, client.Avatar);
+            where user.Role == Role.Client.ToString() && (username == null || client.Username.Contains(username))
+            select new ClientItem(user.Id, client.Username, client.Avatar);
 
         var clients = await query
-            .Where(c => username == null || c.Username.Contains(username))
             .Skip(skip)
             .Take(take)
             .ToListAsync();
 
-        return new PaginatedResult<ClientInfo>(clients, query.Count(), skip, take);
+        return new PaginatedResult<ClientItem>(clients, query.Count(), skip, take);
     }
 
     public async Task<ClientInfo?> GetClientByIdAsync(Guid id)
     {
-        return await (from user in dataContext.User
-                join client in dataContext.Client on user.Id equals client.UserId
-                where user.Id == id
-                select new ClientInfo(user.Id, user.Username, user.Name, user.Email, user.CreatedAt, client.Avatar))
-            .FirstOrDefaultAsync();
+        var query = from user in dataContext.User
+            join client in dataContext.Client on user.Id equals client.UserId into clientGroup
+            from client in clientGroup.DefaultIfEmpty()
+            where user.Role == Role.Client.ToString() && user.Id == id
+            select new ClientInfo(user.Id, client.Username, user.Name, user.Email, user.CreatedAt, client.Avatar);
+
+        return await query.FirstOrDefaultAsync();
     }
 
-    public async Task<Guid> CreateClientAsync(Guid userId, string avatarUrl)
+    public async Task<Client?> GetClientByUsernameAsync(string username)
+    {
+        return (await dataContext.Client.FirstOrDefaultAsync(client => client.Username == username))?.ToClient();
+    }
+
+    public async Task<Guid> CreateClientAsync(Guid userId, string username, string? avatarUrl)
     {
         var newClient = new ClientEntity
         {
             UserId = userId,
+            Username = username,
             Avatar = avatarUrl
         };
         await dataContext.Client.AddAsync(newClient);
@@ -51,7 +59,7 @@ public class ClientRepository(
         return newClient.UserId;
     }
 
-    public async Task<Client?> UpdateClientAsync(Guid id, string? avatarUrl = null)
+    public async Task<Client?> UpdateClientAsync(Guid id, string? username, string? avatarUrl = null)
     {
         var clientEntity = await dataContext.Client.FindAsync(id);
         if (clientEntity is null)
@@ -59,6 +67,7 @@ public class ClientRepository(
             return null;
         }
 
+        clientEntity.Username = username ?? clientEntity.Username;
         clientEntity.Avatar = avatarUrl ?? clientEntity.Avatar;
 
         await dataContext.SaveChangesAsync();
@@ -112,7 +121,8 @@ public class ClientRepository(
 
     public async Task<DeviceToken?> RemoveDeviceTokenAsync(Guid clientId, string deviceId)
     {
-        var registerEntity = await dataContext.FcmRegister.FirstOrDefaultAsync(r => r.ClientId == clientId && r.DeviceId == deviceId);
+        var registerEntity =
+            await dataContext.FcmRegister.FirstOrDefaultAsync(r => r.ClientId == clientId && r.DeviceId == deviceId);
         if (registerEntity is null)
         {
             return null;

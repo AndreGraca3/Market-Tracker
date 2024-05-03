@@ -9,6 +9,8 @@ namespace market_tracker_webapi.Infrastructure
 
         public DbSet<ClientEntity> Client { get; set; }
 
+        public DbSet<OperatorEntity> Operator { get; set; }
+
         public DbSet<AccountEntity> Account { get; set; }
 
         public DbSet<TokenEntity> Token { get; set; }
@@ -46,6 +48,8 @@ namespace market_tracker_webapi.Infrastructure
         public DbSet<ListEntryEntity> ListEntry { get; set; }
 
         public DbSet<ListClientEntity> ListClient { get; set; }
+
+        public DbSet<PreRegistrationEntity> PreRegister { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

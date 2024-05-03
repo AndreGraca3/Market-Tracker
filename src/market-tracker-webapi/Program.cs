@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 using market_tracker_webapi.Application.Http;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Pipeline;
-using market_tracker_webapi.Application.Pipeline.authorization;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.DependencyResolver;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
@@ -108,36 +108,8 @@ static class Program
         });
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(options =>
-        {
-            options.AddSecurityDefinition("Token", new OpenApiSecurityScheme
-            {
-                In = ParameterLocation.Header,
-                Name = AuthenticationDetails.NameAuthorizationHeader,
-                Description = "API token",
-                Type = SecuritySchemeType.ApiKey,
-                BearerFormat = "UUID",
-                Scheme = "bearer"
-            });
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Name = AuthenticationDetails.NameAuthorizationHeader,
-                        In = ParameterLocation.Header,
-                        Reference = new OpenApiReference
-                        {
-                            Id = "Token",
-                            Type = ReferenceType.SecurityScheme
-                        }
-                    },
-                    new List<string>()
-                }
-            });
-        });
-
+        builder.Services.AddSwaggerGen();
+        
         builder.Services.AddFirebaseServices(builder.Configuration);
         builder.Services.AddPgSqlServer(builder.Configuration);
         builder.Services.AddMarketTrackerDataServices();

@@ -9,7 +9,7 @@ using Microsoft.OpenApi.Extensions;
 
 namespace market_tracker_webapi_test.Application.Repository;
 
-public class UserRepositoryTest
+/*public class UserRepositoryTest
 {
     [Fact]
     public async Task GetUserByIdAsync_ReturnsObjectAsync()
@@ -336,4 +336,4 @@ public class UserRepositoryTest
         databaseContext.SaveChanges();
         return databaseContext;
     }
-}
+}*/

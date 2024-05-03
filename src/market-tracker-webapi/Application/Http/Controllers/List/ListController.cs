@@ -3,6 +3,7 @@ using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.List;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Pipeline.authorization;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.List;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.List;
 
+[ApiController]
 public class ListController(
     IListService listService
 ) : ControllerBase

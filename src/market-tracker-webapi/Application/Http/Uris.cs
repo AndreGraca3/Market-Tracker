@@ -14,9 +14,10 @@ public static class Uris
         public static string BuildUserByIdUri(Guid id) => $"{Base}/{id}";
     }
 
-    public static class Tokens
+    public static class Auth
     {
-        public const string Base = $"{ApiBase}/tokens";
+        public const string Base = $"{ApiBase}/auth";
+        public const string GoogleAuth = $"{ApiBase}/google-signin";
     }
 
     public static class Clients
@@ -28,9 +29,10 @@ public static class Uris
         public const string DeRegisterPushNotifications = $"{Me}/deregister-push-notifications";
     }
 
-    public static class Google
+    public static class Operator
     {
-        public const string Base = $"{ApiBase}/google-signin";
+        public const string Base = $"{ApiBase}/operators";
+        public const string OperatorById = $"{Base}/{{id}}";
     }
 
     public static class Products
@@ -100,6 +102,9 @@ public static class Uris
         public const string StoreById = $"{Base}/{{id}}";
         public const string StoresFromCompany = $"{Base}/company/{{companyId}}";
         public const string StoresByCityName = $"{Base}/city/{{cityName}}";
+        public const string StoresPreRegister = $"{Base}/pre-register";
+        public const string StoresPending = $"{Base}/pending";
+        public const string StoresPendingById = $"{Base}/pending/{{id}}";
     }
 
     private static string ExpandUri(this string input, params object[] args)

@@ -2,8 +2,9 @@
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Client;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Pipeline.authorization;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.Client;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,8 @@ namespace market_tracker_webapi.Application.Http.Controllers;
 public class ClientController(IClientService clientService) : ControllerBase
 {
     [HttpGet(Uris.Clients.Base)]
-    public async Task<ActionResult<PaginatedResult<ClientOutputModel>>> GetClientsAsync(
+    [Authorized([Role.Client])]
+    public async Task<ActionResult<PaginatedResult<ClientItem>>> GetClientsAsync(
         [FromQuery] PaginationInputs paginationInputs, [FromQuery] string? username)
     {
         return Ok(
@@ -23,7 +25,8 @@ public class ClientController(IClientService clientService) : ControllerBase
     }
 
     [HttpGet(Uris.Clients.ClientById)]
-    public async Task<ActionResult<ClientOutputModel>> GetClientAsync(Guid id)
+    [Authorized([Role.Client])]
+    public async Task<ActionResult<ClientInfo>> GetClientAsync(Guid id)
     {
         return ResultHandler.Handle(
             await clientService.GetClientByIdAsync(id),
@@ -39,8 +42,16 @@ public class ClientController(IClientService clientService) : ControllerBase
         );
     }
 
+    [HttpGet(Uris.Clients.Me)]
+    [Authorized([Role.Client])]
+    public Task<ActionResult<User>> GetAuthenticatedClientAsync()
+    {
+        return Task.FromResult<ActionResult<User>>(
+            Ok((HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser)!.User));
+    }
+
     [HttpPost(Uris.Clients.Base)]
-    public async Task<ActionResult<ClientCreationOutputModel>> CreateClientAsync(
+    public async Task<ActionResult<GuidOutputModel>> CreateClientAsync(
         [FromBody] ClientCreationInputModel clientInput
     )
     {
@@ -58,7 +69,7 @@ public class ClientController(IClientService clientService) : ControllerBase
             {
                 return error switch
                 {
-                    UserCreationError.EmailAlreadyInUse emailAlreadyInUse
+                    UserCreationError.CredentialAlreadyInUse emailAlreadyInUse
                         => new UserProblem.UserAlreadyExists(
                             emailAlreadyInUse
                         ).ToActionResult(),
@@ -74,13 +85,13 @@ public class ClientController(IClientService clientService) : ControllerBase
     }
 
     [HttpPut(Uris.Clients.ClientById)]
-    public async Task<ActionResult<Client>> UpdateUserAsync(
+    public async Task<ActionResult<ClientInfo>> UpdateUserAsync(
         Guid id,
         [FromBody] ClientUpdateInputModel clientInput
     )
     {
         return ResultHandler.Handle(
-            await clientService.UpdateClientAsync(id, clientInput.Avatar),
+            await clientService.UpdateClientAsync(id, clientInput.Name, clientInput.Username, clientInput.Avatar),
             error =>
             {
                 return error switch
@@ -94,7 +105,7 @@ public class ClientController(IClientService clientService) : ControllerBase
     }
 
     [HttpDelete(Uris.Clients.ClientById)]
-    public async Task<ActionResult<ClientOutputModel>> DeleteUserAsync(Guid id)
+    public async Task<ActionResult<GuidOutputModel>> DeleteClientAsync(Guid id)
     {
         return ResultHandler.Handle(
             await clientService.DeleteClientAsync(id),
@@ -104,7 +115,6 @@ public class ClientController(IClientService clientService) : ControllerBase
                 {
                     UserFetchingError.UserByIdNotFound userByIdNotFound
                         => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
             _ => NoContent()

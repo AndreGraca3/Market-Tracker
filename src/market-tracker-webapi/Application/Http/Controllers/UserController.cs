@@ -1,7 +1,9 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.User;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Pipeline.authorization;
+using market_tracker_webapi.Application.Pipeline.Authorization;
+using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.User;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.User;
 using Microsoft.AspNetCore.Mvc;
@@ -14,20 +16,21 @@ namespace market_tracker_webapi.Application.Http.Controllers
         : ControllerBase
     {
         [HttpGet]
-        [Authorized([Role.Client])]
-        public async Task<ActionResult<UsersOutputModel>> GetUsersAsync(
+        [Authorized([Role.Moderator])]
+        public async Task<ActionResult<PaginatedResult<UserItem>>> GetUsersAsync(
             [FromQuery] PaginationInputs paginationInputs,
-            [FromQuery] string? username
+            [FromQuery] string? role
         )
         {
-            var user = HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser;
-            Console.WriteLine($"Authenticated User in controller method : {user?.User.Name}");
-            logger.LogDebug($"Call {nameof(GetUsersAsync)} with {username}");
-
-            return Ok(await userService.GetUsersAsync(username, paginationInputs.Skip, paginationInputs.ItemsPerPage));
+            return ResultHandler.Handle(
+                await userService.GetUsersAsync(role, paginationInputs.Skip,
+                    paginationInputs.ItemsPerPage),
+                _ => new ServerProblem.InternalServerError().ToActionResult()
+            );
         }
 
         [HttpGet(Uris.Users.UserById)]
+        [Authorized([Role.Moderator])]
         public async Task<ActionResult<UserOutputModel>> GetUserAsync(Guid id)
         {
             logger.LogDebug($"Call {nameof(GetUserAsync)} with {id}");
@@ -46,19 +49,20 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpPost]
+        [Authorized([Role.Moderator])]
         public async Task<ActionResult<UserCreationOutputModel>> CreateUserAsync(
             [FromBody] UserCreationInputModel userInput
         )
         {
             logger.LogDebug(
-                $"Call {nameof(CreateUserAsync)} with {userInput.Username}, {userInput.Name}, {userInput.Email}, {userInput.Password}"
+                $"Call {nameof(CreateUserAsync)} with {userInput.Name}, {userInput.Email}, {userInput.Password}"
             );
 
             var res = await userService.CreateUserAsync(
-                userInput.Username,
                 userInput.Name,
                 userInput.Email,
-                userInput.Password
+                userInput.Password,
+                userInput.Role
             );
 
             return ResultHandler.Handle(
@@ -67,7 +71,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
                 {
                     return error switch
                     {
-                        UserCreationError.EmailAlreadyInUse emailAlreadyInUse
+                        UserCreationError.CredentialAlreadyInUse emailAlreadyInUse
                             => new UserProblem.UserAlreadyExists(
                                 emailAlreadyInUse
                             ).ToActionResult(),
@@ -82,6 +86,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpPut(Uris.Users.UserById)]
+        [Authorized([Role.Moderator])]
         public async Task<ActionResult<UserOutputModel>> UpdateUserAsync(
             Guid id,
             [FromBody] UserUpdateInputModel userInput
@@ -90,7 +95,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
             logger.LogDebug($"Call {nameof(GetUserAsync)} with ");
 
             return ResultHandler.Handle(
-                await userService.UpdateUserAsync(id, userInput.Name, userInput.Username),
+                await userService.UpdateUserAsync(id, userInput.Name),
                 error =>
                 {
                     return error switch
@@ -103,7 +108,8 @@ namespace market_tracker_webapi.Application.Http.Controllers
         }
 
         [HttpDelete(Uris.Users.UserById)]
-        public async Task<ActionResult<UserOutputModel>> DeleteUserAsync(Guid id)
+        [Authorized([Role.Moderator])]
+        public async Task<ActionResult<GuidOutputModel>> DeleteUserAsync(Guid id)
         {
             logger.LogDebug($"Call {nameof(DeleteUserAsync)} with {id}");
 
@@ -116,8 +122,7 @@ namespace market_tracker_webapi.Application.Http.Controllers
                         UserFetchingError.UserByIdNotFound userByIdNotFound
                             => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
                     };
-                },
-                _ => NoContent()
+                }
             );
         }
     }

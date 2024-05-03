@@ -2,5 +2,6 @@
 
 public record Client(
     Guid Id,
+    string Username,
     string AvatarUrl
 );

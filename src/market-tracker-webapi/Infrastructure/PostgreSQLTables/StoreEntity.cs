@@ -21,15 +21,18 @@ public class StoreEntity
     public required string Address { get; set; }
 
     [StringLength(30)]
+    [ForeignKey("city")]
     [Column("city_id")]
     public int? CityId { get; set; }
 
+    [ForeignKey("company")]
     [Column("company_id")]
     public int CompanyId { get; set; }
     
+    [ForeignKey("operator")]
     [Column("operator_id")]
     public Guid OperatorId { get; set; }
-    
+
     public Store ToStore()
     {
         return new Store

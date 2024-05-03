@@ -1,4 +1,6 @@
-namespace market_tracker_webapi.Application.Pipeline.authorization;
+using Microsoft.IdentityModel.Tokens;
+
+namespace market_tracker_webapi.Application.Pipeline.Authorization;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class AuthorizedAttribute(Role[] roles) : Attribute
@@ -22,6 +24,6 @@ static class RoleExtensions
         "Client" => Role.Client,
         _ => throw new ArgumentException("Invalid role")
     };
-    
+
     public static bool ContainsRole(this Role[] roles, string role) => roles.Contains(role.ToRole());
 }

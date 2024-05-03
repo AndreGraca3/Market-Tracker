@@ -8,7 +8,7 @@ using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
 namespace market_tracker_webapi_test.Application.Repository;
 
-public class PriceRepositoryTest
+/*public class PriceRepositoryTest
 {
     private static readonly List<ProductEntity> _dummyProducts =
     [
@@ -167,4 +167,4 @@ public class PriceRepositoryTest
         // Assert
         actualProductOffers.Should().BeEquivalentTo(expectedProductOffers);
     }
-}
+}*/

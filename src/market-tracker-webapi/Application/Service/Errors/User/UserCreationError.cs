@@ -7,8 +7,9 @@ public class UserCreationError : IUserError
         public string Email { get; } = email;
     }
 
-    public class EmailAlreadyInUse(string email) : UserCreationError
+    public class CredentialAlreadyInUse(string credentialValue, string credentialName) : UserCreationError
     {
-        public string Email { get; } = email;
+        public string CredentialName { get; } = credentialName;
+        public string CredentialValue { get; } = credentialValue;
     }
 }

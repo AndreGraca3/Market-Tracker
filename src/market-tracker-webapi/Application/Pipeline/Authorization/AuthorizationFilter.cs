@@ -1,7 +1,8 @@
 using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Pipeline.authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace market_tracker_webapi.Application.Pipeline.authorization;
+namespace market_tracker_webapi.Application.Pipeline.Authorization;
 
 public class AuthorizationFilter(RequestTokenProcessor tokenProcessor) : IAsyncAuthorizationFilter
 {
@@ -10,30 +11,28 @@ public class AuthorizationFilter(RequestTokenProcessor tokenProcessor) : IAsyncA
         try
         {
             if (context.ActionDescriptor.EndpointMetadata.FirstOrDefault(e =>
-                    e is AuthorizedAttribute) is not AuthorizedAttribute authorizedAttribute) return;
-
-            var tokenValue =
-                context.HttpContext.Request.Headers[AuthenticationDetails.NameAuthorizationHeader].ToString();
-
-            if (string.IsNullOrWhiteSpace(tokenValue))
+                    e.GetType() == typeof(AuthorizedAttribute)) is not AuthorizedAttribute authorizedAttribute)
             {
-                context.HttpContext.Response.Headers.Append(AuthenticationDetails.NameWwwAuthenticateHeader,
-                    RequestTokenProcessor.Scheme);
-                context.Result = new AuthenticationProblem.InvalidToken().ToActionResult();
                 return;
             }
 
-            var authenticatedUser = await tokenProcessor.ProcessAuthorizationHeaderValue(Guid.Parse(tokenValue));
+            var tokenValue = new Guid(
+                context.HttpContext.Request.Cookies[AuthenticationDetails.NameAuthorizationCookie] ?? string.Empty
+            );
+
+            var authenticatedUser = await tokenProcessor.ProcessAuthorizationHeaderValue(tokenValue);
 
             if (authenticatedUser is null)
             {
-                context.Result = new AuthenticationProblem.InvalidToken().ToActionResult();
+                context.Result =
+                    new AuthenticationProblem.InvalidToken().ToActionResult();
                 return;
             }
 
             if (!authorizedAttribute.Roles.ContainsRole(authenticatedUser.User.Role))
             {
-                context.Result = new AuthenticationProblem.AccessDenied().ToActionResult();
+                context.Result =
+                    new AuthenticationProblem.UnauthorizedResource().ToActionResult();
                 return;
             }
 
