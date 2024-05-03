@@ -9,21 +9,21 @@ public record PreRegisterInfo(
     string? CompanyName,
     string Document)
 {
-    public static PreRegisterInfo ToPreRegisterInfo(PreRegister preRegister)
+    public static PreRegisterInfo ToPreRegisterInfo(PreRegistration preRegistration)
     {
         return new PreRegisterInfo
         (
             new OperatorInfo
             (
-                preRegister.Code,
-                preRegister.OperatorName,
-                preRegister.Email,
-                preRegister.PhoneNumber,
-                preRegister.CreatedAt
+                preRegistration.Code,
+                preRegistration.OperatorName,
+                preRegistration.Email,
+                preRegistration.PhoneNumber,
+                preRegistration.CreatedAt
             ),
-            preRegister.StoreName,
-            preRegister.CompanyName,
-            preRegister.Document
+            preRegistration.StoreName,
+            preRegistration.CompanyName,
+            preRegistration.Document
         );
     }
 };

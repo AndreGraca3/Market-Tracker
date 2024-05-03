@@ -32,9 +32,9 @@ public class PreRegistrationEntity
 
     [Column("is_approved")] public bool IsApproved { get; set; }
 
-    public PreRegister ToPreRegistration()
+    public PreRegistration ToPreRegistration()
     {
-        return new PreRegister(
+        return new PreRegistration(
             Code,
             OperatorName,
             Email,

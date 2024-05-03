@@ -1,12 +1,11 @@
-﻿using market_tracker_webapi.Application.Repository.Dto;
+﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Operator;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.Operations.PreRegister;
-
-using PreRegister = Domain.PreRegister;
 
 public class PreRegistrationRepository(
     MarketTrackerDataContext dataContext
@@ -27,12 +26,12 @@ public class PreRegistrationRepository(
         return new PaginatedResult<OperatorItem>(operators, query.Count(), skip, take);
     }
 
-    public async Task<PreRegister?> GetPreRegisterByIdAsync(Guid id)
+    public async Task<PreRegistration?> GetPreRegisterByIdAsync(Guid id)
     {
         return (await dataContext.PreRegister.FindAsync(id))?.ToPreRegistration();
     }
 
-    public async Task<PreRegister?> GetPreRegisterByEmail(string email)
+    public async Task<PreRegistration?> GetPreRegisterByEmail(string email)
     {
         return (await dataContext.PreRegister.FirstOrDefaultAsync(user => user.Email == email))?.ToPreRegistration();
     }
@@ -59,7 +58,7 @@ public class PreRegistrationRepository(
         return newPreRegistration.Code;
     }
 
-    public async Task<PreRegister?> UpdatePreRegistrationById(Guid id, bool isApproved)
+    public async Task<PreRegistration?> UpdatePreRegistrationById(Guid id, bool isApproved)
     {
         var preRegisterEntity = await dataContext.PreRegister.FindAsync(id);
         if (preRegisterEntity is null)

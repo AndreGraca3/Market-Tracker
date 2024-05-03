@@ -1,6 +1,6 @@
 ﻿namespace market_tracker_webapi.Application.Domain;
 
-public record PreRegister(
+public record PreRegistration(
     Guid Code,
     string OperatorName,
     string Email,
