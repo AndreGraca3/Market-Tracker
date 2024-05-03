@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.domain.product.ProductInfo
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable

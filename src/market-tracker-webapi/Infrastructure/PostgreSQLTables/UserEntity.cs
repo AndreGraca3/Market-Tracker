@@ -20,7 +20,7 @@ public class UserEntity
     [Column("role")] public required string Role { get; set; }
 
     [DataType(DataType.Date)] [Column("created_at")]
-    public readonly DateTime CreatedAt;
+    public readonly DateTime CreatedAt = DateTime.Now;
 
     public User ToUser()
     {

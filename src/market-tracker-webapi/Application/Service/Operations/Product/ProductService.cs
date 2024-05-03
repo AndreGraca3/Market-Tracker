@@ -1,14 +1,17 @@
+using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Repository.Operations.Brand;
 using market_tracker_webapi.Application.Repository.Operations.Category;
-using market_tracker_webapi.Application.Repository.Operations.Prices;
+using market_tracker_webapi.Application.Repository.Operations.Price;
 using market_tracker_webapi.Application.Repository.Operations.Product;
+using market_tracker_webapi.Application.Repository.Operations.Store;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Errors.Product;
+using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
 
@@ -19,10 +22,12 @@ public class ProductService(
     IBrandRepository brandRepository,
     ICategoryRepository categoryRepository,
     IPriceRepository priceRepository,
+    IStoreRepository storeRepository,
     ITransactionManager transactionManager
 ) : IProductService
 {
-    public async Task<Either<IServiceError, PaginatedProductOffers>> GetBestAvailableProductsOffersAsync(int skip, int take,
+    public async Task<Either<IServiceError, PaginatedProductOffers>> GetBestAvailableProductsOffersAsync(int skip,
+        int take,
         SortByType? sortBy, string? searchName, IList<int>? categoryIds, IList<int>? brandIds,
         IList<int>? companyIds, int? minPrice, int? maxPrice, int? minRating, int? maxRating)
     {
@@ -63,53 +68,105 @@ public class ProductService(
         });
     }
 
-    public async Task<Either<IServiceError, StringIdOutputModel>> AddProductAsync(
+    public async Task<Either<IServiceError, ProductCreationOutputModel>> AddProductAsync(
+        Guid operatorId,
         string productId,
         string name,
         string imageUrl,
         int quantity,
-        string unit,
+        ProductUnit unit,
         string brandName,
-        int categoryId
-        // int price
+        int categoryId,
+        int price,
+        int? promotionPercentage
     )
     {
-        // TODO: Add price in the name of operator who is trying to add the product
         return await transactionManager.ExecuteAsync(async () =>
         {
-            if (await productRepository.GetProductByIdAsync(productId) is not null)
+            var oldProduct = await productRepository.GetProductByIdAsync(productId);
+            if (oldProduct is null)
             {
-                // TODO: Add new price entry and return
-                return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
-                    new ProductCreationError.ProductAlreadyExists(productId)
+                if (await categoryRepository.GetCategoryByIdAsync(categoryId) is null)
+                {
+                    return EitherExtensions.Failure<IServiceError, ProductCreationOutputModel>(
+                        new CategoryFetchingError.CategoryByIdNotFound(categoryId)
+                    );
+                }
+
+                var brand = await brandRepository.GetBrandByNameAsync(brandName)
+                            ?? await brandRepository.AddBrandAsync(brandName);
+
+                await productRepository.AddProductAsync(
+                    productId,
+                    $"{brandName} {name}" + (quantity == 1 && unit == ProductUnit.Units
+                        ? ""
+                        : $" {quantity}{unit.GetBaseUnitName()}"),
+                    imageUrl,
+                    quantity,
+                    unit.GetUnitName(),
+                    brand.Id,
+                    categoryId
                 );
             }
 
-            var category = await categoryRepository.GetCategoryByIdAsync(categoryId);
-            if (category is null)
+            var store = await storeRepository.GetStoreByOperatorIdAsync(operatorId);
+
+            if (store is null)
             {
-                return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
-                    new CategoryFetchingError.CategoryByIdNotFound(categoryId)
+                return EitherExtensions.Failure<IServiceError, ProductCreationOutputModel>(
+                    new StoreFetchingError.StoreByOperatorIdNotFound(operatorId)
                 );
             }
 
-            var brand =
-                await brandRepository.GetBrandByNameAsync(brandName)
-                ?? await brandRepository.AddBrandAsync(brandName);
+            var currentPrice = oldProduct is null
+                ? null
+                : await priceRepository.GetStorePriceAsync(productId, store.Id, DateTime.Now);
 
-            await productRepository.AddProductAsync(
-                productId,
-                $"{brandName} {name} {quantity}{unit.Substring(0, 2)}",
-                imageUrl,
-                quantity,
-                unit,
-                brand.Id,
-                categoryId
-            );
+            var priceChanged = promotionPercentage is not null
+                ? currentPrice?.PriceData.FinalPrice != price - price * promotionPercentage / 100
+                : currentPrice?.PriceData.FinalPrice != price;
 
-            return EitherExtensions.Success<IServiceError, StringIdOutputModel>(
-                new StringIdOutputModel(productId)
-            );
+            if (priceChanged)
+            {
+                await priceRepository.AddPriceAsync(productId, store.Id, price, promotionPercentage);
+            }
+
+            await productRepository.SetProductAvailabilityAsync(productId, store.Id, true);
+
+            return EitherExtensions.Success<IServiceError, ProductCreationOutputModel>(
+                new ProductCreationOutputModel
+                {
+                    Id = productId,
+                    IsNew = oldProduct is null,
+                    PriceChanged = priceChanged
+                });
+        });
+    }
+
+    public async Task<Either<IServiceError, StringIdOutputModel>> SetProductAvailabilityAsync(
+        Guid operatorId, string productId, bool isAvailable)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var store = await storeRepository.GetStoreByOperatorIdAsync(operatorId);
+            if (store is null)
+            {
+                return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
+                    new StoreFetchingError.StoreByOperatorIdNotFound(operatorId)
+                );
+            }
+
+            var product = await productRepository.GetProductByIdAsync(productId);
+            if (product is null)
+            {
+                return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
+                    new ProductFetchingError.ProductByIdNotFound(productId)
+                );
+            }
+
+            await productRepository.SetProductAvailabilityAsync(productId, store.Id, isAvailable);
+
+            return EitherExtensions.Success<IServiceError, StringIdOutputModel>(new StringIdOutputModel(productId));
         });
     }
 

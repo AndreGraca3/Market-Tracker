@@ -1,10 +1,10 @@
 ﻿namespace market_tracker_webapi.Application.Service.Errors.List;
 
-public class ListClientFetchingError : IServiceError
+public class ListClientFetchingError : IListError
 {
-    public class ClientInListNotFound(Guid clientId, int listId) : ListClientFetchingError
+    public class ClientInListNotFound(int listId, Guid clientId) : ListClientFetchingError
     {
-        public Guid ClientId { get; } = clientId;
         public int ListId { get; } = listId;
+        public Guid ClientId { get; } = clientId;
     }
 }

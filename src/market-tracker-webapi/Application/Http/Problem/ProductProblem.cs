@@ -19,15 +19,6 @@ public class ProductProblem(
             data
         );
 
-    public class ProductAlreadyExists(ProductCreationError.ProductAlreadyExists data)
-        : ProductProblem(
-            409,
-            "product-already-exists",
-            "Product already exists",
-            $"Product with id {data.ProductId} already exists",
-            data
-        );
-
     public class OutOfStockInStore(ProductFetchingError.OutOfStockInStore data)
         : ProductProblem(
             409,

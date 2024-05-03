@@ -19,7 +19,7 @@ import com.example.markettracker.R
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.Loaded
 import pt.isel.markettracker.domain.extractValue
-import pt.isel.markettracker.domain.product.ProductReview
+import pt.isel.markettracker.domain.model.product.ProductReview
 import pt.isel.markettracker.ui.components.icons.StarIcon
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import java.time.LocalDateTime

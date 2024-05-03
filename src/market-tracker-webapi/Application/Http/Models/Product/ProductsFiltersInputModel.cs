@@ -4,7 +4,7 @@ namespace market_tracker_webapi.Application.Http.Models.Product;
 
 public class ProductsFiltersInputModel
 {
-    public string? SearchName { get; set; }
+    public string? Name { get; set; }
 
     public IList<int>? CategoryIds { get; set; }
 

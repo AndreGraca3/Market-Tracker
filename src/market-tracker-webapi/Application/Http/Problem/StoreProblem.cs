@@ -27,4 +27,13 @@ public class StoreProblem(
             $"Store with name {data.StoreName} already exists",
             data
         );
+    
+    public class StoreByOperatorIdNotFound(StoreFetchingError.StoreByOperatorIdNotFound data)
+        : CompanyProblem(
+            404,
+            "store-by-operator-not-found",
+            "Store by operator not found",
+            "Operator has no store assigned yet",
+            data
+        );
 }

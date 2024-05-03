@@ -29,6 +29,12 @@ public interface IProductRepository
         int brandId,
         int categoryId
     );
+    
+    public Task SetProductAvailabilityAsync(
+        string productId,
+        int storeId,
+        bool isAvailable
+    );
 
     Task<Product?> UpdateProductAsync(
         string productId,

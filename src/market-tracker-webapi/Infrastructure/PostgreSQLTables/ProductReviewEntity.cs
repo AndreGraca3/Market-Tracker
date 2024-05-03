@@ -9,7 +9,6 @@ namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 [PrimaryKey(nameof(ClientId), nameof(ProductId))]
 public class ProductReviewEntity
 {
-    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
     public int Id { get; set; }
@@ -28,7 +27,7 @@ public class ProductReviewEntity
     public string? Text { get; set; }
 
     [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     public ProductReview ToProductReview()
     {

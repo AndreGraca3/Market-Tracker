@@ -20,7 +20,6 @@ public interface IProductFeedbackService
         Guid clientId,
         string productId,
         Optional<bool> isFavorite,
-        Optional<PriceAlertInputModel?> priceAlert,
         Optional<ProductReviewInputModel?> review
     );
 

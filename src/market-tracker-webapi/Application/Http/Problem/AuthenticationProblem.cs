@@ -11,21 +11,21 @@ public class AuthenticationProblem(
     public class InvalidFormat() : AuthenticationProblem(
         401,
         "invalid-format",
-        "invalid format",
+        "Invalid format",
         "Request's token is in an invalid format, not in UUID format."
     );
 
     public class InvalidToken() : AuthenticationProblem(
         401,
         "invalid-token",
-        "invalid token",
-        "Request's token is missing"
+        "Invalid token",
+        "Request's token is invalid or expired"
     );
 
-    public class UnauthorizedResource() : AuthenticationProblem(
+    public class AccessDenied() : AuthenticationProblem(
         403,
-        "unauthorized-resource",
-        "unauthorized resource",
-        "No permission to access this resource"
+        "access-denied",
+        "Access denied",
+        "You do not have the necessary permissions to perform this action"
     );
 }

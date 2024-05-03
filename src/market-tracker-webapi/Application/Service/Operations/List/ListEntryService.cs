@@ -5,7 +5,7 @@ using market_tracker_webapi.Application.Http.Models.ListEntry;
 using market_tracker_webapi.Application.Repository.Dto.List;
 using market_tracker_webapi.Application.Repository.Dto.Store;
 using market_tracker_webapi.Application.Repository.Operations.List;
-using market_tracker_webapi.Application.Repository.Operations.Prices;
+using market_tracker_webapi.Application.Repository.Operations.Price;
 using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Repository.Operations.Store;
 using market_tracker_webapi.Application.Service.Errors;
@@ -204,7 +204,7 @@ public class ListEntryService(
                             ?.IsAvailable ?? false);
 
                         var storePrice = entry.StoreId is not null && isAvailable
-                            ? await priceRepository.GetStorePriceByProductIdAsync(entry.ProductId, entry.StoreId.Value,
+                            ? await priceRepository.GetStorePriceAsync(entry.ProductId, entry.StoreId.Value,
                                 DateTime.Now)
                             : null;
 
@@ -245,7 +245,7 @@ public class ListEntryService(
 
             if (listEntry.StorePrice is not null)
             {
-                totalPrice += listEntry.StorePrice.PriceData.Price * product.Quantity;
+                totalPrice += listEntry.StorePrice.PriceData.FinalPrice * product.Quantity;
                 totalProducts++;
             }
 

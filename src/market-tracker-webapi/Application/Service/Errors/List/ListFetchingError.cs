@@ -12,5 +12,4 @@ public class ListFetchingError : IListError
         public Guid ClientId { get; } = clientId;
         public int ListId { get; } = listId;
     }
-    
 }

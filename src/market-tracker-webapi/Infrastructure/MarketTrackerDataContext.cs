@@ -25,6 +25,8 @@ namespace market_tracker_webapi.Infrastructure
 
         public DbSet<ProductStatsCountsEntity> ProductStatsCounts { get; set; }
 
+        public DbSet<FcmRegisterEntity> FcmRegister { get; set; }
+        
         public DbSet<PriceAlertEntity> PriceAlert { get; set; }
 
         public DbSet<PriceEntryEntity> PriceEntry { get; set; }

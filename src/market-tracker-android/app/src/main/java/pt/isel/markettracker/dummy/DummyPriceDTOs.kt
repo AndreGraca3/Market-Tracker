@@ -1,6 +1,6 @@
 package pt.isel.markettracker.dummy
 
-import pt.isel.markettracker.domain.price.StorePrice
+import pt.isel.markettracker.domain.model.price.StorePrice
 import pt.isel.markettracker.http.models.price.CompanyPrices
 import java.time.LocalDateTime
 

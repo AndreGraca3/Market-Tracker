@@ -1,11 +1,7 @@
 ﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.List;
-using market_tracker_webapi.Application.Http.Models.ListEntry;
-using market_tracker_webapi.Application.Repository.Dto.List;
 using market_tracker_webapi.Application.Repository.Operations.List;
-using market_tracker_webapi.Application.Repository.Operations.Prices;
-using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.List;
@@ -24,17 +20,12 @@ public class ListService(
     private const int MaxListNumber = 10;
 
     public async Task<Either<IServiceError, CollectionOutputModel<ShoppingList>>> GetListsAsync(Guid clientId,
-        string? listName,
-        DateTime? createdAfter, bool? isArchived, bool? isOwner = null
-    )
+        bool isOwner, string? listName, DateTime? createdAfter, bool? isArchived)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            if (await userRepository.GetUserByIdAsync(clientId) is null)
-                return EitherExtensions.Failure<IServiceError, CollectionOutputModel<ShoppingList>>(
-                    new UserFetchingError.UserByIdNotFound(clientId));
-
-            var lists = await listRepository.GetListsAsync(clientId, listName, createdAfter, isArchived, isOwner);
+            var lists
+                = await listRepository.GetListsAsync(clientId, isOwner, listName, createdAfter, isArchived);
             return EitherExtensions.Success<IServiceError, CollectionOutputModel<ShoppingList>>(
                 new CollectionOutputModel<ShoppingList>(lists));
         });
@@ -72,15 +63,11 @@ public class ListService(
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            if (await userRepository.GetUserByIdAsync(clientId) is null)
-                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
-                    new UserFetchingError.UserByIdNotFound(clientId));
-
-            if (!(await listRepository.GetListsAsync(clientId, listName)).IsNullOrEmpty())
+            if (!(await listRepository.GetListsAsync(clientId, true, listName)).IsNullOrEmpty())
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                     new ListCreationError.ListNameAlreadyExists(clientId, listName));
 
-            if ((await listRepository.GetListsAsync(clientId)).Count() >= MaxListNumber)
+            if ((await listRepository.GetListsAsync(clientId, true)).Count() >= MaxListNumber)
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                     new ListCreationError.MaxListNumberReached(clientId, MaxListNumber));
 
@@ -110,7 +97,7 @@ public class ListService(
                     new ListUpdateError.ListIsArchived(id)
                 );
 
-            if (listName is not null && !(await listRepository.GetListsAsync(clientId, listName)).IsNullOrEmpty())
+            if (listName is not null && !(await listRepository.GetListsAsync(clientId, true, listName)).IsNullOrEmpty())
                 return EitherExtensions.Failure<IServiceError, ShoppingList>(
                     new ListCreationError.ListNameAlreadyExists(clientId, listName)
                 );
@@ -140,12 +127,12 @@ public class ListService(
         });
     }
 
-    public async Task<Either<IServiceError, ListClient>> AddClientToListAsync(int listId, Guid clientIdToAdd,
-        Guid clientId)
+    public async Task<Either<IServiceError, ListClient>> AddClientToListAsync(int listId,
+        Guid clientId, Guid clientIdToAdd)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            if (await userRepository.GetUserByIdAsync(clientId) is null)
+            if (await userRepository.GetUserByIdAsync(clientIdToAdd) is null)
                 return EitherExtensions.Failure<IServiceError, ListClient>(
                     new UserFetchingError.UserByIdNotFound(clientId));
 
@@ -171,37 +158,34 @@ public class ListService(
         });
     }
 
-    public async Task<Either<IServiceError, ListClient>> RemoveClientFromListAsync(int listId, Guid clientId)
+    public async Task<Either<IListError, ListClient>> RemoveClientFromListAsync(int listId, Guid clientId,
+        Guid clientIdToRemove)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            if (await userRepository.GetUserByIdAsync(clientId) is null)
-                return EitherExtensions.Failure<IServiceError, ListClient>(
-                    new UserFetchingError.UserByIdNotFound(clientId));
-
             var list = await listRepository.GetListByIdAsync(listId);
             if (list is null)
-                return EitherExtensions.Failure<IServiceError, ListClient>(
+                return EitherExtensions.Failure<IListError, ListClient>(
                     new ListFetchingError.ListByIdNotFound(listId));
 
-            if (list.OwnerId == clientId)
+            if (list.OwnerId != clientId)
             {
-                await listRepository.DeleteListAsync(listId);
-                return EitherExtensions.Success<IServiceError, ListClient>(new ListClient()
-                {
-                    ClientId = clientId,
-                    ListId = listId
-                });
+                return EitherExtensions.Failure<IListError, ListClient>(
+                    new ListFetchingError.UserDoesNotOwnList(clientId, listId));
             }
 
-            var listClient = await listRepository.DeleteListClientAsync(listId, clientId);
-            if (listClient is null)
+            if (!await listRepository.IsClientInListAsync(listId, clientIdToRemove))
             {
-                return EitherExtensions.Failure<IServiceError, ListClient>(
-                    new ListClientFetchingError.ClientInListNotFound(clientId, listId));
+                return EitherExtensions.Failure<IListError, ListClient>(
+                    new ListClientFetchingError.ClientInListNotFound(listId, clientIdToRemove));
             }
 
-            return EitherExtensions.Success<IServiceError, ListClient>(listClient);
+            await listRepository.DeleteListClientAsync(listId, clientIdToRemove);
+            return EitherExtensions.Success<IListError, ListClient>(new ListClient()
+            {
+                ClientId = clientIdToRemove,
+                ListId = listId
+            });
         });
     }
 }

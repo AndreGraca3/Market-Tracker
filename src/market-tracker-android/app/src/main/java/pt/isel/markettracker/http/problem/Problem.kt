@@ -1,22 +1,29 @@
 package pt.isel.markettracker.http.problem
 
-data class Problem(
-    val type: String,
+import okhttp3.MediaType.Companion.toMediaType
+
+sealed class Problem(
+    subType: String,
     val title: String,
     val status: Int,
-    val detail: String,
-    // TODO val data: T
+    val detail: String
 ) {
     companion object {
-        val INTERNAL_SERVER_ERROR = Problem(
-            type = "https://markettracker.pt/probs/internal-server-error",
-            title = "Something went wrong",
-            status = 500,
-            detail = "Something went wrong, please try again later."
-        )
+        const val BASE_TYPE = "https://markettracker.pt/probs/"
+
+        val MEDIA_TYPE = "application/problem+json".toMediaType()
     }
+
+    val type: String = BASE_TYPE + subType
 
     override fun toString(): String {
         return "{type=$type, title=$title, status=$status, detail=$detail}"
     }
 }
+
+class InternalServerErrorProblem : Problem(
+    subType = "internal-server-error",
+    title = "Something went wrong",
+    status = 500,
+    detail = "Something went wrong, please try again later"
+)

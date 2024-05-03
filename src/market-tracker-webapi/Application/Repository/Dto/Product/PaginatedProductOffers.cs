@@ -20,17 +20,6 @@ public class ProductsFacetsCounters(
     public IEnumerable<FacetCounter> Brands { get; set; } = brandFacets;
     public IEnumerable<FacetCounter> Categories { get; set; } = categoryFacets;
     public IEnumerable<FacetCounter> Companies { get; set; } = companyFacets;
-
-    public ProductsFacetsCounters(): this(null, null, null) {}
-    
-    public ProductsFacetsCounters(IEnumerable<FacetCounter> brandFacets, IEnumerable<FacetCounter> categoryFacets) :
-        this(
-            brandFacets,
-            categoryFacets,
-            new List<FacetCounter>()
-        )
-    {
-    }
 }
 
 public class FacetCounter

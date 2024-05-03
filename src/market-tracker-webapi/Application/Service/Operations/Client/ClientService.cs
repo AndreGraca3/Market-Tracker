@@ -1,12 +1,15 @@
 ﻿using market_tracker_webapi.Application.Http.Models.Client;
+using market_tracker_webapi.Application.Pipeline.authorization;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Application.Repository.Operations.Account;
 using market_tracker_webapi.Application.Repository.Operations.Client;
 using market_tracker_webapi.Application.Repository.Operations.User;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
+using Microsoft.OpenApi.Extensions;
 
 namespace market_tracker_webapi.Application.Service.Operations.Client;
 
@@ -19,14 +22,12 @@ public class ClientService(
     ITransactionManager transactionManager
 ) : IClientService
 {
-    private const string Role = "client";
-
     public async Task<PaginatedResult<ClientInfo>> GetClientsAsync(string? username, int skip, int take)
     {
         return await clientRepository.GetClientsAsync(username, skip, take);
     }
 
-    public async Task<Either<UserFetchingError, ClientOutputModel>> GetClientAsync(Guid id)
+    public async Task<Either<UserFetchingError, ClientOutputModel>> GetClientByIdAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
@@ -62,7 +63,7 @@ public class ClientService(
                 );
             }
 
-            var userId = await userRepository.CreateUserAsync(username, name, email, Role);
+            var userId = await userRepository.CreateUserAsync(username, name, email, Role.Client.GetDisplayName());
             if (avatarUrl is not null) await clientRepository.CreateClientAsync(userId, avatarUrl);
             if (password is not null) await accountRepository.CreatePasswordAsync(userId, password);
 
@@ -127,6 +128,27 @@ public class ClientService(
                     client?.AvatarUrl
                 )
             );
+        });
+    }
+
+    public async Task<Either<IServiceError, bool>> UpsertNotificationDeviceAsync(Guid clientId, string deviceId,
+        string firebaseToken)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            await clientRepository.UpsertDeviceTokenAsync(clientId, deviceId, firebaseToken);
+
+            return EitherExtensions.Success<IServiceError, bool>(true);
+        });
+    }
+
+    public Task<Either<IServiceError, bool>> DeRegisterNotificationDeviceAsync(Guid id, string deviceId)
+    {
+        return transactionManager.ExecuteAsync(async () =>
+        {
+            await clientRepository.RemoveDeviceTokenAsync(id, deviceId);
+
+            return EitherExtensions.Success<IServiceError, bool>(true);
         });
     }
 }

@@ -1,6 +1,6 @@
 package pt.isel.markettracker.http.models.price
 
-import pt.isel.markettracker.domain.price.StorePrice
+import pt.isel.markettracker.domain.model.price.StorePrice
 
 data class CompanyPrices(
     val id: Int,

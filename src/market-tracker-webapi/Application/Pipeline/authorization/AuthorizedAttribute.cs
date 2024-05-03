@@ -1,21 +1,27 @@
-using Microsoft.IdentityModel.Tokens;
+namespace market_tracker_webapi.Application.Pipeline.authorization;
 
-namespace market_tracker_webapi.Application.Pipeline.Authorization;
-
-public class AuthorizedAttribute : Attribute
+[AttributeUsage(AttributeTargets.Method)]
+public class AuthorizedAttribute(Role[] roles) : Attribute
 {
-    public string[] Roles;
+    public readonly Role[] Roles = roles;
+}
 
-    private static readonly string[] ValidRoles = ["moderator", "operator", "client"];
+public enum Role
+{
+    Moderator,
+    Operator,
+    Client
+}
 
-    public AuthorizedAttribute(string[] roles)
+static class RoleExtensions
+{
+    public static Role ToRole(this string role) => role switch
     {
-        var invalidRole = Roles?.FirstOrDefault(it => !ValidRoles.Contains(it));
-        if (!Roles.IsNullOrEmpty() && invalidRole != null)
-        {
-            throw new ArgumentException($"Invalid role parameter: {invalidRole}");
-        }
-
-        Roles = roles;
-    }
+        "Moderator" => Role.Moderator,
+        "Operator" => Role.Operator,
+        "Client" => Role.Client,
+        _ => throw new ArgumentException("Invalid role")
+    };
+    
+    public static bool ContainsRole(this Role[] roles, string role) => roles.Contains(role.ToRole());
 }

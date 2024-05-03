@@ -23,17 +23,21 @@ public static class Uris
     {
         public const string Base = $"{ApiBase}/clients";
         public const string ClientById = $"{Base}/{{id}}";
+        public const string Me = $"{Base}/me";
+        public const string RegisterPushNotifications = $"{Me}/register-push-notifications";
+        public const string DeRegisterPushNotifications = $"{Me}/deregister-push-notifications";
     }
 
     public static class Google
     {
-        public const string Base = $"{ApiBase}/googleAuthentication";
+        public const string Base = $"{ApiBase}/google-signin";
     }
 
     public static class Products
     {
         public const string Base = $"{ApiBase}/products";
         public const string ProductById = $"{Base}/{{productId}}";
+        public const string AvailabilityByProductId = $"{ProductById}/availability";
         public const string ReviewsByProductId = $"{ProductById}/reviews";
         public const string StatsByProductId = $"{ProductById}/stats";
         public const string PricesByProductId = $"{ProductById}/prices";
@@ -45,14 +49,23 @@ public static class Uris
         public static string BuildReviewsByProductIdUri(string id) =>
             ReviewsByProductId.ExpandUri(id);
     }
-    
+
+    public static class Alerts
+    {
+        public const string Base = $"{ApiBase}/alerts";
+        public const string AlertById = $"{Base}/{{alertId}}";
+
+        public static string BuildAlertByIdUri(string id) => AlertById.ExpandUri(id);
+    }
+
     public static class Lists
     {
         public const string Base = $"{ApiBase}/lists";
         public const string ListById = $"{Base}/{{listId}}";
         public const string ProductsByListId = $"{ListById}/products";
-        public const string ProductByListIdAndProductId = $"{ProductsByListId}/{{productId}}";
-        public const string Clients = $"{ListById}/clients";
+        public const string ProductByListId = $"{ProductsByListId}/{{productId}}";
+        public const string ClientsByListId = $"{ListById}/clients";
+        public const string ClientByListId = $"{ClientsByListId}/{{clientId}}";
 
         public static string BuildListByIdUri(int id) => ListById.ExpandUri(id);
     }

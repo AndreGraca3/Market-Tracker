@@ -9,26 +9,19 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
 {
     public async Task<IEnumerable<ShoppingList>> GetListsAsync(
         Guid clientId,
+        bool isOwner,
         string? listName = null,
         DateTime? createdAfter = null,
-        bool? isArchived = false,
-        bool? isOwner = null
+        bool? isArchived = false
     )
     {
         var query = context.List.AsQueryable()
             .Join(context.ListClient, listEntity => listEntity.Id, listClient => listClient.ListId,
                 (listEntity, listClient) => listEntity);
 
-        if (isOwner is not null)
+        if (isOwner)
         {
-            if (!isOwner.Value)
-            {
-                query = query.Where(l => l.OwnerId != clientId);
-            }
-            else
-            {
-                query = query.Where(l => l.OwnerId == clientId);
-            }
+            query = query.Where(l => l.OwnerId == clientId);
         }
 
         if (!string.IsNullOrEmpty(listName))
@@ -68,7 +61,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
 
         return clients;
     }
-    
+
     public async Task<bool> IsClientInListAsync(int listId, Guid clientId)
     {
         return await context.ListClient

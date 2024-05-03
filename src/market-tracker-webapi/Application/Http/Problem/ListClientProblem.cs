@@ -15,16 +15,16 @@ public class ListClientProblem(
             409,
             "client-already-in-list",
             "Client already in list",
-            $"Client {data.ClientId} is already in list {data.ListId}",
+            "Client is already in the list",
             data
         );
-
+    
     public class ClientInListNotFound(ListClientFetchingError.ClientInListNotFound data)
         : ListClientProblem(
             404,
             "client-in-list-not-found",
             "Client in list not found",
-            $"Client {data.ClientId} not found in list {data.ListId}",
+            "Client is not in this list",
             data
         );
 }

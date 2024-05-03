@@ -4,8 +4,8 @@ namespace market_tracker_webapi.Application.Repository.Operations.List;
 
 public interface IListRepository
 {
-    Task<IEnumerable<ShoppingList>> GetListsAsync(Guid clientId, string? listName = null,
-        DateTime? createdAfter = null, bool? isArchived = null, bool? isOwner = null
+    Task<IEnumerable<ShoppingList>> GetListsAsync(Guid clientId, bool isOwner, string? listName = null,
+        DateTime? createdAfter = null, bool? isArchived = null
     );
 
     Task<IEnumerable<Guid>> GetClientIdsByListIdAsync(int  listId);

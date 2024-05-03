@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.markettracker.R
 import pt.isel.markettracker.ui.components.buttons.ButtonWithImage
 import pt.isel.markettracker.ui.components.text.LinesWithElementCentered
@@ -31,7 +32,7 @@ const val LoginPasswordInputTag = "LoginPasswordInputTag"
 @Composable
 fun LoginScreen(
     onSignUpRequested: () -> Unit,
-    loginScreenViewModel: LoginScreenViewModel
+    loginScreenViewModel: LoginScreenViewModel = hiltViewModel()
 ) {
     Box(
         modifier = Modifier
