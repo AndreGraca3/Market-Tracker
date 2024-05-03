@@ -9,7 +9,6 @@ using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
-using Microsoft.OpenApi.Extensions;
 
 namespace market_tracker_webapi.Application.Service.Operations.Client;
 
@@ -28,7 +27,7 @@ public class ClientService(
         );
     }
 
-    public async Task<Either<UserFetchingError, ClientInfo>> GetClientAsync(Guid id)
+    public async Task<Either<UserFetchingError, ClientInfo>> GetClientByIdAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
@@ -115,6 +114,25 @@ public class ClientService(
             return EitherExtensions.Success<UserFetchingError, GuidOutputModel>(
                 new GuidOutputModel(deletedUser!.Id)
             );
+        });
+    }
+
+    public async Task<Either<IServiceError, bool>> UpsertNotificationDeviceAsync(Guid clientId, string deviceId,
+        string firebaseToken)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            await clientRepository.UpsertDeviceTokenAsync(clientId, deviceId, firebaseToken);
+            return EitherExtensions.Success<IServiceError, bool>(true);
+        });
+    }
+
+    public async Task<Either<IServiceError, bool>> DeRegisterNotificationDeviceAsync(Guid id, string deviceId)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            await clientRepository.RemoveDeviceTokenAsync(id, deviceId);
+            return EitherExtensions.Success<IServiceError, bool>(true);
         });
     }
 }

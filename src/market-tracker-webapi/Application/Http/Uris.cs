@@ -102,9 +102,9 @@ public static class Uris
         public const string StoreById = $"{Base}/{{id}}";
         public const string StoresFromCompany = $"{Base}/company/{{companyId}}";
         public const string StoresByCityName = $"{Base}/city/{{cityName}}";
-        public const string StoresPreRegister = $"${Base}/pre-register";
-        public const string StoresPending = $"${Base}/pending";
-        public const string StoresPendingById = $"${Base}/pending/{{id}}";
+        public const string StoresPreRegister = $"{Base}/pre-register";
+        public const string StoresPending = $"{Base}/pending";
+        public const string StoresPendingById = $"{Base}/pending/{{id}}";
     }
 
     private static string ExpandUri(this string input, params object[] args)

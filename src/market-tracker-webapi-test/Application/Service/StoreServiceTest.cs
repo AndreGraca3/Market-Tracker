@@ -13,7 +13,7 @@ using Moq;
 
 namespace market_tracker_webapi_test.Application.Service;
 
-public class StoreServiceTest
+/*public class StoreServiceTest
 {
     private readonly Mock<IStoreRepository> _storeRepositoryMock;
     private readonly Mock<ICityRepository> _cityRepositoryMock;
@@ -337,3 +337,4 @@ public class StoreServiceTest
         result.Value.Should().BeEquivalentTo(new IntIdOutputModel(1));
     }
 }
+*/

@@ -4,11 +4,12 @@ using market_tracker_webapi.Application.Domain;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
-[Table("pre_register", Schema = "MarketTracker")]
+[Table("pre_registration", Schema = "MarketTracker")]
 public class PreRegistrationEntity
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("code")]
+    [Key]
     public Guid Code { get; set; }
 
     [Column("operator_name")] public required string OperatorName { get; set; }

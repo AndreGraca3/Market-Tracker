@@ -150,10 +150,10 @@ create table if not exists product_availability
 
 create table if not exists fcm_registration
 (
-    client_id      uuid references client (id) on delete cascade,
-    device_id      varchar(255) not null,
-    token varchar(255) not null,
-    updated_at     timestamp    not null default now(),
+    client_id  uuid references client (id) on delete cascade,
+    device_id  varchar(255) not null,
+    token      varchar(255) not null,
+    updated_at timestamp    not null default now(),
     primary key (client_id, device_id)
 );
 
@@ -251,5 +251,5 @@ create table if not exists pre_registration
     city_name     varchar(30),
     created_at    timestamp           not null default now(),
     document      Text unique         not null,
-    is_approved boolean                      default false
+    is_approved   boolean                      default false
 );

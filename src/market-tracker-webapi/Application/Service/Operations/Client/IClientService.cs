@@ -11,7 +11,7 @@ public interface IClientService
 {
     Task<Either<IServiceError, PaginatedResult<ClientItem>>> GetClientsAsync(string? username, int skip, int limit);
 
-    Task<Either<UserFetchingError, ClientInfo>> GetClientAsync(Guid id);
+    Task<Either<UserFetchingError, ClientInfo>> GetClientByIdAsync(Guid id);
 
     Task<Either<UserCreationError, GuidOutputModel>> CreateClientAsync(
         string username,

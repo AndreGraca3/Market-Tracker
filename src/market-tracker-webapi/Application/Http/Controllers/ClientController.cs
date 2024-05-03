@@ -69,13 +69,13 @@ public class ClientController(IClientService clientService) : ControllerBase
             {
                 return error switch
                 {
-                    UserCreationError.EmailAlreadyInUse emailAlreadyInUse
+                    UserCreationError.CredentialAlreadyInUse emailAlreadyInUse
                         => new UserProblem.UserAlreadyExists(
                             emailAlreadyInUse
                         ).ToActionResult(),
 
                     UserCreationError.InvalidEmail invalidEmail
-                        => new UserProblem.InvalidEmail(invalidEmail).ToActionResult()
+                        => new UserProblem.InvalidEmail(invalidEmail).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
@@ -85,13 +85,13 @@ public class ClientController(IClientService clientService) : ControllerBase
     }
 
     [HttpPut(Uris.Clients.ClientById)]
-    public async Task<ActionResult<Client>> UpdateUserAsync(
+    public async Task<ActionResult<ClientInfo>> UpdateUserAsync(
         Guid id,
         [FromBody] ClientUpdateInputModel clientInput
     )
     {
         return ResultHandler.Handle(
-            await clientService.UpdateClientAsync(id, clientInput.Avatar),
+            await clientService.UpdateClientAsync(id, clientInput.Name, clientInput.Username, clientInput.Avatar),
             error =>
             {
                 return error switch
@@ -105,7 +105,7 @@ public class ClientController(IClientService clientService) : ControllerBase
     }
 
     [HttpDelete(Uris.Clients.ClientById)]
-    public async Task<ActionResult<ClientOutputModel>> DeleteUserAsync(Guid id)
+    public async Task<ActionResult<GuidOutputModel>> DeleteClientAsync(Guid id)
     {
         return ResultHandler.Handle(
             await clientService.DeleteClientAsync(id),
@@ -115,25 +115,6 @@ public class ClientController(IClientService clientService) : ControllerBase
                 {
                     UserFetchingError.UserByIdNotFound userByIdNotFound
                         => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
-                };
-            },
-            _ => NoContent()
-        );
-    }
-}
-
-    [HttpDelete(Uris.Clients.ClientById)]
-    public async Task<ActionResult<ClientOutputModel>> DeleteUserAsync(Guid id)
-    {
-        return ResultHandler.Handle(
-            await clientService.DeleteClientAsync(id),
-            error =>
-            {
-                return error switch
-                {
-                    UserFetchingError.UserByIdNotFound userByIdNotFound
-                        => new UserProblem.UserByIdNotFound(userByIdNotFound).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             },
             _ => NoContent()
@@ -171,4 +152,5 @@ public class ClientController(IClientService clientService) : ControllerBase
             _ => new ServerProblem.InternalServerError().ToActionResult(),
             _ => NoContent()
         );
+    }
 }

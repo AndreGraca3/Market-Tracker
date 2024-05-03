@@ -1,3 +1,5 @@
+using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Infrastructure;
@@ -34,18 +36,14 @@ public class ClientRepository(
             join client in dataContext.Client on user.Id equals client.UserId into clientGroup
             from client in clientGroup.DefaultIfEmpty()
             where user.Role == Role.Client.ToString() && user.Id == id
-            select new ClientInfo(user.Id, client.Username, user.Name, user.CreatedAt, client.Avatar);
+            select new ClientInfo(user.Id, client.Username, user.Name, user.Email, user.CreatedAt, client.Avatar);
 
         return await query.FirstOrDefaultAsync();
     }
 
-    public async Task<ClientInfo?> GetClientByIdAsync(Guid id)
+    public async Task<Client?> GetClientByUsernameAsync(string username)
     {
-        return await (from user in dataContext.User
-                join client in dataContext.Client on user.Id equals client.UserId
-                where user.Id == id
-                select new ClientInfo(user.Id, user.Username, user.Name, user.Email, user.CreatedAt, client.Avatar))
-            .FirstOrDefaultAsync();
+        return (await dataContext.Client.FirstOrDefaultAsync(client => client.Username == username))?.ToClient();
     }
 
     public async Task<Guid> CreateClientAsync(Guid userId, string username, string? avatarUrl)
@@ -123,7 +121,8 @@ public class ClientRepository(
 
     public async Task<DeviceToken?> RemoveDeviceTokenAsync(Guid clientId, string deviceId)
     {
-        var registerEntity = await dataContext.FcmRegister.FirstOrDefaultAsync(r => r.ClientId == clientId && r.DeviceId == deviceId);
+        var registerEntity =
+            await dataContext.FcmRegister.FirstOrDefaultAsync(r => r.ClientId == clientId && r.DeviceId == deviceId);
         if (registerEntity is null)
         {
             return null;

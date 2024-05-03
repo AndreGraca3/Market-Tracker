@@ -22,7 +22,7 @@ public class AuthenticationProblem(
         "Request's token is invalid or expired"
     );
 
-    public class AccessDenied() : AuthenticationProblem(
+    public class UnauthorizedResource() : AuthenticationProblem(
         403,
         "access-denied",
         "Access denied",

@@ -4,6 +4,7 @@ public record ClientInfo(
     Guid Id,
     string? Username,
     string Name,
+    string Email,
     DateTime CreatedAt,
     string? AvatarUrl
 )
@@ -12,6 +13,7 @@ public record ClientInfo(
         user.Id,
         username,
         user.Name,
+        user.Email,
         user.CreatedAt,
         avatar
     )
