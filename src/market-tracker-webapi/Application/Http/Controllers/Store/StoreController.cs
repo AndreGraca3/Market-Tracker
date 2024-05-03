@@ -7,7 +7,7 @@ using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Operations.Store;
 using Microsoft.AspNetCore.Mvc;
 
-namespace market_tracker_webapi.Application.Http.Controllers;
+namespace market_tracker_webapi.Application.Http.Controllers.Store;
 
 [ApiController]
 public class StoreController(IStoreService storeService) : ControllerBase

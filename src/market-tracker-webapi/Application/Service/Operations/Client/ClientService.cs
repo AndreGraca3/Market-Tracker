@@ -5,6 +5,7 @@ using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Application.Repository.Operations.Account;
 using market_tracker_webapi.Application.Repository.Operations.Client;
 using market_tracker_webapi.Application.Repository.Operations.User;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
@@ -18,9 +19,12 @@ public class ClientService(
     ITransactionManager transactionManager
 ) : IClientService
 {
-    public async Task<PaginatedResult<ClientItem>> GetClientsAsync(string? username, int skip, int take)
+    public async Task<Either<IServiceError, PaginatedResult<ClientItem>>> GetClientsAsync(string? username, int skip,
+        int take)
     {
-        return await clientRepository.GetClientsAsync(username, skip, take);
+        return EitherExtensions.Success<IServiceError, PaginatedResult<ClientItem>>(
+            await clientRepository.GetClientsAsync(username, skip, take)
+        );
     }
 
     public async Task<Either<UserFetchingError, ClientInfo>> GetClientAsync(Guid id)
@@ -58,15 +62,15 @@ public class ClientService(
                 );
             }
 
-            if (await userRepository.GetUserByUsernameAsync(username) is not null)
+            if (await clientRepository.GetClientByUsernameAsync(username) is not null)
             {
                 return EitherExtensions.Failure<UserCreationError, GuidOutputModel>(
                     new UserCreationError.CredentialAlreadyInUse(username, nameof(username))
                 );
             }
 
-            var userId = await userRepository.CreateUserAsync(username, name, email, Role.Client.ToString());
-            if (avatarUrl is not null) await clientRepository.CreateClientAsync(userId, avatarUrl);
+            var userId = await userRepository.CreateUserAsync(name, email, Role.Client.ToString());
+            await clientRepository.CreateClientAsync(userId, username, avatarUrl);
             if (password is not null) await accountRepository.CreatePasswordAsync(userId, password);
 
             return EitherExtensions.Success<UserCreationError, GuidOutputModel>(
@@ -80,23 +84,21 @@ public class ClientService(
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var user = await userRepository.UpdateUserAsync(id, name, username);
+            var user = await userRepository.UpdateUserAsync(id, name);
 
             if (await clientRepository.GetClientByIdAsync(id) is not null)
             {
                 await clientRepository.UpdateClientAsync(
                     id,
+                    username,
                     avatarUrl
                 );
-            }
-            else
-            {
-                await clientRepository.CreateClientAsync(id, avatarUrl);
             }
 
             return EitherExtensions.Success<UserFetchingError, ClientInfo>(
                 new ClientInfo(
                     user!,
+                    username,
                     avatarUrl
                 )
             );

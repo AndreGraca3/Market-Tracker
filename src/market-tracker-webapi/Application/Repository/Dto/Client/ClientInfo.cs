@@ -2,15 +2,15 @@
 
 public record ClientInfo(
     Guid Id,
-    string Username,
+    string? Username,
     string Name,
     DateTime CreatedAt,
     string? AvatarUrl
 )
 {
-    public ClientInfo(Domain.User user, string? avatar) : this(
+    public ClientInfo(Domain.User user, string? username, string? avatar) : this(
         user.Id,
-        user.Username,
+        username,
         user.Name,
         user.CreatedAt,
         avatar

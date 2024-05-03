@@ -11,7 +11,9 @@ public interface IClientRepository
 
     Task<ClientInfo?> GetClientByIdAsync(Guid id);
 
-    Task<Guid> CreateClientAsync(Guid userId, string? avatarUrl);
+    Task<Client?> GetClientByUsernameAsync(string username);
 
-    Task<Client?> UpdateClientAsync(Guid id, string? avatarUrl = null);
+    Task<Guid> CreateClientAsync(Guid userId, string username, string? avatarUrl);
+
+    Task<Client?> UpdateClientAsync(Guid id, string? username, string? avatarUrl = null);
 }

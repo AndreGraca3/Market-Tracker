@@ -5,13 +5,12 @@ using market_tracker_webapi.Application.Repository.Dto.User;
 using market_tracker_webapi.Application.Repository.Operations.Account;
 using market_tracker_webapi.Application.Repository.Operations.Token;
 using market_tracker_webapi.Application.Repository.Operations.User;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.User;
-
-using User = Domain.User;
 
 public class UserService(
     IUserRepository userRepository,
@@ -20,14 +19,15 @@ public class UserService(
     ITransactionManager transactionManager
 ) : IUserService
 {
-    public async Task<PaginatedResult<UserItem>> GetUsersAsync(
-        string? username,
+    public async Task<Either<IServiceError, PaginatedResult<UserItem>>> GetUsersAsync(
         string? role,
         int skip,
         int take
     )
     {
-        return await userRepository.GetUsersAsync(username, role, skip, take);
+        return EitherExtensions.Success<IServiceError, PaginatedResult<UserItem>>(
+            await userRepository.GetUsersAsync(role, skip, take)
+        );
     }
 
     public async Task<Either<UserFetchingError, UserOutputModel>> GetUserAsync(Guid id)
@@ -43,7 +43,7 @@ public class UserService(
             }
 
             return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
-                new UserOutputModel(user.Id, user.Username, user.Name, user.CreatedAt)
+                new UserOutputModel(user.Id, user.Name, user.CreatedAt)
             );
         });
     }
@@ -64,10 +64,9 @@ public class UserService(
     }
 
     public async Task<Either<UserCreationError, UserCreationOutputModel>> CreateUserAsync(
-        string username,
         string name,
         string email,
-        string? password,
+        string password,
         string role
     )
     {
@@ -80,7 +79,7 @@ public class UserService(
                 );
             }
 
-            var userId = await userRepository.CreateUserAsync(username, name, email, role);
+            var userId = await userRepository.CreateUserAsync(name, email, role);
             await accountRepository.CreatePasswordAsync(userId, password);
 
             return EitherExtensions.Success<UserCreationError, UserCreationOutputModel>(
@@ -91,16 +90,14 @@ public class UserService(
 
     public async Task<Either<UserFetchingError, UserOutputModel>> UpdateUserAsync(
         Guid id,
-        string? name,
-        string? username
+        string? name
     )
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var user = await userRepository.UpdateUserAsync(
                 id,
-                name == "" ? null : name,
-                username == "" ? null : username
+                name == "" ? null : name
             );
 
             if (user is null)
@@ -111,7 +108,7 @@ public class UserService(
             }
 
             return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
-                new UserOutputModel(id, user.Username, user.Name, user.CreatedAt)
+                new UserOutputModel(id, user.Name, user.CreatedAt)
             );
         });
     }

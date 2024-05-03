@@ -10,16 +10,16 @@ drop table if exists product_review;
 drop table if exists price_alert;
 drop table if exists product_stats_counts;
 drop table if exists fcm_registration;
-drop table if exists moderator;
-drop table if exists operator;
-drop table if exists client;
-drop table if exists account;
-drop table if exists "user";
 drop table if exists promotion;
 drop index if exists price_entry_index;
 drop table if exists price_entry;
 drop table if exists product_availability;
 drop table if exists store;
+drop table if exists moderator;
+drop table if exists operator;
+drop table if exists client;
+drop table if exists account;
+drop table if exists "user";
 drop table if exists city;
 drop table if exists product;
 drop table if exists brand;
@@ -64,13 +64,56 @@ create table if not exists city
     name varchar(30) unique not null
 );
 
+create table if not exists "user"
+(
+    id         uuid primary key             default gen_random_uuid(),
+    name       varchar(30),
+    email      varchar(200) unique not null,
+    role       varchar(20)         not null check (role in ('Operator', 'Moderator', 'Client')),
+    created_at timestamp           not null default now()
+);
+
+create table if not exists account
+(
+    user_id  uuid primary key references "user" (id) on delete cascade,
+    password varchar(30) not null
+);
+
+create table if not exists client
+(
+    id         uuid primary key references "user" (id) on delete cascade,
+    username   varchar(20) unique not null,
+    avatar_url TEXT
+);
+
+create table if not exists operator
+(
+    user_id      uuid primary key references "user" (id) on delete cascade,
+    phone_number int not null check (phone_number between 210000000 and 999999999)
+);
+
+create table if not exists moderator
+(
+    user_id  uuid primary key references "user" (id) on delete cascade,
+    username varchar(20) unique not null
+);
+
+create table if not exists token
+(
+    token_value uuid primary key,
+    created_at  timestamp not null default now(),
+    expires_at  timestamp not null,
+    user_id     uuid references "user" (id) on delete cascade
+);
+
 create table if not exists store
 (
-    id         int generated always as identity primary key,
-    name       varchar(30)         not null,
-    address    varchar(200) unique not null,
-    city_id    int references city (id) on delete cascade,
-    company_id int references company (id) on delete cascade
+    id          int generated always as identity primary key,
+    name        varchar(30)         not null,
+    address     varchar(200) unique not null,
+    city_id     int references city (id) on delete cascade,
+    company_id  int                 not null references company (id) on delete cascade,
+    operator_id uuid                not null references operator (user_id) on delete cascade
 );
 
 create table if not exists price_entry
@@ -78,7 +121,7 @@ create table if not exists price_entry
     id         varchar(25) primary key default substr(md5(random()::text), 1, 10),
     price      integer   not null,
     created_at timestamp not null      default now(),
-    store_id   int references store (id) on delete cascade,
+    store_id   int       not null references store (id) on delete cascade,
     product_id varchar(18) references product (id) on delete cascade
 );
 
@@ -98,48 +141,6 @@ create table if not exists product_availability
     product_id   varchar(18) references product (id) on delete cascade,
     store_id     int references store (id) on delete cascade,
     primary key (product_id, store_id)
-);
-
-create table if not exists "user"
-(
-    id         uuid primary key             default gen_random_uuid(),
-    username   varchar(20) unique  not null,
-    name       varchar(30),
-    email      varchar(200) unique not null,
-    role       varchar(20)         not null check (role in ('operator', 'moderator', 'client')),
-    created_at timestamp           not null default now()
-);
-
-create table if not exists account
-(
-    user_id  uuid primary key references "user" (id) on delete cascade,
-    password varchar(30) not null
-);
-
-create table if not exists client
-(
-    id         uuid primary key references "user" (id) on delete cascade,
-    avatar_url TEXT
-);
-
-create table if not exists operator
-(
-    user_id      uuid primary key references "user" (id) on delete cascade,
-    store_id     int references store (id) on delete cascade,
-    phone_number int not null check (phone_number between 210000000 and 999999999)
-);
-
-create table if not exists moderator
-(
-    user_id uuid primary key references "user" (id) on delete cascade
-);
-
-create table if not exists token
-(
-    token_value uuid primary key,
-    created_at  timestamp not null default now(),
-    expires_at  timestamp not null,
-    user_id     uuid references "user" (id) on delete cascade
 );
 
 create table if not exists fcm_registration
@@ -197,7 +198,7 @@ create table if not exists list_entry
 (
     list_id    int references list (id) on delete cascade,
     product_id varchar(18) references product (id) on delete cascade,
-    store_id   int references store (id) on delete cascade,
+    store_id   int references store (id) on delete SET NULL,
     quantity   int not null,
     primary key (list_id, product_id)
 );
@@ -226,4 +227,23 @@ create table if not exists post_comment
     client_id  uuid references client (id) on delete cascade,
     post_id    int references post (id) on delete cascade,
     primary key (client_id, post_id)
+);
+
+create table if not exists pre_registration
+(
+    -- pre-operator
+    code          uuid primary key             default gen_random_uuid(),
+    operator_name varchar(30)         not null,
+    email         varchar(200) unique not null,
+    phone_number  int                 not null check (phone_number between 210000000 and 999999999),
+    -- pre-store
+    store_name    varchar(30)         not null,
+    store_address varchar(30)                  default null,
+    -- pre-company
+    company_name  varchar(30)         not null,
+    -- pre city
+    city_name     varchar(30),
+    created_at    timestamp           not null default now(),
+    document      Text unique         not null,
+    is_approved boolean                      default false
 );

@@ -11,9 +11,7 @@ public class UserEntity
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
     public Guid Id { get; set; }
-
-    [Column("username")] public required string Username { get; set; }
-
+    
     [Column("name")] public required string Name { get; set; }
 
     [Column("email")] public required string Email { get; set; }
@@ -27,7 +25,6 @@ public class UserEntity
     {
         return new User(
             Id,
-            Username,
             Name,
             Email,
             Role,
@@ -39,7 +36,7 @@ public class UserEntity
     {
         return new UserItem(
             Id,
-            Username,
+            Name,
             Role
         );
     }

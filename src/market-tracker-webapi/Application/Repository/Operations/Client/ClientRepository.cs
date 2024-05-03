@@ -18,8 +18,8 @@ public class ClientRepository(
         var query = from user in dataContext.User
             join client in dataContext.Client on user.Id equals client.UserId into clientGroup
             from client in clientGroup.DefaultIfEmpty()
-            where user.Role == Role.Client.ToString() && (username == null || user.Username.Contains(username))
-            select new ClientItem(user.Id, user.Username, client.Avatar);
+            where user.Role == Role.Client.ToString() && (username == null || client.Username.Contains(username))
+            select new ClientItem(user.Id, client.Username, client.Avatar);
 
         var clients = await query
             .Skip(skip)
@@ -35,16 +35,22 @@ public class ClientRepository(
             join client in dataContext.Client on user.Id equals client.UserId into clientGroup
             from client in clientGroup.DefaultIfEmpty()
             where user.Role == Role.Client.ToString() && user.Id == id
-            select new ClientInfo(user.Id, user.Username, user.Name, user.CreatedAt, client.Avatar);
+            select new ClientInfo(user.Id, client.Username, user.Name, user.CreatedAt, client.Avatar);
 
         return await query.FirstOrDefaultAsync();
     }
 
-    public async Task<Guid> CreateClientAsync(Guid userId, string avatarUrl)
+    public async Task<Client?> GetClientByUsernameAsync(string username)
+    {
+        return (await dataContext.Client.FirstOrDefaultAsync(client => client.Username == username))?.ToClient();
+    }
+
+    public async Task<Guid> CreateClientAsync(Guid userId, string username, string? avatarUrl)
     {
         var newClient = new ClientEntity
         {
             UserId = userId,
+            Username = username,
             Avatar = avatarUrl
         };
         await dataContext.Client.AddAsync(newClient);
@@ -52,7 +58,7 @@ public class ClientRepository(
         return newClient.UserId;
     }
 
-    public async Task<Client?> UpdateClientAsync(Guid id, string? avatarUrl = null)
+    public async Task<Client?> UpdateClientAsync(Guid id, string? username, string? avatarUrl = null)
     {
         var clientEntity = await dataContext.Client.FindAsync(id);
         if (clientEntity is null)
@@ -60,6 +66,7 @@ public class ClientRepository(
             return null;
         }
 
+        clientEntity.Username = username ?? clientEntity.Username;
         clientEntity.Avatar = avatarUrl ?? clientEntity.Avatar;
 
         await dataContext.SaveChangesAsync();

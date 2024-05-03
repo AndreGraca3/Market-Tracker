@@ -12,14 +12,15 @@ public class UserRepository(
     MarketTrackerDataContext dataContext
 ) : IUserRepository
 {
-    public async Task<PaginatedResult<UserItem>> GetUsersAsync(string? username, string? role, int skip, int limit)
+    public async Task<PaginatedResult<UserItem>> GetUsersAsync(string? role, int skip, int limit)
     {
         var allUsers = dataContext.User.Where(user =>
-            (username == null || user.Username.Contains(username)) && (role == null || user.Role.Equals(role)));
+            role == null || user.Role.Equals(role));
 
         var users = await allUsers
             .Skip(skip)
-            .Take(limit).Select(userEntity => userEntity.ToUserItem()).ToListAsync();
+            .Take(limit).Select(userEntity => userEntity.ToUserItem())
+            .ToListAsync();
 
         return new PaginatedResult<UserItem>(users, allUsers.Count(), skip, limit);
     }
@@ -29,22 +30,16 @@ public class UserRepository(
         return (await dataContext.User.FindAsync(id))?.ToUser();
     }
 
-    public async Task<User?> GetUserByUsernameAsync(string username)
-    {
-        return (await dataContext.User.FirstOrDefaultAsync(user => user.Username == username))?.ToUser();
-    }
-
     public async Task<User?> GetUserByEmailAsync(string email)
     {
         return (await dataContext.User.FirstOrDefaultAsync(user => user.Email == email))?.ToUser();
     }
 
-    public async Task<Guid> CreateUserAsync(string username, string name, string email, string role)
+    public async Task<Guid> CreateUserAsync(string name, string email, string role)
     {
         var newUser = new UserEntity
         {
             Name = name,
-            Username = username,
             Email = email,
             Role = role
         };
@@ -53,7 +48,7 @@ public class UserRepository(
         return newUser.Id;
     }
 
-    public async Task<User?> UpdateUserAsync(Guid id, string? name, string? userName)
+    public async Task<User?> UpdateUserAsync(Guid id, string? name)
     {
         var userEntity = await dataContext.User.FindAsync(id);
         if (userEntity is null)
@@ -62,7 +57,6 @@ public class UserRepository(
         }
 
         userEntity.Name = name ?? userEntity.Name;
-        userEntity.Username = userName ?? userEntity.Username;
 
         await dataContext.SaveChangesAsync();
         return userEntity.ToUser();

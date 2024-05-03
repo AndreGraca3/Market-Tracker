@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Auth;
 using market_tracker_webapi.Application.Http.Models.Token;
+using market_tracker_webapi.Application.Repository.Operations.Client;
 using market_tracker_webapi.Application.Repository.Operations.Token;
 using market_tracker_webapi.Application.Repository.Operations.User;
 using market_tracker_webapi.Application.Service.Errors.Google;
@@ -10,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace market_tracker_webapi.Application.Service.Operations.GoogleAuth;
 
 public class GoogleAuthService(
+    IClientRepository clientRepository,
     IUserRepository userRepository,
     ITokenRepository tokenRepository,
     ITransactionManager transactionManager
@@ -40,14 +42,13 @@ public class GoogleAuthService(
 
                 var userId = (await userRepository.GetUserByEmailAsync(payload.Email))?.Id ?? await userRepository
                     .CreateUserAsync(
-                        payload.Email.Split("@").First(),
                         payload.Name,
                         payload.Email,
                         "Client"
                     );
-                
-                // add Avatar
-                
+
+                await clientRepository.CreateClientAsync(userId, payload.Email.Split("@").First(), payload.Picture);
+
                 var token = await tokenRepository.CreateTokenAsync(userId);
 
                 return EitherExtensions.Success<GoogleTokenCreationError, TokenOutputModel>(

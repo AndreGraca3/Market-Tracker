@@ -2,9 +2,8 @@
 
 public record OperatorInfo(
     Guid Id,
-    string Username,
     string Name,
     string Email,
-    DateTime CreatedAt,
-    int PhoneNumber
+    int PhoneNumber,
+    DateTime CreatedAt
 );

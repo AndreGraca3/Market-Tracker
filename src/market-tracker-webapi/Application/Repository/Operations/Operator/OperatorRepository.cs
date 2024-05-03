@@ -1,4 +1,6 @@
-﻿using market_tracker_webapi.Application.Repository.Dto.Operator;
+﻿using market_tracker_webapi.Application.Pipeline.Authorization;
+using market_tracker_webapi.Application.Repository.Dto;
+using market_tracker_webapi.Application.Repository.Dto.Operator;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;
@@ -11,12 +13,39 @@ public class OperatorRepository(
     MarketTrackerDataContext dataContext
 ) : IOperatorRepository
 {
+    public async Task<PaginatedResult<OperatorItem>> GetOperatorsAsync(int skip, int take)
+    {
+        var query = from user in dataContext.User
+            join oper in dataContext.Operator on user.Id equals oper.UserId
+            join store in dataContext.Store on oper.UserId equals store.OperatorId
+            where user.Role == Role.Operator.ToString()
+            select new OperatorItem(user.Id, user.Name, oper.PhoneNumber, store.Name, user.CreatedAt);
+
+        var operators = await query
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync();
+
+        return new PaginatedResult<OperatorItem>(operators, query.Count(), skip, take);
+    }
+
     public async Task<OperatorInfo?> GetOperatorByIdAsync(Guid id)
     {
         var query = from user in dataContext.User
             join oper in dataContext.Operator on user.Id equals oper.UserId
-            where user.Role == "client" && user.Id == id
-            select new OperatorInfo(user.Id, user.Username, user.Name, user.Email, user.CreatedAt, oper.PhoneNumber);
+            where user.Role == Role.Operator.ToString() && user.Id == id
+            select new OperatorInfo(user.Id, user.Name, user.Email, oper.PhoneNumber, user.CreatedAt);
+
+        return await query.FirstOrDefaultAsync();
+    }
+
+    public async Task<Operator?> GetOperatorByEmailAsync(string email)
+    {
+        var query = from user in dataContext.User
+            join oper in dataContext.Operator on user.Id equals oper.UserId
+            join store in dataContext.Store on oper.UserId equals store.OperatorId
+            where user.Role == Role.Operator.ToString()
+            select new Operator(user.Id, oper.PhoneNumber);
 
         return await query.FirstOrDefaultAsync();
     }
