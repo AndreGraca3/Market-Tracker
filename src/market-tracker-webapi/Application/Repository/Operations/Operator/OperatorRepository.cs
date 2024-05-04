@@ -1,4 +1,4 @@
-﻿using market_tracker_webapi.Application.Pipeline.Authorization;
+﻿using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Operator;
 using market_tracker_webapi.Infrastructure;

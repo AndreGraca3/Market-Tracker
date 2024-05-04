@@ -9,11 +9,12 @@ namespace market_tracker_webapi.Application.Service.Operations.Alert;
 public interface IAlertService
 {
     Task<Either<IServiceError, CollectionOutputModel<PriceAlert>>> GetPriceAlertsByClientIdAsync(Guid clientId,
-        string? productId);
+        string? productId, int? storeId);
 
     Task<Either<IServiceError, StringIdOutputModel>> AddPriceAlertAsync(
         Guid clientId,
         string productId,
+        int storeId,
         int priceThreshold
     );
 

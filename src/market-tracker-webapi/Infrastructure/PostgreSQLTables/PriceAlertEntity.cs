@@ -18,6 +18,8 @@ public class PriceAlertEntity
 
     [Column("product_id")] public required string ProductId { get; set; }
 
+    [Column("store_id")] public required int StoreId { get; set; }
+
     [Column("price_threshold")] public required int PriceThreshold { get; set; }
 
     [Column("created_at")] public DateTime CreatedAt { get; set; } = DateTime.Now;

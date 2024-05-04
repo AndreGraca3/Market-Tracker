@@ -1,9 +1,8 @@
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Product;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Pipeline.authorization;
-using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.Errors.Alert;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Operations.Alert;
@@ -16,12 +15,12 @@ public class AlertController(IAlertService alertService) : ControllerBase
 {
     [HttpGet(Uris.Alerts.Base)]
     [Authorized([Role.Client])]
-    public async Task<ActionResult<CollectionOutputModel<PriceAlert>>> GetPriceAlertsByClientIdAsync(string? productId)
+    public async Task<ActionResult<CollectionOutputModel<PriceAlert>>> GetPriceAlertsByClientIdAsync(string? productId,
+        int? storeId)
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
         var res = await alertService.GetPriceAlertsByClientIdAsync(
-            authUser.User.Id, productId
-        );
+            authUser.User.Id, productId, storeId);
 
         return ResultHandler.Handle(
             res,
@@ -47,6 +46,7 @@ public class AlertController(IAlertService alertService) : ControllerBase
         var res = await alertService.AddPriceAlertAsync(
             authUser.User.Id,
             priceAlertInput.ProductId,
+            priceAlertInput.StoreId,
             priceAlertInput.PriceThreshold
         );
 
@@ -58,7 +58,9 @@ public class AlertController(IAlertService alertService) : ControllerBase
                 {
                     ProductFetchingError.ProductByIdNotFound idNotFoundError
                         => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
-                    AlertCreationError.ProductAlreadyHasPriceAlert productAlreadyHasPriceAlertError
+                    ProductFetchingError.OutOfStockInStore outOfStockError
+                        => new ProductProblem.OutOfStockInStore(outOfStockError).ToActionResult(),
+                    AlertCreationError.ProductAlreadyHasPriceAlertInStore productAlreadyHasPriceAlertError
                         => new AlertProblem.ProductAlreadyHasPriceAlert(productAlreadyHasPriceAlertError)
                             .ToActionResult(),
                     AlertCreationError.NoDeviceTokensFound noDeviceTokensError

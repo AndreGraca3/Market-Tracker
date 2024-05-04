@@ -1,7 +1,7 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.User;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.User;
 using market_tracker_webapi.Application.Service.Errors.User;

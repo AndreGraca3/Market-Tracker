@@ -4,13 +4,15 @@ namespace market_tracker_webapi.Application.Repository.Operations.Alert;
 
 public interface IPriceAlertRepository
 {
-    Task<IEnumerable<PriceAlert>> GetPriceAlertsByClientIdAsync(Guid clientId, string? productId = null);
+    Task<IEnumerable<PriceAlert>> GetPriceAlertsAsync(Guid? clientId = null, string? productId = null,
+        int? storeId = null, int? minPriceThreshold = null);
 
-    Task<PriceAlert?> GetPriceAlertByClientIdAndProductIdAsync(Guid clientId, string productId);
-    
+    Task<PriceAlert?> GetPriceAlertAsync(Guid clientId, string productId, int storeId);
+
     Task<PriceAlert> AddPriceAlertAsync(
         Guid clientId,
         string productId,
+        int storeId,
         int priceThreshold
     );
 

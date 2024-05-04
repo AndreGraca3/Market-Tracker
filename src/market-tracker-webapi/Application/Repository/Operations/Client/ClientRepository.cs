@@ -1,5 +1,5 @@
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Pipeline.Authorization;
+﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Infrastructure;
@@ -87,7 +87,7 @@ public class ClientRepository(
         return deletedClientEntity.ToClient();
     }
 
-    public async Task<IEnumerable<DeviceToken>> GetDeviceTokensAsync(Guid clientId)
+    public async Task<IEnumerable<DeviceToken>> GetDeviceTokensByClientIdAsync(Guid clientId)
     {
         return await dataContext.FcmRegister
             .Where(r => r.ClientId == clientId)

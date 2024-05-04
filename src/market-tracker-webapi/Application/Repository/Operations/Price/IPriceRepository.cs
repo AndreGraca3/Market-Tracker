@@ -39,7 +39,7 @@ public interface IPriceRepository
 
     public Task<IEnumerable<StoreAvailability>> GetStoresAvailabilityAsync(string productId);
 
-    public Task<StoreAvailability?> GetStoreAvailabilityAsync(string productId, int storeId);
+    public Task<StoreAvailability?> GetStoreAvailabilityStatusAsync(string productId, int storeId);
 
     public Task<StorePrice?> GetStorePriceAsync(
         string productId,

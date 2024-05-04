@@ -63,7 +63,7 @@ public class ListEntryService(
                     new ListEntryCreationError.ProductAlreadyInList(listId, productId)
                 );
 
-            var storeAvailability = await priceRepository.GetStoreAvailabilityAsync(productId, storeId);
+            var storeAvailability = await priceRepository.GetStoreAvailabilityStatusAsync(productId, storeId);
             if (storeAvailability is null)
                 return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
                     new ProductFetchingError.ProductNotFoundInStore(productId, storeId)
@@ -113,7 +113,7 @@ public class ListEntryService(
                     return EitherExtensions.Failure<IServiceError, ListEntry>(
                         new StoreFetchingError.StoreByIdNotFound(storeId.Value));
 
-                var storeAvailability = await priceRepository.GetStoreAvailabilityAsync(productId, storeId.Value);
+                var storeAvailability = await priceRepository.GetStoreAvailabilityStatusAsync(productId, storeId.Value);
                 if (storeAvailability is null)
                     return EitherExtensions.Failure<IServiceError, ListEntry>(
                         new ProductFetchingError.ProductNotFoundInStore(productId, storeId.Value));
@@ -200,7 +200,7 @@ public class ListEntryService(
                 default:
                     entriesResult = await BuildShoppingListEntriesResult(listEntries, async entry =>
                     {
-                        var isAvailable = entry.StoreId is not null && ((await priceRepository.GetStoreAvailabilityAsync(entry.ProductId, entry.StoreId.Value))
+                        var isAvailable = entry.StoreId is not null && ((await priceRepository.GetStoreAvailabilityStatusAsync(entry.ProductId, entry.StoreId.Value))
                             ?.IsAvailable ?? false);
 
                         var storePrice = entry.StoreId is not null && isAvailable

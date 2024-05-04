@@ -3,8 +3,10 @@ using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Product;
+using market_tracker_webapi.Application.Repository.Operations.Alert;
 using market_tracker_webapi.Application.Repository.Operations.Brand;
 using market_tracker_webapi.Application.Repository.Operations.Category;
+using market_tracker_webapi.Application.Repository.Operations.Client;
 using market_tracker_webapi.Application.Repository.Operations.Price;
 using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Repository.Operations.Store;
@@ -12,6 +14,7 @@ using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Errors.Store;
+using market_tracker_webapi.Application.Service.External;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
 
@@ -23,6 +26,9 @@ public class ProductService(
     ICategoryRepository categoryRepository,
     IPriceRepository priceRepository,
     IStoreRepository storeRepository,
+    IClientRepository clientRepository,
+    IPriceAlertRepository priceAlertRepository,
+    INotificationService notificationService,
     ITransactionManager transactionManager
 ) : IProductService
 {
@@ -118,17 +124,32 @@ public class ProductService(
                 );
             }
 
-            var currentPrice = oldProduct is null
+            var oldStorePrice = oldProduct is null
                 ? null
                 : await priceRepository.GetStorePriceAsync(productId, store.Id, DateTime.Now);
 
-            var priceChanged = promotionPercentage is not null
-                ? currentPrice?.PriceData.FinalPrice != price - price * promotionPercentage / 100
-                : currentPrice?.PriceData.FinalPrice != price;
+            var newPrice = price.ApplyPercentage(promotionPercentage);
+            var priceChanged = oldStorePrice?.PriceData.FinalPrice != newPrice;
 
             if (priceChanged)
             {
                 await priceRepository.AddPriceAsync(productId, store.Id, price, promotionPercentage);
+
+                // Notify clients with price alerts
+                var eligiblePriceAlerts =
+                    await priceAlertRepository.GetPriceAlertsAsync(productId: productId, storeId: store.Id,
+                        minPriceThreshold: newPrice);
+                foreach (var priceAlert in eligiblePriceAlerts)
+                {
+                    var clientTokens =
+                        await clientRepository.GetDeviceTokensByClientIdAsync(priceAlert.ClientId);
+
+                    await notificationService.SendNotificationToTokensAsync(
+                        "Alerta de preço",
+                        $"{oldProduct?.Name ?? name} custa agora {newPrice.CentsToEuros()}€ na loja {store.Name}",
+                        clientTokens.Select(dT => dT.Token).ToList()
+                    );
+                }
             }
 
             await productRepository.SetProductAvailabilityAsync(productId, store.Id, true);
@@ -180,7 +201,6 @@ public class ProductService(
         int? categoryId
     )
     {
-        // Moderators only
         return await transactionManager.ExecuteAsync(async () =>
         {
             var product = await productRepository.GetProductByIdAsync(productId);

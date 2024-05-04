@@ -1,6 +1,6 @@
 ﻿using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
-using market_tracker_webapi.Application.Pipeline.authorization;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Operations.Account;
 using market_tracker_webapi.Application.Repository.Operations.Alert;
 using market_tracker_webapi.Application.Repository.Operations.Brand;

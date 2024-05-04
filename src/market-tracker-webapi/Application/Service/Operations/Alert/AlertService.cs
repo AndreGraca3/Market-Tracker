@@ -2,11 +2,11 @@ using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.Alert;
 using market_tracker_webapi.Application.Repository.Operations.Client;
+using market_tracker_webapi.Application.Repository.Operations.Price;
 using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Alert;
 using market_tracker_webapi.Application.Service.Errors.Product;
-using market_tracker_webapi.Application.Service.External;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
 
@@ -15,18 +15,17 @@ namespace market_tracker_webapi.Application.Service.Operations.Alert;
 public class AlertService(
     ITransactionManager transactionManager,
     IProductRepository productRepository,
+    IPriceRepository priceRepository,
     IPriceAlertRepository priceAlertRepository,
-    IClientRepository clientRepository,
-    INotificationService notificationService) : IAlertService
+    IClientRepository clientRepository) : IAlertService
 {
     public async Task<Either<IServiceError, CollectionOutputModel<PriceAlert>>> GetPriceAlertsByClientIdAsync(
-        Guid clientId,
-        string? productId)
+        Guid clientId, string? productId, int? storeId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var priceAlerts
-                = await priceAlertRepository.GetPriceAlertsByClientIdAsync(clientId, productId);
+                = await priceAlertRepository.GetPriceAlertsAsync(clientId, productId, storeId);
 
             return EitherExtensions.Success<IServiceError, CollectionOutputModel<PriceAlert>>(
                 new CollectionOutputModel<PriceAlert>(priceAlerts)
@@ -35,7 +34,7 @@ public class AlertService(
     }
 
     public async Task<Either<IServiceError, StringIdOutputModel>> AddPriceAlertAsync(Guid clientId, string productId,
-        int priceThreshold)
+        int storeId, int priceThreshold)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
@@ -46,14 +45,22 @@ public class AlertService(
                 );
             }
 
-            if (await priceAlertRepository.GetPriceAlertByClientIdAndProductIdAsync(clientId, productId) is not null)
+            var availabilityStatus = await priceRepository.GetStoreAvailabilityStatusAsync(productId, storeId);
+            if (availabilityStatus is null || !availabilityStatus.IsAvailable)
             {
                 return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
-                    new AlertCreationError.ProductAlreadyHasPriceAlert(productId)
+                    new ProductFetchingError.OutOfStockInStore(productId, storeId)
                 );
             }
 
-            var deviceTokens = (await clientRepository.GetDeviceTokensAsync(clientId)).ToList();
+            if (await priceAlertRepository.GetPriceAlertAsync(clientId, productId, storeId) is not null)
+            {
+                return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
+                    new AlertCreationError.ProductAlreadyHasPriceAlertInStore(productId, storeId)
+                );
+            }
+
+            var deviceTokens = (await clientRepository.GetDeviceTokensByClientIdAsync(clientId)).ToList();
             if (deviceTokens.Count == 0)
             {
                 return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
@@ -64,11 +71,8 @@ public class AlertService(
             var priceAlert = await priceAlertRepository.AddPriceAlertAsync(
                 clientId,
                 productId,
+                storeId,
                 priceThreshold
-            );
-
-            await notificationService.SubscribeTokensToTopicAsync(
-                deviceTokens.Select(dT => dT.Token).ToList(), productId
             );
 
             return EitherExtensions.Success<IServiceError, StringIdOutputModel>(new StringIdOutputModel(priceAlert.Id));
@@ -94,11 +98,6 @@ public class AlertService(
                     new AlertFetchingError.ClientDoesNotOwnAlert(clientId, alertId)
                 );
             }
-
-            var deviceTokens = (await clientRepository.GetDeviceTokensAsync(clientId)).ToList();
-            await notificationService.UnsubscribeTokensFromTopicAsync(
-                deviceTokens.Select(dT => dT.Token).ToList(), priceAlert.ProductId
-            );
 
             return EitherExtensions.Success<AlertFetchingError, PriceAlert>(priceAlert);
         });

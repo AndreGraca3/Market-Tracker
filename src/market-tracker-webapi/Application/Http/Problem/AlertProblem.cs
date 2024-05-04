@@ -11,13 +11,13 @@ public class AlertProblem(
 ) : Problem(status, subtype, title, detail, data)
 {
     public class NoDeviceTokensFound(AlertCreationError.NoDeviceTokensFound data) : UserProblem(
-        404,
+        409,
         "device-tokens-not-found",
         "Device tokens not found",
-        "No devices found for client",
+        "Client does not have at least 1 device registered to be notified",
         data
     );
-    
+
     public class AlertByIdNotFound(AlertFetchingError.AlertByIdNotFound data) : UserProblem(
         404,
         "alert-by-id-not-found",
@@ -34,7 +34,7 @@ public class AlertProblem(
         data
     );
     
-    public class ProductAlreadyHasPriceAlert(AlertCreationError.ProductAlreadyHasPriceAlert data) : UserProblem(
+    public class ProductAlreadyHasPriceAlert(AlertCreationError.ProductAlreadyHasPriceAlertInStore data) : UserProblem(
         409,
         "product-already-has-price-alert",
         "Product already has price alert",

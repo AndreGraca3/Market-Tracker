@@ -123,7 +123,7 @@ create table if not exists store
 
 create table if not exists price_entry
 (
-    id         varchar(25) primary key default substr(md5(random()::text), 1, 10),
+    id         varchar(25) primary key default substr(md5(random()::text), 1, 25),
     price      integer   not null,
     created_at timestamp not null      default now(),
     store_id   int       not null references store (id) on delete cascade,
@@ -178,10 +178,11 @@ create table if not exists product_favourite
 create table if not exists price_alert
 (
     id              varchar(25) primary key default substr(md5(random()::text), 1, 25) check ( length(id) = 25),
-    client_id       uuid references client (id) on delete cascade,
-    product_id      varchar(18) references product (id) on delete cascade,
-    price_threshold int       not null,
-    created_at      timestamp not null      default now()
+    client_id       uuid        not null references client (id) on delete cascade,
+    product_id      varchar(18) not null references product (id) on delete cascade,
+    store_id        int         not null references store (id) on delete cascade,
+    price_threshold int         not null,
+    created_at      timestamp   not null    default now()
 );
 
 create table if not exists product_stats_counts

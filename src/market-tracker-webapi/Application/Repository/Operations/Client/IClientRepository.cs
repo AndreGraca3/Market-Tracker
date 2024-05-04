@@ -20,7 +20,7 @@ public interface IClientRepository
     
     Task<Client?> DeleteClientAsync(Guid id);
 
-    Task<IEnumerable<DeviceToken>> GetDeviceTokensAsync(Guid clientId);
+    Task<IEnumerable<DeviceToken>> GetDeviceTokensByClientIdAsync(Guid clientId);
 
     Task<DeviceToken> UpsertDeviceTokenAsync(Guid clientId, string deviceId, string firebaseToken);
     

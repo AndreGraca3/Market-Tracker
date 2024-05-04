@@ -1,6 +1,4 @@
-using Microsoft.IdentityModel.Tokens;
-
-namespace market_tracker_webapi.Application.Pipeline.Authorization;
+namespace market_tracker_webapi.Application.Http.Pipeline.Authorization;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class AuthorizedAttribute(Role[] roles) : Attribute

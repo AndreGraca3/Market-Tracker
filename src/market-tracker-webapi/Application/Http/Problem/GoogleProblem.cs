@@ -10,11 +10,11 @@ public class GoogleProblem(
     object? data = null
 ) : Problem(status, subType, title, detail, data)
 {
-    public class InvalidIssuer(GoogleTokenCreationError.InvalidIssuer issuerName) : UserProblem(
+    public class InvalidIssuer() : UserProblem(
         401,
         "invalid-issuer",
         "Invalid issuer",
-        $"The token provided was not issued by {issuerName}"
+        "Provided Google token id invalid"
     );
     
     public class InvalidTokenFormat() : UserProblem(

@@ -1,7 +1,7 @@
 using market_tracker_webapi.Application.Http.Problem;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace market_tracker_webapi.Application.Pipeline;
+namespace market_tracker_webapi.Application.Http.Pipeline;
 
 public class CustomExceptionHandler : IExceptionHandler
 {

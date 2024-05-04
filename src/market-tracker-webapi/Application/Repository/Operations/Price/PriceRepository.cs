@@ -218,7 +218,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             .ToListAsync();
     }
 
-    public async Task<StoreAvailability?> GetStoreAvailabilityAsync(string productId, int storeId)
+    public async Task<StoreAvailability?> GetStoreAvailabilityStatusAsync(string productId, int storeId)
     {
         var queryRes = await (
             from availability in dataContext.ProductAvailability

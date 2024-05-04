@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using market_tracker_webapi.Application.Utils;
 
-namespace market_tracker_webapi.Application.Pipeline;
+namespace market_tracker_webapi.Application.Http.Pipeline;
 
 public class OptionalConverter : JsonConverterFactory
 {

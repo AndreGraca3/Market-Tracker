@@ -7,16 +7,19 @@ namespace market_tracker_webapi.Application.Repository.Operations.Alert;
 
 public class PriceAlertRepository(MarketTrackerDataContext dataContext) : IPriceAlertRepository
 {
-    public async Task<IEnumerable<PriceAlert>> GetPriceAlertsByClientIdAsync(Guid clientId, string? productId)
+    public async Task<IEnumerable<PriceAlert>> GetPriceAlertsAsync(Guid? clientId, string? productId,
+        int? storeId, int? minPriceThreshold)
     {
         return await dataContext.PriceAlert
+            .Where(alert => clientId == null || alert.ClientId == clientId)
             .Where(alert => productId == null || alert.ProductId == productId)
-            .Where(alert => alert.ClientId == clientId)
+            .Where(alert => storeId == null || alert.StoreId == storeId)
+            .Where(alert => minPriceThreshold == null || alert.PriceThreshold >= minPriceThreshold)
             .Select(alert => alert.ToPriceAlert())
             .ToListAsync();
     }
-    
-    public async Task<PriceAlert?> GetPriceAlertByClientIdAndProductIdAsync(Guid clientId, string productId)
+
+    public async Task<PriceAlert?> GetPriceAlertAsync(Guid clientId, string productId, int storeId)
     {
         var priceAlertEntity = await dataContext.PriceAlert
             .FirstOrDefaultAsync(alert => alert.ClientId == clientId && alert.ProductId == productId);
@@ -26,13 +29,15 @@ public class PriceAlertRepository(MarketTrackerDataContext dataContext) : IPrice
     public async Task<PriceAlert> AddPriceAlertAsync(
         Guid clientId,
         string productId,
+        int storeId,
         int priceThreshold
     )
     {
         var priceAlertEntity = new PriceAlertEntity
         {
-            ProductId = productId,
             ClientId = clientId,
+            ProductId = productId,
+            StoreId = storeId,
             PriceThreshold = priceThreshold
         };
         await dataContext.PriceAlert.AddAsync(priceAlertEntity);
