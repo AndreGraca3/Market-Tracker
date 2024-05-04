@@ -1,5 +1,6 @@
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Repository.Dto;

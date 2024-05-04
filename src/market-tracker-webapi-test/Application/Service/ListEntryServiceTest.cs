@@ -5,8 +5,6 @@ using market_tracker_webapi.Application.Repository.Dto.List;
 using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Repository.Dto.Store;
 using market_tracker_webapi.Application.Repository.Operations.List;
-using market_tracker_webapi.Application.Repository.Operations.Product;
-using market_tracker_webapi.Application.Repository.Operations.Store;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.ListEntry;
 using market_tracker_webapi.Application.Service.Errors.Product;

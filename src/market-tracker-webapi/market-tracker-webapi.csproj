@@ -16,4 +16,9 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Application\Repository\Operations\Account\Users\" />
+      <Folder Include="Application\Repository\Operations\Market\Inventory\" />
+    </ItemGroup>
+
 </Project>

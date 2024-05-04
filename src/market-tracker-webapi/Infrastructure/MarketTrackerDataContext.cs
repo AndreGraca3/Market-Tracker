@@ -1,4 +1,10 @@
-﻿using market_tracker_webapi.Infrastructure.PostgreSQLTables;
+﻿using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account.Users;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory.Product;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Store;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Infrastructure

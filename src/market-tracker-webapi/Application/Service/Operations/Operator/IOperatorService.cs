@@ -1,4 +1,5 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.Operator;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Operator;

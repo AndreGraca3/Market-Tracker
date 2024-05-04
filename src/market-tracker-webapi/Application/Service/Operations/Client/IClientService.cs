@@ -1,4 +1,5 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Application.Service.Errors;

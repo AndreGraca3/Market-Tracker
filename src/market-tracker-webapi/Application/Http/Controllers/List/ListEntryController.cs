@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.ListEntry;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;

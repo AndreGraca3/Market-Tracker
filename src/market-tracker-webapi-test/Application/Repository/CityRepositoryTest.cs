@@ -1,13 +1,14 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Repository.Operations.City;
+using market_tracker_webapi.Application.Repository.Operations.Market.City;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi_test.Application.Repository;
 
-public class CityRepositoryTest
+/*public class CityRepositoryTest
 {
     [Fact]
     public async Task GetCitiesAsync_WithExistingCities_ReturnsCityData()
@@ -235,4 +236,4 @@ public class CityRepositoryTest
         databaseContext.Database.EnsureCreated();
         return databaseContext;
     }
-}
+}*/

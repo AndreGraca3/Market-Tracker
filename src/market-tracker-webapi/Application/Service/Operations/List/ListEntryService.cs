@@ -1,13 +1,14 @@
 ﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.List;
 using market_tracker_webapi.Application.Http.Models.ListEntry;
 using market_tracker_webapi.Application.Repository.Dto.List;
 using market_tracker_webapi.Application.Repository.Dto.Store;
 using market_tracker_webapi.Application.Repository.Operations.List;
-using market_tracker_webapi.Application.Repository.Operations.Price;
-using market_tracker_webapi.Application.Repository.Operations.Product;
-using market_tracker_webapi.Application.Repository.Operations.Store;
+using market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Product;
+using market_tracker_webapi.Application.Repository.Operations.Market.Price;
+using market_tracker_webapi.Application.Repository.Operations.Market.Store;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.ListEntry;

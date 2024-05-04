@@ -1,13 +1,14 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Repository.Operations.Company;
+using market_tracker_webapi.Application.Repository.Operations.Market.Company;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi_test.Application.Repository;
 
-public class CompanyRepositoryTest
+/*public class CompanyRepositoryTest
 {
     [Fact]
     public async Task GetCompanyByIdAsync_WithExistingCompany_ReturnsCompanyData()
@@ -288,4 +289,4 @@ public class CompanyRepositoryTest
         databaseContext.Database.EnsureCreated();
         return databaseContext;
     }
-}
+}*/

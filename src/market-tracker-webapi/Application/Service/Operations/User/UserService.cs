@@ -1,10 +1,12 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.User;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.User;
 using market_tracker_webapi.Application.Repository.Operations.Account;
-using market_tracker_webapi.Application.Repository.Operations.Token;
-using market_tracker_webapi.Application.Repository.Operations.User;
+using market_tracker_webapi.Application.Repository.Operations.Account.Credential;
+using market_tracker_webapi.Application.Repository.Operations.Account.Token;
+using market_tracker_webapi.Application.Repository.Operations.Account.Users.User;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Transaction;
