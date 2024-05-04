@@ -1,6 +1,7 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.Store;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.City;
 using market_tracker_webapi.Application.Service.Errors.Company;
@@ -45,6 +46,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpPost(Uris.Stores.Base)]
+    [Authorized([Role.Operator])]
     public async Task<ActionResult<IntIdOutputModel>> AddStoreAsync(
         [FromBody] StoreCreationInputModel model
     )
@@ -83,6 +85,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpPut(Uris.Stores.StoreById)]
+    [Authorized([Role.Moderator])]
     public async Task<ActionResult<IntIdOutputModel>> UpdateStoreAsync(
         int id,
         [FromBody] StoreUpdateInputModel storeInput
@@ -125,6 +128,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpDelete(Uris.Stores.StoreById)]
+    [Authorized([Role.Operator])]
     public async Task<ActionResult<IntIdOutputModel>> DeleteStoreAsync(int id)
     {
         var res = await storeService.DeleteStoreAsync(id);

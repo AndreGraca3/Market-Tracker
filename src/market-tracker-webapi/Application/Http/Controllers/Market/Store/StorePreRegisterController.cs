@@ -1,6 +1,7 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.Store;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.Operator;
@@ -14,6 +15,7 @@ namespace market_tracker_webapi.Application.Http.Controllers.Market.Store;
 public class StorePreRegisterController(IPreRegistrationService preRegistrationService) : ControllerBase
 {
     [HttpGet(Uris.Stores.StoresPending)]
+    [Authorized([Role.Moderator])]
     public async Task<ActionResult<PaginatedResult<OperatorItem>>> GetPendingOperatorsAsync(
         [FromQuery] bool? isValid,
         [FromQuery] PaginationInputs paginationInputs)
@@ -26,6 +28,7 @@ public class StorePreRegisterController(IPreRegistrationService preRegistrationS
     }
 
     [HttpGet(Uris.Stores.StoresPendingById)]
+    [Authorized([Role.Moderator])]
     public async Task<ActionResult<PreRegisterInfo>> GetPendingOperatorByIdAsync(
         Guid id
     )
@@ -72,6 +75,7 @@ public class StorePreRegisterController(IPreRegistrationService preRegistrationS
     }
 
     [HttpPost(Uris.Stores.StoresPendingById)]
+    [Authorized([Role.Moderator])]
     public async Task<ActionResult<GuidOutputModel>> UpdateStatePreRegistrationByIdAsync(
         Guid id,
         [FromBody] bool isApproved

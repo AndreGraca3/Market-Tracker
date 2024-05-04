@@ -2,6 +2,7 @@
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.City;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.City;
 using market_tracker_webapi.Application.Service.Operations.City;
@@ -38,6 +39,7 @@ public class CityController(ICityService cityService) : ControllerBase
     }
 
     [HttpPost(Uris.Cities.Base)]
+    [Authorized([Role.Moderator])]
     public async Task<ActionResult<IntIdOutputModel>> AddCityAsync(
         [FromBody] CityCreationInputModel cityInput
     )
@@ -59,7 +61,8 @@ public class CityController(ICityService cityService) : ControllerBase
     }
 
     [HttpPut(Uris.Cities.CityById)]
-    public async Task<ActionResult<Domain.City>> UpdateCityAsync(
+    [Authorized([Role.Moderator])]
+    public async Task<ActionResult<City>> UpdateCityAsync(
         int id,
         [FromBody] CityUpdateInputModel cityInput
     )
@@ -82,6 +85,7 @@ public class CityController(ICityService cityService) : ControllerBase
     }
 
     [HttpDelete(Uris.Cities.CityById)]
+    [Authorized([Role.Moderator])]
     public async Task<ActionResult<IntIdOutputModel>> DeleteCityAsync(int id)
     {
         var res = await cityService.DeleteCityAsync(id);

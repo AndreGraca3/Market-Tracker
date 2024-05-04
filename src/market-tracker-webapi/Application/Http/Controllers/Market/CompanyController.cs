@@ -1,6 +1,7 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Company;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Operations.Company;
@@ -45,6 +46,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     }
 
     [HttpPost(Uris.Companies.Base)]
+    [Authorized([Role.Moderator])]
     public async Task<ActionResult<IntIdOutputModel>> AddCompanyAsync(
         [FromBody] CompanyCreationInputModel companyInput
     )
@@ -71,6 +73,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     }
 
     [HttpPut(Uris.Companies.CompanyById)]
+    [Authorized([Role.Moderator])]
     public async Task<ActionResult<Domain.Company>> UpdateCompanyAsync(
         int id,
         [FromBody] CompanyUpdateInputModel companyInput
@@ -99,6 +102,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     }
 
     [HttpDelete(Uris.Companies.CompanyById)]
+    [Authorized([Role.Moderator])]
     public async Task<ActionResult<IntIdOutputModel>> DeleteCompanyAsync(int id)
     {
         var res = await companyService.DeleteCompanyAsync(id);
