@@ -9,10 +9,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.delay
 import pt.isel.markettracker.utils.timeSince
+import java.time.LocalDateTime
 
 @Composable
-fun TimeDisplay(time: String) {
-    val since = timeSince(time)
+fun TimeDisplay(time: LocalDateTime) {
+    val since = timeSince(time.toString()) // TODO: this may be wrong
     val sinceParts = since.split(" ")
     var actualTime by remember { mutableIntStateOf(0) }
     val joinedValue = sinceParts[0].toInt()

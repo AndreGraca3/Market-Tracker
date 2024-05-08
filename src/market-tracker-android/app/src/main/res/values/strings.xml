@@ -2,6 +2,10 @@
     <string name="app_name">Market Tracker</string>
     <string name="accept">Eu compreendo</string>
     <string name="search_hint">Pesquise por produto ou marca</string>
+    <string name="brands_title">Marcas</string>
+    <string name="categories_title">Categorias</string>
+    <string name ="companies_title">Supermercados/Lojas</string>
+    <string name="products_loading">A carregar produtos...</string>
     <string name="products_not_found">Não foram encontrados produtos</string>
     <string name="product_not_found_title">Produto não encontrado</string>
     <string name="product_not_found_message">Parece que ainda não temos este produto na nossa base de dados</string>

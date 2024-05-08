@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.domain.model.product.ProductInfo
+import pt.isel.markettracker.domain.model.market.inventory.product.Product
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.ui.theme.Primary600
 import pt.isel.markettracker.utils.shimmerEffect
 
 @Composable
-fun ProductSpecs(product: ProductInfo?) {
+fun ProductSpecs(product: Product?) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
@@ -34,7 +34,7 @@ fun ProductSpecs(product: ProductInfo?) {
             }
         } else {
             Text(
-                text = product.brand,
+                text = product.brand.name,
                 style = MarketTrackerTypography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = Primary600

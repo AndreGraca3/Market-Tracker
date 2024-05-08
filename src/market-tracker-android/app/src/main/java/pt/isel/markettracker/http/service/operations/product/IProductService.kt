@@ -1,10 +1,10 @@
 package pt.isel.markettracker.http.service.operations.product
 
-import pt.isel.markettracker.domain.model.product.PaginatedProductOffers
-import pt.isel.markettracker.domain.model.product.ProductInfo
-import pt.isel.markettracker.domain.model.product.ProductPreferences
-import pt.isel.markettracker.domain.model.product.ProductStats
-import pt.isel.markettracker.http.models.price.CompanyPrices
+import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
+import pt.isel.markettracker.domain.model.market.inventory.product.Product
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
+import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 
 interface IProductService {
     suspend fun getProducts(
@@ -14,7 +14,7 @@ interface IProductService {
         sortOption: String? = null
     ): PaginatedProductOffers
 
-    suspend fun getProductById(id: String): ProductInfo
+    suspend fun getProductById(id: String): Product
 
     suspend fun getProductPrices(id: String): List<CompanyPrices>
 

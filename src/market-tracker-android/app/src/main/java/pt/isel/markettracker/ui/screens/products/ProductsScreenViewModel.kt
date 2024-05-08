@@ -10,10 +10,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.replaceWithState
 import pt.isel.markettracker.http.service.operations.product.IProductService
-import pt.isel.markettracker.ui.screens.ProductsQuery
 import pt.isel.markettracker.ui.screens.ProductsScreenState
-import pt.isel.markettracker.ui.screens.extractProducts
+import pt.isel.markettracker.ui.screens.extractProductsOffers
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,67 +31,48 @@ class ProductsScreenViewModel @Inject constructor(
     val stateFlow
         get() = _stateFlow.asStateFlow()
 
+    var query by mutableStateOf(ProductsQuery())
+
     private var currentPage by mutableIntStateOf(1)
-    private var hasMore by mutableStateOf(true)
 
-    fun fetchProducts(
-        productsQuery: ProductsQuery,
-        forceRefresh: Boolean = false
-    ) {
-        if (_stateFlow.value !is ProductsScreenState.Idle) return
+    fun fetchProducts(productsQuery: ProductsQuery, forceRefresh: Boolean) {
+        if (_stateFlow.value !is ProductsScreenState.Idle && !forceRefresh) return
 
-        val oldProducts = _stateFlow.value.extractProducts()
-        _stateFlow.value = ProductsScreenState.Loading
         currentPage = 1
-        hasMore = true
-
-        viewModelScope.launch {
-            val res = kotlin.runCatching {
-                productService.getProducts(
-                    currentPage,
-                    searchQuery = productsQuery.searchTerm,
-                    sortOption = productsQuery.sortOption.name
-                )
-            }
-
-            _stateFlow.value = when (res.isSuccess) {
-                true -> {
-                    val resValue = res.getOrThrow()
-                    if (!resValue.hasMore) hasMore = false else currentPage++
-                    val allProducts = oldProducts + resValue.items
-                    ProductsScreenState.Loaded(productsQuery, allProducts)
-                }
-
-                false -> ProductsScreenState.Error(productsQuery, res.exceptionOrNull()!!)
-            }
-        }
+        _stateFlow.value = ProductsScreenState.Loading
+        handleProductsFetch(productsQuery)
     }
 
     fun loadMoreProducts(productsQuery: ProductsQuery) {
-        if (!hasMore || _stateFlow.value !is ProductsScreenState.Loaded) return
+        val currentState = _stateFlow.value
+        if (currentState is ProductsScreenState.LoadingMore ||
+            currentState !is ProductsScreenState.Loaded ||
+            !currentState.hasMore
+        ) return
 
-        val oldProducts = _stateFlow.value.extractProducts()
-        _stateFlow.value = ProductsScreenState.Loading
+        _stateFlow.value = ProductsScreenState.LoadingMore(currentState.productsOffers)
+        handleProductsFetch(productsQuery)
+    }
+
+    private fun handleProductsFetch(productsQuery: ProductsQuery) {
+        val oldProducts = _stateFlow.value.extractProductsOffers()
 
         viewModelScope.launch {
             val res = kotlin.runCatching {
                 productService.getProducts(
-                    currentPage,
+                    currentPage++,
                     searchQuery = productsQuery.searchTerm,
                     sortOption = productsQuery.sortOption.name
                 )
             }
 
-            _stateFlow.value = when (res.isSuccess) {
-                true -> {
-                    val resValue = res.getOrThrow()
-                    if (!resValue.hasMore) hasMore = false else currentPage++
-                    val allProducts = oldProducts + resValue.items
-                    ProductsScreenState.Loaded(productsQuery, allProducts)
-                }
-
-                false -> ProductsScreenState.Error(productsQuery, res.exceptionOrNull()!!)
+            res.onSuccess {
+                val allProducts = oldProducts + it.items
+                _stateFlow.value = ProductsScreenState.IdleLoaded(allProducts, it.hasMore)
+                query =
+                    productsQuery.copy(filters = productsQuery.filters.replaceWithState(it.facets))
             }
+            res.onFailure { _stateFlow.value = ProductsScreenState.Error(it) }
         }
     }
 }

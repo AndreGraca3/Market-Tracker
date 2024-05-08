@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.Loaded
 import pt.isel.markettracker.domain.extractValue
-import pt.isel.markettracker.domain.model.product.ProductPreferences
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
 import pt.isel.markettracker.ui.theme.Grey
 
 @Composable

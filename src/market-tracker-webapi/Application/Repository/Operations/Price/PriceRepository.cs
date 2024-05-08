@@ -114,7 +114,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                         StoreInfo.ToStoreInfo(g.Store.ToStore(), g.City == null ? null : g.City.ToCity(),
                             g.Company.ToCompany()),
                         PriceInfo.Calculate(g.Price.Price,
-                            g.Promotion == null ? null : g.Promotion.ToPromotion(g.Price.Price),
+                            g.Promotion == null ? null : g.Promotion.ToPromotion(),
                             g.Price.CreatedAt))
                 ))
             )
@@ -190,7 +190,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             .Select(group =>
                 new StorePrice(StoreInfo.ToStoreInfo(group.Store.ToStore(), group.City?.ToCity(),
                     group.Company.ToCompany()), PriceInfo.Calculate(group.PriceEntry.Price,
-                    group.Promotion?.ToPromotion(group.PriceEntry.Price), group.PriceEntry.CreatedAt))
+                    group.Promotion?.ToPromotion(), group.PriceEntry.CreatedAt))
             ).MinBy(group => group.PriceData.FinalPrice);
 
         return cheapestStore;
@@ -285,7 +285,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             ),
             PriceInfo.Calculate(
                 queryRes.PriceEntry.Price,
-                queryRes.Promotion?.ToPromotion(queryRes.PriceEntry.Price),
+                queryRes.Promotion?.ToPromotion(),
                 queryRes.PriceEntry.CreatedAt
             )
         );
@@ -315,7 +315,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         return await query
             .Select(res => PriceInfo.Calculate(
                 res.PriceEntry.Price,
-                res.Promotion.ToPromotion(res.PriceEntry.Price),
+                res.Promotion.ToPromotion(),
                 res.PriceEntry.CreatedAt
             ))
             .ToListAsync();
