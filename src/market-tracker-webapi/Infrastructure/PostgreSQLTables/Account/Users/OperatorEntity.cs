@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.Account.Users;
 
@@ -10,10 +10,10 @@ public class OperatorEntity
     [Key] [Column("id")] public required Guid UserId { get; set; }
     [Column("phone_number")] public required int PhoneNumber { get; set; }
 
-    public Operator ToOperator()
+    public Operator ToOperator(User user)
     {
         return new Operator(
-            UserId,
+            user,
             PhoneNumber
         );
     }

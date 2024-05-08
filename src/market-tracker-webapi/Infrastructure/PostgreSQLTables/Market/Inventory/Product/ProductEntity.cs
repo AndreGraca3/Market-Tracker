@@ -1,8 +1,12 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using market_tracker_webapi.Application.Domain.Models.Market.Inventory;
+using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory.Product;
+
+using Product = Application.Domain.Models.Market.Inventory.Product.Product;
 
 [Table("product", Schema = "MarketTracker")]
 public class ProductEntity
@@ -27,18 +31,18 @@ public class ProductEntity
 
     [Column("category_id")] public required int CategoryId { get; set; }
 
-    public Application.Domain.Product ToProduct()
+    public Product ToProduct(Brand brand, Category category)
     {
-        return new Application.Domain.Product(
+        return new Product(
             Id,
             Name,
             ImageUrl,
             Quantity,
-            Unit,
+            Unit.GetUnitFromName(),
             Views,
             Rating,
-            BrandId,
-            CategoryId
+            brand,
+            category
         );
     }
 }

@@ -1,12 +1,12 @@
-﻿using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Domain.Filters;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
+using market_tracker_webapi.Application.Http.Models.Operator;
 using market_tracker_webapi.Application.Http.Models.Store;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Repository.Dto;
-using market_tracker_webapi.Application.Repository.Dto.Operator;
 using market_tracker_webapi.Application.Service.Errors.PreRegister;
-using market_tracker_webapi.Application.Service.Operations.PreRegister;
+using market_tracker_webapi.Application.Service.Operations.Account.Auth.PreRegister;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Store;
@@ -16,7 +16,7 @@ public class StorePreRegisterController(IPreRegistrationService preRegistrationS
 {
     [HttpGet(Uris.Stores.StoresPending)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<PaginatedResult<OperatorItem>>> GetPendingOperatorsAsync(
+    public async Task<ActionResult<PaginatedResult<OperatorOutputModel>>> GetPendingOperatorsAsync(
         [FromQuery] bool? isValid,
         [FromQuery] PaginationInputs paginationInputs)
     {

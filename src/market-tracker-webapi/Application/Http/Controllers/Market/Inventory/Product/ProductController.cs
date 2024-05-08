@@ -1,15 +1,14 @@
+using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Product;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Repository.Dto;
-using market_tracker_webapi.Application.Repository.Dto.Product;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Errors.Store;
-using market_tracker_webapi.Application.Service.Operations.Product;
+using market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Inventory.Product;
@@ -22,7 +21,7 @@ public class ProductController(IProductService productService, IProductPriceServ
     public async Task<ActionResult<PaginatedProductOffers>> GetProductsAsync(
         [FromQuery] ProductsFiltersInputModel filters,
         [FromQuery] PaginationInputs paginationInputs,
-        [FromQuery] SortByType? sortBy
+        [FromQuery] ProductsSortOption? sortBy
     )
     {
         var res =

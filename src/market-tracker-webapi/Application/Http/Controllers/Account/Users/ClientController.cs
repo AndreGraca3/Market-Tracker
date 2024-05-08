@@ -1,14 +1,15 @@
 ﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Domain.Filters;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Client;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Repository.Dto;
-using market_tracker_webapi.Application.Repository.Dto.Client;
 using market_tracker_webapi.Application.Service.Errors.User;
-using market_tracker_webapi.Application.Service.Operations.Client;
+using market_tracker_webapi.Application.Service.Operations.Account.Users.Client;
 using Microsoft.AspNetCore.Mvc;
+using ClientOutputModel = market_tracker_webapi.Application.Http.Models.Client.ClientOutputModel;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Account.Users;
 
@@ -17,7 +18,7 @@ public class ClientController(IClientService clientService) : ControllerBase
 {
     [HttpGet(Uris.Clients.Base)]
     [Authorized([Role.Client])]
-    public async Task<ActionResult<PaginatedResult<ClientItem>>> GetClientsAsync(
+    public async Task<ActionResult<PaginatedResult<ClientOutputModel>>> GetClientsAsync(
         [FromQuery] PaginationInputs paginationInputs, [FromQuery] string? username)
     {
         return Ok(

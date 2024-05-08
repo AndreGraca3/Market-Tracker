@@ -1,5 +1,3 @@
-using market_tracker_webapi.Application.Repository.Dto.List;
-
 namespace market_tracker_webapi.Application.Http.Models.ListEntry;
 
 public class ShoppingListEntriesOutputModel

@@ -17,8 +17,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Application\Repository\Operations\Account\Users\" />
-      <Folder Include="Application\Repository\Operations\Market\Inventory\" />
+      <Folder Include="Application\Domain\Models\" />
+      <Folder Include="Application\Service\Operations\Account\Auth\" />
+      <Folder Include="Application\Service\Operations\Account\Users\" />
+      <Folder Include="Application\Service\Operations\Market\Inventory\" />
     </ItemGroup>
 
 </Project>

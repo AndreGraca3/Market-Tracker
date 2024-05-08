@@ -1,4 +1,5 @@
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Domain.Models.Market.Inventory;
 
 namespace market_tracker_webapi.Application.Http.Models.Product;
 
@@ -9,13 +10,13 @@ public record ProductInfoOutputModel(
     int Quantity,
     string Unit,
     Brand Brand,
-    Domain.Category Category
+    Domain.Models.Market.Inventory.Category Category
 )
 {
     public static ProductInfoOutputModel ToProductInfoOutputModel(
-        Domain.Product product,
+        Domain.Models.Market.Inventory.Product.Product product,
         Brand brand,
-        Domain.Category category
+        Domain.Models.Market.Inventory.Category category
     )
     {
         return new ProductInfoOutputModel(

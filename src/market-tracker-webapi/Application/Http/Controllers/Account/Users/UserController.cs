@@ -1,12 +1,11 @@
-﻿using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Domain.Filters;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.User;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Repository.Dto;
-using market_tracker_webapi.Application.Repository.Dto.User;
 using market_tracker_webapi.Application.Service.Errors.User;
-using market_tracker_webapi.Application.Service.Operations.User;
+using market_tracker_webapi.Application.Service.Operations.Account.Users.User;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Account.Users

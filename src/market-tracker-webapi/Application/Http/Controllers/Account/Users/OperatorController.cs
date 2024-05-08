@@ -1,14 +1,14 @@
 ﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Domain.Filters;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.Operator;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Repository.Dto;
-using market_tracker_webapi.Application.Repository.Dto.Operator;
 using market_tracker_webapi.Application.Service.Errors.PreRegister;
 using market_tracker_webapi.Application.Service.Errors.User;
-using market_tracker_webapi.Application.Service.Operations.Operator;
+using market_tracker_webapi.Application.Service.Operations.Account.Users.Operator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Account.Users;
@@ -18,7 +18,7 @@ public class OperatorController(IOperatorService operatorService) : ControllerBa
 {
     [HttpGet(Uris.Operator.Base)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<PaginatedResult<OperatorItem>>> GetOperatorsAsync(
+    public async Task<ActionResult<PaginatedResult<OperatorOutputModel>>> GetOperatorsAsync(
         [FromQuery] PaginationInputs paginationInputs,
         [FromQuery] bool? isApproved
     )

@@ -1,4 +1,5 @@
 ﻿using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account.Auth;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account.Users;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;

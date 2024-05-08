@@ -1,9 +1,10 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Domain.Models.Market.Store;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Operations.Market.Company;
 using market_tracker_webapi.Application.Service.Errors.Company;
-using market_tracker_webapi.Application.Service.Operations.Company;
+using market_tracker_webapi.Application.Service.Operations.Market.Company;
 using Moq;
 
 namespace market_tracker_webapi_test.Application.Service;

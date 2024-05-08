@@ -1,5 +1,5 @@
 ﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Repository.Dto.Operator;
+using market_tracker_webapi.Application.Domain.Models.Account.Auth;
 
 namespace market_tracker_webapi.Application.Http.Models.Store;
 

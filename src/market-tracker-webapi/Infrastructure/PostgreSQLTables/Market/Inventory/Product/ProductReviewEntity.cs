@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Domain.Models.Account.Users.Client;
+using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory.Product;
@@ -29,8 +31,8 @@ public class ProductReviewEntity
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-    public ProductReview ToProductReview()
+    public ProductReview ToProductReview(ClientItem client)
     {
-        return new ProductReview(Id, ClientId, ProductId, Rating, Text, CreatedAt);
+        return new ProductReview(Id, client, ProductId, Rating, Text, CreatedAt);
     }
 }

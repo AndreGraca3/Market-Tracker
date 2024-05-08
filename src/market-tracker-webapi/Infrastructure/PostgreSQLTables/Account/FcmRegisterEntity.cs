@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Domain.Models.Account;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.Account;

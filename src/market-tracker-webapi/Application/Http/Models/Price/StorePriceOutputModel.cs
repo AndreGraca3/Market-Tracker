@@ -1,6 +1,6 @@
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Domain.Models.Market.Price;
 using market_tracker_webapi.Application.Http.Models.Store;
-using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Dto.City;
 
 namespace market_tracker_webapi.Application.Http.Models.Price;

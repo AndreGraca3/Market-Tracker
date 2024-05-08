@@ -4,8 +4,8 @@ using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.Google;
 using market_tracker_webapi.Application.Service.Errors.Token;
-using market_tracker_webapi.Application.Service.Operations.GoogleAuth;
-using market_tracker_webapi.Application.Service.Operations.Token;
+using market_tracker_webapi.Application.Service.Operations.Account.Auth.GoogleAuth;
+using market_tracker_webapi.Application.Service.Operations.Account.Auth.Token;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Account

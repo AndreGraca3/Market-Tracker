@@ -6,7 +6,7 @@ using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.City;
 using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Errors.Store;
-using market_tracker_webapi.Application.Service.Operations.Store;
+using market_tracker_webapi.Application.Service.Operations.Market.Store;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Store;
@@ -15,7 +15,7 @@ namespace market_tracker_webapi.Application.Http.Controllers.Market.Store;
 public class StoreController(IStoreService storeService) : ControllerBase
 {
     [HttpGet(Uris.Stores.Base)]
-    public async Task<ActionResult<CollectionOutputModel<Domain.Store>>> GetStoresAsync(int? companyId, int? cityId, string? name)
+    public async Task<ActionResult<CollectionOutputModel<Domain.Models.Market.Retail.Shop.Store>>> GetStoresAsync(int? companyId, int? cityId, string? name)
     {
         var res = await storeService.GetStoresAsync(companyId, cityId, name);
         return ResultHandler.Handle(
@@ -25,7 +25,7 @@ public class StoreController(IStoreService storeService) : ControllerBase
     }
 
     [HttpGet(Uris.Stores.StoreById)]
-    public async Task<ActionResult<Domain.Store>> GetStoreByIdAsync(int id)
+    public async Task<ActionResult<Domain.Models.Market.Retail.Shop.Store>> GetStoreByIdAsync(int id)
     {
         var res = await storeService.GetStoreByIdAsync(id);
         return ResultHandler.Handle(

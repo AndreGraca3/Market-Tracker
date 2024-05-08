@@ -1,5 +1,3 @@
-using market_tracker_webapi.Application.Repository.Dto.Store;
-
 namespace market_tracker_webapi.Application.Http.Models.Store;
 
 public class StoreOutputModel

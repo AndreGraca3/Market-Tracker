@@ -1,8 +1,5 @@
 using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Repository.Dto;
-using market_tracker_webapi.Application.Repository.Dto.Product;
-using market_tracker_webapi.Application.Repository.Dto.Store;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
 namespace market_tracker_webapi_test.Application.Repository;

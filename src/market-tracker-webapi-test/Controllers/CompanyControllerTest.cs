@@ -6,7 +6,6 @@ using market_tracker_webapi.Application.Http.Models.Company;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Company;
-using market_tracker_webapi.Application.Service.Operations.Company;
 using market_tracker_webapi.Application.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

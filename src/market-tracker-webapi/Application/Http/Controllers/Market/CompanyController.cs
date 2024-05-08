@@ -1,10 +1,11 @@
-﻿using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Domain.Models.Market.Store;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Company;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.Company;
-using market_tracker_webapi.Application.Service.Operations.Company;
+using market_tracker_webapi.Application.Service.Operations.Market.Company;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Market;
@@ -13,7 +14,7 @@ namespace market_tracker_webapi.Application.Http.Controllers.Market;
 public class CompanyController(ICompanyService companyService) : ControllerBase
 {
     [HttpGet(Uris.Companies.Base)]
-    public async Task<ActionResult<CollectionOutputModel<Domain.Company>>> GetCompaniesAsync()
+    public async Task<ActionResult<CollectionOutputModel<Company>>> GetCompaniesAsync()
     {
         var res = await companyService.GetCompaniesAsync();
         return ResultHandler.Handle(
@@ -25,7 +26,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     }
 
     [HttpGet(Uris.Companies.CompanyById)]
-    public async Task<ActionResult<Domain.Company>> GetCompanyByIdAsync(int id)
+    public async Task<ActionResult<Company>> GetCompanyByIdAsync(int id)
     {
         var res = await companyService.GetCompanyByIdAsync(id);
         return ResultHandler.Handle(
@@ -74,7 +75,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
 
     [HttpPut(Uris.Companies.CompanyById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<Domain.Company>> UpdateCompanyAsync(
+    public async Task<ActionResult<Company>> UpdateCompanyAsync(
         int id,
         [FromBody] CompanyUpdateInputModel companyInput
     )
