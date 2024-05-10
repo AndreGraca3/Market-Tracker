@@ -1,6 +1,4 @@
 using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales.Pricing;
-using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Repository.Account.Users.Client;
 using market_tracker_webapi.Application.Repository.Market.Alert;
 using market_tracker_webapi.Application.Repository.Market.Inventory.Product;
@@ -18,11 +16,10 @@ public class AlertService(
     IProductRepository productRepository,
     IPriceRepository priceRepository,
     IPriceAlertRepository priceAlertRepository,
-    IClientRepository clientRepository,
     IClientDeviceRepository clientDeviceRepository
 ) : IAlertService
 {
-    public async Task<Either<IServiceError, CollectionOutputModel<PriceAlert>>> GetPriceAlertsByClientIdAsync(
+    public async Task<Either<IServiceError, IEnumerable<PriceAlert>>> GetPriceAlertsByClientIdAsync(
         Guid clientId, string? productId, int? storeId)
     {
         return await transactionManager.ExecuteAsync(async () =>
@@ -30,20 +27,18 @@ public class AlertService(
             var priceAlerts
                 = await priceAlertRepository.GetPriceAlertsAsync(clientId, productId, storeId);
 
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel<PriceAlert>>(
-                new CollectionOutputModel<PriceAlert>(priceAlerts)
-            );
+            return EitherExtensions.Success<IServiceError, IEnumerable<PriceAlert>>(priceAlerts);
         });
     }
 
-    public async Task<Either<IServiceError, StringIdOutputModel>> AddPriceAlertAsync(Guid clientId, string productId,
+    public async Task<Either<IServiceError, PriceAlertId>> AddPriceAlertAsync(Guid clientId, string productId,
         int storeId, int priceThreshold)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await productRepository.GetProductByIdAsync(productId) is null)
             {
-                return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
+                return EitherExtensions.Failure<IServiceError, PriceAlertId>(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
@@ -51,24 +46,24 @@ public class AlertService(
             var availabilityStatus = await priceRepository.GetStoreAvailabilityStatusAsync(productId, storeId);
             if (availabilityStatus is null || !availabilityStatus.IsAvailable)
             {
-                return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
+                return EitherExtensions.Failure<IServiceError, PriceAlertId>(
                     new ProductFetchingError.OutOfStockInStore(productId, storeId)
                 );
             }
 
             if (await priceAlertRepository.GetPriceAlertAsync(clientId, productId, storeId) is not null)
             {
-                return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
+                return EitherExtensions.Failure<IServiceError, PriceAlertId>(
                     new AlertCreationError.ProductAlreadyHasPriceAlertInStore(productId, storeId)
                 );
             }
 
-            var deviceTokens = 
+            var deviceTokens =
                 (await clientDeviceRepository.GetDeviceTokensByClientIdAsync(clientId)).ToList();
 
             if (deviceTokens.Count == 0)
             {
-                return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(
+                return EitherExtensions.Failure<IServiceError, PriceAlertId>(
                     new AlertCreationError.NoDeviceTokensFound(clientId)
                 );
             }
@@ -80,7 +75,7 @@ public class AlertService(
                 priceThreshold
             );
 
-            return EitherExtensions.Success<IServiceError, StringIdOutputModel>(new StringIdOutputModel(priceAlert.Id));
+            return EitherExtensions.Success<IServiceError, PriceAlertId>(priceAlert.Id);
         });
     }
 

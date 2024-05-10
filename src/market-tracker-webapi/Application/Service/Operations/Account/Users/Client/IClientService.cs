@@ -7,13 +7,15 @@ using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Users.Client;
 
+using Client = Domain.Models.Account.Users.Client;
+
 public interface IClientService
 {
     Task<Either<IServiceError, PaginatedResult<ClientItem>>> GetClientsAsync(string? username, int skip, int limit);
 
-    Task<Either<UserFetchingError, Domain.Models.Account.Users.Client>> GetClientByIdAsync(Guid id);
+    Task<Either<UserFetchingError, Client>> GetClientByIdAsync(Guid id);
 
-    Task<Either<UserCreationError, GuidOutputModel>> CreateClientAsync(
+    Task<Either<UserCreationError, UserId>> CreateClientAsync(
         string username,
         string name,
         string email,
@@ -21,12 +23,12 @@ public interface IClientService
         string? avatarUrl = null
     );
 
-    Task<Either<UserFetchingError, Domain.Models.Account.Users.Client>> UpdateClientAsync(
+    Task<Either<UserFetchingError, Client>> UpdateClientAsync(
         Guid id,
         string? name,
         string? username,
         string? avatarUrl
     );
 
-    Task<Either<UserFetchingError, GuidOutputModel>> DeleteClientAsync(Guid id);
+    Task<Either<UserFetchingError, UserId>> DeleteClientAsync(Guid id);
 }

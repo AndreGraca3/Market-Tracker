@@ -1,10 +1,20 @@
 ﻿namespace market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
 
-public class Company
+public record Company(CompanyId Id, string Name, DateTime CreatedAt)
 {
-    public required int Id { get; set; }
+    public Company(
+        int Id,
+        string Name,
+        DateTime CreatedAt
+    ) : this(
+        new CompanyId(Id),
+        Name,
+        CreatedAt
+    )
+    {
+    }
+};
 
-    public required string Name { get; set; }
-
-    public required DateTime CreatedAt { get; set; }
-}
+public record CompanyId(
+    int Value
+);

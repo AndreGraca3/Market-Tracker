@@ -1,5 +1,4 @@
-﻿using market_tracker_webapi.Application.Http.Models.Schemas.Account.Auth.Token;
-using market_tracker_webapi.Application.Repository.Account.Credential;
+﻿using market_tracker_webapi.Application.Repository.Account.Credential;
 using market_tracker_webapi.Application.Repository.Account.Token;
 using market_tracker_webapi.Application.Repository.Account.Users.User;
 using market_tracker_webapi.Application.Service.Errors.Token;
@@ -9,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Auth.Token;
 
+using Token = Domain.Models.Account.Auth.Token;
+
 public class TokenService(
     IUserRepository userRepository,
     ITokenRepository tokenRepository,
@@ -16,14 +17,14 @@ public class TokenService(
     ITransactionManager transactionManager
 ) : ITokenService
 {
-    public async Task<Either<TokenCreationError, TokenOutputModel>> CreateTokenAsync(
+    public async Task<Either<TokenCreationError, Token>> CreateTokenAsync(
         string email,
         string password
     )
     {
         if (email.IsNullOrEmpty() || password.IsNullOrEmpty())
         {
-            return EitherExtensions.Failure<TokenCreationError, TokenOutputModel>(
+            return EitherExtensions.Failure<TokenCreationError, Token>(
                 new TokenCreationError.InvalidCredentials()
             );
         }
@@ -33,14 +34,14 @@ public class TokenService(
             var user = await userRepository.GetUserByEmailAsync(email);
             if (user is null)
             {
-                return EitherExtensions.Failure<TokenCreationError, TokenOutputModel>(
+                return EitherExtensions.Failure<TokenCreationError, Token>(
                     new TokenCreationError.InvalidCredentials()
                 );
             }
 
             if ((await accountRepository.GetPasswordByUserIdAsync(user.Id))?.Password != password)
             {
-                return EitherExtensions.Failure<TokenCreationError, TokenOutputModel>(
+                return EitherExtensions.Failure<TokenCreationError, Token>(
                     new TokenCreationError.InvalidCredentials()
                 );
             }
@@ -51,38 +52,42 @@ public class TokenService(
                 if (token.ExpiresAt <= DateTime.Now) // if it has expired
                 {
                     await tokenRepository.DeleteTokenAsync(token.TokenValue); // delete it
-                    var newerToken = await tokenRepository.CreateTokenAsync(user.Id);
-                    return EitherExtensions.Success<TokenCreationError, TokenOutputModel>(
-                        new TokenOutputModel(newerToken.TokenValue, newerToken.ExpiresAt)
+                    return EitherExtensions.Success<TokenCreationError, Token>(
+                        await tokenRepository.CreateTokenAsync(user.Id)
                     );
                 }
 
-                return EitherExtensions.Success<TokenCreationError, TokenOutputModel>(
-                    new TokenOutputModel(token.TokenValue, token.ExpiresAt)
+                return EitherExtensions.Success<TokenCreationError, Token>(
+                    token
                 );
             }
 
             // no token found, create new one
             var newToken = await tokenRepository.CreateTokenAsync(user.Id);
-            return EitherExtensions.Success<TokenCreationError, TokenOutputModel>(
-                new TokenOutputModel(newToken.TokenValue, newToken.ExpiresAt)
+            return EitherExtensions.Success<TokenCreationError, Token>(
+                newToken
             );
         });
     }
 
-    public async Task<Either<TokenFetchingError, TokenOutputModel>> DeleteTokenAsync(
+    public async Task<Either<TokenFetchingError, Token>> DeleteTokenAsync(
         string tokenValue
     )
     {
-        return await transactionManager.ExecuteAsync(
-            async () =>
-                await tokenRepository.DeleteTokenAsync(new Guid(tokenValue)) is null
-                    ? EitherExtensions.Failure<TokenFetchingError, TokenOutputModel>(
+        return await transactionManager.ExecuteAsync(async () =>
+            {
+                var deletedToken = await tokenRepository.DeleteTokenAsync(new Guid(tokenValue));
+                if (deletedToken is null)
+                {
+                    return EitherExtensions.Failure<TokenFetchingError, Token>(
                         new TokenFetchingError.TokenByTokenValueNotFound(tokenValue)
-                    )
-                    : EitherExtensions.Success<TokenFetchingError, TokenOutputModel>(
-                        new TokenOutputModel(new Guid(tokenValue), DateTime.Now)
-                    )
+                    );
+                }
+
+                return EitherExtensions.Success<TokenFetchingError, Token>(
+                    deletedToken
+                );
+            }
         );
     }
 }

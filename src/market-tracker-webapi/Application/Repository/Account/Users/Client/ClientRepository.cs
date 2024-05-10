@@ -51,7 +51,7 @@ public class ClientRepository(
         return await query.FirstOrDefaultAsync();
     }
 
-    public async Task<Guid> CreateClientAsync(Guid userId, string username, string? avatarUrl)
+    public async Task<UserId> CreateClientAsync(Guid userId, string username, string? avatarUrl)
     {
         var newClient = new ClientEntity
         {
@@ -61,7 +61,7 @@ public class ClientRepository(
         };
         await dataContext.Client.AddAsync(newClient);
         await dataContext.SaveChangesAsync();
-        return newClient.UserId;
+        return new UserId(newClient.UserId);
     }
 
     public async Task<ClientItem?> UpdateClientAsync(Guid id, string? username, string? avatarUrl = null)

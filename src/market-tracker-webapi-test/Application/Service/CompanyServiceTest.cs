@@ -1,7 +1,5 @@
 ﻿using FluentAssertions;
-using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
-using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Repository.Market.Company;
 using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Operations.Market.Company;
@@ -30,18 +28,16 @@ public class CompanyServiceTest
         // Arrange
         var companies = new List<Company>
         {
-            new()
-            {
-                Id = 1,
-                Name = "Company 1",
-                CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-            },
-            new()
-            {
-                Id = 2,
-                Name = "Company 2",
-                CreatedAt = new DateTime(2024, 1, 2, 0, 0, 0, DateTimeKind.Unspecified)
-            }
+            new(
+                1,
+                "Company 1",
+                new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
+            ),
+            new(
+                2,
+                "Company 2",
+                new DateTime(2024, 1, 2, 0, 0, 0, DateTimeKind.Unspecified)
+            )
         };
 
         _companyRepositoryMock.Setup(x => x.GetCompaniesAsync()).ReturnsAsync(companies);
@@ -50,19 +46,18 @@ public class CompanyServiceTest
         var result = await _companyService.GetCompaniesAsync();
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new CollectionOutputModel<Company>(companies));
+        result.Value.Should().BeEquivalentTo(companies);
     }
 
     [Fact]
     public async Task GetCompanyByIdAsync_ReturnsCompany()
     {
         // Arrange
-        var company = new Company
-        {
-            Id = 1,
-            Name = "Company 1",
-            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-        };
+        var company = new Company(
+            1,
+            "Company 1",
+            new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
+        );
 
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByIdAsync(It.IsAny<int>()))
@@ -94,12 +89,11 @@ public class CompanyServiceTest
     public async Task GetCompanyByNameAsync_ReturnsCompany()
     {
         // Arrange
-        var company = new Company
-        {
-            Id = 1,
-            Name = "Company 1",
-            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-        };
+        var company = new Company(
+            1,
+            "Company 1",
+            new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
+        );
 
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
@@ -145,7 +139,7 @@ public class CompanyServiceTest
         var result = await _companyService.AddCompanyAsync(companyName);
 
         // Assert
-        result.Value.Id.Should().Be(1);
+        result.Value.Value.Should().Be(1);
     }
 
     [Fact]
@@ -157,12 +151,11 @@ public class CompanyServiceTest
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
             .ReturnsAsync(
-                new Company
-                {
-                    Id = 1,
-                    Name = "Company 1",
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-                }
+                new Company(
+                    1,
+                    "Company 1",
+                    new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
+                )
             );
 
         // Act
@@ -183,19 +176,18 @@ public class CompanyServiceTest
         _companyRepositoryMock
             .Setup(x => x.DeleteCompanyAsync(It.IsAny<int>()))
             .ReturnsAsync(
-                new Company
-                {
-                    Id = 1,
-                    Name = "Company 1",
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-                }
+                new Company(
+                    1,
+                    "Company 1",
+                    new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
+                )
             );
 
         // Act
         var result = await _companyService.DeleteCompanyAsync(id);
 
         // Assert
-        result.Value.Id.Should().Be(1);
+        result.Value.Value.Should().Be(1);
     }
 
     [Fact]
@@ -229,12 +221,11 @@ public class CompanyServiceTest
         _companyRepositoryMock
             .Setup(x => x.UpdateCompanyAsync(It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync(
-                new Company
-                {
-                    Id = 1,
-                    Name = "Company 1",
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-                }
+                new Company(
+                    1,
+                    "Company 1",
+                    new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
+                )
             );
 
         // Act
@@ -254,12 +245,11 @@ public class CompanyServiceTest
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
             .ReturnsAsync(
-                new Company
-                {
-                    Id = 1,
-                    Name = "Company 1",
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-                }
+                new Company(
+                    1,
+                    "Company 1",
+                    new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
+                )
             );
 
         // Act

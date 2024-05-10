@@ -1,6 +1,6 @@
-namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
+namespace market_tracker_webapi.Application.Service.Results;
 
-public class ProductCreationOutputModel
+public class ProductCreationResult
 {
     public required string Id { get; set; }
 

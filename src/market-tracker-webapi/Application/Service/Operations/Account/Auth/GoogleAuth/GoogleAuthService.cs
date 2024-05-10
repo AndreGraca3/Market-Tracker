@@ -1,5 +1,5 @@
 ﻿using Google.Apis.Auth;
-using market_tracker_webapi.Application.Http.Models.Schemas.Account.Auth.Token;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Account.Token;
 using market_tracker_webapi.Application.Repository.Account.Users.Client;
 using market_tracker_webapi.Application.Repository.Account.Users.User;
@@ -10,6 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Auth.GoogleAuth;
 
+using Token = Domain.Models.Account.Auth.Token;
+
 public class GoogleAuthService(
     IClientRepository clientRepository,
     IUserRepository userRepository,
@@ -19,11 +21,11 @@ public class GoogleAuthService(
 {
     private const string ServerId = "317635904868-mgmlu2g27gt43tb00c7i5kfevprerrsn.apps.googleusercontent.com";
 
-    public async Task<Either<GoogleTokenCreationError, TokenOutputModel>> CreateTokenAsync(string tokenValue)
+    public async Task<Either<GoogleTokenCreationError, Token>> CreateTokenAsync(string tokenValue)
     {
         if (tokenValue.IsNullOrEmpty())
         {
-            return EitherExtensions.Failure<GoogleTokenCreationError, TokenOutputModel>(
+            return EitherExtensions.Failure<GoogleTokenCreationError, Token>(
                 new GoogleTokenCreationError.InvalidValue()
             );
         }
@@ -40,27 +42,23 @@ public class GoogleAuthService(
                 GoogleJsonWebSignature.Payload payload =
                     await GoogleJsonWebSignature.ValidateAsync(tokenValue, validationSettings);
 
-                var userId = (await userRepository.GetUserByEmailAsync(payload.Email))?.Id ?? await userRepository
-                    .CreateUserAsync(
-                        payload.Name,
-                        payload.Email,
-                        "Client"
-                    );
+                var userId = (await userRepository.GetUserByEmailAsync(payload.Email))?.Id.Value ??
+                             (await userRepository
+                                 .CreateUserAsync(
+                                     payload.Name,
+                                     payload.Email,
+                                     Role.Client.ToString()
+                                 )).Value;
 
                 await clientRepository.CreateClientAsync(userId, payload.Email.Split("@").First(), payload.Picture);
 
-                var token = await tokenRepository.CreateTokenAsync(userId);
-
-                return EitherExtensions.Success<GoogleTokenCreationError, TokenOutputModel>(
-                    new TokenOutputModel(
-                        token.TokenValue,
-                        token.ExpiresAt
-                    )
+                return EitherExtensions.Success<GoogleTokenCreationError, Token>(
+                    await tokenRepository.CreateTokenAsync(userId)
                 );
             }
             catch (InvalidJwtException)
             {
-                return EitherExtensions.Failure<GoogleTokenCreationError, TokenOutputModel>(
+                return EitherExtensions.Failure<GoogleTokenCreationError, Token>(
                     new GoogleTokenCreationError.InvalidIssuer("google")
                 );
             }

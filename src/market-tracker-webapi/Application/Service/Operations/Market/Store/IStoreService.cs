@@ -1,33 +1,35 @@
-﻿using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
+﻿using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Utils;
 
-namespace market_tracker_webapi.Application.Service.Operations.Market.Store
+namespace market_tracker_webapi.Application.Service.Operations.Market.Store;
+
+using Store = Domain.Models.Market.Retail.Shop.Store;
+
+public interface IStoreService
 {
-    public interface IStoreService
-    {
-        Task<Either<IServiceError, CollectionOutputModel<Domain.Models.Market.Retail.Shop.Store>>> GetStoresAsync(int? companyId = null,
-            int? cityId = null, string? name = null);
+    Task<Either<IServiceError, CollectionOutputModel<Store>>> GetStoresAsync(
+        int? companyId = null,
+        int? cityId = null, string? name = null);
 
-        Task<Either<StoreFetchingError, Domain.Models.Market.Retail.Shop.Store>> GetStoreByIdAsync(int id);
+    Task<Either<StoreFetchingError, Store>> GetStoreByIdAsync(int id);
 
-        Task<Either<IServiceError, IntIdOutputModel>> AddStoreAsync(
-            string name,
-            string address,
-            int? cityId,
-            int companyId
-        );
+    Task<Either<IServiceError, StoreId>> AddStoreAsync(
+        string name,
+        string address,
+        int? cityId,
+        int companyId
+    );
 
-        Task<Either<IServiceError, IntIdOutputModel>> UpdateStoreAsync(
-            int id,
-            string name,
-            string address,
-            int cityId,
-            int companyId
-        );
+    Task<Either<IServiceError, StoreId>> UpdateStoreAsync(
+        int id,
+        string name,
+        string address,
+        int cityId,
+        int companyId
+    );
 
-        Task<Either<StoreFetchingError, IntIdOutputModel>> DeleteStoreAsync(int id);
-    }
+    Task<Either<StoreFetchingError, StoreId>> DeleteStoreAsync(int id);
 }

@@ -10,6 +10,7 @@ using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
+using market_tracker_webapi.Application.Service.Results;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Inventory.Product;
@@ -69,7 +70,7 @@ public class ProductController(IProductService productService, IProductPriceServ
     }
 
     [HttpGet(Uris.Products.PricesByProductId)]
-    public async Task<ActionResult<CollectionOutputModel<CompanyPricesOutputModel>>> GetProductPricesAsync(
+    public async Task<ActionResult<CollectionOutputModel<CompanyPricesResult>>> GetProductPricesAsync(
         string productId)
     {
         var res = await productPriceService.GetProductPricesAsync(productId);
@@ -90,7 +91,7 @@ public class ProductController(IProductService productService, IProductPriceServ
 
     [HttpPost(Uris.Products.Base)]
     [Authorized([Role.Operator])]
-    public async Task<ActionResult<ProductCreationOutputModel>> AddProductAsync(
+    public async Task<ActionResult<ProductCreationResult>> AddProductAsync(
         [FromBody] ProductCreationInputModel productInput
     )
     {

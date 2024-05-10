@@ -1,3 +1,4 @@
+using market_tracker_webapi.Application.Domain.Models.Market.Inventory;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory;
 using Microsoft.EntityFrameworkCore;
@@ -30,12 +31,12 @@ public class CategoryRepository(MarketTrackerDataContext dataContext) : ICategor
         return categoryEntity is null ? null : new Category(categoryEntity.Id, categoryEntity.Name);
     }
 
-    public async Task<int> AddCategoryAsync(string name)
+    public async Task<CategoryId> AddCategoryAsync(string name)
     {
         var category = new CategoryEntity { Name = name };
         await dataContext.Category.AddAsync(category);
         await dataContext.SaveChangesAsync();
-        return category.Id;
+        return new CategoryId(category.Id);
     }
 
     public async Task<Category?> UpdateCategoryAsync(int id, string name)

@@ -1,7 +1,5 @@
 ﻿using FluentAssertions;
-using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
-using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Repository.Market.City;
 using market_tracker_webapi.Application.Service.Errors.City;
@@ -29,8 +27,8 @@ public class CityServiceTest
         // Arrange
         var cities = new List<City>
         {
-            new() { Id = 1, Name = "City 1" },
-            new() { Id = 2, Name = "City 2" }
+            new(1, "City 1"),
+            new(2, "City 2")
         };
 
         _cityRepositoryMock.Setup(c => c.GetCitiesAsync()).ReturnsAsync(cities);
@@ -39,14 +37,14 @@ public class CityServiceTest
         var result = await _cityService.GetCitiesAsync();
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new CollectionOutputModel<City>(cities));
+        result.Value.Should().BeEquivalentTo(cities);
     }
 
     [Fact]
     public async Task GetCityByIdAsync_WhenCityExists_ShouldReturnCity()
     {
         // Arrange
-        var city = new City { Id = 1, Name = "City 1" };
+        var city = new City(1, "City 1");
 
         _cityRepositoryMock.Setup(c => c.GetCityByIdAsync(It.IsAny<int>())).ReturnsAsync(city);
 
@@ -76,7 +74,7 @@ public class CityServiceTest
     public async Task GetCityByNameAsync_WhenCityExists_ShouldReturnCity()
     {
         // Arrange
-        var city = new City { Id = 1, Name = "City 1" };
+        var city = new City(1, "City 1");
 
         _cityRepositoryMock.Setup(c => c.GetCityByNameAsync(It.IsAny<string>())).ReturnsAsync(city);
 
@@ -121,7 +119,7 @@ public class CityServiceTest
     public async Task AddCityAsync_WhenCityNameExists_ShouldReturnCityNameAlreadyExists()
     {
         // Arrange
-        var city = new City { Id = 1, Name = "City 1" };
+        var city = new City(1, "City 1");
 
         _cityRepositoryMock.Setup(c => c.GetCityByNameAsync(It.IsAny<string>())).ReturnsAsync(city);
 
@@ -138,7 +136,7 @@ public class CityServiceTest
     public async Task UpdateCityAsync_WhenCityExists_AndNameIsValid_ShouldReturnCityId()
     {
         // Arrange
-        var city = new City { Id = 1, Name = "City 1" };
+        var city = new City(1, "City 1");
 
         _cityRepositoryMock
             .Setup(c => c.GetCityByNameAsync(It.IsAny<string>()))
@@ -174,7 +172,7 @@ public class CityServiceTest
     public async Task UpdateCityAsync_WhenCityNameExists_ShouldReturnCityNameAlreadyExists()
     {
         // Arrange
-        var city = new City { Id = 1, Name = "City 1" };
+        var city = new City(1, "City 1");
 
         _cityRepositoryMock.Setup(c => c.GetCityByNameAsync(It.IsAny<string>())).ReturnsAsync(city);
 
@@ -191,7 +189,7 @@ public class CityServiceTest
     public async Task DeleteCityAsync_WhenCityExists_ShouldReturnCityId()
     {
         // Arrange
-        var city = new City { Id = 1, Name = "City 1" };
+        var city = new City(1, "City 1");
 
         _cityRepositoryMock.Setup(c => c.GetCityByIdAsync(It.IsAny<int>())).ReturnsAsync(city);
 

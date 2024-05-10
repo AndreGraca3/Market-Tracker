@@ -1,8 +1,8 @@
 using market_tracker_webapi.Application.Domain.Models.List;
 
-namespace market_tracker_webapi.Application.Http.Models.Schemas.List.ListEntry;
+namespace market_tracker_webapi.Application.Service.Results;
 
-public class ShoppingListEntriesOutputModel
+public class ShoppingListEntriesResult
 {
     public required IEnumerable<ListEntryOffer> Products { get; set; }
     public int TotalPrice { get; set; }

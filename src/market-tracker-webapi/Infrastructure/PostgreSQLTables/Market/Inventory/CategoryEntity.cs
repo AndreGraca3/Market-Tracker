@@ -18,6 +18,6 @@ public class CategoryEntity
 
     public Category ToCategory()
     {
-        return new Category(this.Id, this.Name);
+        return new Category(Id, Name);
     }
 }

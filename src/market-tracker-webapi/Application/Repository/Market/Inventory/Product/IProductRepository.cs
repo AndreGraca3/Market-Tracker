@@ -1,5 +1,6 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Filters.Product;
+using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
 
 namespace market_tracker_webapi.Application.Repository.Market.Inventory.Product;
 
@@ -20,7 +21,7 @@ public interface IProductRepository
 
     Task<Product?> GetProductByIdAsync(string productId);
 
-    Task<string> AddProductAsync(
+    Task<ProductId> AddProductAsync(
         string productId,
         string name,
         string imageUrl,

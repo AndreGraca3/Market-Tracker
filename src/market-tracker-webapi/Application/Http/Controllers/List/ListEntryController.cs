@@ -12,6 +12,7 @@ using market_tracker_webapi.Application.Service.Errors.ListEntry;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Operations.List;
+using market_tracker_webapi.Application.Service.Results;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.List;
@@ -129,7 +130,7 @@ public class ListEntryController(IListEntryService listEntryService) : Controlle
     }
 
     [HttpGet(Uris.Lists.ProductsByListId)]
-    public async Task<ActionResult<ShoppingListEntriesOutputModel>> GetListEntriesAsync(
+    public async Task<ActionResult<ShoppingListEntriesResult>> GetListEntriesAsync(
         int listId,
         [FromQuery] ShoppingListAlternativeType? alternativeType,
         [FromQuery] AlternativeListFiltersInputModel filters,

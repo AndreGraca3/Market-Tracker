@@ -25,11 +25,6 @@ public class CompanyEntity
 
     public Company ToCompany()
     {
-        return new Company
-        {
-            Id = Id,
-            Name = Name,
-            CreatedAt = CreatedAt
-        };
+        return new Company(Id, Name, CreatedAt);
     }
 }

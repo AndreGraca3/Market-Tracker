@@ -1,5 +1,4 @@
-﻿using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
+﻿using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
 using market_tracker_webapi.Application.Repository.Market.City;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.City;
@@ -13,14 +12,12 @@ using City = Domain.Models.Market.Retail.Shop.City;
 public class CityService(ICityRepository cityRepository, ITransactionManager transactionManager)
     : ICityService
 {
-    public async Task<Either<IServiceError, CollectionOutputModel<City>>> GetCitiesAsync()
+    public async Task<Either<IServiceError, IEnumerable<City>>> GetCitiesAsync()
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var cities = await cityRepository.GetCitiesAsync();
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel<City>>(
-                new CollectionOutputModel<City>(cities)
-            );
+            return EitherExtensions.Success<IServiceError, IEnumerable<City>>(cities);
         });
     }
 
@@ -44,40 +41,19 @@ public class CityService(ICityRepository cityRepository, ITransactionManager tra
             : EitherExtensions.Success<CityFetchingError, City>(city);
     }
 
-    public async Task<Either<ICityError, IntIdOutputModel>> AddCityAsync(string cityName)
+    public async Task<Either<ICityError, CityId>> AddCityAsync(string cityName)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await cityRepository.GetCityByNameAsync(cityName) is not null)
             {
-                return EitherExtensions.Failure<ICityError, IntIdOutputModel>(
+                return EitherExtensions.Failure<ICityError, CityId>(
                     new CityCreationError.CityNameAlreadyExists(cityName)
                 );
             }
 
             var cityId = await cityRepository.AddCityAsync(cityName);
-            return EitherExtensions.Success<ICityError, IntIdOutputModel>(
-                new IntIdOutputModel(cityId)
-            );
-        });
-    }
-
-    public async Task<Either<CityFetchingError, IntIdOutputModel>> DeleteCityAsync(int id)
-    {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            var city = await cityRepository.GetCityByIdAsync(id);
-            if (city is null)
-            {
-                return EitherExtensions.Failure<CityFetchingError, IntIdOutputModel>(
-                    new CityFetchingError.CityByIdNotFound(id)
-                );
-            }
-
-            await cityRepository.DeleteCityAsync(id);
-            return EitherExtensions.Success<CityFetchingError, IntIdOutputModel>(
-                new IntIdOutputModel(id)
-            );
+            return EitherExtensions.Success<ICityError, CityId>(cityId);
         });
     }
 
@@ -98,6 +74,25 @@ public class CityService(ICityRepository cityRepository, ITransactionManager tra
                     new CityFetchingError.CityByIdNotFound(id)
                 )
                 : EitherExtensions.Success<ICityError, City>(city);
+        });
+    }
+
+    public async Task<Either<CityFetchingError, CityId>> DeleteCityAsync(int id)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var city = await cityRepository.GetCityByIdAsync(id);
+            if (city is null)
+            {
+                return EitherExtensions.Failure<CityFetchingError, CityId>(
+                    new CityFetchingError.CityByIdNotFound(id)
+                );
+            }
+
+            await cityRepository.DeleteCityAsync(id);
+            return EitherExtensions.Success<CityFetchingError, CityId>(
+                city.Id
+            );
         });
     }
 }

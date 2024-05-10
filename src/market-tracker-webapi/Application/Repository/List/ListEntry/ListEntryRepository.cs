@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Infrastructure;
+﻿using market_tracker_webapi.Application.Domain.Models.List;
+using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,7 +52,7 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
             result.CategoryEntity.ToCategory()));
     }
 
-    public async Task<int> AddListEntryAsync(int listId, string productId, int storeId, int quantity)
+    public async Task<ListEntryId> AddListEntryAsync(int listId, string productId, int storeId, int quantity)
     {
         var productInListEntity = new ListEntryEntity()
         {
@@ -64,7 +65,7 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
         await dataContext.ListEntry.AddAsync(productInListEntity);
         await dataContext.SaveChangesAsync();
 
-        return productInListEntity.ListId;
+        return new ListEntryId(productInListEntity.Id);
     }
 
     public async Task<ListEntry?> UpdateListEntryAsync(int listId, string productId, int? storeId = null,

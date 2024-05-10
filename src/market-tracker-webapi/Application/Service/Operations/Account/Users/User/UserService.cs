@@ -1,9 +1,6 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Application.Http.Controllers.Account;
-using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.User;
 using market_tracker_webapi.Application.Repository.Account.Credential;
 using market_tracker_webapi.Application.Repository.Account.Token;
 using market_tracker_webapi.Application.Repository.Account.Users.User;
@@ -13,6 +10,8 @@ using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Users.User;
+
+using User = Domain.Models.Account.Users.User;
 
 public class UserService(
     IUserRepository userRepository,
@@ -32,20 +31,20 @@ public class UserService(
         );
     }
 
-    public async Task<Either<UserFetchingError, UserOutputModel>> GetUserAsync(Guid id)
+    public async Task<Either<UserFetchingError, User>> GetUserAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var user = await userRepository.GetUserByIdAsync(id);
             if (user is null)
             {
-                return EitherExtensions.Failure<UserFetchingError, UserOutputModel>(
+                return EitherExtensions.Failure<UserFetchingError, User>(
                     new UserFetchingError.UserByIdNotFound(id)
                 );
             }
 
-            return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
-                new UserOutputModel(user.Id, user.Name, user.Role, user.CreatedAt)
+            return EitherExtensions.Success<UserFetchingError, User>(
+                user
             );
         });
     }
@@ -65,7 +64,7 @@ public class UserService(
         return new AuthenticatedUser(user!, token);
     }
 
-    public async Task<Either<UserCreationError, UserCreationOutputModel>> CreateUserAsync(
+    public async Task<Either<UserCreationError, UserId>> CreateUserAsync(
         string name,
         string email,
         string password,
@@ -76,21 +75,21 @@ public class UserService(
         {
             if (await userRepository.GetUserByEmailAsync(email) is not null)
             {
-                return EitherExtensions.Failure<UserCreationError, UserCreationOutputModel>(
+                return EitherExtensions.Failure<UserCreationError, UserId>(
                     new UserCreationError.CredentialAlreadyInUse(email, nameof(email))
                 );
             }
 
-            var userId = await userRepository.CreateUserAsync(name, email, role);
+            var userId = (await userRepository.CreateUserAsync(name, email, role)).Value;
             await accountRepository.CreatePasswordAsync(userId, password);
 
-            return EitherExtensions.Success<UserCreationError, UserCreationOutputModel>(
-                new UserCreationOutputModel(userId, UserCreationOutputModel.Client)
+            return EitherExtensions.Success<UserCreationError, UserId>(
+                new UserId(userId)
             );
         });
     }
 
-    public async Task<Either<UserFetchingError, UserOutputModel>> UpdateUserAsync(
+    public async Task<Either<UserFetchingError, User>> UpdateUserAsync(
         Guid id,
         string? name
     )
@@ -104,31 +103,31 @@ public class UserService(
 
             if (user is null)
             {
-                return EitherExtensions.Failure<UserFetchingError, UserOutputModel>(
+                return EitherExtensions.Failure<UserFetchingError, User>(
                     new UserFetchingError.UserByIdNotFound(id)
                 );
             }
 
-            return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
-                new UserOutputModel(id, user.Name, user.Role, user.CreatedAt)
+            return EitherExtensions.Success<UserFetchingError, User>(
+                user
             );
         });
     }
 
-    public async Task<Either<UserFetchingError, GuidOutputModel>> DeleteUserAsync(Guid id)
+    public async Task<Either<UserFetchingError, UserId>> DeleteUserAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var user = await userRepository.DeleteUserAsync(id);
             if (user is null)
             {
-                return EitherExtensions.Failure<UserFetchingError, GuidOutputModel>(
+                return EitherExtensions.Failure<UserFetchingError, UserId>(
                     new UserFetchingError.UserByIdNotFound(id)
                 );
             }
 
-            return EitherExtensions.Success<UserFetchingError, GuidOutputModel>(
-                new GuidOutputModel(id)
+            return EitherExtensions.Success<UserFetchingError, UserId>(
+                user.Id
             );
         });
     }

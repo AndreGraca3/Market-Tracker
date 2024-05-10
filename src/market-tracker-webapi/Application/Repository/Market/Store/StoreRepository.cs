@@ -87,7 +87,7 @@ public class StoreRepository(MarketTrackerDataContext dataContext) : IStoreRepos
                 s.CompanyEntity.ToCompany())).FirstOrDefaultAsync();
     }
 
-    public async Task<int> AddStoreAsync(string name, string address, int? cityId, int companyId)
+    public async Task<StoreId> AddStoreAsync(string name, string address, int? cityId, int companyId)
     {
         var newStore = new StoreEntity
         {
@@ -100,7 +100,7 @@ public class StoreRepository(MarketTrackerDataContext dataContext) : IStoreRepos
         dataContext.Store.Add(newStore);
         await dataContext.SaveChangesAsync();
 
-        return newStore.Id;
+        return new StoreId(newStore.Id);
     }
 
     public async Task<StoreItem?> UpdateStoreAsync(

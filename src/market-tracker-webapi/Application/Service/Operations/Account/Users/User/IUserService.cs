@@ -10,26 +10,28 @@ using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Users.User;
 
+using User = Domain.Models.Account.Users.User;
+
 public interface IUserService
 {
     Task<Either<IServiceError, PaginatedResult<UserItem>>> GetUsersAsync(string? role, int skip,
         int take);
 
-    Task<Either<UserFetchingError, UserOutputModel>> GetUserAsync(Guid id);
+    Task<Either<UserFetchingError, User>> GetUserAsync(Guid id);
 
     Task<AuthenticatedUser?> GetUserByToken(Guid tokenValue);
 
-    Task<Either<UserCreationError, UserCreationOutputModel>> CreateUserAsync(
+    Task<Either<UserCreationError, UserId>> CreateUserAsync(
         string name,
         string email,
         string password,
         string role
     );
 
-    Task<Either<UserFetchingError, UserOutputModel>> UpdateUserAsync(
+    Task<Either<UserFetchingError, User>> UpdateUserAsync(
         Guid id,
         string? name
     );
 
-    Task<Either<UserFetchingError, GuidOutputModel>> DeleteUserAsync(Guid id);
+    Task<Either<UserFetchingError, UserId>> DeleteUserAsync(Guid id);
 }

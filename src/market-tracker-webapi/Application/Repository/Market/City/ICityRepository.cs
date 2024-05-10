@@ -1,4 +1,6 @@
-﻿namespace market_tracker_webapi.Application.Repository.Market.City;
+﻿using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+
+namespace market_tracker_webapi.Application.Repository.Market.City;
 
 using City = Domain.Models.Market.Retail.Shop.City;
 
@@ -9,7 +11,7 @@ public interface ICityRepository
 
     Task<City?> GetCityByNameAsync(string name);
 
-    Task<int> AddCityAsync(string name);
+    Task<CityId> AddCityAsync(string name);
 
     Task<City?> UpdateCityAsync(int id, string name);
 

@@ -13,3 +13,7 @@ public record Price(int BasePrice, int FinalPrice, Promotion? Promotion, DateTim
     {
     }
 }
+
+public record PriceId(
+    string Value
+);

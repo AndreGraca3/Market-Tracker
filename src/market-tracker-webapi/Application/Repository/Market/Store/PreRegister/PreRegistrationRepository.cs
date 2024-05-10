@@ -1,5 +1,6 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Models.Account.Auth;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Store;
@@ -11,19 +12,18 @@ public class PreRegistrationRepository(
     MarketTrackerDataContext dataContext
 ) : IPreRegistrationRepository
 {
-    public async Task<PaginatedResult<OperatorOutputModel>> GetPreRegistersAsync(bool? isValid, int skip, int take)
+    public async Task<PaginatedResult<OperatorItem>> GetPreRegistersAsync(bool? isValid, int skip, int take)
     {
         var query = from preRegister in dataContext.PreRegister
             where isValid == null || preRegister.IsApproved == isValid
-            select new OperatorOutputModel(preRegister.Code, preRegister.OperatorName, preRegister.PhoneNumber,
-                preRegister.StoreName, preRegister.CreatedAt);
+            select new OperatorItem(preRegister.Code, preRegister.OperatorName, preRegister.StoreName);
 
         var operators = await query
             .Skip(skip)
             .Take(take)
             .ToListAsync();
 
-        return new PaginatedResult<OperatorOutputModel>(operators, query.Count(), skip, take);
+        return new PaginatedResult<OperatorItem>(operators, query.Count(), skip, take);
     }
 
     public async Task<PreRegistration?> GetPreRegisterByIdAsync(Guid id)
@@ -36,7 +36,8 @@ public class PreRegistrationRepository(
         return (await dataContext.PreRegister.FirstOrDefaultAsync(user => user.Email == email))?.ToPreRegistration();
     }
 
-    public async Task<Guid> CreatePreRegisterAsync(string operatorName, string email, int phoneNumber, string storeName,
+    public async Task<PreRegistrationId> CreatePreRegisterAsync(string operatorName, string email, int phoneNumber,
+        string storeName,
         string storeAddress,
         string companyName,
         string? cityName,
@@ -55,7 +56,7 @@ public class PreRegistrationRepository(
         };
         await dataContext.PreRegister.AddAsync(newPreRegistration);
         await dataContext.SaveChangesAsync();
-        return newPreRegistration.Code;
+        return new PreRegistrationId(newPreRegistration.Code);
     }
 
     public async Task<PreRegistration?> UpdatePreRegistrationById(Guid id, bool isApproved)
@@ -72,7 +73,7 @@ public class PreRegistrationRepository(
         return preRegisterEntity.ToPreRegistration();
     }
 
-    public async Task<Guid?> DeletePreRegisterAsync(Guid id)
+    public async Task<PreRegistrationId?> DeletePreRegisterAsync(Guid id)
     {
         var preRegisterEntity = await dataContext.PreRegister.FindAsync(id);
         if (preRegisterEntity is null)
@@ -82,6 +83,6 @@ public class PreRegistrationRepository(
 
         dataContext.Remove(preRegisterEntity);
         await dataContext.SaveChangesAsync();
-        return preRegisterEntity.Code;
+        return new PreRegistrationId(preRegisterEntity.Code);
     }
 }

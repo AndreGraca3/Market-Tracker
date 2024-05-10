@@ -159,13 +159,12 @@ create table if not exists fcm_registration
 
 create table if not exists product_review
 (
-    id         int generated always as identity,
+    id         int primary key generated always as identity,
     client_id  uuid references client (id) on delete cascade,
     product_id varchar(18) references product (id) on delete cascade,
     rating     int       not null check (rating between 1 and 5),
     text       varchar(255),
-    created_at timestamp not null default now(),
-    primary key (client_id, product_id)
+    created_at timestamp not null default now()
 );
 
 create table if not exists product_favourite
@@ -203,11 +202,11 @@ create table if not exists list
 
 create table if not exists list_entry
 (
+    id         varchar(25) primary key default substr(md5(random()::text), 1, 25) check ( length(id) = 25),
     list_id    int references list (id) on delete cascade,
     product_id varchar(18) references product (id) on delete cascade,
     store_id   int references store (id) on delete SET NULL,
-    quantity   int not null,
-    primary key (list_id, product_id)
+    quantity   int not null
 );
 
 create table if not exists list_client

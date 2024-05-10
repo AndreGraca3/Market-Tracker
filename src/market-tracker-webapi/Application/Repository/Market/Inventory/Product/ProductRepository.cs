@@ -1,5 +1,6 @@
 using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Filters.Product;
+using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory.Product;
 using Microsoft.EntityFrameworkCore;
@@ -81,7 +82,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         ).FirstOrDefaultAsync();
     }
 
-    public async Task<string> AddProductAsync(
+    public async Task<ProductId> AddProductAsync(
         string productId,
         string name,
         string imageUrl,
@@ -103,7 +104,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         };
         await dataContext.Product.AddAsync(productEntity);
         await dataContext.SaveChangesAsync();
-        return productEntity.Id;
+        return new ProductId(productEntity.Id);
     }
 
     public async Task SetProductAvailabilityAsync(
@@ -149,7 +150,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         {
             return null;
         }
-        
+
         productEntity.Name = name ?? productEntity.Name;
         productEntity.ImageUrl = imageUrl ?? productEntity.ImageUrl;
         productEntity.Quantity = quantity ?? productEntity.Quantity;

@@ -35,7 +35,7 @@ public class UserRepository(
         return (await dataContext.User.FirstOrDefaultAsync(user => user.Email == email))?.ToUser();
     }
 
-    public async Task<Guid> CreateUserAsync(string name, string email, string role)
+    public async Task<UserId> CreateUserAsync(string name, string email, string role)
     {
         var newUser = new UserEntity
         {
@@ -45,7 +45,7 @@ public class UserRepository(
         };
         await dataContext.User.AddAsync(newUser);
         await dataContext.SaveChangesAsync();
-        return newUser.Id;
+        return new UserId(newUser.Id);
     }
 
     public async Task<User?> UpdateUserAsync(Guid id, string? name)

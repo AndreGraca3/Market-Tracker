@@ -13,7 +13,7 @@ public interface IClientRepository
 
     Task<Client?> GetClientByUsernameAsync(string username);
 
-    Task<Guid> CreateClientAsync(Guid userId, string username, string? avatarUrl);
+    Task<UserId> CreateClientAsync(Guid userId, string username, string? avatarUrl);
 
     Task<ClientItem?> UpdateClientAsync(Guid id, string? username, string? avatarUrl = null);
     

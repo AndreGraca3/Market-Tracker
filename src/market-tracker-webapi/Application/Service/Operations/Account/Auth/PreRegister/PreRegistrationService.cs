@@ -1,7 +1,6 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
-using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Store;
+using market_tracker_webapi.Application.Domain.Models.Account.Auth;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Application.Repository.Account.Users.Operator;
 using market_tracker_webapi.Application.Repository.Market.Store.PreRegister;
 using market_tracker_webapi.Application.Service.Errors;
@@ -17,34 +16,34 @@ public class PreRegistrationService(
     ITransactionManager transactionManager
 ) : IPreRegistrationService
 {
-    public async Task<Either<IServiceError, PaginatedResult<OperatorOutputModel>>> GetPreRegistrationsAsync(bool? isValid,
+    public async Task<Either<IServiceError, PaginatedResult<OperatorItem>>> GetPreRegistrationsAsync(bool? isValid,
         int skip, int limit)
     {
         return await transactionManager.ExecuteAsync(async () =>
-            EitherExtensions.Success<IServiceError, PaginatedResult<OperatorOutputModel>>(
+            EitherExtensions.Success<IServiceError, PaginatedResult<OperatorItem>>(
                 await preRegistrationRepository.GetPreRegistersAsync(isValid, skip, limit)
             ));
     }
 
-    public async Task<Either<PreRegistrationFetchingError, PreRegisterInfo>> GetPreRegistrationByIdAsync(Guid id)
+    public async Task<Either<PreRegistrationFetchingError, PreRegistration>> GetPreRegistrationByIdAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var preRegistrationOperator = await preRegistrationRepository.GetPreRegisterByIdAsync(id);
             if (preRegistrationOperator is null)
             {
-                return EitherExtensions.Failure<PreRegistrationFetchingError, PreRegisterInfo>(
+                return EitherExtensions.Failure<PreRegistrationFetchingError, PreRegistration>(
                     new PreRegistrationFetchingError.PreRegistrationByIdNotFound(id)
                 );
             }
 
-            return EitherExtensions.Success<PreRegistrationFetchingError, PreRegisterInfo>(
-                PreRegisterInfo.ToPreRegisterInfo(preRegistrationOperator)
+            return EitherExtensions.Success<PreRegistrationFetchingError, PreRegistration>(
+                preRegistrationOperator
             );
         });
     }
 
-    public async Task<Either<PreRegistrationCreationError, GuidOutputModel>> AddPreRegistrationAsync(
+    public async Task<Either<PreRegistrationCreationError, PreRegistrationId>> AddPreRegistrationAsync(
         string operatorName,
         string email,
         int phoneNumber,
@@ -58,14 +57,14 @@ public class PreRegistrationService(
         {
             if (await preRegistrationRepository.GetPreRegisterByEmail(email) is not null)
             {
-                return EitherExtensions.Failure<PreRegistrationCreationError, GuidOutputModel>(
+                return EitherExtensions.Failure<PreRegistrationCreationError, PreRegistrationId>(
                     new PreRegistrationCreationError.EmailAlreadyInUse(email)
                 );
             }
 
             if (await operatorRepository.GetOperatorByEmailAsync(email) is not null)
             {
-                return EitherExtensions.Failure<PreRegistrationCreationError, GuidOutputModel>(
+                return EitherExtensions.Failure<PreRegistrationCreationError, PreRegistrationId>(
                     new PreRegistrationCreationError.EmailAlreadyInUse(email)
                 );
             }
@@ -81,13 +80,11 @@ public class PreRegistrationService(
                 document
             );
 
-            return EitherExtensions.Success<PreRegistrationCreationError, GuidOutputModel>(
-                new GuidOutputModel(code)
-            );
+            return EitherExtensions.Success<PreRegistrationCreationError, PreRegistrationId>(code);
         });
     }
 
-    public async Task<Either<PreRegistrationFetchingError, GuidOutputModel>> UpdatePreRegistrationByIdAsync(Guid id,
+    public async Task<Either<PreRegistrationFetchingError, PreRegistrationId>> UpdatePreRegistrationByIdAsync(Guid id,
         bool isApproved)
     {
         return await transactionManager.ExecuteAsync(async () =>
@@ -96,13 +93,13 @@ public class PreRegistrationService(
 
             if (preRegistrationOperator is null)
             {
-                return EitherExtensions.Failure<PreRegistrationFetchingError, GuidOutputModel>(
+                return EitherExtensions.Failure<PreRegistrationFetchingError, PreRegistrationId>(
                     new PreRegistrationFetchingError.PreRegistrationByIdNotFound(id)
                 );
             }
 
-            return EitherExtensions.Success<PreRegistrationFetchingError, GuidOutputModel>(
-                new GuidOutputModel(id)
+            return EitherExtensions.Success<PreRegistrationFetchingError, PreRegistrationId>(
+                new PreRegistrationId(id)
             );
         });
     }

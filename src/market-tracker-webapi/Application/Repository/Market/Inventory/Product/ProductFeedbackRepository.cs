@@ -31,7 +31,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         return new PaginatedResult<ProductReview>(reviews, query.Count(), skip, take);
     }
 
-    public async Task<int> AddReviewAsync(
+    public async Task<ReviewId> AddReviewAsync(
         Guid clientId,
         string productId,
         int rating,
@@ -47,7 +47,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         };
         await dataContext.ProductReview.AddAsync(productReviewEntity);
         await dataContext.SaveChangesAsync();
-        return productReviewEntity.Id;
+        return new ReviewId(productReviewEntity.Id);
     }
 
     public async Task<ProductReview?> UpdateReviewAsync(

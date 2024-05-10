@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Domain.Models.List;
+﻿using market_tracker_webapi.Application.Domain.Models.Account.Users;
+using market_tracker_webapi.Application.Domain.Models.List;
 
 namespace market_tracker_webapi.Application.Repository.List;
 
@@ -8,13 +9,13 @@ public interface IListRepository
         DateTime? createdAfter = null, bool? isArchived = null
     );
 
-    Task<IEnumerable<Guid>> GetClientIdsByListIdAsync(int  listId);
+    Task<IEnumerable<UserId>> GetClientIdsByListIdAsync(int  listId);
     
     Task<bool> IsClientInListAsync(int listId, Guid clientId);
     
     Task<ShoppingList?> GetListByIdAsync(int id);
 
-    Task<int> AddListAsync(string listName, Guid ownerId);
+    Task<ShoppingListId> AddListAsync(string listName, Guid ownerId);
 
     Task<ShoppingList?> UpdateListAsync(int id, DateTime? archivedAt, string? listName = null);
 

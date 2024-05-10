@@ -9,6 +9,7 @@ using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.List;
+using market_tracker_webapi.Application.Service.Results;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.List;
@@ -44,7 +45,7 @@ public class ListController(
 
     [HttpGet(Uris.Lists.ListById)]
     [Authorized([Role.Client])]
-    public async Task<ActionResult<ShoppingListOutputModel>> GetListByIdAsync(int listId)
+    public async Task<ActionResult<ShoppingListResult>> GetListByIdAsync(int listId)
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
         var res = await listService.GetListByIdAsync(listId, authUser.User.Id);

@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Infrastructure;
+﻿using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,14 +29,14 @@ public class CityRepository(MarketTrackerDataContext marketTrackerDataContext) :
         return cityEntity?.ToCity();
     }
 
-    public async Task<int> AddCityAsync(string name)
+    public async Task<CityId> AddCityAsync(string name)
     {
         var newCity = new CityEntity { Name = name };
 
         marketTrackerDataContext.City.Add(newCity);
         await marketTrackerDataContext.SaveChangesAsync();
 
-        return newCity.Id;
+        return new CityId(newCity.Id);
     }
 
     public async Task<City?> UpdateCityAsync(int id, string name)

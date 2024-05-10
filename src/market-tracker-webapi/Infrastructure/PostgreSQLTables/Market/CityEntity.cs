@@ -13,12 +13,10 @@ public class CityEntity
     [Column("id")]
     public int Id { get; set; }
 
-    [Required]
-    [Column("name")]
-    public required string Name { get; set; }
+    [Required] [Column("name")] public required string Name { get; set; }
 
     public City ToCity()
     {
-        return new City { Id = Id, Name = Name };
+        return new City(Id, Name);
     }
 }

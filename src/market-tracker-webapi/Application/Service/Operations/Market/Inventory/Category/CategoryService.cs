@@ -1,5 +1,4 @@
-using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
+using market_tracker_webapi.Application.Domain.Models.Market.Inventory;
 using market_tracker_webapi.Application.Repository.Market.Inventory.Category;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Category;
@@ -15,14 +14,12 @@ public class CategoryService(
     ITransactionManager transactionManager
 ) : ICategoryService
 {
-    public async Task<Either<IServiceError, CollectionOutputModel<Category>>> GetCategoriesAsync()
+    public async Task<Either<IServiceError, IEnumerable<Category>>> GetCategoriesAsync()
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var categories = await categoryRepository.GetCategoriesAsync();
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel<Category>>(
-                new CollectionOutputModel<Category>(categories)
-            );
+            return EitherExtensions.Success<IServiceError, IEnumerable<Category>>(categories);
         });
     }
 
@@ -39,21 +36,19 @@ public class CategoryService(
         });
     }
 
-    public async Task<Either<ICategoryError, IntIdOutputModel>> AddCategoryAsync(string name)
+    public async Task<Either<ICategoryError, CategoryId>> AddCategoryAsync(string name)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await categoryRepository.GetCategoryByNameAsync(name) is not null)
             {
-                return EitherExtensions.Failure<ICategoryError, IntIdOutputModel>(
+                return EitherExtensions.Failure<ICategoryError, CategoryId>(
                     new CategoryCreationError.CategoryNameAlreadyExists(name)
                 );
             }
 
             var categoryId = await categoryRepository.AddCategoryAsync(name);
-            return EitherExtensions.Success<ICategoryError, IntIdOutputModel>(
-                new IntIdOutputModel(categoryId)
-            );
+            return EitherExtensions.Success<ICategoryError, CategoryId>(categoryId);
         });
     }
 
@@ -81,17 +76,17 @@ public class CategoryService(
         });
     }
 
-    public async Task<Either<CategoryFetchingError, IntIdOutputModel>> RemoveCategoryAsync(int id)
+    public async Task<Either<CategoryFetchingError, CategoryId>> RemoveCategoryAsync(int id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var category = await categoryRepository.RemoveCategoryAsync(id);
             return category is null
-                ? EitherExtensions.Failure<CategoryFetchingError, IntIdOutputModel>(
+                ? EitherExtensions.Failure<CategoryFetchingError, CategoryId>(
                     new CategoryFetchingError.CategoryByIdNotFound(id)
                 )
-                : EitherExtensions.Success<CategoryFetchingError, IntIdOutputModel>(
-                    new IntIdOutputModel(category.Id)
+                : EitherExtensions.Success<CategoryFetchingError, CategoryId>(
+                    category.Id
                 );
         });
     }

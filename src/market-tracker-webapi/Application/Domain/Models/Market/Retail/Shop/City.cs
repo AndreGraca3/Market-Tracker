@@ -1,8 +1,18 @@
 ﻿namespace market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
 
-public class City
+public record City(CityId Id, string Name)
 {
-    public required int Id { get; set; }
+    public City(
+        int Id,
+        string Name
+    ) : this(
+        new CityId(Id),
+        Name
+    )
+    {
+    }
+};
 
-    public required string Name { get; set; }
-}
+public record CityId(
+    int Value
+);

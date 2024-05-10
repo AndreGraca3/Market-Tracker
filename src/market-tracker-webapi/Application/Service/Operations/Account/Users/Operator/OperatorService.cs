@@ -1,6 +1,5 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Account.Users.Operator;
 using market_tracker_webapi.Application.Repository.Account.Users.User;
@@ -28,11 +27,11 @@ public class OperatorService(
     ITransactionManager transactionManager
 ) : IOperatorService
 {
-    public async Task<Either<IServiceError, PaginatedResult<OperatorOutputModel>>> GetOperatorsAsync(bool? isApproved, int skip,
+    public async Task<Either<IServiceError, PaginatedResult<OperatorItem>>> GetOperatorsAsync(int skip,
         int take)
     {
-        return EitherExtensions.Success<IServiceError, PaginatedResult<OperatorOutputModel>>(
-            await preRegistrationRepository.GetPreRegistersAsync(isApproved, skip, take)
+        return EitherExtensions.Success<IServiceError, PaginatedResult<OperatorItem>>(
+            await operatorRepository.GetOperatorsAsync(skip, take)
         );
     }
 
@@ -54,44 +53,45 @@ public class OperatorService(
         });
     }
 
-    public async Task<Either<PreRegistrationFetchingError, GuidOutputModel>> CreateOperatorAsync(Guid code, string password)
+    public async Task<Either<PreRegistrationFetchingError, UserId>> CreateOperatorAsync(Guid id,
+        string password)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var preRegistrationOperator = await preRegistrationRepository.GetPreRegisterByIdAsync(code);
+            var preRegistrationOperator = await preRegistrationRepository.GetPreRegisterByIdAsync(id);
             if (preRegistrationOperator is null)
             {
-                return EitherExtensions.Failure<PreRegistrationFetchingError, GuidOutputModel>(
-                    new PreRegistrationFetchingError.PreRegistrationByIdNotFound(code)
+                return EitherExtensions.Failure<PreRegistrationFetchingError, UserId>(
+                    new PreRegistrationFetchingError.PreRegistrationByIdNotFound(id)
                 );
             }
 
             if (!preRegistrationOperator.IsValidated)
             {
-                return EitherExtensions.Failure<PreRegistrationFetchingError, GuidOutputModel>(
-                    new PreRegistrationFetchingError.PreRegistrationNotValidated(code)
+                return EitherExtensions.Failure<PreRegistrationFetchingError, UserId>(
+                    new PreRegistrationFetchingError.PreRegistrationNotValidated(id)
                 );
             }
 
-            await preRegistrationRepository.DeletePreRegisterAsync(code);
+            await preRegistrationRepository.DeletePreRegisterAsync(id);
 
-            var userId = await userRepository.CreateUserAsync(preRegistrationOperator.OperatorName,
+            var userId = (await userRepository.CreateUserAsync(preRegistrationOperator.OperatorName,
                 preRegistrationOperator.Email,
-                Role.Operator.ToString());
+                Role.Operator.ToString())).Value;
 
             await operatorRepository.CreateOperatorAsync(userId, preRegistrationOperator.PhoneNumber);
             // create company
-            var companyId = await companyRepository.AddCompanyAsync(preRegistrationOperator.CompanyName);
+            var companyId = (await companyRepository.AddCompanyAsync(preRegistrationOperator.CompanyName)).Value;
             // create city
             var cityId = preRegistrationOperator.CityName is not null
-                ? await cityRepository.AddCityAsync(preRegistrationOperator.CityName)
+                ? (await cityRepository.AddCityAsync(preRegistrationOperator.CityName)).Value
                 : (int?)null;
             // create Store
             await storeRepository.AddStoreAsync(preRegistrationOperator.StoreName,
                 preRegistrationOperator.StoreAddress, cityId, companyId);
 
-            return EitherExtensions.Success<PreRegistrationFetchingError, GuidOutputModel>(
-                new GuidOutputModel(userId)
+            return EitherExtensions.Success<PreRegistrationFetchingError, UserId>(
+                new UserId(userId)
             );
         });
     }
@@ -127,22 +127,20 @@ public class OperatorService(
         });
     }
 
-    public async Task<Either<UserFetchingError, GuidOutputModel>> DeleteOperatorAsync(Guid id)
+    public async Task<Either<UserFetchingError, UserId>> DeleteOperatorAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var user = await userRepository.DeleteUserAsync(id);
             if (user is null)
             {
-                return EitherExtensions.Failure<UserFetchingError, GuidOutputModel>(
+                return EitherExtensions.Failure<UserFetchingError, UserId>(
                     new UserFetchingError.UserByIdNotFound(id)
                 );
             }
 
-            return EitherExtensions.Success<UserFetchingError, GuidOutputModel>(
-                new GuidOutputModel(
-                    user.Id
-                )
+            return EitherExtensions.Success<UserFetchingError, UserId>(
+                user.Id
             );
         });
     }

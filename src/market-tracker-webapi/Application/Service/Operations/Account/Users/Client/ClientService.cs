@@ -1,6 +1,5 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Models.Account.Users;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Account.Credential;
 using market_tracker_webapi.Application.Repository.Account.Users.Client;
@@ -47,7 +46,7 @@ public class ClientService(
         });
     }
 
-    public async Task<Either<UserCreationError, GuidOutputModel>> CreateClientAsync(
+    public async Task<Either<UserCreationError, UserId>> CreateClientAsync(
         string username,
         string name,
         string email,
@@ -59,24 +58,24 @@ public class ClientService(
         {
             if (await userRepository.GetUserByEmailAsync(email) is not null)
             {
-                return EitherExtensions.Failure<UserCreationError, GuidOutputModel>(
+                return EitherExtensions.Failure<UserCreationError, UserId>(
                     new UserCreationError.CredentialAlreadyInUse(email, nameof(email))
                 );
             }
 
             if (await clientRepository.GetClientByUsernameAsync(username) is not null)
             {
-                return EitherExtensions.Failure<UserCreationError, GuidOutputModel>(
+                return EitherExtensions.Failure<UserCreationError, UserId>(
                     new UserCreationError.CredentialAlreadyInUse(username, nameof(username))
                 );
             }
 
-            var userId = await userRepository.CreateUserAsync(name, email, Role.Client.ToString());
+            var userId = (await userRepository.CreateUserAsync(name, email, Role.Client.ToString())).Value;
             await clientRepository.CreateClientAsync(userId, username, avatarUrl);
             if (password is not null) await accountRepository.CreatePasswordAsync(userId, password);
 
-            return EitherExtensions.Success<UserCreationError, GuidOutputModel>(
-                new GuidOutputModel(userId)
+            return EitherExtensions.Success<UserCreationError, UserId>(
+                new UserId(userId)
             );
         });
     }
@@ -107,15 +106,10 @@ public class ClientService(
         });
     }
 
-    public async Task<Either<UserFetchingError, GuidOutputModel>> DeleteClientAsync(Guid id)
+    public async Task<Either<UserFetchingError, UserId>> DeleteClientAsync(Guid id)
     {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            var deletedUser = await userRepository.DeleteUserAsync(id);
-
-            return EitherExtensions.Success<UserFetchingError, GuidOutputModel>(
-                new GuidOutputModel(deletedUser!.Id)
-            );
-        });
+        return await transactionManager.ExecuteAsync(async () => EitherExtensions.Success<UserFetchingError, UserId>(
+            (await userRepository.DeleteUserAsync(id))!.Id
+        ));
     }
 }

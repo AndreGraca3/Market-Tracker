@@ -1,4 +1,5 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Infrastructure;
@@ -13,20 +14,20 @@ public class OperatorRepository(
     MarketTrackerDataContext dataContext
 ) : IOperatorRepository
 {
-    public async Task<PaginatedResult<OperatorOutputModel>> GetOperatorsAsync(int skip, int take)
+    public async Task<PaginatedResult<OperatorItem>> GetOperatorsAsync(int skip, int take)
     {
         var query = from user in dataContext.User
             join oper in dataContext.Operator on user.Id equals oper.UserId
             join store in dataContext.Store on oper.UserId equals store.OperatorId
             where user.Role == Role.Operator.ToString()
-            select new OperatorOutputModel(user.Id, user.Name, oper.PhoneNumber, store.Name, user.CreatedAt);
+            select new OperatorItem(user.Id, user.Name, store.Name);
 
         var operators = await query
             .Skip(skip)
             .Take(take)
             .ToListAsync();
 
-        return new PaginatedResult<OperatorOutputModel>(operators, query.Count(), skip, take);
+        return new PaginatedResult<OperatorItem>(operators, query.Count(), skip, take);
     }
 
     public async Task<Operator?> GetOperatorByIdAsync(Guid id)
@@ -50,7 +51,7 @@ public class OperatorRepository(
         return await query.FirstOrDefaultAsync();
     }
 
-    public async Task<Guid> CreateOperatorAsync(Guid userId, int phoneNumber)
+    public async Task<UserId> CreateOperatorAsync(Guid userId, int phoneNumber)
     {
         var newOperator = new OperatorEntity
         {
@@ -59,7 +60,7 @@ public class OperatorRepository(
         };
         await dataContext.Operator.AddAsync(newOperator);
         await dataContext.SaveChangesAsync();
-        return newOperator.UserId;
+        return new UserId(newOperator.UserId);
     }
 
     public async Task<Operator?> UpdateOperatorAsync(Guid id, int phoneNumber)

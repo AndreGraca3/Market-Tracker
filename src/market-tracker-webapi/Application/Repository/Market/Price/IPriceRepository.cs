@@ -1,9 +1,12 @@
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales;
+using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales.Pricing;
 using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
 
 namespace market_tracker_webapi.Application.Repository.Market.Price;
+
+using Price = Domain.Models.Market.Retail.Sales.Pricing.Price;
 
 public interface IPriceRepository
 {
@@ -47,14 +50,14 @@ public interface IPriceRepository
         DateTime priceAt
     );
 
-    public Task<IEnumerable<Domain.Models.Market.Retail.Sales.Pricing.Price>> GetPriceHistoryByProductIdAndStoreIdAsync(
+    public Task<IEnumerable<Price>> GetPriceHistoryByProductIdAndStoreIdAsync(
         string productId,
         int storeId,
         DateTime pricedAfter,
         DateTime pricedBefore
     );
 
-    public Task<string> AddPriceAsync(
+    public Task<PriceId> AddPriceAsync(
         string productId,
         int storeId,
         int price,

@@ -1,12 +1,11 @@
-﻿using market_tracker_webapi.Application.Domain.Models.List;
-using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Schemas.List;
+﻿using market_tracker_webapi.Application.Domain.Models.Account.Users;
+using market_tracker_webapi.Application.Domain.Models.List;
 using market_tracker_webapi.Application.Repository.Account.Users.User;
 using market_tracker_webapi.Application.Repository.List;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.User;
+using market_tracker_webapi.Application.Service.Results;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
 using Microsoft.IdentityModel.Tokens;
@@ -20,37 +19,36 @@ public class ListService(
 {
     private const int MaxListNumber = 10;
 
-    public async Task<Either<IServiceError, CollectionOutputModel<ShoppingList>>> GetListsAsync(Guid clientId,
+    public async Task<Either<IServiceError, IEnumerable<ShoppingList>>> GetListsAsync(Guid clientId,
         bool isOwner, string? listName, DateTime? createdAfter, bool? isArchived)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var lists
                 = await listRepository.GetListsAsync(clientId, isOwner, listName, createdAfter, isArchived);
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel<ShoppingList>>(
-                new CollectionOutputModel<ShoppingList>(lists));
+            return EitherExtensions.Success<IServiceError, IEnumerable<ShoppingList>>(lists);
         });
     }
 
-    public async Task<Either<ListFetchingError, ShoppingListOutputModel>> GetListByIdAsync(int id, Guid clientId)
+    public async Task<Either<ListFetchingError, ShoppingListResult>> GetListByIdAsync(int id, Guid clientId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var list = await listRepository.GetListByIdAsync(id);
             if (list is null)
-                return EitherExtensions.Failure<ListFetchingError, ShoppingListOutputModel>(
+                return EitherExtensions.Failure<ListFetchingError, ShoppingListResult>(
                     new ListFetchingError.ListByIdNotFound(id));
 
             var listClients = (await listRepository.GetClientIdsByListIdAsync(id)).ToList();
-            if (!listClients.Contains(clientId))
-                return EitherExtensions.Failure<ListFetchingError, ShoppingListOutputModel>(
+            if (!listClients.Contains(new UserId(clientId)))
+                return EitherExtensions.Failure<ListFetchingError, ShoppingListResult>(
                     new ListFetchingError.UserDoesNotOwnList(clientId, id)
                 );
 
-            return EitherExtensions.Success<ListFetchingError, ShoppingListOutputModel>(
-                new ShoppingListOutputModel
+            return EitherExtensions.Success<ListFetchingError, ShoppingListResult>(
+                new ShoppingListResult
                 {
-                    Id = list.Id,
+                    Id = list.Id.Value,
                     Name = list.Name,
                     ArchivedAt = list.ArchivedAt,
                     CreatedAt = list.CreatedAt,
@@ -60,21 +58,21 @@ public class ListService(
         });
     }
 
-    public async Task<Either<IServiceError, IntIdOutputModel>> AddListAsync(Guid clientId, string listName)
+    public async Task<Either<IServiceError, ShoppingListId>> AddListAsync(Guid clientId, string listName)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (!(await listRepository.GetListsAsync(clientId, true, listName)).IsNullOrEmpty())
-                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
+                return EitherExtensions.Failure<IServiceError, ShoppingListId>(
                     new ListCreationError.ListNameAlreadyExists(clientId, listName));
 
             if ((await listRepository.GetListsAsync(clientId, true)).Count() >= MaxListNumber)
-                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
+                return EitherExtensions.Failure<IServiceError, ShoppingListId>(
                     new ListCreationError.MaxListNumberReached(clientId, MaxListNumber));
 
-            var id = await listRepository.AddListAsync(listName, clientId);
+            var id = (await listRepository.AddListAsync(listName, clientId)).Value;
             await listRepository.AddListClientAsync(id, clientId);
-            return EitherExtensions.Success<IServiceError, IntIdOutputModel>(new IntIdOutputModel(id));
+            return EitherExtensions.Success<IServiceError, ShoppingListId>(new ShoppingListId(id));
         });
     }
 

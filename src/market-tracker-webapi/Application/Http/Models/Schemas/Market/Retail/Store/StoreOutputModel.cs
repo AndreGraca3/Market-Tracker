@@ -20,11 +20,11 @@ public class StoreOutputModel
     {
         return new StoreOutputModel
         {
-            Id = storeDetails.Id,
+            Id = storeDetails.Id.Value,
             Name = storeDetails.Name,
             Address = storeDetails.Address,
-            CityId = storeDetails.City?.Id,
-            CompanyId = storeDetails.Company.Id,
+            CityId = storeDetails.City?.Id.Value,
+            CompanyId = storeDetails.Company.Id.Value
         };
     }
 }

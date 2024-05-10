@@ -1,3 +1,5 @@
+using market_tracker_webapi.Application.Domain.Models.Market.Inventory;
+
 namespace market_tracker_webapi.Application.Repository.Market.Inventory.Category;
 
 using Category = Domain.Models.Market.Inventory.Category;
@@ -10,7 +12,7 @@ public interface ICategoryRepository
 
     public Task<Category?> GetCategoryByNameAsync(string name);
 
-    public Task<int> AddCategoryAsync(string name);
+    public Task<CategoryId> AddCategoryAsync(string name);
 
     public Task<Category?> UpdateCategoryAsync(int id, string name);
 

@@ -4,6 +4,7 @@ using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Product;
+using market_tracker_webapi.Application.Service.Results;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
@@ -29,7 +30,7 @@ public interface IProductService
 
     public Task<Either<ProductFetchingError, Product>> GetProductByIdAsync(string productId);
 
-    public Task<Either<IServiceError, ProductCreationOutputModel>> AddProductAsync(
+    public Task<Either<IServiceError, ProductCreationResult>> AddProductAsync(
         Guid operatorId,
         string productId,
         string name,
@@ -42,13 +43,13 @@ public interface IProductService
         int? promotionPercentage
     );
     
-    public Task<Either<IServiceError, StringIdOutputModel>> SetProductAvailabilityAsync(
+    public Task<Either<IServiceError, ProductId>> SetProductAvailabilityAsync(
         Guid operatorId,
         string productId,
         bool isAvailable
     );
 
-    public Task<Either<IServiceError, ProductInfoOutputModel>> UpdateProductAsync(
+    public Task<Either<IServiceError, Product>> UpdateProductAsync(
         string productId,
         string? name,
         string? imageUrl,
@@ -58,7 +59,7 @@ public interface IProductService
         int? categoryId
     );
 
-    public Task<Either<ProductFetchingError, StringIdOutputModel>> RemoveProductAsync(
+    public Task<Either<ProductFetchingError, ProductId>> RemoveProductAsync(
         string productId
     );
 }

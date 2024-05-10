@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Domain.Models.List;
+﻿using market_tracker_webapi.Application.Domain.Models.Account.Users;
+using market_tracker_webapi.Application.Domain.Models.List;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
 using Microsoft.EntityFrameworkCore;
@@ -31,14 +32,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
 
         if (isArchived is not null)
         {
-            if (!isArchived.Value)
-            {
-                query = query.Where(l => l.ArchivedAt == null);
-            }
-            else
-            {
-                query = query.Where(l => l.ArchivedAt != null);
-            }
+            query = !isArchived.Value ? query.Where(l => l.ArchivedAt == null) : query.Where(l => l.ArchivedAt != null);
         }
 
         if (createdAfter is not null)
@@ -52,11 +46,11 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Guid>> GetClientIdsByListIdAsync(int listId)
+    public async Task<IEnumerable<UserId>> GetClientIdsByListIdAsync(int listId)
     {
         var clients = await context.ListClient
             .Where(listClient => listClient.ListId == listId)
-            .Select(listClient => listClient.ClientId)
+            .Select(listClient => new UserId(listClient.ClientId))
             .ToListAsync();
 
         return clients;
@@ -74,7 +68,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         return listEntity?.ToShoppingList();
     }
 
-    public async Task<int> AddListAsync(string listName, Guid ownerId)
+    public async Task<ShoppingListId> AddListAsync(string listName, Guid ownerId)
     {
         var listEntity = new ListEntity()
         {
@@ -85,7 +79,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         await context.List.AddAsync(listEntity);
         await context.SaveChangesAsync();
 
-        return listEntity.Id;
+        return new ShoppingListId(listEntity.Id);
     }
 
     public async Task<ShoppingList?> UpdateListAsync(int id, DateTime? archivedAt, string? listName = null)

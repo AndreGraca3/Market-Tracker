@@ -2,6 +2,7 @@ using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
 using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales;
+using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales.Pricing;
 using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
@@ -325,7 +326,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             .ToListAsync();
     }
 
-    public async Task<string> AddPriceAsync(
+    public async Task<PriceId> AddPriceAsync(
         string productId,
         int storeId,
         int price,
@@ -356,6 +357,6 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
 
         await dataContext.SaveChangesAsync();
 
-        return priceEntry.Id;
+        return new PriceId(priceEntry.Id);
     }
 }
