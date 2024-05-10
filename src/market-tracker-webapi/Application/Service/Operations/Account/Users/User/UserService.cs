@@ -1,11 +1,12 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
+using market_tracker_webapi.Application.Http.Controllers.Account;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.User;
-using market_tracker_webapi.Application.Repository.Dto.User;
-using market_tracker_webapi.Application.Repository.Operations.Account.Credential;
-using market_tracker_webapi.Application.Repository.Operations.Account.Token;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.User;
+using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.User;
+using market_tracker_webapi.Application.Repository.Account.Credential;
+using market_tracker_webapi.Application.Repository.Account.Token;
+using market_tracker_webapi.Application.Repository.Account.Users.User;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Transaction;
@@ -44,7 +45,7 @@ public class UserService(
             }
 
             return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
-                new UserOutputModel(user.Id, user.Name, user.CreatedAt)
+                new UserOutputModel(user.Id, user.Name, user.Role, user.CreatedAt)
             );
         });
     }
@@ -109,7 +110,7 @@ public class UserService(
             }
 
             return EitherExtensions.Success<UserFetchingError, UserOutputModel>(
-                new UserOutputModel(id, user.Name, user.CreatedAt)
+                new UserOutputModel(id, user.Name, user.Role, user.CreatedAt)
             );
         });
     }

@@ -3,8 +3,6 @@ using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http;
 using market_tracker_webapi.Application.Http.Controllers.List;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.List;
-using market_tracker_webapi.Application.Http.Models.ListEntry;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Operations.List;
@@ -89,7 +87,7 @@ public class ListControllerTest
                 new()
                 {
                     ProductItem = It.IsAny<ProductItem>(),
-                    StorePrice = It.IsAny<StorePrice>(),
+                    StoreOffer = It.IsAny<StoreOffer>(),
                     IsAvailable = true,
                     Quantity = 1
                 }

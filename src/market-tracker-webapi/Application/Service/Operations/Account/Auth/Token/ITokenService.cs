@@ -1,4 +1,4 @@
-﻿using market_tracker_webapi.Application.Http.Models.Token;
+﻿using market_tracker_webapi.Application.Http.Models.Schemas.Account.Auth.Token;
 using market_tracker_webapi.Application.Service.Errors.Token;
 using market_tracker_webapi.Application.Utils;
 

@@ -1,6 +1,6 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Operator;
+using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.PreRegister;
 using market_tracker_webapi.Application.Service.Errors.User;
@@ -18,7 +18,7 @@ public interface IOperatorService
         int take
     );
 
-    Task<Either<UserFetchingError, OperatorInfo>> GetOperatorByIdAsync(Guid id);
+    Task<Either<UserFetchingError, Operator>> GetOperatorByIdAsync(Guid id);
 
     Task<Either<PreRegistrationFetchingError, GuidOutputModel>> CreateOperatorAsync(Guid code, string password);
 

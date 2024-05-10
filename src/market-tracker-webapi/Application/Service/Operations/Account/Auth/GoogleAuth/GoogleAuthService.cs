@@ -1,8 +1,8 @@
 ﻿using Google.Apis.Auth;
-using market_tracker_webapi.Application.Http.Models.Token;
-using market_tracker_webapi.Application.Repository.Operations.Account.Token;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.Client;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.User;
+using market_tracker_webapi.Application.Http.Models.Schemas.Account.Auth.Token;
+using market_tracker_webapi.Application.Repository.Account.Token;
+using market_tracker_webapi.Application.Repository.Account.Users.Client;
+using market_tracker_webapi.Application.Repository.Account.Users.User;
 using market_tracker_webapi.Application.Service.Errors.Google;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;

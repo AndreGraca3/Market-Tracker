@@ -1,5 +1,5 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Http.Models.Client;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.User;
@@ -9,9 +9,9 @@ namespace market_tracker_webapi.Application.Service.Operations.Account.Users.Cli
 
 public interface IClientService
 {
-    Task<Either<IServiceError, PaginatedResult<ClientOutputModel>>> GetClientsAsync(string? username, int skip, int limit);
+    Task<Either<IServiceError, PaginatedResult<ClientItem>>> GetClientsAsync(string? username, int skip, int limit);
 
-    Task<Either<UserFetchingError, ClientInfo>> GetClientByIdAsync(Guid id);
+    Task<Either<UserFetchingError, Domain.Models.Account.Users.Client>> GetClientByIdAsync(Guid id);
 
     Task<Either<UserCreationError, GuidOutputModel>> CreateClientAsync(
         string username,
@@ -21,7 +21,7 @@ public interface IClientService
         string? avatarUrl = null
     );
 
-    Task<Either<UserFetchingError, ClientInfo>> UpdateClientAsync(
+    Task<Either<UserFetchingError, Domain.Models.Account.Users.Client>> UpdateClientAsync(
         Guid id,
         string? name,
         string? username,
@@ -29,8 +29,4 @@ public interface IClientService
     );
 
     Task<Either<UserFetchingError, GuidOutputModel>> DeleteClientAsync(Guid id);
-
-    Task<Either<IServiceError, bool>> UpsertNotificationDeviceAsync(Guid clientId, string deviceId, string firebaseToken);
-
-    Task<Either<IServiceError, bool>> DeRegisterNotificationDeviceAsync(Guid id, string deviceId);
 }

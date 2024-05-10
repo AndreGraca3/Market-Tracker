@@ -18,6 +18,7 @@
 
     <ItemGroup>
       <Folder Include="Application\Domain\Models\" />
+      <Folder Include="Application\Http\Models\Schemas\" />
       <Folder Include="Application\Service\Operations\Account\Auth\" />
       <Folder Include="Application\Service\Operations\Account\Users\" />
       <Folder Include="Application\Service\Operations\Market\Inventory\" />

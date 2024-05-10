@@ -1,10 +1,9 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Models.List;
+﻿using market_tracker_webapi.Application.Domain.Models.List;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.List;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.User;
-using market_tracker_webapi.Application.Repository.Operations.List;
+using market_tracker_webapi.Application.Http.Models.Schemas.List;
+using market_tracker_webapi.Application.Repository.Account.Users.User;
+using market_tracker_webapi.Application.Repository.List;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.User;
@@ -152,11 +151,10 @@ public class ListService(
                     new ListClientCreationError.ClientAlreadyInList(listId, clientIdToAdd));
 
             await listRepository.AddListClientAsync(listId, clientIdToAdd);
-            return EitherExtensions.Success<IServiceError, ListClient>(new ListClient()
-            {
-                ClientId = clientIdToAdd,
-                ListId = listId
-            });
+            return EitherExtensions.Success<IServiceError, ListClient>(new ListClient(
+                clientIdToAdd,
+                listId
+            ));
         });
     }
 
@@ -183,11 +181,10 @@ public class ListService(
             }
 
             await listRepository.DeleteListClientAsync(listId, clientIdToRemove);
-            return EitherExtensions.Success<IListError, ListClient>(new ListClient()
-            {
-                ClientId = clientIdToRemove,
-                ListId = listId
-            });
+            return EitherExtensions.Success<IListError, ListClient>(new ListClient(
+                clientIdToRemove,
+                listId
+            ));
         });
     }
 }

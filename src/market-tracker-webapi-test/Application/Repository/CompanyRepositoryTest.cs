@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Repository.Operations.Market.Company;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;

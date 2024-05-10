@@ -1,9 +1,7 @@
 using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
-using market_tracker_webapi.Application.Http.Models.Product;
-using market_tracker_webapi.Application.Http.Models.User;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.Client;
-using market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Product;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
+using market_tracker_webapi.Application.Repository.Market.Inventory.Product;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Transaction;
@@ -14,18 +12,17 @@ namespace market_tracker_webapi.Application.Service.Operations.Market.Inventory.
 public class ProductFeedbackService(
     IProductRepository productRepository,
     IProductFeedbackRepository productFeedbackRepository,
-    IClientRepository clientRepository,
     ITransactionManager transactionManager
 ) : IProductFeedbackService
 {
-    public async Task<Either<ProductFetchingError, PaginatedResult<ProductReviewOutputModel>>>
+    public async Task<Either<ProductFetchingError, PaginatedResult<ProductReview>>>
         GetReviewsByProductIdAsync(string productId, int skip, int take)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await productRepository.GetProductByIdAsync(productId) is null)
             {
-                return EitherExtensions.Failure<ProductFetchingError, PaginatedResult<ProductReviewOutputModel>>(
+                return EitherExtensions.Failure<ProductFetchingError, PaginatedResult<ProductReview>>(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
@@ -33,22 +30,8 @@ public class ProductFeedbackService(
             var paginatedReviews =
                 await productFeedbackRepository.GetReviewsByProductIdAsync(productId, skip, take);
 
-            var clientReviewsTasks = paginatedReviews.Items.Select(async review =>
-            {
-                var client = await clientRepository.GetClientByIdAsync(review.ClientId);
-                var user = new UserInfoOutputModel(review.ClientId, client!.Username, client.AvatarUrl);
-                return ProductReviewOutputModel.ToProductReviewOutputModel(user, review);
-            });
-
-            var clientReviews = await Task.WhenAll(clientReviewsTasks);
-
-            return EitherExtensions.Success<ProductFetchingError, PaginatedResult<ProductReviewOutputModel>>(
-                new PaginatedResult<ProductReviewOutputModel>(
-                    clientReviews,
-                    paginatedReviews.TotalItems,
-                    skip,
-                    take
-                )
+            return EitherExtensions.Success<ProductFetchingError, PaginatedResult<ProductReview>>(
+                paginatedReviews
             );
         });
     }

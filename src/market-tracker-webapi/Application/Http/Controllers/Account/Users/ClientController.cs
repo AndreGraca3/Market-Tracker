@@ -1,24 +1,22 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Filters;
+﻿using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Client;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
+using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Client;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.Account.Users.Client;
 using Microsoft.AspNetCore.Mvc;
-using ClientOutputModel = market_tracker_webapi.Application.Http.Models.Client.ClientOutputModel;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Account.Users;
 
 [ApiController]
-public class ClientController(IClientService clientService) : ControllerBase
+public class ClientController(IClientService clientService, IClientDeviceService clientDeviceService) : ControllerBase
 {
     [HttpGet(Uris.Clients.Base)]
     [Authorized([Role.Client])]
-    public async Task<ActionResult<PaginatedResult<ClientOutputModel>>> GetClientsAsync(
+    public async Task<ActionResult<PaginatedResult<ClientItem>>> GetClientsAsync(
         [FromQuery] PaginationInputs paginationInputs, [FromQuery] string? username)
     {
         return Ok(
@@ -28,7 +26,7 @@ public class ClientController(IClientService clientService) : ControllerBase
 
     [HttpGet(Uris.Clients.ClientById)]
     [Authorized([Role.Client])]
-    public async Task<ActionResult<ClientInfo>> GetClientAsync(Guid id)
+    public async Task<ActionResult<Client>> GetClientAsync(Guid id)
     {
         return ResultHandler.Handle(
             await clientService.GetClientByIdAsync(id),
@@ -87,7 +85,7 @@ public class ClientController(IClientService clientService) : ControllerBase
     }
 
     [HttpPut(Uris.Clients.ClientById)]
-    public async Task<ActionResult<ClientInfo>> UpdateUserAsync(
+    public async Task<ActionResult<Client>> UpdateUserAsync(
         Guid id,
         [FromBody] ClientUpdateInputModel clientInput
     )
@@ -132,7 +130,7 @@ public class ClientController(IClientService clientService) : ControllerBase
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
         return ResultHandler.Handle(
-            await clientService.UpsertNotificationDeviceAsync(
+            await clientDeviceService.UpsertNotificationDeviceAsync(
                 authUser.User.Id,
                 pushNotificationRegistrationInput.DeviceId,
                 pushNotificationRegistrationInput.FirebaseToken
@@ -149,7 +147,7 @@ public class ClientController(IClientService clientService) : ControllerBase
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
         return ResultHandler.Handle(
-            await clientService.DeRegisterNotificationDeviceAsync(
+            await clientDeviceService.DeRegisterNotificationDeviceAsync(
                 authUser.User.Id,
                 pushNotificationRegistrationInput.DeviceId
             ),

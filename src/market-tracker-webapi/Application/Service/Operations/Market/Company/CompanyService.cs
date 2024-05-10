@@ -1,6 +1,6 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Repository.Operations.Market.Company;
+using market_tracker_webapi.Application.Repository.Market.Company;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Transaction;
@@ -13,37 +13,37 @@ public class CompanyService(
     ITransactionManager transactionManager
 ) : ICompanyService
 {
-    public async Task<Either<IServiceError, CollectionOutputModel<Domain.Models.Market.Store.Company>>> GetCompaniesAsync()
+    public async Task<Either<IServiceError, CollectionOutputModel<Domain.Models.Market.Retail.Shop.Company>>> GetCompaniesAsync()
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var companies = await companyRepository.GetCompaniesAsync();
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel<Domain.Models.Market.Store.Company>>(
-                new CollectionOutputModel<Domain.Models.Market.Store.Company>(companies)
+            return EitherExtensions.Success<IServiceError, CollectionOutputModel<Domain.Models.Market.Retail.Shop.Company>>(
+                new CollectionOutputModel<Domain.Models.Market.Retail.Shop.Company>(companies)
             );
         });
     }
 
-    public async Task<Either<CompanyFetchingError, Domain.Models.Market.Store.Company>> GetCompanyByIdAsync(int id)
+    public async Task<Either<CompanyFetchingError, Domain.Models.Market.Retail.Shop.Company>> GetCompanyByIdAsync(int id)
     {
         var company = await companyRepository.GetCompanyByIdAsync(id);
         return company is null
-            ? EitherExtensions.Failure<CompanyFetchingError, Domain.Models.Market.Store.Company>(
+            ? EitherExtensions.Failure<CompanyFetchingError, Domain.Models.Market.Retail.Shop.Company>(
                 new CompanyFetchingError.CompanyByIdNotFound(id)
             )
-            : EitherExtensions.Success<CompanyFetchingError, Domain.Models.Market.Store.Company>(company);
+            : EitherExtensions.Success<CompanyFetchingError, Domain.Models.Market.Retail.Shop.Company>(company);
     }
 
-    public async Task<Either<CompanyFetchingError, Domain.Models.Market.Store.Company>> GetCompanyByNameAsync(string companyName)
+    public async Task<Either<CompanyFetchingError, Domain.Models.Market.Retail.Shop.Company>> GetCompanyByNameAsync(string companyName)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var company = await companyRepository.GetCompanyByNameAsync(companyName);
             return company is null
-                ? EitherExtensions.Failure<CompanyFetchingError, Domain.Models.Market.Store.Company>(
+                ? EitherExtensions.Failure<CompanyFetchingError, Domain.Models.Market.Retail.Shop.Company>(
                     new CompanyFetchingError.CompanyByNameNotFound(companyName)
                 )
-                : EitherExtensions.Success<CompanyFetchingError, Domain.Models.Market.Store.Company>(company);
+                : EitherExtensions.Success<CompanyFetchingError, Domain.Models.Market.Retail.Shop.Company>(company);
         });
     }
 
@@ -65,7 +65,7 @@ public class CompanyService(
         });
     }
 
-    public async Task<Either<ICompanyError, Domain.Models.Market.Store.Company>> UpdateCompanyAsync(
+    public async Task<Either<ICompanyError, Domain.Models.Market.Retail.Shop.Company>> UpdateCompanyAsync(
         int id,
         string companyName
     )
@@ -74,18 +74,18 @@ public class CompanyService(
         {
             if (await companyRepository.GetCompanyByNameAsync(companyName) is not null)
             {
-                return EitherExtensions.Failure<ICompanyError, Domain.Models.Market.Store.Company>(
+                return EitherExtensions.Failure<ICompanyError, Domain.Models.Market.Retail.Shop.Company>(
                     new CompanyCreationError.CompanyNameAlreadyExists(companyName)
                 );
             }
 
             var company = await companyRepository.UpdateCompanyAsync(id, companyName);
             return company is null
-                ? EitherExtensions.Failure<ICompanyError, Domain.Models.Market.Store.Company>(
+                ? EitherExtensions.Failure<ICompanyError, Domain.Models.Market.Retail.Shop.Company>(
                     new CompanyFetchingError.CompanyByIdNotFound(id)
                 )
-                : EitherExtensions.Success<ICompanyError, Domain.Models.Market.Store.Company>(
-                    new Domain.Models.Market.Store.Company
+                : EitherExtensions.Success<ICompanyError, Domain.Models.Market.Retail.Shop.Company>(
+                    new Domain.Models.Market.Retail.Shop.Company
                     {
                         Id = company.Id,
                         Name = company.Name,

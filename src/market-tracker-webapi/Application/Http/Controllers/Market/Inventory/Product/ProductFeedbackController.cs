@@ -1,8 +1,8 @@
-using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
+using market_tracker_webapi.Application.Http.Controllers.Account;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Product;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -15,7 +15,7 @@ namespace market_tracker_webapi.Application.Http.Controllers.Market.Inventory.Pr
 public class ProductFeedbackController(IProductFeedbackService productFeedbackService) : ControllerBase
 {
     [HttpGet(Uris.Products.ReviewsByProductId)]
-    public async Task<ActionResult<PaginatedResult<ProductReviewOutputModel>>> GetReviewsByProductIdAsync(
+    public async Task<ActionResult<PaginatedResult<ProductReview>>> GetReviewsByProductIdAsync(
         string productId,
         [FromQuery] PaginationInputs paginationInputs
     )

@@ -1,16 +1,18 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Http.Models.Client;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
-using market_tracker_webapi.Application.Repository.Operations.Account.Credential;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.Client;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.User;
+using market_tracker_webapi.Application.Repository.Account.Credential;
+using market_tracker_webapi.Application.Repository.Account.Users.Client;
+using market_tracker_webapi.Application.Repository.Account.Users.User;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Users.Client;
+
+using Client = Domain.Models.Account.Users.Client;
 
 public class ClientService(
     IAccountRepository accountRepository,
@@ -19,27 +21,27 @@ public class ClientService(
     ITransactionManager transactionManager
 ) : IClientService
 {
-    public async Task<Either<IServiceError, PaginatedResult<ClientOutputModel>>> GetClientsAsync(string? username, int skip,
+    public async Task<Either<IServiceError, PaginatedResult<ClientItem>>> GetClientsAsync(string? username, int skip,
         int take)
     {
-        return EitherExtensions.Success<IServiceError, PaginatedResult<ClientOutputModel>>(
+        return EitherExtensions.Success<IServiceError, PaginatedResult<ClientItem>>(
             await clientRepository.GetClientsAsync(username, skip, take)
         );
     }
 
-    public async Task<Either<UserFetchingError, ClientInfo>> GetClientByIdAsync(Guid id)
+    public async Task<Either<UserFetchingError, Client>> GetClientByIdAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var client = await clientRepository.GetClientByIdAsync(id);
             if (client is null)
             {
-                return EitherExtensions.Failure<UserFetchingError, ClientInfo>(
+                return EitherExtensions.Failure<UserFetchingError, Client>(
                     new UserFetchingError.UserByIdNotFound(id)
                 );
             }
 
-            return EitherExtensions.Success<UserFetchingError, ClientInfo>(
+            return EitherExtensions.Success<UserFetchingError, Client>(
                 client
             );
         });
@@ -79,7 +81,7 @@ public class ClientService(
         });
     }
 
-    public async Task<Either<UserFetchingError, ClientInfo>> UpdateClientAsync(Guid id, string? name, string? username,
+    public async Task<Either<UserFetchingError, Client>> UpdateClientAsync(Guid id, string? name, string? username,
         string? avatarUrl)
     {
         return await transactionManager.ExecuteAsync(async () =>
@@ -95,8 +97,8 @@ public class ClientService(
                 );
             }
 
-            return EitherExtensions.Success<UserFetchingError, ClientInfo>(
-                new ClientInfo(
+            return EitherExtensions.Success<UserFetchingError, Client>(
+                new Client(
                     user!,
                     username,
                     avatarUrl
@@ -114,25 +116,6 @@ public class ClientService(
             return EitherExtensions.Success<UserFetchingError, GuidOutputModel>(
                 new GuidOutputModel(deletedUser!.Id)
             );
-        });
-    }
-
-    public async Task<Either<IServiceError, bool>> UpsertNotificationDeviceAsync(Guid clientId, string deviceId,
-        string firebaseToken)
-    {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            await clientRepository.UpsertDeviceTokenAsync(clientId, deviceId, firebaseToken);
-            return EitherExtensions.Success<IServiceError, bool>(true);
-        });
-    }
-
-    public async Task<Either<IServiceError, bool>> DeRegisterNotificationDeviceAsync(Guid id, string deviceId)
-    {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            await clientRepository.RemoveDeviceTokenAsync(id, deviceId);
-            return EitherExtensions.Success<IServiceError, bool>(true);
         });
     }
 }

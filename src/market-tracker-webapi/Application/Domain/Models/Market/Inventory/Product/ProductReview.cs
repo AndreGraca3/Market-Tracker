@@ -1,4 +1,4 @@
-using market_tracker_webapi.Application.Domain.Models.Account.Users.Client;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
 
 namespace market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
 

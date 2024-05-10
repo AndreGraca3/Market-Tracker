@@ -1,8 +1,8 @@
 ﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Models.Market.Store;
+using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.City;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.City;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.City;

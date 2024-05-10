@@ -1,15 +1,14 @@
 using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Product;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
+using market_tracker_webapi.Application.Repository.Account.Users.Client;
+using market_tracker_webapi.Application.Repository.Market.Alert;
+using market_tracker_webapi.Application.Repository.Market.Inventory.Brand;
+using market_tracker_webapi.Application.Repository.Market.Inventory.Category;
+using market_tracker_webapi.Application.Repository.Market.Inventory.Product;
+using market_tracker_webapi.Application.Repository.Market.Price;
 using market_tracker_webapi.Application.Repository.Market.Store;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.Client;
-using market_tracker_webapi.Application.Repository.Operations.Market.Alert;
-using market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Brand;
-using market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Category;
-using market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Product;
-using market_tracker_webapi.Application.Repository.Operations.Market.Price;
-using market_tracker_webapi.Application.Repository.Operations.Market.Store;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -17,8 +16,11 @@ using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.External;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Application.Utils;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
+
+using Product = Domain.Models.Market.Inventory.Product.Product;
 
 public class ProductService(
     IProductRepository productRepository,
@@ -27,21 +29,22 @@ public class ProductService(
     IPriceRepository priceRepository,
     IStoreRepository storeRepository,
     IClientRepository clientRepository,
+    IClientDeviceRepository clientDeviceRepository,
     IPriceAlertRepository priceAlertRepository,
     INotificationService notificationService,
     ITransactionManager transactionManager
 ) : IProductService
 {
     public async Task<Either<IServiceError, PaginatedProductOffers>> GetBestAvailableProductsOffersAsync(int skip,
-        int take,
-        ProductsSortOption? sortBy, string? searchName, IList<int>? categoryIds, IList<int>? brandIds,
-        IList<int>? companyIds, int? minPrice, int? maxPrice, int? minRating, int? maxRating)
+        int take, int maxValuesPerFacet, ProductsSortOption? sortBy, string? searchName, IList<int>? categoryIds,
+        IList<int>? brandIds, IList<int>? companyIds, int? minPrice, int? maxPrice, int? minRating, int? maxRating)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var paginatedOffers = await priceRepository.GetBestAvailableProductsOffersAsync(
                 skip,
                 take,
+                maxValuesPerFacet,
                 sortBy,
                 searchName,
                 categoryIds,
@@ -57,20 +60,19 @@ public class ProductService(
         });
     }
 
-    public async Task<Either<ProductFetchingError, ProductInfo>> GetProductByIdAsync(string productId)
+    public async Task<Either<ProductFetchingError, Product>> GetProductByIdAsync(string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var productDetails = await productRepository.GetProductByIdAsync(productId);
-            if (productDetails is null)
+            var product = await productRepository.GetProductByIdAsync(productId);
+            if (product is null)
             {
-                return EitherExtensions.Failure<ProductFetchingError, ProductInfo>(
+                return EitherExtensions.Failure<ProductFetchingError, Product>(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
 
-            return EitherExtensions.Success<ProductFetchingError, ProductInfo>(
-                ProductInfo.ToProductInfo(productDetails));
+            return EitherExtensions.Success<ProductFetchingError, Product>(product);
         });
     }
 
@@ -124,12 +126,12 @@ public class ProductService(
                 );
             }
 
-            var oldStorePrice = oldProduct is null
+            var oldStoreOffer = oldProduct is null
                 ? null
-                : await priceRepository.GetStorePriceAsync(productId, store.Id, DateTime.Now);
+                : await priceRepository.GetStoreOfferAsync(productId, store.Id, DateTime.Now);
 
             var newPrice = price.ApplyPercentage(promotionPercentage);
-            var priceChanged = oldStorePrice?.PriceData.FinalPrice != newPrice;
+            var priceChanged = oldStoreOffer?.PriceData.FinalPrice != newPrice;
 
             if (priceChanged)
             {
@@ -142,7 +144,7 @@ public class ProductService(
                 foreach (var priceAlert in eligiblePriceAlerts)
                 {
                     var clientTokens =
-                        await clientRepository.GetDeviceTokensByClientIdAsync(priceAlert.ClientId);
+                        await clientDeviceRepository.GetDeviceTokensByClientIdAsync(priceAlert.ClientId);
 
                     await notificationService.SendNotificationToTokensAsync(
                         "Alerta de preço",

@@ -1,6 +1,5 @@
 using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
-using market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Product;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory.Product;
 using Microsoft.EntityFrameworkCore;

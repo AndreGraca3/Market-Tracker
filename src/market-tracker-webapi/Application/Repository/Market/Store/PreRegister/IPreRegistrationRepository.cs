@@ -1,9 +1,8 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Filters;
+﻿using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Models.Account.Auth;
-using market_tracker_webapi.Application.Http.Models.Operator;
+using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
 
-namespace market_tracker_webapi.Application.Repository.Operations.Market.Store.PreRegister;
+namespace market_tracker_webapi.Application.Repository.Market.Store.PreRegister;
 
 public interface IPreRegistrationRepository
 {

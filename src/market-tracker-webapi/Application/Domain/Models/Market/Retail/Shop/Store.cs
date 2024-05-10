@@ -1,6 +1,4 @@
-﻿using market_tracker_webapi.Application.Domain.Models.Market.Store;
-
-namespace market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+﻿namespace market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
 
 public record Store(int Id, string Name, string Address, City? City, Company Company, Guid OperatorId)
 {

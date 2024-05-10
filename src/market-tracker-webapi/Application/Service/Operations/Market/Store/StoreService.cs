@@ -1,9 +1,8 @@
 ﻿using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Repository.Market.City;
+using market_tracker_webapi.Application.Repository.Market.Company;
 using market_tracker_webapi.Application.Repository.Market.Store;
-using market_tracker_webapi.Application.Repository.Operations.Market.Company;
-using market_tracker_webapi.Application.Repository.Operations.Market.Store;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.City;
 using market_tracker_webapi.Application.Service.Errors.Company;

@@ -1,6 +1,6 @@
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Category;
+using market_tracker_webapi.Application.Repository.Market.Inventory.Category;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Transaction;

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Models.Market.Price;
+using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales.Pricing;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;

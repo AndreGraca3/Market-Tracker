@@ -1,11 +1,13 @@
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Price;
-using market_tracker_webapi.Application.Http.Models.Store;
-using market_tracker_webapi.Application.Repository.Operations.Market.Price;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Price;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Store;
+using market_tracker_webapi.Application.Repository.Market.Price;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
+
+using Company = Domain.Models.Market.Retail.Shop.Company;
 
 public class ProductPriceService(IPriceRepository priceRepository) : IProductPriceService
 {
@@ -19,45 +21,44 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
             productId
         );
 
-        var companyStoresDictionary = new Dictionary<int, List<StorePriceOutputModel>>();
-        var companiesDictionary = new Dictionary<int, CompanyInfo>();
+        var companyStoresDictionary = new Dictionary<int, List<StoreOfferOutputModel>>();
+        var companiesDictionary = new Dictionary<int, Company>();
 
         foreach (var storeAvailability in storesAvailability)
         {
-            var storePrice = await priceRepository.GetStorePriceAsync(
+            var storeOffer = await priceRepository.GetStoreOfferAsync(
                 productId,
                 storeAvailability.StoreId,
                 DateTime.Now
             );
 
-            if (!companyStoresDictionary.ContainsKey(storePrice!.Store.Company.Id))
+            if (!companyStoresDictionary.ContainsKey(storeOffer!.Store.Company.Id))
             {
-                companyStoresDictionary[storePrice.Store.Company.Id] =
-                    new List<StorePriceOutputModel>();
+                companyStoresDictionary[storeOffer.Store.Company.Id] =
+                    new List<StoreOfferOutputModel>();
             }
 
-            if (minPrice is null || storePrice.PriceData.FinalPrice < minPrice)
+            if (minPrice is null || storeOffer.PriceData.FinalPrice < minPrice)
             {
-                minPrice = storePrice.PriceData.FinalPrice;
+                minPrice = storeOffer.PriceData.FinalPrice;
             }
 
-            if (maxPrice is null || storePrice.PriceData.FinalPrice > maxPrice)
+            if (maxPrice is null || storeOffer.PriceData.FinalPrice > maxPrice)
             {
-                maxPrice = storePrice.PriceData.FinalPrice;
+                maxPrice = storeOffer.PriceData.FinalPrice;
             }
 
-            companyStoresDictionary[storePrice.Store.Company.Id]
+            companyStoresDictionary[storeOffer.Store.Company.Id]
                 .Add(
-                    StorePriceOutputModel.ToStorePriceOutputModel(
-                        StoreOutputModel.ToStoreOutputModel(storePrice.Store),
-                        storePrice.Store.City,
-                        storePrice.PriceData.FinalPrice,
-                        storePrice.PriceData.Promotion,
+                    StoreOfferOutputModel.ToStoreOfferOutputModel(
+                        StoreOutputModel.ToStoreOutputModel(storeOffer.Store),
+                        storeOffer.Store.City,
+                        storeOffer.PriceData,
                         storeAvailability.IsAvailable,
                         storeAvailability.LastChecked
                     )
                 );
-            companiesDictionary[storePrice.Store.Company.Id] = storePrice.Store.Company;
+            companiesDictionary[storeOffer.Store.Company.Id] = storeOffer.Store.Company;
         }
 
         return EitherExtensions.Success<ProductFetchingError, CollectionOutputModel<CompanyPricesOutputModel>>(

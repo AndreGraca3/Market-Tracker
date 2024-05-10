@@ -7,3 +7,9 @@ public record User(
     string Role,
     DateTime CreatedAt
 );
+
+public record UserItem(
+    Guid Id,
+    string Name,
+    string Role
+);

@@ -1,4 +1,4 @@
-﻿namespace market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Brand;
+﻿namespace market_tracker_webapi.Application.Repository.Market.Inventory.Brand;
 
 using Brand = Domain.Models.Market.Inventory.Brand;
 

@@ -1,9 +1,8 @@
 ﻿using market_tracker_webapi.Infrastructure;
-using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account.Auth;
 using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi.Application.Repository.Operations.Account.Token;
+namespace market_tracker_webapi.Application.Repository.Account.Token;
 
 using Token = Domain.Models.Account.Auth.Token;
 

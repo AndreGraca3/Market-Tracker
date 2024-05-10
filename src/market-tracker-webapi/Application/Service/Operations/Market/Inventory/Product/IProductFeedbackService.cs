@@ -1,6 +1,6 @@
 using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
-using market_tracker_webapi.Application.Http.Models.Product;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Utils;
@@ -9,7 +9,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Market.Inventory.
 
 public interface IProductFeedbackService
 {
-    Task<Either<ProductFetchingError, PaginatedResult<ProductReviewOutputModel>>> GetReviewsByProductIdAsync(
+    Task<Either<ProductFetchingError, PaginatedResult<ProductReview>>> GetReviewsByProductIdAsync(
         string productId,
         int skip,
         int take

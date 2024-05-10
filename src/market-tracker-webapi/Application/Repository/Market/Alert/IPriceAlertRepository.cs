@@ -1,7 +1,6 @@
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Models.Market.Price;
+using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales.Pricing;
 
-namespace market_tracker_webapi.Application.Repository.Operations.Market.Alert;
+namespace market_tracker_webapi.Application.Repository.Market.Alert;
 
 public interface IPriceAlertRepository
 {

@@ -1,10 +1,9 @@
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Models.Market.Price;
+using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales.Pricing;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
 using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi.Application.Repository.Operations.Market.Alert;
+namespace market_tracker_webapi.Application.Repository.Market.Alert;
 
 public class PriceAlertRepository(MarketTrackerDataContext dataContext) : IPriceAlertRepository
 {

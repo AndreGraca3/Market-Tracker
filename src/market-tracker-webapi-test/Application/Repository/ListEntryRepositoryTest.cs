@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Repository.Operations.List;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using Microsoft.EntityFrameworkCore;

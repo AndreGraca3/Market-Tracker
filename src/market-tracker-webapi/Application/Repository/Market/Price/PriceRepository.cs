@@ -2,7 +2,7 @@ using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
 using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales;
-using market_tracker_webapi.Application.Domain.Models.Market.Store;
+using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +16,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
     private const double SimilarityThreshold = 0.1;
 
     public async Task<PaginatedProductOffers> GetBestAvailableProductsOffersAsync(int skip, int take,
-        ProductsSortOption? sortBy = null, string? name = null, IList<int>? categoryIds = null,
+        int maxValuesPerFacet, ProductsSortOption? sortBy = null, string? name = null, IList<int>? categoryIds = null,
         IList<int>? brandIds = null,
         int? minPrice = null,
         int? maxPrice = null, int? minRating = null, int? maxRating = null, IList<int>? companyIds = null,
@@ -80,7 +80,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 Id = grouping.Key,
                 Name = grouping.First().Brand.Name,
                 Count = grouping.GroupBy(g => g.Product.Id).Count()
-            }).ToListAsync();
+            }).OrderByDescending(facet => facet.Count).Take(maxValuesPerFacet).ToListAsync();
 
         var companyFacets = await query
             .GroupBy(p => p.Company.Id)
@@ -114,7 +114,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             .Select(group =>
                 group.Select(g => new ProductOffer(
                     g.Product.ToProduct(g.Brand.ToBrand(), g.Category.ToCategory()),
-                    new StorePrice(
+                    new StoreOffer(
                         g.Store.ToStore(
                             g.City == null ? null : g.City.ToCity(),
                             g.Company.ToCompany()
@@ -128,7 +128,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             .Skip(skip)
             .Take(take)
             .ToList()
-            .Select(group => group.MinBy(g => g.StorePrice!.PriceData.FinalPrice)!);
+            .Select(group => group.MinBy(g => g.StoreOffer!.PriceData.FinalPrice)!);
 
         bestOffers = sortBy switch
         {
@@ -140,10 +140,10 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             ProductsSortOption.RatingHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.Product.Rating)
                 .ToList(),
             ProductsSortOption.PriceLowToHigh => bestOffers
-                .OrderBy(queryRes => queryRes.StorePrice!.PriceData.FinalPrice)
+                .OrderBy(queryRes => queryRes.StoreOffer!.PriceData.FinalPrice)
                 .ToList(),
             ProductsSortOption.PriceHighToLow => bestOffers
-                .OrderByDescending(queryRes => queryRes.StorePrice!.PriceData.FinalPrice)
+                .OrderByDescending(queryRes => queryRes.StoreOffer!.PriceData.FinalPrice)
                 .ToList(),
             _ => bestOffers
         };
@@ -156,7 +156,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         return new PaginatedProductOffers(paginatedProducts, productsFacetsCounters);
     }
 
-    public async Task<StorePrice?> GetCheapestStorePriceAvailableByProductIdAsync(
+    public async Task<StoreOffer?> GetCheapestStoreOfferAvailableByProductIdAsync(
         string productId,
         IList<int>? companyIds,
         IList<int>? storeIds,
@@ -197,7 +197,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
 
         return query
             .Select(g =>
-                new StorePrice(
+                new StoreOffer(
                     g.Store.ToStore(g.City == null ? null : g.City.ToCity(), g.Company.ToCompany()),
                     new Price(
                         g.PriceEntry.Price,
@@ -252,7 +252,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         );
     }
 
-    public async Task<StorePrice?> GetStorePriceAsync(
+    public async Task<StoreOffer?> GetStoreOfferAsync(
         string productId,
         int storeId,
         DateTime priceAt
@@ -284,7 +284,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
 
         return await query
             .Select(g =>
-                new StorePrice(
+                new StoreOffer(
                     g.Store.ToStore(g.City == null ? null : g.City.ToCity(), g.Company.ToCompany()),
                     new Price(
                         g.PriceEntry.Price,

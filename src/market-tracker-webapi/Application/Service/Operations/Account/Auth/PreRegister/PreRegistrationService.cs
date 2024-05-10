@@ -1,9 +1,9 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Operator;
-using market_tracker_webapi.Application.Http.Models.Store;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.Operator;
-using market_tracker_webapi.Application.Repository.Operations.Market.Store.PreRegister;
+using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Store;
+using market_tracker_webapi.Application.Repository.Account.Users.Operator;
+using market_tracker_webapi.Application.Repository.Market.Store.PreRegister;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.PreRegister;
 using market_tracker_webapi.Application.Service.Transaction;

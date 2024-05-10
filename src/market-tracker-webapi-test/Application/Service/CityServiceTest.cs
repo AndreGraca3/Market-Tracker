@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Models.Market.Store;
+using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Repository.Market.City;

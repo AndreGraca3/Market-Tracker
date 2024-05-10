@@ -1,7 +1,7 @@
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales;
-using market_tracker_webapi.Application.Domain.Models.Market.Store;
+using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
 
 namespace market_tracker_webapi.Application.Repository.Market.Price;
 
@@ -13,6 +13,7 @@ public interface IPriceRepository
     public Task<PaginatedProductOffers> GetBestAvailableProductsOffersAsync(
         int skip,
         int take,
+        int maxValuesPerFacet,
         ProductsSortOption? sortBy = null,
         string? name = null,
         IList<int>? categoryIds = null,
@@ -27,9 +28,9 @@ public interface IPriceRepository
     );
 
     /**
-     * Get the cheapest store price available for a product at current time.
+     * Get the cheapest store offer available for a product at current time.
      */
-    public Task<StorePrice?> GetCheapestStorePriceAvailableByProductIdAsync(
+    public Task<StoreOffer?> GetCheapestStoreOfferAvailableByProductIdAsync(
         string productId,
         IList<int>? companyIds = null,
         IList<int>? storeIds = null,
@@ -40,7 +41,7 @@ public interface IPriceRepository
 
     public Task<StoreAvailability?> GetStoreAvailabilityStatusAsync(string productId, int storeId);
 
-    public Task<StorePrice?> GetStorePriceAsync(
+    public Task<StoreOffer?> GetStoreOfferAsync(
         string productId,
         int storeId,
         DateTime priceAt

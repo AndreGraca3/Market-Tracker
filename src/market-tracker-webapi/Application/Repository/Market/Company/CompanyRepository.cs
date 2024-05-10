@@ -2,24 +2,24 @@
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
 using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi.Application.Repository.Operations.Market.Company;
+namespace market_tracker_webapi.Application.Repository.Market.Company;
 
 public class CompanyRepository(MarketTrackerDataContext marketTrackerDataContext)
     : ICompanyRepository
 {
-    public async Task<IEnumerable<Domain.Models.Market.Store.Company>> GetCompaniesAsync()
+    public async Task<IEnumerable<Domain.Models.Market.Retail.Shop.Company>> GetCompaniesAsync()
     {
         var companies = await marketTrackerDataContext.Company.ToListAsync();
         return companies.Select(c => c.ToCompany());
     }
 
-    public async Task<Domain.Models.Market.Store.Company?> GetCompanyByIdAsync(int id)
+    public async Task<Domain.Models.Market.Retail.Shop.Company?> GetCompanyByIdAsync(int id)
     {
         var companyEntity = await marketTrackerDataContext.Company.FindAsync(id);
         return companyEntity?.ToCompany();
     }
 
-    public async Task<Domain.Models.Market.Store.Company?> GetCompanyByNameAsync(string name)
+    public async Task<Domain.Models.Market.Retail.Shop.Company?> GetCompanyByNameAsync(string name)
     {
         var companyEntity = await marketTrackerDataContext.Company.FirstOrDefaultAsync(c =>
             c.Name == name
@@ -37,7 +37,7 @@ public class CompanyRepository(MarketTrackerDataContext marketTrackerDataContext
         return newCompany.Id;
     }
 
-    public async Task<Domain.Models.Market.Store.Company?> UpdateCompanyAsync(int id, string name)
+    public async Task<Domain.Models.Market.Retail.Shop.Company?> UpdateCompanyAsync(int id, string name)
     {
         var currentCompany = await marketTrackerDataContext.Company.FindAsync(id);
 
@@ -52,7 +52,7 @@ public class CompanyRepository(MarketTrackerDataContext marketTrackerDataContext
         return currentCompany.ToCompany();
     }
 
-    public async Task<Domain.Models.Market.Store.Company?> DeleteCompanyAsync(int id)
+    public async Task<Domain.Models.Market.Retail.Shop.Company?> DeleteCompanyAsync(int id)
     {
         var companyEntity = await marketTrackerDataContext.Company.FindAsync(id);
 

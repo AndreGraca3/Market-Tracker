@@ -1,8 +1,8 @@
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Domain.Models.Market.Inventory;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Category;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Category;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.Category;

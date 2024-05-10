@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Repository.Operations.List;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.ListEntry;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -74,7 +73,7 @@ public class ListEntryServiceTest
                 Name = "Product"
             },
             Quantity = 1,
-            StorePrice = It.IsAny<StorePrice>(),
+            StoreOffer = It.IsAny<StoreOffer>(),
             IsAvailable = false
         };
         
@@ -84,8 +83,8 @@ public class ListEntryServiceTest
         _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
             .ReturnsAsync(product);
         
-        _priceRepositoryMock.Setup(x => x.GetStorePriceByProductIdAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>()))
-            .ReturnsAsync(It.IsAny<StorePrice>());
+        _priceRepositoryMock.Setup(x => x.GetStoreOfferByProductIdAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>()))
+            .ReturnsAsync(It.IsAny<StoreOffer>());
         
         _priceRepositoryMock.Setup(x => x.GetStoresAvailabilityAsync(It.IsAny<string>(), It.IsAny<int?>()))
             .ReturnsAsync(It.IsAny<IEnumerable<StoreAvailability>>());

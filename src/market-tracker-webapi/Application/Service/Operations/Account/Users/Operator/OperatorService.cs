@@ -1,14 +1,13 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Operator;
+using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
+using market_tracker_webapi.Application.Repository.Account.Users.Operator;
+using market_tracker_webapi.Application.Repository.Account.Users.User;
 using market_tracker_webapi.Application.Repository.Market.City;
+using market_tracker_webapi.Application.Repository.Market.Company;
 using market_tracker_webapi.Application.Repository.Market.Store;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.Operator;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.User;
-using market_tracker_webapi.Application.Repository.Operations.Market.Company;
-using market_tracker_webapi.Application.Repository.Operations.Market.Store;
-using market_tracker_webapi.Application.Repository.Operations.Market.Store.PreRegister;
+using market_tracker_webapi.Application.Repository.Market.Store.PreRegister;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.PreRegister;
 using market_tracker_webapi.Application.Service.Errors.User;
@@ -37,19 +36,19 @@ public class OperatorService(
         );
     }
 
-    public async Task<Either<UserFetchingError, OperatorInfo>> GetOperatorByIdAsync(Guid id)
+    public async Task<Either<UserFetchingError, Operator>> GetOperatorByIdAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var operatorInfo = await operatorRepository.GetOperatorByIdAsync(id);
             if (operatorInfo is null)
             {
-                return EitherExtensions.Failure<UserFetchingError, OperatorInfo>(
+                return EitherExtensions.Failure<UserFetchingError, Operator>(
                     new UserFetchingError.UserByIdNotFound(id)
                 );
             }
 
-            return EitherExtensions.Success<UserFetchingError, OperatorInfo>(
+            return EitherExtensions.Success<UserFetchingError, Operator>(
                 operatorInfo
             );
         });
@@ -123,7 +122,7 @@ public class OperatorService(
             }
 
             return EitherExtensions.Success<UserFetchingError, Operator>(
-                new Operator(id, phoneNumber)
+                new Operator(user, phoneNumber)
             );
         });
     }

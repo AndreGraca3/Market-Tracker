@@ -1,10 +1,10 @@
-using market_tracker_webapi.Application.Domain.Models.Market.Price;
+using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales.Pricing;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Repository.Operations.Account.Users.Client;
-using market_tracker_webapi.Application.Repository.Operations.Market.Alert;
-using market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Product;
-using market_tracker_webapi.Application.Repository.Operations.Market.Price;
+using market_tracker_webapi.Application.Repository.Account.Users.Client;
+using market_tracker_webapi.Application.Repository.Market.Alert;
+using market_tracker_webapi.Application.Repository.Market.Inventory.Product;
+using market_tracker_webapi.Application.Repository.Market.Price;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Alert;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -18,7 +18,9 @@ public class AlertService(
     IProductRepository productRepository,
     IPriceRepository priceRepository,
     IPriceAlertRepository priceAlertRepository,
-    IClientRepository clientRepository) : IAlertService
+    IClientRepository clientRepository,
+    IClientDeviceRepository clientDeviceRepository
+) : IAlertService
 {
     public async Task<Either<IServiceError, CollectionOutputModel<PriceAlert>>> GetPriceAlertsByClientIdAsync(
         Guid clientId, string? productId, int? storeId)
@@ -61,7 +63,9 @@ public class AlertService(
                 );
             }
 
-            var deviceTokens = (await clientRepository.GetDeviceTokensByClientIdAsync(clientId)).ToList();
+            var deviceTokens = 
+                (await clientDeviceRepository.GetDeviceTokensByClientIdAsync(clientId)).ToList();
+
             if (deviceTokens.Count == 0)
             {
                 return EitherExtensions.Failure<IServiceError, StringIdOutputModel>(

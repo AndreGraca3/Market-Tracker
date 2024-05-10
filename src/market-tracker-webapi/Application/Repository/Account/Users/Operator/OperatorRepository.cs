@@ -1,11 +1,11 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Http.Models.Operator;
+using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account.Users;
 using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi.Application.Repository.Operations.Account.Users.Operator;
+namespace market_tracker_webapi.Application.Repository.Account.Users.Operator;
 
 using Operator = Domain.Models.Account.Users.Operator;
 
@@ -29,12 +29,12 @@ public class OperatorRepository(
         return new PaginatedResult<OperatorOutputModel>(operators, query.Count(), skip, take);
     }
 
-    public async Task<OperatorInfo?> GetOperatorByIdAsync(Guid id)
+    public async Task<Operator?> GetOperatorByIdAsync(Guid id)
     {
         var query = from user in dataContext.User
             join oper in dataContext.Operator on user.Id equals oper.UserId
             where user.Role == Role.Operator.ToString() && user.Id == id
-            select new OperatorInfo(user.Id, user.Name, user.Email, oper.PhoneNumber, user.CreatedAt);
+            select new Operator(user.Id, user.Name, user.Email, oper.PhoneNumber, user.CreatedAt);
 
         return await query.FirstOrDefaultAsync();
     }
@@ -45,7 +45,7 @@ public class OperatorRepository(
             join oper in dataContext.Operator on user.Id equals oper.UserId
             join store in dataContext.Store on oper.UserId equals store.OperatorId
             where user.Role == Role.Operator.ToString()
-            select new Operator(user.Id, oper.PhoneNumber);
+            select new Operator(user.ToUser(), oper.PhoneNumber);
 
         return await query.FirstOrDefaultAsync();
     }
@@ -73,7 +73,7 @@ public class OperatorRepository(
         operatorEntity.PhoneNumber = phoneNumber;
 
         await dataContext.SaveChangesAsync();
-        return operatorEntity.ToOperator();
+        return await GetOperatorByIdAsync(id);
     }
 
     public async Task<Operator?> DeleteOperatorAsync(Guid id)
@@ -86,6 +86,6 @@ public class OperatorRepository(
 
         dataContext.Remove(deletedOperatorEntity);
         await dataContext.SaveChangesAsync();
-        return deletedOperatorEntity.ToOperator();
+        return await GetOperatorByIdAsync(id);
     }
 }

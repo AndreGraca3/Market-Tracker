@@ -3,7 +3,7 @@ using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Operator;
+using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.PreRegister;
@@ -32,7 +32,7 @@ public class OperatorController(IOperatorService operatorService) : ControllerBa
 
     [HttpGet(Uris.Operator.OperatorById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<OperatorInfo>> GetOperatorAsync(
+    public async Task<ActionResult<Operator>> GetOperatorAsync(
         Guid id
     )
     {

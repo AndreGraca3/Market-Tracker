@@ -149,7 +149,7 @@ namespace market_tracker_webapi_test.Application.Repository;
             var availability = _dummyStoreAvailabilities.First();
             return new ProductOffer(
                 ProductInfo.ToProductInfo(ProductDetails.ToProductDetails(p, ))),
-                new StorePrice(StoreInfo.ToStoreInfo(store.ToStore()), price),
+                new StoreOffer(StoreInfo.ToStoreInfo(store.ToStore()), price),
 
         var paginatedOffers = new PaginatedResult<ProductOffer>();
         var expectedProductOffers = new PaginatedProductOffers();

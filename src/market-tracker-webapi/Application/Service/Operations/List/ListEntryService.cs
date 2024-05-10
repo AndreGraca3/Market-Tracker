@@ -1,15 +1,12 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Models.List;
+﻿using market_tracker_webapi.Application.Domain.Models.List;
 using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
-using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.List;
-using market_tracker_webapi.Application.Http.Models.ListEntry;
+using market_tracker_webapi.Application.Http.Models.Schemas.List.ListEntry;
+using market_tracker_webapi.Application.Repository.List;
+using market_tracker_webapi.Application.Repository.List.ListEntry;
+using market_tracker_webapi.Application.Repository.Market.Inventory.Product;
+using market_tracker_webapi.Application.Repository.Market.Price;
 using market_tracker_webapi.Application.Repository.Market.Store;
-using market_tracker_webapi.Application.Repository.Operations.List;
-using market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Product;
-using market_tracker_webapi.Application.Repository.Operations.Market.Price;
-using market_tracker_webapi.Application.Repository.Operations.Market.Store;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.ListEntry;
@@ -175,52 +172,49 @@ public class ListEntryService(
 
             var listEntries = (await listEntryRepository.GetListEntriesAsync(listId)).ToList();
 
-            ShoppingListEntriesOutputModel? entriesResult = null;
+            ShoppingListEntriesOutputModel? entriesResult;
 
             switch (alternativeType)
             {
                 case ShoppingListAlternativeType.Cheapest:
-                    var getEntryDetailsByCriteria = new Func<ListEntry, Task<ListEntryDetails>>(async entry =>
+                    var getEntryDetailsByCriteria = new Func<ListEntry, Task<ListEntryOffer>>(async entry =>
                     {
-                        var storePrice = await priceRepository.GetCheapestStorePriceAvailableByProductIdAsync(
-                            entry.ProductId, companyIds, storeIds, cityIds);
-                        var isAvailable = storePrice is not null;
-                        return new ListEntryDetails
-                        {
-                            ProductItem = new ProductItem
-                            {
-                                ProductId = entry.ProductId,
-                                Name = (await productRepository.GetProductByIdAsync(entry.ProductId))!.Name
-                            },
-                            Quantity = entry.Quantity,
-                            StorePrice = storePrice,
-                            IsAvailable = isAvailable
-                        };
+                        var storeOffer = await priceRepository.GetCheapestStoreOfferAvailableByProductIdAsync(
+                            entry.Product.Id, companyIds, storeIds, cityIds);
+                        var isAvailable = storeOffer is not null;
+                        return new ListEntryOffer(
+                            new ProductOffer(
+                                entry.Product,
+                                storeOffer,
+                                isAvailable
+                            ),
+                            entry.Quantity
+                        );
                     });
                     entriesResult = await BuildShoppingListEntriesResult(listEntries, getEntryDetailsByCriteria);
                     break;
                 default:
                     entriesResult = await BuildShoppingListEntriesResult(listEntries, async entry =>
                     {
-                        var isAvailable = entry.StoreId is not null && ((await priceRepository.GetStoreAvailabilityStatusAsync(entry.ProductId, entry.StoreId.Value))
-                            ?.IsAvailable ?? false);
+                        var isAvailable = entry.StoreId is not null &&
+                                          ((await priceRepository.GetStoreAvailabilityStatusAsync(entry.Product.Id,
+                                                  entry.StoreId.Value))
+                                              ?.IsAvailable ?? false
+                                          );
 
-                        var storePrice = entry.StoreId is not null && isAvailable
-                            ? await priceRepository.GetStorePriceAsync(entry.ProductId, entry.StoreId.Value,
+                        var storeOffer = entry.StoreId is not null && isAvailable
+                            ? await priceRepository.GetStoreOfferAsync(entry.Product.Id, entry.StoreId.Value,
                                 DateTime.Now)
                             : null;
 
-                        return new ListEntryDetails
-                        {
-                            ProductItem = new ProductItem
-                            {
-                                ProductId = entry.ProductId,
-                                Name = (await productRepository.GetProductByIdAsync(entry.ProductId))!.Name
-                            },
-                            Quantity = entry.Quantity,
-                            StorePrice = storePrice,
-                            IsAvailable = isAvailable
-                        };
+                        return new ListEntryOffer(
+                            new ProductOffer(
+                                entry.Product,
+                                storeOffer,
+                                isAvailable
+                            ),
+                            entry.Quantity
+                        );
                     });
                     break;
             }
@@ -233,25 +227,25 @@ public class ListEntryService(
 
     // helper method
     private static async Task<ShoppingListEntriesOutputModel> BuildShoppingListEntriesResult(
-        IEnumerable<ListEntry> listEntries, Func<ListEntry, Task<ListEntryDetails>> getEntryDetailsByCriteria
+        IEnumerable<ListEntry> listEntries, Func<ListEntry, Task<ListEntryOffer>> getEntryDetailsByCriteria
     )
     {
-        var listEntriesDetails = new List<ListEntryDetails>();
+        var listEntriesDetails = new List<ListEntryOffer>();
 
         var totalPrice = 0;
         var totalProducts = 0;
 
-        foreach (var product in listEntries)
+        foreach (var entry in listEntries)
         {
-            var listEntry = await getEntryDetailsByCriteria(product);
+            var listEntryOffer = await getEntryDetailsByCriteria(entry);
 
-            if (listEntry.StorePrice is not null)
+            if (listEntryOffer.ProductOffer.StoreOffer is not null)
             {
-                totalPrice += listEntry.StorePrice.PriceData.FinalPrice * product.Quantity;
+                totalPrice += listEntryOffer.ProductOffer.StoreOffer.PriceData.FinalPrice * entry.Quantity;
                 totalProducts++;
             }
 
-            listEntriesDetails.Add(listEntry);
+            listEntriesDetails.Add(listEntryOffer);
         }
 
         return new ShoppingListEntriesOutputModel

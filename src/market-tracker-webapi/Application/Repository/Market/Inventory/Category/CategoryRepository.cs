@@ -2,7 +2,7 @@ using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory;
 using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Category;
+namespace market_tracker_webapi.Application.Repository.Market.Inventory.Category;
 
 using Category = Domain.Models.Market.Inventory.Category;
 

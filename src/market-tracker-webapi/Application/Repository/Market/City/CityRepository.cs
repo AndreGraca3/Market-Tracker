@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.Market.City;
 
-using City = Domain.Models.Market.Store.City;
+using City = Domain.Models.Market.Retail.Shop.City;
 
 public class CityRepository(MarketTrackerDataContext marketTrackerDataContext) : ICityRepository
 {

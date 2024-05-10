@@ -1,4 +1,4 @@
-namespace market_tracker_webapi.Application.Repository.Operations.Market.Inventory.Category;
+namespace market_tracker_webapi.Application.Repository.Market.Inventory.Category;
 
 using Category = Domain.Models.Market.Inventory.Category;
 

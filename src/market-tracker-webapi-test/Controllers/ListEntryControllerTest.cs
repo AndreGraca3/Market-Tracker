@@ -2,7 +2,6 @@
 using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Controllers.List;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.ListEntry;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.ListEntry;
@@ -32,7 +31,7 @@ public class ListEntryControllerTest
         var listEntryDetails = new ListEntryDetails()
         {
             ProductItem = It.IsAny<ProductItem>(),
-            StorePrice = It.IsAny<StorePrice>(),
+            StoreOffer = It.IsAny<StoreOffer>(),
             IsAvailable = true,
             Quantity = 1
         };

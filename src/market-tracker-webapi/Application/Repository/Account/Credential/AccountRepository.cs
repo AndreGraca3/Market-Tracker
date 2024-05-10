@@ -1,8 +1,7 @@
 ﻿using market_tracker_webapi.Infrastructure;
-using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account.Auth;
 
-namespace market_tracker_webapi.Application.Repository.Operations.Account.Credential;
+namespace market_tracker_webapi.Application.Repository.Account.Credential;
 
 using Account = Domain.Models.Account.Auth.Account;
 

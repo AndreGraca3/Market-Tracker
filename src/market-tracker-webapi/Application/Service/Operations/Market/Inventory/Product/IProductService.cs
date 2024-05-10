@@ -1,18 +1,21 @@
 using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Product;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
 
+using Product = Domain.Models.Market.Inventory.Product.Product;
+
 public interface IProductService
 {
     public Task<Either<IServiceError, PaginatedProductOffers>> GetBestAvailableProductsOffersAsync(
         int skip,
         int take,
+        int maxValuesPerFacet,
         ProductsSortOption? sortBy,
         string? searchName,
         IList<int>? categoryIds,
@@ -24,7 +27,7 @@ public interface IProductService
         int? maxRating
     );
 
-    public Task<Either<ProductFetchingError, ProductInfo>> GetProductByIdAsync(string productId);
+    public Task<Either<ProductFetchingError, Product>> GetProductByIdAsync(string productId);
 
     public Task<Either<IServiceError, ProductCreationOutputModel>> AddProductAsync(
         Guid operatorId,

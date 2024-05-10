@@ -30,4 +30,13 @@ public class UserEntity
             CreatedAt
         );
     }
+    
+    public UserItem ToUserItem()
+    {
+        return new UserItem(
+            Id,
+            Name,
+            Role
+        );
+    }
 }

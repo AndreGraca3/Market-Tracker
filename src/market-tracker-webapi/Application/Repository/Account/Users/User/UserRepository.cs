@@ -1,10 +1,10 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Repository.Dto.User;
+using market_tracker_webapi.Application.Domain.Models.Account.Users;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account.Users;
 using Microsoft.EntityFrameworkCore;
 
-namespace market_tracker_webapi.Application.Repository.Operations.Account.Users.User;
+namespace market_tracker_webapi.Application.Repository.Account.Users.User;
 
 using User = Domain.Models.Account.Users.User;
 

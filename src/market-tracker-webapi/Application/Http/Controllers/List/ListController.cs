@@ -1,8 +1,9 @@
 ﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Domain.Models.List;
+using market_tracker_webapi.Application.Http.Controllers.Account;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.List;
+using market_tracker_webapi.Application.Http.Models.Schemas.List;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.List;

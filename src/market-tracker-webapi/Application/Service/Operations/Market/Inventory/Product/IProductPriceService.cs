@@ -1,5 +1,5 @@
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Price;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Price;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Utils;
 

@@ -1,8 +1,9 @@
 using market_tracker_webapi.Application.Domain.Filters.Product;
+using market_tracker_webapi.Application.Http.Controllers.Account;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Price;
-using market_tracker_webapi.Application.Http.Models.Product;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Price;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.Category;
@@ -13,6 +14,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Inventory.Product;
 
+using Product = Domain.Models.Market.Inventory.Product.Product;
+
 [ApiController]
 public class ProductController(IProductService productService, IProductPriceService productPriceService)
     : ControllerBase
@@ -21,13 +24,15 @@ public class ProductController(IProductService productService, IProductPriceServ
     public async Task<ActionResult<PaginatedProductOffers>> GetProductsAsync(
         [FromQuery] ProductsFiltersInputModel filters,
         [FromQuery] PaginationInputs paginationInputs,
-        [FromQuery] ProductsSortOption? sortBy
+        [FromQuery] ProductsSortOption? sortBy,
+        [FromQuery] int maxValuesPerFacet = 10
     )
     {
         var res =
             await productService.GetBestAvailableProductsOffersAsync(
                 paginationInputs.Skip,
                 paginationInputs.ItemsPerPage,
+                maxValuesPerFacet,
                 sortBy,
                 filters.Name,
                 filters.CategoryIds,
@@ -45,7 +50,7 @@ public class ProductController(IProductService productService, IProductPriceServ
     }
 
     [HttpGet(Uris.Products.ProductById)]
-    public async Task<ActionResult<ProductInfo>> GetProductByIdAsync(string productId)
+    public async Task<ActionResult<Product>> GetProductByIdAsync(string productId)
     {
         var res = await productService.GetProductByIdAsync(productId);
 
