@@ -8,5 +8,6 @@ data class ListInfo(
     val listName: String,
     val archivedAt: LocalDateTime?,
     val createdAt: LocalDateTime,
-    val ownerId: UUID
+    val ownerId: UUID,
+    val numberOfParticipants: Int = 0
 )

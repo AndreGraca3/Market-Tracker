@@ -29,6 +29,7 @@ import com.example.markettracker.R
 @Composable
 fun ListItemCard(listInfo: ListInfo, onListItemClick: (Int) -> Unit) {
     val shape = RoundedCornerShape(8.dp)
+
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -41,7 +42,7 @@ fun ListItemCard(listInfo: ListInfo, onListItemClick: (Int) -> Unit) {
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(14.dp, 8.dp)
@@ -63,10 +64,29 @@ fun ListItemCard(listInfo: ListInfo, onListItemClick: (Int) -> Unit) {
                     modifier = Modifier.weight(0.2f)
                 ) {
                     Image(
-                        painter = painterResource(id = if (listInfo.archivedAt == null) R.drawable.unlock else R.drawable.lock),
+                        painter = painterResource(id = when (listInfo.numberOfParticipants) {
+                            0 -> R.drawable.group0
+                            1 -> R.drawable.group1
+                            2 -> R.drawable.group2
+                            3 -> R.drawable.group3
+                            4 -> R.drawable.group4
+                            else -> R.drawable.group4
+                        }),
                         contentDescription = "",
                         modifier = Modifier
                             .size(48.dp)
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(0.2f)
+                        .padding(start = 8.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = if (listInfo.archivedAt == null) R.drawable.unlock else R.drawable.lock),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .size(32.dp)
                     )
                 }
             }
