@@ -21,7 +21,9 @@ import pt.isel.markettracker.domain.list.ListInfo
 import pt.isel.markettracker.ui.theme.Primary900
 import pt.isel.markettracker.utils.advanceShadow
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.markettracker.R
@@ -63,26 +65,46 @@ fun ListItemCard(listInfo: ListInfo, onListItemClick: (Int) -> Unit) {
                 Column(
                     modifier = Modifier.weight(0.2f)
                 ) {
-                    Image(
-                        painter = painterResource(id = when (listInfo.numberOfParticipants) {
-                            0 -> R.drawable.group0
-                            1 -> R.drawable.group1
-                            2 -> R.drawable.group2
-                            3 -> R.drawable.group3
-                            4 -> R.drawable.group4
-                            else -> R.drawable.group4
-                        }),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .size(48.dp)
-                    )
+                    val iconModifier = Modifier.size(48.dp)
+                    when {
+                        listInfo.numberOfParticipants > 4 -> {
+                            Column {
+                                Text(
+                                    text = listInfo.numberOfParticipants.toString(),
+                                    color = Color.Black,
+                                    modifier = Modifier
+                                        .paddingFromBaseline(top = 8.dp)
+                                        .align(Alignment.CenterHorizontally)
+                                )
+                                Icon(
+                                    painter = painterResource(id = R.drawable.group4),
+                                    contentDescription = "",
+                                    modifier = iconModifier
+                                )
+                            }
+                        }
+                        else -> {
+                            Icon(
+                                painter = painterResource(id = when (listInfo.numberOfParticipants) {
+                                    0 -> R.drawable.group0
+                                    1 -> R.drawable.group1
+                                    2 -> R.drawable.group2
+                                    3 -> R.drawable.group3
+                                    4 -> R.drawable.group4
+                                    else -> R.drawable.group4
+                                }),
+                                contentDescription = "",
+                                modifier = iconModifier
+                            )
+                        }
+                    }
                 }
                 Column(
                     modifier = Modifier
                         .weight(0.2f)
                         .padding(start = 8.dp)
                 ) {
-                    Image(
+                    Icon(
                         painter = painterResource(id = if (listInfo.archivedAt == null) R.drawable.unlock else R.drawable.lock),
                         contentDescription = "",
                         modifier = Modifier

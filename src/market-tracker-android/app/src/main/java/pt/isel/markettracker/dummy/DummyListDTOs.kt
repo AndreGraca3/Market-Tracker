@@ -35,7 +35,7 @@ val dummyList = listOf(
         LocalDateTime.now().minusDays(1),
         LocalDateTime.now().minusDays(2),
         UUID(1, 1),
-        1
+        5
     ),
     ListInfo(
         5,
@@ -51,7 +51,7 @@ val dummyList = listOf(
         LocalDateTime.now().minusDays(1),
         LocalDateTime.now().minusDays(2),
         UUID(1, 1),
-        3
+        7
     ),
     ListInfo(
         7,
