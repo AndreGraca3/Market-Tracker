@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.list.ListInfo
 import pt.isel.markettracker.ui.components.common.IOResourceLoader
-import pt.isel.markettracker.ui.screens.products.card.ProductCard
 
 @Composable
 fun ListGrid(listState: IOState<List<ListInfo>>, onListItemClick: (Int) -> Unit) {
@@ -38,7 +37,7 @@ fun ListGrid(listState: IOState<List<ListInfo>>, onListItemClick: (Int) -> Unit)
                         .size(width = 350.dp, 125.dp)
                 ) {
                     ListItemCard(
-                        listItem = listItems[index],
+                        listInfo = listItems[index],
                         onListItemClick = onListItemClick
                     )
                 }

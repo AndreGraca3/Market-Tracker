@@ -6,7 +6,7 @@ import java.util.UUID
 data class ListInfo(
     val id: Int,
     val listName: String,
-    val archivedAt: LocalDateTime,
+    val archivedAt: LocalDateTime?,
     val createdAt: LocalDateTime,
     val ownerId: UUID
 )

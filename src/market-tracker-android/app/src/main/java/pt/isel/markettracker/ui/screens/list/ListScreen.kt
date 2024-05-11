@@ -48,7 +48,7 @@ fun ListScreen(
             }
         },
         modifier = Modifier
-            .padding(2.dp) // TODO: Change this value
+            .padding(2.dp)
     ) {
         Column(
             modifier = Modifier

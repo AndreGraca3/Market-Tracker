@@ -4,6 +4,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,15 +20,20 @@ import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.list.ListInfo
 import pt.isel.markettracker.ui.theme.Primary900
 import pt.isel.markettracker.utils.advanceShadow
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
+import com.example.markettracker.R
 
 @Composable
-fun ListItemCard(listItem: ListInfo, onListItemClick: (Int) -> Unit) {
+fun ListItemCard(listInfo: ListInfo, onListItemClick: (Int) -> Unit) {
     val shape = RoundedCornerShape(8.dp)
     Card(
         modifier = Modifier
             .fillMaxSize()
             .clip(shape)
-            .clickable { onListItemClick(listItem.id) }
+            .clickable { onListItemClick(listInfo.id) }
             .padding(2.dp)
             .border(2.dp, Color.Black.copy(.6F), shape)
             .advanceShadow(Primary900, blurRadius = 24.dp),
@@ -40,8 +46,30 @@ fun ListItemCard(listItem: ListInfo, onListItemClick: (Int) -> Unit) {
                 .fillMaxSize()
                 .padding(14.dp, 8.dp)
         ) {
-            Text(text = listItem.listName)
-            Text(text = listItem.archivedAt.toString())
+            Row (
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(0.8f)
+                ) {
+                    Text(
+                        text = listInfo.listName,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(0.2f)
+                ) {
+                    Image(
+                        painter = painterResource(id = if (listInfo.archivedAt == null) R.drawable.unlock else R.drawable.lock),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .size(48.dp)
+                    )
+                }
+            }
         }
     }
 }

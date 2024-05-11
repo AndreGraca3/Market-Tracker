@@ -15,14 +15,14 @@ val dummyList = listOf(
     ListInfo(
         2,
         "List 2",
-        LocalDateTime.now().minusDays(1),
+        null,
         LocalDateTime.now().minusDays(2),
         UUID(1, 1),
     ),
     ListInfo(
         3,
-        "List 3",
-        LocalDateTime.now().minusDays(1),
+        "List 3 TEST THE SIZE OF THE LIST NAME",
+        null,
         LocalDateTime.now().minusDays(2),
         UUID(1, 1),
     ),
