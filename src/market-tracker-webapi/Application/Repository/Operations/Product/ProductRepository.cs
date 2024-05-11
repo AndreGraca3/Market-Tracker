@@ -10,7 +10,9 @@ using Product = Domain.Product;
 
 public class ProductRepository(MarketTrackerDataContext dataContext) : IProductRepository
 {
-    public async Task<PaginatedResult<ProductInfo>> GetProductsAsync(
+    private const double SimilarityThreshold = 0.1;
+
+    public async Task<PaginatedResult<ProductInfo>> GetAvailableProductsAsync(
         int skip,
         int take,
         SortByType? sortBy,
@@ -25,11 +27,13 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
             orderby EF.Functions.TrigramsSimilarity(product.Name, name) descending
             join brand in dataContext.Brand on product.BrandId equals brand.Id
             join category in dataContext.Category on product.CategoryId equals category.Id
-            where (name == null || EF.Functions.TrigramsSimilarity(product.Name, name) >= 0.3) &&
+            join availability in dataContext.ProductAvailability on product.Id equals availability.ProductId
+            where availability.IsAvailable &&
                   (categoryIds == null || categoryIds.Contains(product.CategoryId)) &&
                   (brandIds == null || brandIds.Contains(product.BrandId)) &&
                   (minRating == null || product.Rating >= minRating) &&
-                  (maxRating == null || product.Rating <= maxRating)
+                  (maxRating == null || product.Rating <= maxRating) &&
+                  (name == null || EF.Functions.TrigramsSimilarity(product.Name, name) > SimilarityThreshold)
             select new
             {
                 Product = product,
@@ -37,24 +41,15 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                 Category = category
             };
 
-        switch (sortBy)
+        query = sortBy switch
         {
-            case SortByType.NameHighToLow:
-                query = query.OrderByDescending(queryRes => queryRes.Product.Name);
-                break;
-            case SortByType.NameLowToHigh:
-                query = query.OrderBy(queryRes => queryRes.Product.Name);
-                break;
-            case SortByType.RatingHighToLow:
-                query = query.OrderByDescending(queryRes => queryRes.Product.Rating);
-                break;
-            case SortByType.RatingLowToHigh:
-                query = query.OrderBy(queryRes => queryRes.Product.Rating);
-                break;
-            default:
-                query = query.OrderBy(queryRes => queryRes.Product.Views);
-                break;
-        }
+            SortByType.Popularity => query.OrderBy(queryRes => queryRes.Product.Views),
+            SortByType.NameLowToHigh => query.OrderBy(queryRes => queryRes.Product.Name),
+            SortByType.NameHighToLow => query.OrderByDescending(queryRes => queryRes.Product.Name),
+            SortByType.RatingLowToHigh => query.OrderBy(queryRes => queryRes.Product.Rating),
+            SortByType.RatingHighToLow => query.OrderByDescending(queryRes => queryRes.Product.Rating),
+            _ => query
+        };
 
         var items = await query
             .Skip(skip)
@@ -121,6 +116,34 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         await dataContext.Product.AddAsync(productEntity);
         await dataContext.SaveChangesAsync();
         return productEntity.Id;
+    }
+
+    public async Task SetProductAvailabilityAsync(
+        string productId,
+        int storeId,
+        bool isAvailable
+    )
+    {
+        var availability = await dataContext.ProductAvailability
+            .Where(availability => availability.ProductId == productId && availability.StoreId == storeId)
+            .FirstOrDefaultAsync();
+
+        if (availability is null)
+        {
+            availability = new ProductAvailabilityEntity()
+            {
+                ProductId = productId,
+                StoreId = storeId,
+                IsAvailable = isAvailable
+            };
+            await dataContext.ProductAvailability.AddAsync(availability);
+        }
+        else
+        {
+            availability.IsAvailable = isAvailable;
+        }
+
+        await dataContext.SaveChangesAsync();
     }
 
     public async Task<Product?> UpdateProductAsync(

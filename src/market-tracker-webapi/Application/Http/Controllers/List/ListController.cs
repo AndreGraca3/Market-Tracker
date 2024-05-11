@@ -1,9 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using market_tracker_webapi.Application.Domain;
+﻿using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.List;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Repository.Dto.List;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Operations.List;
@@ -11,28 +10,29 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.List;
 
+[ApiController]
 public class ListController(
     IListService listService
 ) : ControllerBase
 {
     [HttpGet(Uris.Lists.Base)]
-    public async Task<ActionResult<CollectionOutputModel>> GetListsAsync(
-        [Required] Guid clientId,
+    [Authorized([Role.Client])]
+    public async Task<ActionResult<CollectionOutputModel<ShoppingList>>> GetListsAsync(
         string? listName,
         DateTime? createdAfter,
         bool? isArchived,
-        bool? isOwner
+        bool isOwner
     )
     {
-        var res = await listService.GetListsAsync(clientId, listName, createdAfter, isArchived, isOwner);
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var res =
+            await listService.GetListsAsync(authUser.User.Id, isOwner, listName, createdAfter, isArchived);
         return ResultHandler.Handle(
             res,
             error =>
             {
                 return error switch
                 {
-                    UserFetchingError.UserByIdNotFound idNotFoundError
-                        => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
             }
@@ -40,9 +40,11 @@ public class ListController(
     }
 
     [HttpGet(Uris.Lists.ListById)]
-    public async Task<ActionResult<ListProduct>> GetListByIdAsync(int listId, [Required] Guid clientId)
+    [Authorized([Role.Client])]
+    public async Task<ActionResult<ShoppingListOutputModel>> GetListByIdAsync(int listId)
     {
-        var res = await listService.GetListByIdAsync(listId, clientId);
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var res = await listService.GetListByIdAsync(listId, authUser.User.Id);
         return ResultHandler.Handle(
             res,
             error =>
@@ -60,10 +62,13 @@ public class ListController(
     }
 
     [HttpPost(Uris.Lists.Base)]
+    [Authorized([Role.Client])]
     public async Task<ActionResult<IntIdOutputModel>> AddListAsync(
-        [FromBody] CreationListInputModel inputModel)
+        [FromBody] ListCreationInputModel inputModel)
     {
-        var res = await listService.AddListAsync(inputModel.ClientId, inputModel.ListName);
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var res = await listService.AddListAsync(authUser.User.Id, inputModel.ListName);
+
         return ResultHandler.Handle(
             res,
             error =>
@@ -86,13 +91,16 @@ public class ListController(
     }
 
     [HttpPatch(Uris.Lists.ListById)]
-    public async Task<ActionResult<ListOfProducts>> UpdateListAsync(
+    [Authorized([Role.Client])]
+    public async Task<ActionResult<ShoppingList>> UpdateListAsync(
         int listId,
-        [Required] Guid clientId,
         [FromBody] UpdateListInputModel inputModel
     )
     {
-        var res = await listService.UpdateListAsync(listId, clientId, inputModel.ListName, inputModel.IsArchived);
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var res =
+            await listService.UpdateListAsync(listId, authUser.User.Id, inputModel.ListName, inputModel.IsArchived);
+
         return ResultHandler.Handle(
             res,
             error =>
@@ -114,9 +122,12 @@ public class ListController(
     }
 
     [HttpDelete(Uris.Lists.ListById)]
-    public async Task<ActionResult<ListOfProducts>> DeleteListAsync(int listId, [Required] Guid clientId)
+    [Authorized([Role.Client])]
+    public async Task<ActionResult<ShoppingList>> DeleteListAsync(int listId)
     {
-        var res = await listService.DeleteListAsync(listId, clientId);
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var res = await listService.DeleteListAsync(listId, authUser.User.Id);
+
         return ResultHandler.Handle(
             res,
             error =>
@@ -133,14 +144,17 @@ public class ListController(
             _ => NoContent()
         );
     }
-    
-    [HttpPost(Uris.Lists.Clients)]
+
+    [HttpPost(Uris.Lists.ClientsByListId)]
+    [Authorized([Role.Client])]
     public async Task<ActionResult<ListClient>> AddClientToListAsync(
-        int listId, 
-        [FromBody] CreateClientListInputModel inputModel,
-        [Required] Guid clientId)
+        int listId,
+        [FromBody] ListInviteInputModel inviteInputModel)
     {
-        var res = await listService.AddClientToListAsync(listId, inputModel.ClientId, clientId);
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var res
+            = await listService.AddClientToListAsync(listId, authUser.User.Id, inviteInputModel.ClientId);
+
         return ResultHandler.Handle(
             res,
             error =>
@@ -157,24 +171,27 @@ public class ListController(
                         => new ListClientProblem.ClientAlreadyInList(clientAlreadyInListError).ToActionResult(),
                     _ => new ServerProblem.InternalServerError().ToActionResult()
                 };
-            }
+            },
+            _ => NoContent()
         );
     }
-    
-    [HttpDelete(Uris.Lists.Clients)]
+
+    [HttpDelete(Uris.Lists.ClientByListId)]
+    [Authorized([Role.Client])]
     public async Task<ActionResult<ListClient>> RemoveClientFromListAsync(
-        int listId, 
-        [Required] Guid clientId)
+        int listId,
+        Guid clientId)
     {
-        var res = await listService.RemoveClientFromListAsync(listId, clientId);
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var res
+            = await listService.RemoveClientFromListAsync(listId, authUser.User.Id, clientId);
+
         return ResultHandler.Handle(
             res,
             error =>
             {
                 return error switch
                 {
-                    UserFetchingError.UserByIdNotFound idNotFoundError
-                        => new UserProblem.UserByIdNotFound(idNotFoundError).ToActionResult(),
                     ListFetchingError.ListByIdNotFound idNotFoundError
                         => new ListProblem.ListByIdNotFound(idNotFoundError).ToActionResult(),
                     ListFetchingError.UserDoesNotOwnList userDoNotOwnListError

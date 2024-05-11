@@ -10,6 +10,7 @@ import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
+import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
@@ -23,7 +24,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val vm by viewModels<ProfileScreenViewModel>(
+    private val profileScreenViewModel by viewModels<ProfileScreenViewModel>(
         extrasProducer = {
             defaultViewModelCreationExtras.withCreationCallback<ProfileScreenViewModelFactory> { factory ->
                 factory.create(contentResolver)
@@ -55,8 +56,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MarkettrackerTheme {
-                Navigation(
-                    profileScreenViewModel = vm,
+                NavGraph(
+                    profileScreenViewModel = profileScreenViewModel,
                     onProductClick = {
                         navigateTo<ProductDetailsActivity>(
                             this,

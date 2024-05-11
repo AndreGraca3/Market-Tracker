@@ -28,6 +28,10 @@ public class StoreEntity
     [ForeignKey("company")]
     [Column("company_id")]
     public int CompanyId { get; set; }
+    
+    [ForeignKey("operator")]
+    [Column("operator_id")]
+    public Guid OperatorId { get; set; }
 
     public Store ToStore()
     {
@@ -37,7 +41,8 @@ public class StoreEntity
             Name = Name,
             Address = Address,
             CityId = CityId,
-            CompanyId = CompanyId
+            CompanyId = CompanyId,
+            OperatorId = OperatorId
         };
     }
 }

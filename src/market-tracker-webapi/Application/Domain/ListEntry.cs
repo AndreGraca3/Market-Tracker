@@ -6,7 +6,7 @@ public class ListEntry
     
     public required string ProductId { get; set; }
     
-    public int StoreId { get; set; }
+    public int? StoreId { get; set; }
     
     public int Quantity { get; set; }
 }

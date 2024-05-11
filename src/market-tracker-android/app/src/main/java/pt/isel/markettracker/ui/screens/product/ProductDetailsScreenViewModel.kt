@@ -1,9 +1,5 @@
 package pt.isel.markettracker.ui.screens.product
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,11 +11,10 @@ import pt.isel.markettracker.domain.fail
 import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.domain.loaded
 import pt.isel.markettracker.domain.loading
-import pt.isel.markettracker.domain.price.StorePrice
-import pt.isel.markettracker.domain.product.ProductInfo
-import pt.isel.markettracker.domain.product.ProductPreferences
-import pt.isel.markettracker.domain.product.ProductReview
-import pt.isel.markettracker.domain.product.ProductStats
+import pt.isel.markettracker.domain.model.product.ProductInfo
+import pt.isel.markettracker.domain.model.product.ProductPreferences
+import pt.isel.markettracker.domain.model.product.ProductReview
+import pt.isel.markettracker.domain.model.product.ProductStats
 import pt.isel.markettracker.http.models.price.CompanyPrices
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import javax.inject.Inject

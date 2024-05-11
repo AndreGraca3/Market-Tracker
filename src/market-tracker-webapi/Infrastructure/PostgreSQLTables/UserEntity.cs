@@ -1,29 +1,43 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Repository.Dto.User;
 
-namespace market_tracker_webapi.Infrastructure.PostgreSQLTables
+namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
+
+[Table("user", Schema = "MarketTracker")]
+public class UserEntity
 {
-    [Table("user", Schema = "MarketTracker")]
-    public class UserEntity
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Column("id")]
+    public Guid Id { get; set; }
+    
+    [Column("name")] public required string Name { get; set; }
+
+    [Column("email")] public required string Email { get; set; }
+
+    [Column("role")] public required string Role { get; set; }
+
+    [DataType(DataType.Date)] [Column("created_at")]
+    public readonly DateTime CreatedAt = DateTime.Now;
+
+    public User ToUser()
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("id")]
-        public Guid Id { get; set; }
+        return new User(
+            Id,
+            Name,
+            Email,
+            Role,
+            CreatedAt
+        );
+    }
 
-        [Column("username")]
-        public required string Username { get; set; }
-
-        [Column("name")]
-        public required string Name { get; set; }
-
-        [Column("email")]
-        public required string Email { get; set; }
-
-        [Column("password")]
-        public required string Password { get; set; }
-
-        [DataType(DataType.Date)]
-        [Column("created_at")]
-        public readonly DateTime CreatedAt;
+    public UserItem ToUserItem()
+    {
+        return new UserItem(
+            Id,
+            Name,
+            Role
+        );
     }
 }

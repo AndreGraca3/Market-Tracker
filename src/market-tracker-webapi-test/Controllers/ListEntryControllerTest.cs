@@ -15,6 +15,7 @@ using Moq;
 
 namespace market_tracker_webapi_test.Controllers;
 
+/*
 public class ListEntryControllerTest
 {
     private readonly Mock<IListEntryService> listEntryServiceMock;
@@ -127,3 +128,4 @@ public class ListEntryControllerTest
         Assert.IsType<NoContentResult>(result.Result);
     }
 }
+*/

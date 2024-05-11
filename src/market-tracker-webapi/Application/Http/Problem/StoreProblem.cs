@@ -28,13 +28,12 @@ public class StoreProblem(
             data
         );
     
-    public class StoreAddressAlreadyExists(StoreCreationError.StoreAddressAlreadyExists data)
+    public class StoreByOperatorIdNotFound(StoreFetchingError.StoreByOperatorIdNotFound data)
         : CompanyProblem(
-            400,
-            "store-address-already-exists",
-            "Store address already exists",
-            $"Store with address {data.Address} already exists",
+            404,
+            "store-by-operator-not-found",
+            "Store by operator not found",
+            "Operator has no store assigned yet",
             data
         );
-    
 }

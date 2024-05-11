@@ -18,6 +18,15 @@ public class UserProblem(
         data
     );
 
+    public class UserByTokenValueNotFound(UserFetchingError.UserByTokenValueNotFound data)
+        : UserProblem(
+            404,
+            "user-not-found",
+            "User not found",
+            $"User with token value {data.TokenValue} not found",
+            data
+        );
+
     public class UserByIdNotFound(UserFetchingError.UserByIdNotFound data)
         : UserProblem(
             404,
@@ -27,11 +36,11 @@ public class UserProblem(
             data
         );
 
-    public class UserAlreadyExists(UserCreationError.EmailAlreadyInUse data) : UserProblem(
+    public class UserAlreadyExists(UserCreationError.CredentialAlreadyInUse data) : UserProblem(
         409,
         "user-already-exists",
         "User already exists",
-        $"The email {data.Email} is already in use",
+        $"The {data.CredentialName} {data.CredentialValue} is already in use",
         data
     );
 }

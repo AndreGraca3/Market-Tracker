@@ -1,4 +1,5 @@
-﻿using market_tracker_webapi.Application.Http.Models;
+﻿using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.City;
 using market_tracker_webapi.Application.Http.Problem;
 using market_tracker_webapi.Application.Service.Errors.City;
@@ -11,7 +12,7 @@ namespace market_tracker_webapi.Application.Http.Controllers;
 public class CityController(ICityService cityService) : ControllerBase
 {
     [HttpGet(Uris.Cities.Base)]
-    public async Task<ActionResult<CollectionOutputModel>> GetCitiesAsync()
+    public async Task<ActionResult<CollectionOutputModel<City>>> GetCitiesAsync()
     {
         var res = await cityService.GetCitiesAsync();
         return ResultHandler.Handle(res, _ => new ServerProblem.InternalServerError().ToActionResult());

@@ -1,8 +1,8 @@
 package pt.isel.markettracker.dummy
 
-import pt.isel.markettracker.domain.City
-import pt.isel.markettracker.domain.product.CompanyInfo
-import pt.isel.markettracker.domain.product.StoreInfo
+import pt.isel.markettracker.domain.model.city.City
+import pt.isel.markettracker.domain.model.product.CompanyInfo
+import pt.isel.markettracker.domain.model.product.StoreInfo
 
 // Dummy data for city
 val dummyCities = listOf(

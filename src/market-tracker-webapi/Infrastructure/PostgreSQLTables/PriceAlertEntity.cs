@@ -1,28 +1,31 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using market_tracker_webapi.Application.Domain;
+using market_tracker_webapi.Application.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables;
 
 [Table("price_alert", Schema = "MarketTracker")]
-[PrimaryKey("ClientId", "ProductId")]
 public class PriceAlertEntity
 {
-    [Column("client_id")]
-    public required Guid ClientId { get; set; }
+    [Key]
+    [Column("id")]
+    [StringLength(25)]
+    public string Id { get; init; } = RandomStringGenerator.GenerateRandomString(25);
 
-    [Column("product_id")]
-    public required string ProductId { get; set; }
+    [Column("client_id")] public required Guid ClientId { get; set; }
 
-    [Column("price_threshold")]
-    public required int PriceThreshold { get; set; }
+    [Column("product_id")] public required string ProductId { get; set; }
 
-    [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+    [Column("store_id")] public required int StoreId { get; set; }
+
+    [Column("price_threshold")] public required int PriceThreshold { get; set; }
+
+    [Column("created_at")] public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     public PriceAlert ToPriceAlert()
     {
-        return new PriceAlert(ClientId, ProductId, PriceThreshold, CreatedAt);
+        return new PriceAlert(Id, ClientId, ProductId, PriceThreshold, CreatedAt);
     }
 }

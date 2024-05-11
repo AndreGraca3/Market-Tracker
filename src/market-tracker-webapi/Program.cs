@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 using market_tracker_webapi.Application.Http;
+using market_tracker_webapi.Application.Http.Pipeline;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Pipeline;
-using market_tracker_webapi.Application.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.DependencyResolver;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.OData.Batch;
 using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
+using Microsoft.OpenApi.Models;
 
 namespace market_tracker_webapi;
 
@@ -38,10 +39,7 @@ static class Program
 
     private static void Configure(WebApplication app)
     {
-        app.UseSwagger(c =>
-        {
-            c.RouteTemplate = "swagger/{documentName}/swagger.json";
-        });
+        app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
 
         app.UseSwaggerUI(options =>
         {
@@ -83,14 +81,10 @@ static class Program
             .Services.AddControllers(options =>
             {
                 options.SuppressAsyncSuffixInActionNames = false;
-                options.Filters.Add<AuthenticationFilter>();
-                // options.ModelBinderProviders.Insert(0, new AuthUserBinderProvider());
+                options.Filters.Add<AuthorizationFilter>();
             })
-            /*.AddJsonOptions(o =>
-                o.JsonSerializerOptions.DefaultIgnoreCondition =
-                    JsonIgnoreCondition.WhenWritingDefault
-            )*/
-            .AddJsonOptions(o => {
+            .AddJsonOptions(o =>
+            {
                 o.JsonSerializerOptions.Converters.Add(new OptionalConverter());
                 o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             })
@@ -115,9 +109,11 @@ static class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
+        
+        builder.Services.AddFirebaseServices(builder.Configuration);
         builder.Services.AddPgSqlServer(builder.Configuration);
         builder.Services.AddMarketTrackerDataServices();
+        builder.Services.AddGoogleAuthAuthentication(builder.Configuration);
     }
 
     private static IEdmModel GetEdmModel()

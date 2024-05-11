@@ -10,12 +10,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.domain.product.ProductInfo
+import pt.isel.markettracker.domain.model.product.Product
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.ui.theme.Primary600
 
 @Composable
-fun ProductCardSpecs(product: ProductInfo) {
+fun ProductCardSpecs(product: Product) {
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -32,7 +32,7 @@ fun ProductCardSpecs(product: ProductInfo) {
             verticalArrangement = Arrangement.spacedBy(1.dp),
         ) {
             Text(
-                text = product.brand,
+                text = product.brand.name,
                 style = MarketTrackerTypography.labelMedium,
                 color = Primary600,
                 overflow = TextOverflow.Ellipsis,
@@ -41,7 +41,7 @@ fun ProductCardSpecs(product: ProductInfo) {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = product.category,
+                text = product.category.name,
                 style = MarketTrackerTypography.labelMedium,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,

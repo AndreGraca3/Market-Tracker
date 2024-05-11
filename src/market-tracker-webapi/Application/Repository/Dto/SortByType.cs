@@ -2,8 +2,11 @@ namespace market_tracker_webapi.Application.Repository.Dto;
 
 public enum SortByType
 {
-    NameHighToLow,
+    Popularity,
     NameLowToHigh,
+    NameHighToLow,
+    RatingLowToHigh,
     RatingHighToLow,
-    RatingLowToHigh
+    PriceLowToHigh,
+    PriceHighToLow
 }

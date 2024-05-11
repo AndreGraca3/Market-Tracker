@@ -6,4 +6,9 @@ public class StoreFetchingError : IStoreError
     {
         public int Id { get; } = id;
     }
+    
+    public class StoreByOperatorIdNotFound(Guid operatorId) : StoreFetchingError
+    {
+        public Guid OperatorId { get; } = operatorId;
+    }
 }
