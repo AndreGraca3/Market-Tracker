@@ -54,7 +54,10 @@ fun ListItemCard(listInfo: ListInfo, onListItemClick: (Int) -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
-                    modifier = Modifier.weight(0.8f)
+                    modifier = Modifier
+                        .weight(0.8f)
+                        .padding(start = 12.dp)
+                        .padding(end = 12.dp)
                 ) {
                     Text(
                         text = listInfo.listName,
