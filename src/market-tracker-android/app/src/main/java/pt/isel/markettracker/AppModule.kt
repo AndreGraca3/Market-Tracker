@@ -12,6 +12,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import pt.isel.markettracker.http.service.operations.list.IListService
+import pt.isel.markettracker.http.service.operations.list.ListService
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.operations.product.ProductService
 import pt.isel.markettracker.http.service.operations.token.ITokenService
@@ -54,6 +56,12 @@ class AppModule {
     @Singleton
     fun provideGson(): Gson {
         return GsonBuilder().create()
+    }
+
+    @Provides
+    @Singleton
+    fun provideListService(httpClient: OkHttpClient, gson: Gson): IListService {
+        return ListService(httpClient, gson)
     }
 
     @Provides

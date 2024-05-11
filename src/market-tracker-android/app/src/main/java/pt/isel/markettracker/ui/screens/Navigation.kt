@@ -24,6 +24,7 @@ import pt.isel.markettracker.navigation.toDestination
 import pt.isel.markettracker.repository.auth.AuthEvent
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.ui.screens.list.ListScreen
+import pt.isel.markettracker.ui.screens.list.ListScreenViewModel
 import pt.isel.markettracker.ui.screens.login.LoginScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.products.ProductsScreen
@@ -34,10 +35,12 @@ import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 @Composable
 fun Navigation(
     onProductClick: (String) -> Unit,
+    onListClick: (Int) -> Unit,
     onBarcodeScanRequest: () -> Unit,
     onSignUpRequested: () -> Unit,
     authRepository: IAuthRepository,
     productsScreenViewModel: ProductsScreenViewModel = hiltViewModel(),
+    listScreenViewModel: ListScreenViewModel = hiltViewModel(),
     loginScreenViewModel: LoginScreenViewModel = hiltViewModel(),
     profileScreenViewModel: ProfileScreenViewModel = hiltViewModel()
 ) {
@@ -91,7 +94,7 @@ fun Navigation(
             }
 
             composable(Destination.LIST.route) {
-                ListScreen(onListClick = {})
+                ListScreen(onListClick, listScreenViewModel)
             }
 
             composable(Destination.PROFILE.route) {

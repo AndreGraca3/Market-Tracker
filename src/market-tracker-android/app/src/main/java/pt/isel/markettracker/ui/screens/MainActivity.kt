@@ -64,6 +64,13 @@ class MainActivity : ComponentActivity() {
                             ProductIdExtra(it)
                         )
                     },
+                    onListClick = {
+//                        navigateTo<ListInfoActivity>(
+//                            this,
+//                            ListInfoActivity.LIST_ID_EXTRA,
+//                            ListIdExtra(it)
+//                        )
+                    },
                     onSignUpRequested = {
                         navigateTo<SignUpActivity>(this)
                     },
