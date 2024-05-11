@@ -91,7 +91,7 @@ fun Navigation(
             }
 
             composable(Destination.LIST.route) {
-                ListScreen()
+                ListScreen(onListClick = {})
             }
 
             composable(Destination.PROFILE.route) {
