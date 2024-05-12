@@ -43,7 +43,6 @@ fun NavGraph(
     listScreenViewModel: ListScreenViewModel = hiltViewModel(),
     loginScreenViewModel: LoginScreenViewModel = hiltViewModel(),
     profileScreenViewModel: ProfileScreenViewModel = hiltViewModel()
-    profileScreenViewModel: ProfileScreenViewModel
 ) {
     val navController = rememberNavController()
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
