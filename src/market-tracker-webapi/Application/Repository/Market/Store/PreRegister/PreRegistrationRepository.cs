@@ -1,7 +1,6 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Models.Account.Auth;
-using market_tracker_webapi.Application.Domain.Models.Account.Users;
-using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Store;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +35,7 @@ public class PreRegistrationRepository(
         return (await dataContext.PreRegister.FirstOrDefaultAsync(user => user.Email == email))?.ToPreRegistration();
     }
 
-    public async Task<PreRegistrationId> CreatePreRegisterAsync(string operatorName, string email, int phoneNumber,
+    public async Task<PreRegistrationCode> CreatePreRegisterAsync(string operatorName, string email, int phoneNumber,
         string storeName,
         string storeAddress,
         string companyName,
@@ -56,7 +55,7 @@ public class PreRegistrationRepository(
         };
         await dataContext.PreRegister.AddAsync(newPreRegistration);
         await dataContext.SaveChangesAsync();
-        return new PreRegistrationId(newPreRegistration.Code);
+        return new PreRegistrationCode(newPreRegistration.Code);
     }
 
     public async Task<PreRegistration?> UpdatePreRegistrationById(Guid id, bool isApproved)
@@ -73,7 +72,7 @@ public class PreRegistrationRepository(
         return preRegisterEntity.ToPreRegistration();
     }
 
-    public async Task<PreRegistrationId?> DeletePreRegisterAsync(Guid id)
+    public async Task<PreRegistrationCode?> DeletePreRegisterAsync(Guid id)
     {
         var preRegisterEntity = await dataContext.PreRegister.FindAsync(id);
         if (preRegisterEntity is null)
@@ -83,6 +82,6 @@ public class PreRegistrationRepository(
 
         dataContext.Remove(preRegisterEntity);
         await dataContext.SaveChangesAsync();
-        return new PreRegistrationId(preRegisterEntity.Code);
+        return new PreRegistrationCode(preRegisterEntity.Code);
     }
 }

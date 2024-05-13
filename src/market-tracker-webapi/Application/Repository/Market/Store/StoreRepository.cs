@@ -1,11 +1,11 @@
-﻿using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Store;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.Market.Store;
 
-using Store = Domain.Models.Market.Retail.Shop.Store;
+using Store = Domain.Schemas.Market.Retail.Shop.Store;
 
 public class StoreRepository(MarketTrackerDataContext dataContext) : IStoreRepository
 {

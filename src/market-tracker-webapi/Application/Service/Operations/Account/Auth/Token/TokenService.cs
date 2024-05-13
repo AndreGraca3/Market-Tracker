@@ -1,14 +1,14 @@
 ﻿using market_tracker_webapi.Application.Repository.Account.Credential;
 using market_tracker_webapi.Application.Repository.Account.Token;
 using market_tracker_webapi.Application.Repository.Account.Users.User;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Token;
 using market_tracker_webapi.Application.Service.Transaction;
-using market_tracker_webapi.Application.Utils;
 using Microsoft.IdentityModel.Tokens;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Auth.Token;
 
-using Token = Domain.Models.Account.Auth.Token;
+using Token = Domain.Schemas.Account.Auth.Token;
 
 public class TokenService(
     IUserRepository userRepository,
@@ -17,77 +17,54 @@ public class TokenService(
     ITransactionManager transactionManager
 ) : ITokenService
 {
-    public async Task<Either<TokenCreationError, Token>> CreateTokenAsync(
-        string email,
-        string password
-    )
+    public async Task<Token> CreateTokenAsync(string email, string password)
     {
-        if (email.IsNullOrEmpty() || password.IsNullOrEmpty())
-        {
-            return EitherExtensions.Failure<TokenCreationError, Token>(
-                new TokenCreationError.InvalidCredentials()
-            );
-        }
-
         return await transactionManager.ExecuteAsync(async () =>
         {
+            if (email.IsNullOrEmpty() || password.IsNullOrEmpty())
+            {
+                throw new MarketTrackerServiceException(
+                    new TokenCreationError.InvalidCredentials()
+                );
+            }
+
             var user = await userRepository.GetUserByEmailAsync(email);
             if (user is null)
             {
-                return EitherExtensions.Failure<TokenCreationError, Token>(
+                throw new MarketTrackerServiceException(
                     new TokenCreationError.InvalidCredentials()
                 );
             }
 
-            if ((await accountRepository.GetPasswordByUserIdAsync(user.Id))?.Password != password)
+            if ((await accountRepository.GetPasswordByUserIdAsync(user.Id.Value))?.Password != password)
             {
-                return EitherExtensions.Failure<TokenCreationError, Token>(
+                throw new MarketTrackerServiceException(
                     new TokenCreationError.InvalidCredentials()
                 );
             }
 
-            var token = await tokenRepository.GetTokenByUserIdAsync(user.Id);
-            if (token is not null) // if token exists
+            var token = await tokenRepository.GetTokenByUserIdAsync(user.Id.Value);
+            if (token is not null)
             {
-                if (token.ExpiresAt <= DateTime.Now) // if it has expired
-                {
-                    await tokenRepository.DeleteTokenAsync(token.TokenValue); // delete it
-                    return EitherExtensions.Success<TokenCreationError, Token>(
-                        await tokenRepository.CreateTokenAsync(user.Id)
-                    );
-                }
+                // still valid
+                if (token.ExpiresAt > DateTime.Now) return token;
 
-                return EitherExtensions.Success<TokenCreationError, Token>(
-                    token
-                );
+                // expired, delete it
+                await tokenRepository.DeleteTokenAsync(token.Value);
+                return await tokenRepository.CreateTokenAsync(user.Id.Value);
             }
 
             // no token found, create new one
-            var newToken = await tokenRepository.CreateTokenAsync(user.Id);
-            return EitherExtensions.Success<TokenCreationError, Token>(
-                newToken
-            );
+            var newToken = await tokenRepository.CreateTokenAsync(user.Id.Value);
+            return newToken;
         });
     }
 
-    public async Task<Either<TokenFetchingError, Token>> DeleteTokenAsync(
-        string tokenValue
-    )
+    public async Task<Token> DeleteTokenAsync(string tokenValue)
     {
         return await transactionManager.ExecuteAsync(async () =>
-            {
-                var deletedToken = await tokenRepository.DeleteTokenAsync(new Guid(tokenValue));
-                if (deletedToken is null)
-                {
-                    return EitherExtensions.Failure<TokenFetchingError, Token>(
-                        new TokenFetchingError.TokenByTokenValueNotFound(tokenValue)
-                    );
-                }
-
-                return EitherExtensions.Success<TokenFetchingError, Token>(
-                    deletedToken
-                );
-            }
-        );
+            await tokenRepository.DeleteTokenAsync(new Guid(tokenValue)) ?? throw new MarketTrackerServiceException(
+                new TokenFetchingError.TokenByTokenValueNotFound(tokenValue)
+            ));
     }
 }

@@ -1,5 +1,5 @@
-﻿using market_tracker_webapi.Application.Domain.Models.List;
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
+﻿using market_tracker_webapi.Application.Domain.Schemas.List;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models.Schemas.List.ListEntry;
 using market_tracker_webapi.Application.Repository.List;
 using market_tracker_webapi.Application.Repository.List.ListEntry;
@@ -13,7 +13,6 @@ using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Results;
 using market_tracker_webapi.Application.Service.Transaction;
-using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.List;
 
@@ -25,7 +24,7 @@ public class ListEntryService(
     IStoreRepository storeRepository,
     ITransactionManager transactionManager) : IListEntryService
 {
-    public async Task<Either<ListFetchingError, ShoppingListEntriesResult>> GetListEntriesAsync(int listId,
+    public async Task<ShoppingListEntriesResult> GetListEntriesAsync(string listId,
         Guid clientId,
         ShoppingListAlternativeType? alternativeType,
         IList<int>? companyIds,
@@ -37,12 +36,11 @@ public class ListEntryService(
         {
             var list = await listRepository.GetListByIdAsync(listId);
             if (list is null)
-                return EitherExtensions.Failure<ListFetchingError, ShoppingListEntriesResult>(
-                    new ListFetchingError.ListByIdNotFound(listId));
+                throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-            if (!await listRepository.IsClientInListAsync(list.Id.Value, clientId))
-                return EitherExtensions.Failure<ListFetchingError, ShoppingListEntriesResult>(
-                    new ListFetchingError.UserDoesNotOwnList(clientId, listId));
+            if (!list.BelongsTo(clientId))
+                throw new MarketTrackerServiceException(
+                    new ListFetchingError.ClientDoesNotBelongToList(clientId, list.Id.Value));
 
             var listEntries = (await listEntryRepository.GetListEntriesAsync(listId)).ToList();
 
@@ -71,7 +69,8 @@ public class ListEntryService(
                     entriesResult = await BuildShoppingListEntriesResult(listEntries, async entry =>
                     {
                         var isAvailable = entry.StoreId is not null &&
-                                          ((await priceRepository.GetStoreAvailabilityStatusAsync(entry.Product.Id.Value,
+                                          ((await priceRepository.GetStoreAvailabilityStatusAsync(
+                                                  entry.Product.Id.Value,
                                                   entry.StoreId.Value))
                                               ?.IsAvailable ?? false
                                           );
@@ -93,138 +92,123 @@ public class ListEntryService(
                     break;
             }
 
-            return EitherExtensions.Success<ListFetchingError, ShoppingListEntriesResult>(
-                entriesResult
-            );
+            return entriesResult;
         });
     }
 
-    public async Task<Either<IServiceError, ListEntryId>> AddListEntryAsync(int listId, Guid clientId,
-        string productId,
-        int storeId, int quantity)
+    public async Task<ListEntryId> AddListEntryAsync(string listId, Guid clientId,
+        string productId, int storeId, int quantity)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (quantity <= 0)
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
+                throw new MarketTrackerServiceException(
                     new ListEntryCreationError.ListEntryQuantityInvalid(quantity));
 
             var list = await listRepository.GetListByIdAsync(listId);
 
             if (list is null)
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
-                    new ListFetchingError.ListByIdNotFound(listId));
+                throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-            if (!await listRepository.IsClientInListAsync(listId, clientId))
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
-                    new ListFetchingError.UserDoesNotOwnList(clientId, listId));
+            if (!list.BelongsTo(clientId))
+                throw new MarketTrackerServiceException(
+                    new ListFetchingError.ClientDoesNotBelongToList(clientId, listId));
 
             if (list.ArchivedAt is not null)
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
-                    new ListUpdateError.ListIsArchived(listId));
+                throw new MarketTrackerServiceException(new ListUpdateError.ListIsArchived(listId));
 
             if (await productRepository.GetProductByIdAsync(productId) is null)
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
+                throw new MarketTrackerServiceException(
                     new ProductFetchingError.ProductByIdNotFound(productId));
 
             if (await storeRepository.GetStoreByIdAsync(storeId) is null)
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
-                    new StoreFetchingError.StoreByIdNotFound(storeId));
+                throw new MarketTrackerServiceException(new StoreFetchingError.StoreByIdNotFound(storeId));
 
             if (await listEntryRepository.GetListEntryAsync(listId, productId) is not null)
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
-                    new ListEntryCreationError.ProductAlreadyInList(listId, productId)
-                );
+                throw new MarketTrackerServiceException(
+                    new ListEntryCreationError.ProductAlreadyInList(listId, productId));
 
             var storeAvailability = await priceRepository.GetStoreAvailabilityStatusAsync(productId, storeId);
             if (storeAvailability is null)
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
-                    new ProductFetchingError.ProductNotFoundInStore(productId, storeId)
-                );
-            if (!storeAvailability.IsAvailable)
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
-                    new ProductFetchingError.OutOfStockInStore(productId, storeId)
-                );
+                throw new MarketTrackerServiceException(
+                    new ProductFetchingError.ProductNotFoundInStore(productId, storeId));
 
-            var id = await listEntryRepository.AddListEntryAsync(listId, productId, storeId, quantity);
-            return EitherExtensions.Success<IServiceError, ListEntryId>(id);
+            if (!storeAvailability.IsAvailable)
+                throw new MarketTrackerServiceException(
+                    new ProductFetchingError.OutOfStockInStore(productId, storeId));
+
+            return await listEntryRepository.AddListEntryAsync(listId, productId, storeId, quantity);
         });
     }
 
-    public async Task<Either<IServiceError, ListEntry>> UpdateListEntryAsync(int listId, Guid clientId,
-        string productId, int? storeId,
-        int? quantity = null)
+    public async Task<ListEntry> UpdateListEntryAsync(string listId, Guid clientId,
+        string productId, int? storeId, int? quantity = null)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var list = await listRepository.GetListByIdAsync(listId);
             if (list is null)
-                return EitherExtensions.Failure<IServiceError, ListEntry>(
-                    new ListFetchingError.ListByIdNotFound(listId));
+                throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-
-            if (!await listRepository.IsClientInListAsync(listId, clientId))
-                return EitherExtensions.Failure<IServiceError, ListEntry>(
-                    new ListFetchingError.UserDoesNotOwnList(clientId, listId));
+            if (!list.BelongsTo(clientId))
+                throw new MarketTrackerServiceException(
+                    new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
             if (quantity <= 0)
-                return EitherExtensions.Failure<IServiceError, ListEntry>(
+                throw new MarketTrackerServiceException(
                     new ListEntryCreationError.ListEntryQuantityInvalid(quantity));
 
             if (await productRepository.GetProductByIdAsync(productId) is null)
-                return EitherExtensions.Failure<IServiceError, ListEntry>(
+                throw new MarketTrackerServiceException(
                     new ProductFetchingError.ProductByIdNotFound(productId));
 
             var listEntry = await listEntryRepository.GetListEntryAsync(listId, productId);
             if (listEntry is null)
-                return EitherExtensions.Failure<IServiceError, ListEntry>(
+                throw new MarketTrackerServiceException(
                     new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId));
 
             if (storeId is not null)
             {
                 if (await storeRepository.GetStoreByIdAsync(storeId.Value) is null)
-                    return EitherExtensions.Failure<IServiceError, ListEntry>(
-                        new StoreFetchingError.StoreByIdNotFound(storeId.Value));
+                    throw new MarketTrackerServiceException(new StoreFetchingError.StoreByIdNotFound(storeId.Value));
 
                 var storeAvailability = await priceRepository.GetStoreAvailabilityStatusAsync(productId, storeId.Value);
                 if (storeAvailability is null)
-                    return EitherExtensions.Failure<IServiceError, ListEntry>(
+                    throw new MarketTrackerServiceException(
                         new ProductFetchingError.ProductNotFoundInStore(productId, storeId.Value));
                 if (!storeAvailability.IsAvailable)
-                    return EitherExtensions.Failure<IServiceError, ListEntry>(
+                    throw new MarketTrackerServiceException(
                         new ProductFetchingError.OutOfStockInStore(productId, storeId.Value));
             }
 
             var updatedProductInList =
                 await listEntryRepository.UpdateListEntryAsync(listId, productId, storeId, quantity);
-            return EitherExtensions.Success<IServiceError, ListEntry>(updatedProductInList!);
+            return updatedProductInList!;
         });
     }
 
-    public async Task<Either<IServiceError, ListEntryId>> DeleteListEntryAsync(int listId, Guid clientId,
+    public async Task<ListEntryId> DeleteListEntryAsync(string listId, Guid clientId,
         string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var list = await listRepository.GetListByIdAsync(listId);
             if (list is null)
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
-                    new ListFetchingError.ListByIdNotFound(listId));
+                throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-            if (!await listRepository.IsClientInListAsync(listId, clientId))
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
-                    new ListFetchingError.UserDoesNotOwnList(clientId, listId));
+            if (!list.BelongsTo(clientId))
+                throw new MarketTrackerServiceException(
+                    new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
             var listEntry = await listEntryRepository.GetListEntryAsync(listId, productId);
             if (listEntry is null)
-                return EitherExtensions.Failure<IServiceError, ListEntryId>(
+                throw new MarketTrackerServiceException(
                     new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId));
 
-            var deleteListEntry = await listEntryRepository.DeleteListEntryAsync(listId, productId);
-            return EitherExtensions.Success<IServiceError, ListEntryId>(deleteListEntry!.Id);
+            await listEntryRepository.DeleteListEntryAsync(listId, productId);
+            return listEntry.Id;
         });
     }
-
 
     // helper method
     private static async Task<ShoppingListEntriesResult> BuildShoppingListEntriesResult(

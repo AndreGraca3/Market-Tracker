@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales.Pricing;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales.Pricing;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
@@ -25,6 +25,6 @@ public class PriceAlertEntity
 
     public PriceAlert ToPriceAlert()
     {
-        return new PriceAlert(Id, ClientId, ProductId, PriceThreshold, CreatedAt);
+        return new PriceAlert(Id, ClientId, ProductId,  StoreId, PriceThreshold, CreatedAt);
     }
 }

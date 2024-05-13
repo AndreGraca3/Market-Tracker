@@ -1,11 +1,7 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.City;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
-using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Service.Errors.City;
 using market_tracker_webapi.Application.Service.Operations.Market.City;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,95 +11,43 @@ namespace market_tracker_webapi.Application.Http.Controllers.Market;
 public class CityController(ICityService cityService) : ControllerBase
 {
     [HttpGet(Uris.Cities.Base)]
-    public async Task<ActionResult<CollectionOutputModel<City>>> GetCitiesAsync()
+    public async Task<ActionResult<CollectionOutputModel<CityOutputModel>>> GetCitiesAsync()
     {
-        var res = await cityService.GetCitiesAsync();
-        return ResultHandler.Handle(res, _ => new ServerProblem.InternalServerError().ToActionResult());
+        var cities = await cityService.GetCitiesAsync();
+        return cities.Select(c => c.ToOutputModel()).ToCollectionOutputModel();
     }
 
     [HttpGet(Uris.Cities.CityById)]
-    public async Task<ActionResult<City>> GetCityByIdAsync(int id)
+    public async Task<ActionResult<CityOutputModel>> GetCityByIdAsync(int id)
     {
-        var res = await cityService.GetCityByIdAsync(id);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    CityFetchingError.CityByIdNotFound idNotFoundError
-                        => new CityProblem.CityByIdNotFound(idNotFoundError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            }
-        );
+        return (await cityService.GetCityByIdAsync(id)).ToOutputModel();
     }
 
     [HttpPost(Uris.Cities.Base)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<IntIdOutputModel>> AddCityAsync(
+    public async Task<ActionResult<CityId>> AddCityAsync(
         [FromBody] CityCreationInputModel cityInput
     )
     {
-        var res = await cityService.AddCityAsync(cityInput.CityName);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    CityCreationError.CityNameAlreadyExists cityNameError
-                        => new CityProblem.CityNameAlreadyExists(cityNameError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            },
-            outputModel => Created(Uris.Cities.BuildCategoryByIdUri(outputModel.Id), outputModel)
-        );
+        var cityId = await cityService.AddCityAsync(cityInput.CityName);
+        return Created(Uris.Cities.BuildCityByIdUri(cityId.Value), cityId);
     }
 
     [HttpPut(Uris.Cities.CityById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<City>> UpdateCityAsync(
+    public async Task<ActionResult<CityOutputModel>> UpdateCityAsync(
         int id,
         [FromBody] CityUpdateInputModel cityInput
     )
     {
-        var res = await cityService.UpdateCityAsync(id, cityInput.CityName);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    CityFetchingError.CityByIdNotFound idNotFoundError
-                        => new CityProblem.CityByIdNotFound(idNotFoundError).ToActionResult(),
-                    CityCreationError.CityNameAlreadyExists cityNameError
-                        => new CityProblem.CityNameAlreadyExists(cityNameError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            }
-        );
+        return (await cityService.UpdateCityAsync(id, cityInput.CityName)).ToOutputModel();
     }
 
     [HttpDelete(Uris.Cities.CityById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<IntIdOutputModel>> DeleteCityAsync(int id)
+    public async Task<ActionResult> DeleteCityAsync(int id)
     {
-        var res = await cityService.DeleteCityAsync(id);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    CityFetchingError.CityByIdNotFound idNotFoundError
-                        => new CityProblem.CityByIdNotFound(idNotFoundError).ToActionResult(),
-                    _
-                        => new ServerProblem.InternalServerError(
-                            nameof(CityController)
-                        ).ToActionResult()
-                };
-            }
-        );
+        await cityService.DeleteCityAsync(id);
+        return NoContent();
     }
 }

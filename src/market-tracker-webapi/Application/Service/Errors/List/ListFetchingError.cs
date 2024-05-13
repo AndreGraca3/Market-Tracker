@@ -2,14 +2,20 @@
 
 public class ListFetchingError : IListError
 {
-    public class ListByIdNotFound(int id) : ListFetchingError
+    public class ListByIdNotFound(string listId) : ListFetchingError
     {
-        public int Id { get; } = id;
+        public string ListId { get; } = listId;
     }
 
-    public class UserDoesNotOwnList(Guid clientId, int listId) : ListFetchingError
+    public class ClientDoesNotOwnList(Guid clientId, string listId) : ListFetchingError
     {
         public Guid ClientId { get; } = clientId;
-        public int ListId { get; } = listId;
+        public string ListId { get; } = listId;
+    }
+
+    public class ClientDoesNotBelongToList(Guid clientId, string listId) : ListFetchingError
+    {
+        public Guid ClientId { get; } = clientId;
+        public string ListId { get; } = listId;
     }
 }

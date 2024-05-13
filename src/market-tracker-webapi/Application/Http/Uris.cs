@@ -17,7 +17,9 @@ public static class Uris
     public static class Auth
     {
         public const string Base = $"{ApiBase}/auth";
-        public const string GoogleAuth = $"{ApiBase}/google-signin";
+        public const string Login = $"{Base}/sign-in";
+        public const string Logout = $"{Base}/sign-out";
+        public const string GoogleAuth = $"{ApiBase}/google-sign-in";
     }
 
     public static class Clients
@@ -33,6 +35,8 @@ public static class Uris
     {
         public const string Base = $"{ApiBase}/operators";
         public const string OperatorById = $"{Base}/{{id}}";
+        
+        public static string BuildOperatorByIdUri(Guid id) => OperatorById.ExpandUri(id);
     }
 
     public static class Products
@@ -64,12 +68,14 @@ public static class Uris
     {
         public const string Base = $"{ApiBase}/lists";
         public const string ListById = $"{Base}/{{listId}}";
-        public const string ProductsByListId = $"{ListById}/products";
-        public const string ProductByListId = $"{ProductsByListId}/{{productId}}";
+        public const string EntriesByListId = $"{ListById}/entries";
+        public const string ListEntryEntryById = $"{EntriesByListId}/{{entryId}}";
         public const string ClientsByListId = $"{ListById}/clients";
         public const string ClientByListId = $"{ClientsByListId}/{{clientId}}";
 
-        public static string BuildListByIdUri(int id) => ListById.ExpandUri(id);
+        public static string BuildListByIdUri(string id) => ListById.ExpandUri(id);
+        public static string BuildListEntryByIdUri(string listId, string entryId) =>
+            ListEntryEntryById.ExpandUri(listId, entryId);
     }
 
     public static class Categories
@@ -93,18 +99,18 @@ public static class Uris
         public const string Base = $"{ApiBase}/cities";
         public const string CityById = $"{Base}/{{id}}";
 
-        public static string BuildCategoryByIdUri(int id) => CityById.ExpandUri(id);
+        public static string BuildCityByIdUri(int id) => CityById.ExpandUri(id);
     }
 
     public static class Stores
     {
         public const string Base = $"{ApiBase}/stores";
         public const string StoreById = $"{Base}/{{id}}";
-        public const string StoresFromCompany = $"{Base}/company/{{companyId}}";
-        public const string StoresByCityName = $"{Base}/city/{{cityName}}";
         public const string StoresPreRegister = $"{Base}/pre-register";
         public const string StoresPending = $"{Base}/pending";
         public const string StoresPendingById = $"{Base}/pending/{{id}}";
+        
+        public static string BuildStoreByIdUri(int id) => StoreById.ExpandUri(id);
     }
 
     private static string ExpandUri(this string input, params object[] args)

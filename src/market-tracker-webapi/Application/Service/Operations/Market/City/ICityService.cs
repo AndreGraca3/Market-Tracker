@@ -1,23 +1,20 @@
-﻿using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
-using market_tracker_webapi.Application.Service.Errors;
-using market_tracker_webapi.Application.Service.Errors.City;
-using market_tracker_webapi.Application.Utils;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
 
 namespace market_tracker_webapi.Application.Service.Operations.Market.City;
 
-using City = Domain.Models.Market.Retail.Shop.City;
+using City = Domain.Schemas.Market.Retail.Shop.City;
 
 public interface ICityService
 {
-    Task<Either<IServiceError, IEnumerable<City>>> GetCitiesAsync();
+    Task<IEnumerable<City>> GetCitiesAsync();
 
-    Task<Either<CityFetchingError, City>> GetCityByIdAsync(int id);
+    Task<City> GetCityByIdAsync(int id);
 
-    Task<Either<CityFetchingError, City>> GetCityByNameAsync(string cityName);
+    Task<City> GetCityByNameAsync(string cityName);
 
-    Task<Either<ICityError, CityId>> AddCityAsync(string cityName);
+    Task<CityId> AddCityAsync(string cityName);
 
-    Task<Either<ICityError, City>> UpdateCityAsync(int id, string cityName);
+    Task<City> UpdateCityAsync(int id, string cityName);
 
-    Task<Either<CityFetchingError, CityId>> DeleteCityAsync(int id);
+    Task<CityId> DeleteCityAsync(int id);
 }

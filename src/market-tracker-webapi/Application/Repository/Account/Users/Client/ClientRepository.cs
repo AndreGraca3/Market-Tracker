@@ -1,5 +1,5 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Models.Account.Users;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account.Users;
@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.Account.Users.Client;
 
-using Client = Domain.Models.Account.Users.Client;
+using Client = Domain.Schemas.Account.Users.Client;
 
 public class ClientRepository(
     MarketTrackerDataContext dataContext

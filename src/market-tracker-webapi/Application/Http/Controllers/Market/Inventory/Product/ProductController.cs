@@ -1,39 +1,31 @@
 using market_tracker_webapi.Application.Domain.Filters.Product;
-using market_tracker_webapi.Application.Http.Controllers.Account;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
-using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Price;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
-using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Service.Errors.Category;
-using market_tracker_webapi.Application.Service.Errors.Product;
-using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
 using market_tracker_webapi.Application.Service.Results;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Inventory.Product;
 
-using Product = Domain.Models.Market.Inventory.Product.Product;
-
 [ApiController]
 public class ProductController(IProductService productService, IProductPriceService productPriceService)
     : ControllerBase
 {
     [HttpGet(Uris.Products.Base)]
-    public async Task<ActionResult<PaginatedProductOffers>> GetProductsAsync(
+    public async Task<ActionResult<PaginatedProductOffersOutputModel>> GetProductsAsync(
         [FromQuery] ProductsFiltersInputModel filters,
         [FromQuery] PaginationInputs paginationInputs,
-        [FromQuery] ProductsSortOption? sortBy,
-        [FromQuery] int maxValuesPerFacet = 10
+        [FromQuery] ProductsSortOption? sortBy
     )
     {
-        var res =
+        var paginatedProductOffers =
             await productService.GetBestAvailableProductsOffersAsync(
                 paginationInputs.Skip,
                 paginationInputs.ItemsPerPage,
-                maxValuesPerFacet,
+                filters.MaxValuesPerFacet,
                 sortBy,
                 filters.Name,
                 filters.CategoryIds,
@@ -44,49 +36,21 @@ public class ProductController(IProductService productService, IProductPriceServ
                 filters.MinRating,
                 filters.MaxRating
             );
-        return ResultHandler.Handle(
-            res,
-            _ => new ServerProblem.InternalServerError().ToActionResult()
-        );
+        return paginatedProductOffers.ToOutputModel();
     }
 
     [HttpGet(Uris.Products.ProductById)]
-    public async Task<ActionResult<Product>> GetProductByIdAsync(string productId)
+    public async Task<ActionResult<ProductOutputModel>> GetProductByIdAsync(string productId)
     {
-        var res = await productService.GetProductByIdAsync(productId);
-
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            }
-        );
+        return (await productService.GetProductByIdAsync(productId)).ToOutputModel();
     }
 
     [HttpGet(Uris.Products.PricesByProductId)]
     public async Task<ActionResult<CollectionOutputModel<CompanyPricesResult>>> GetProductPricesAsync(
         string productId)
     {
-        var res = await productPriceService.GetProductPricesAsync(productId);
-
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            }
-        );
+        var companyPricesResults = await productPriceService.GetProductPricesAsync(productId);
+        return companyPricesResults.ToCollectionOutputModel();
     }
 
     [HttpPost(Uris.Products.Base)]
@@ -96,8 +60,8 @@ public class ProductController(IProductService productService, IProductPriceServ
     )
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
-        var res = await productService.AddProductAsync(
-            authUser.User.Id,
+        var productCreationResult = await productService.AddProductAsync(
+            authUser.User.Id.Value,
             productInput.Id,
             productInput.Name,
             productInput.ImageUrl,
@@ -109,61 +73,30 @@ public class ProductController(IProductService productService, IProductPriceServ
             productInput.PromotionPercentage
         );
 
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    CategoryFetchingError.CategoryByIdNotFound categoryNotFound
-                        => new CategoryProblem.CategoryByIdNotFound(
-                            categoryNotFound
-                        ).ToActionResult(),
-                    StoreFetchingError.StoreByOperatorIdNotFound storeNotFound
-                        => new StoreProblem.StoreByOperatorIdNotFound(storeNotFound).ToActionResult(),
-
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            },
-            outputModel =>
-                outputModel.IsNew
-                    ? Created(Uris.Products.BuildProductByIdUri(outputModel.Id), outputModel)
-                    : Ok(outputModel));
+        return productCreationResult.IsNew
+            ? Created(Uris.Products.BuildProductByIdUri(productCreationResult.Id), productCreationResult)
+            : productCreationResult;
     }
 
     [HttpPut(Uris.Products.AvailabilityByProductId)]
     [Authorized([Role.Operator])]
-    public async Task<ActionResult<StringIdOutputModel>> SetProductAvailabilityAsync(
+    public async Task<ActionResult<ProductId>> SetProductAvailabilityAsync(
         string productId, [FromBody] ProductAvailabilityInputModel availabilityInput
     )
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
-        var res = await productService.SetProductAvailabilityAsync(
-            authUser.User.Id,
+        await productService.SetProductAvailabilityAsync(
+            authUser.User.Id.Value,
             productId,
             availabilityInput.IsAvailable
         );
 
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
-                    StoreFetchingError.StoreByOperatorIdNotFound storeNotFound
-                        => new StoreProblem.StoreByOperatorIdNotFound(storeNotFound).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            },
-            _ => NoContent()
-        );
+        return NoContent();
     }
 
     [HttpPatch(Uris.Products.ProductById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<ProductInfoOutputModel>> UpdateProductAsync(
+    public async Task<ActionResult<ProductOutputModel>> UpdateProductAsync(
         string productId, [FromBody] ProductUpdateInputModel productInput
     )
     {
@@ -177,43 +110,14 @@ public class ProductController(IProductService productService, IProductPriceServ
             productInput.CategoryId
         );
 
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
-
-                    CategoryFetchingError.CategoryByIdNotFound categoryNotFound
-                        => new CategoryProblem.CategoryByIdNotFound(
-                            categoryNotFound
-                        ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            }
-        );
+        return res.ToOutputModel();
     }
 
     [HttpDelete(Uris.Products.ProductById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<StringIdOutputModel>> RemoveProductAsync(string productId)
+    public async Task<ActionResult> RemoveProductAsync(string productId)
     {
-        var res = await productService.RemoveProductAsync(productId);
-
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            },
-            _ => NoContent()
-        );
+        await productService.RemoveProductAsync(productId);
+        return NoContent();
     }
 }

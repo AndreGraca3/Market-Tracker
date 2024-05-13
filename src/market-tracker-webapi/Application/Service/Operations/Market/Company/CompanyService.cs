@@ -1,106 +1,77 @@
-﻿using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
 using market_tracker_webapi.Application.Repository.Market.Company;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Company;
 using market_tracker_webapi.Application.Service.Transaction;
-using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Market.Company;
 
-using Company = Domain.Models.Market.Retail.Shop.Company;
+using Company = Domain.Schemas.Market.Retail.Shop.Company;
 
 public class CompanyService(
     ICompanyRepository companyRepository,
     ITransactionManager transactionManager
 ) : ICompanyService
 {
-    public async Task<Either<IServiceError, IEnumerable<Company>>> GetCompaniesAsync()
+    public async Task<IEnumerable<Company>> GetCompaniesAsync()
     {
-        return await transactionManager.ExecuteAsync(async () =>
-        {
-            var companies = await companyRepository.GetCompaniesAsync();
-            return EitherExtensions
-                .Success<IServiceError, IEnumerable<Company>>(companies);
-        });
+        return await transactionManager.ExecuteAsync(async () => await companyRepository.GetCompaniesAsync());
     }
 
-    public async Task<Either<CompanyFetchingError, Company>> GetCompanyByIdAsync(int id)
+    public async Task<Company> GetCompanyByIdAsync(int id)
     {
-        var company = await companyRepository.GetCompanyByIdAsync(id);
-        return company is null
-            ? EitherExtensions.Failure<CompanyFetchingError, Company>(
-                new CompanyFetchingError.CompanyByIdNotFound(id)
-            )
-            : EitherExtensions.Success<CompanyFetchingError, Company>(company);
+        return await companyRepository.GetCompanyByIdAsync(id) ?? throw new MarketTrackerServiceException(
+            new CompanyFetchingError.CompanyByIdNotFound(id)
+        );
     }
 
-    public async Task<Either<CompanyFetchingError, Company>> GetCompanyByNameAsync(
+    public async Task<Company> GetCompanyByNameAsync(
         string companyName)
     {
         return await transactionManager.ExecuteAsync(async () =>
-        {
-            var company = await companyRepository.GetCompanyByNameAsync(companyName);
-            return company is null
-                ? EitherExtensions.Failure<CompanyFetchingError, Company>(
-                    new CompanyFetchingError.CompanyByNameNotFound(companyName)
-                )
-                : EitherExtensions.Success<CompanyFetchingError, Company>(company);
-        });
+            await companyRepository.GetCompanyByNameAsync(companyName) ??
+            throw new MarketTrackerServiceException(new CompanyFetchingError.CompanyByNameNotFound(companyName))
+        );
     }
 
-    public async Task<Either<ICompanyError, CompanyId>> AddCompanyAsync(string companyName)
+    public async Task<CompanyId> AddCompanyAsync(string companyName)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await companyRepository.GetCompanyByNameAsync(companyName) is not null)
             {
-                return EitherExtensions.Failure<ICompanyError, CompanyId>(
+                throw new MarketTrackerServiceException(
                     new CompanyCreationError.CompanyNameAlreadyExists(companyName)
                 );
             }
 
-            var companyId = await companyRepository.AddCompanyAsync(companyName);
-            return EitherExtensions.Success<ICompanyError, CompanyId>(companyId);
+            return await companyRepository.AddCompanyAsync(companyName);
         });
     }
 
-    public async Task<Either<ICompanyError, Company>> UpdateCompanyAsync(
-        int id,
-        string companyName
-    )
+    public async Task<Company> UpdateCompanyAsync(int id, string companyName)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await companyRepository.GetCompanyByNameAsync(companyName) is not null)
             {
-                return EitherExtensions.Failure<ICompanyError, Company>(
+                throw new MarketTrackerServiceException(
                     new CompanyCreationError.CompanyNameAlreadyExists(companyName)
                 );
             }
 
-            var company = await companyRepository.UpdateCompanyAsync(id, companyName);
-            return company is null
-                ? EitherExtensions.Failure<ICompanyError, Company>(
-                    new CompanyFetchingError.CompanyByIdNotFound(id)
-                )
-                : EitherExtensions.Success<ICompanyError, Company>(
-                    company
-                );
+            return await companyRepository.UpdateCompanyAsync(id, companyName) ??
+                   throw new MarketTrackerServiceException(
+                       new CompanyFetchingError.CompanyByIdNotFound(id)
+                   );
         });
     }
 
-    public async Task<Either<CompanyFetchingError, CompanyId>> DeleteCompanyAsync(int id)
+    public async Task<CompanyId> DeleteCompanyAsync(int id)
     {
         return await transactionManager.ExecuteAsync(async () =>
-        {
-            var company = await companyRepository.DeleteCompanyAsync(id);
-            return company is null
-                ? EitherExtensions.Failure<CompanyFetchingError, CompanyId>(
-                    new CompanyFetchingError.CompanyByIdNotFound(id)
-                )
-                : EitherExtensions.Success<CompanyFetchingError, CompanyId>(
-                    company.Id
-                );
-        });
+            (await companyRepository.DeleteCompanyAsync(id))?.Id ??
+            throw new MarketTrackerServiceException(new CompanyFetchingError.CompanyByIdNotFound(id))
+        );
     }
 }

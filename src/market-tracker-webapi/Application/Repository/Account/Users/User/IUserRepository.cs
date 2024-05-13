@@ -1,9 +1,9 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Models.Account.Users;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
 
 namespace market_tracker_webapi.Application.Repository.Account.Users.User;
 
-using User = Domain.Models.Account.Users.User;
+using User = Domain.Schemas.Account.Users.User;
 
 public interface IUserRepository
 {

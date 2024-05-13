@@ -1,7 +1,8 @@
+using market_tracker_webapi.Application.Domain.Schemas.Account;
 using market_tracker_webapi.Application.Repository.Account.Users.Client;
 using market_tracker_webapi.Application.Service.Errors;
+using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Transaction;
-using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Users.Client;
 
@@ -10,8 +11,7 @@ public class ClientDeviceService(
     ITransactionManager transactionManager
 ) : IClientDeviceService
 {
-    public async Task<Either<IServiceError, bool>> UpsertNotificationDeviceAsync(Guid clientId, string deviceId,
-        string firebaseToken)
+    public async Task<DeviceToken> UpsertNotificationDeviceAsync(Guid clientId, string deviceId, string firebaseToken)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
@@ -19,23 +19,18 @@ public class ClientDeviceService(
 
             if (deviceToken is null)
             {
-                await clientDeviceRepository.AddDeviceTokenAsync(clientId, deviceId, firebaseToken);
-            }
-            else
-            {
-                await clientDeviceRepository.UpdateDeviceTokenAsync(clientId, deviceId, firebaseToken);
+                return await clientDeviceRepository.AddDeviceTokenAsync(clientId, deviceId, firebaseToken);
             }
 
-            return EitherExtensions.Success<IServiceError, bool>(true);
+            return (await clientDeviceRepository.UpdateDeviceTokenAsync(clientId, deviceId, firebaseToken))!;
         });
     }
 
-    public async Task<Either<IServiceError, bool>> DeRegisterNotificationDeviceAsync(Guid id, string deviceId)
+    public async Task<DeviceToken> DeRegisterNotificationDeviceAsync(Guid id, string deviceId)
     {
         return await transactionManager.ExecuteAsync(async () =>
-        {
-            await clientDeviceRepository.RemoveDeviceTokenAsync(id, deviceId);
-            return EitherExtensions.Success<IServiceError, bool>(true);
-        });
+            await clientDeviceRepository.RemoveDeviceTokenAsync(id, deviceId) ??
+            throw new MarketTrackerServiceException(new UserFetchingError.DeviceTokenNotFound(id, deviceId))
+        );
     }
 }

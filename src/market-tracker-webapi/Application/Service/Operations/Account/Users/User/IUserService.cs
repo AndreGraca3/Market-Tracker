@@ -1,37 +1,30 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Models.Account.Users;
-using market_tracker_webapi.Application.Http.Controllers.Account;
-using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.User;
-using market_tracker_webapi.Application.Service.Errors;
-using market_tracker_webapi.Application.Service.Errors.User;
-using market_tracker_webapi.Application.Utils;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Users.User;
 
-using User = Domain.Models.Account.Users.User;
+using User = Domain.Schemas.Account.Users.User;
 
 public interface IUserService
 {
-    Task<Either<IServiceError, PaginatedResult<UserItem>>> GetUsersAsync(string? role, int skip,
-        int take);
+    Task<PaginatedResult<UserItem>> GetUsersAsync(string? role, int skip, int take);
 
-    Task<Either<UserFetchingError, User>> GetUserAsync(Guid id);
+    Task<User> GetUserAsync(Guid id);
 
     Task<AuthenticatedUser?> GetUserByToken(Guid tokenValue);
 
-    Task<Either<UserCreationError, UserId>> CreateUserAsync(
+    Task<UserId> CreateUserAsync(
         string name,
         string email,
         string password,
         string role
     );
 
-    Task<Either<UserFetchingError, User>> UpdateUserAsync(
+    Task<User> UpdateUserAsync(
         Guid id,
         string? name
     );
 
-    Task<Either<UserFetchingError, UserId>> DeleteUserAsync(Guid id);
+    Task<UserId> DeleteUserAsync(Guid id);
 }

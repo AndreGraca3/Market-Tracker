@@ -1,12 +1,12 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory;
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory.Product;
 
-using Product = Application.Domain.Models.Market.Inventory.Product.Product;
+using Product = Application.Domain.Schemas.Market.Inventory.Product.Product;
 
 [Table("product", Schema = "MarketTracker")]
 public class ProductEntity

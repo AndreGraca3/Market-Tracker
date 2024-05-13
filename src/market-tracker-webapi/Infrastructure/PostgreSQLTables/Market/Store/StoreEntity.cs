@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Store;
 
-using Store = Application.Domain.Models.Market.Retail.Shop.Store;
+using Store = Application.Domain.Schemas.Market.Retail.Shop.Store;
 
 [Table("store", Schema = "MarketTracker")]
 public class StoreEntity
@@ -49,7 +49,7 @@ public class StoreEntity
     public StoreItem ToStoreItem()
     {
         return new StoreItem(
-            Id,
+            new StoreId(Id),
             Name,
             Address,
             CityId,

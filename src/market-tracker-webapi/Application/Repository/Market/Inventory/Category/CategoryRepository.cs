@@ -1,11 +1,11 @@
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.Market.Inventory.Category;
 
-using Category = Domain.Models.Market.Inventory.Category;
+using Category = Domain.Schemas.Market.Inventory.Category;
 
 public class CategoryRepository(MarketTrackerDataContext dataContext) : ICategoryRepository
 {

@@ -1,6 +1,6 @@
 ﻿namespace market_tracker_webapi.Application.Repository.Account.Credential;
 
-using Account = Domain.Models.Account.Auth.Account;
+using Account = Domain.Schemas.Account.Auth.Account;
 
 public interface IAccountRepository
 {

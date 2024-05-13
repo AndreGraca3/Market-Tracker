@@ -1,21 +1,17 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Models.Account.Users;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Service.Errors;
-using market_tracker_webapi.Application.Service.Errors.User;
-using market_tracker_webapi.Application.Utils;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Users.Client;
 
-using Client = Domain.Models.Account.Users.Client;
+using Client = Domain.Schemas.Account.Users.Client;
 
 public interface IClientService
 {
-    Task<Either<IServiceError, PaginatedResult<ClientItem>>> GetClientsAsync(string? username, int skip, int limit);
+    Task<PaginatedResult<ClientItem>> GetClientsAsync(string? username, int skip, int limit);
 
-    Task<Either<UserFetchingError, Client>> GetClientByIdAsync(Guid id);
+    Task<Client> GetClientByIdAsync(Guid id);
 
-    Task<Either<UserCreationError, UserId>> CreateClientAsync(
+    Task<UserId> CreateClientAsync(
         string username,
         string name,
         string email,
@@ -23,12 +19,12 @@ public interface IClientService
         string? avatarUrl = null
     );
 
-    Task<Either<UserFetchingError, Client>> UpdateClientAsync(
+    Task<Client> UpdateClientAsync(
         Guid id,
         string? name,
         string? username,
         string? avatarUrl
     );
 
-    Task<Either<UserFetchingError, UserId>> DeleteClientAsync(Guid id);
+    Task<UserId> DeleteClientAsync(Guid id);
 }

@@ -1,5 +1,5 @@
 using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Repository.Market.Inventory.Product;
 using market_tracker_webapi.Application.Service.Errors;
@@ -15,28 +15,21 @@ public class ProductFeedbackService(
     ITransactionManager transactionManager
 ) : IProductFeedbackService
 {
-    public async Task<Either<ProductFetchingError, PaginatedResult<ProductReview>>>
+    public async Task<PaginatedResult<ProductReview>>
         GetReviewsByProductIdAsync(string productId, int skip, int take)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await productRepository.GetProductByIdAsync(productId) is null)
-            {
-                return EitherExtensions.Failure<ProductFetchingError, PaginatedResult<ProductReview>>(
+                throw new MarketTrackerServiceException(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
-            }
 
-            var paginatedReviews =
-                await productFeedbackRepository.GetReviewsByProductIdAsync(productId, skip, take);
-
-            return EitherExtensions.Success<ProductFetchingError, PaginatedResult<ProductReview>>(
-                paginatedReviews
-            );
+            return await productFeedbackRepository.GetReviewsByProductIdAsync(productId, skip, take);
         });
     }
 
-    public async Task<Either<IServiceError, ProductPreferences>> UpsertProductPreferencesAsync(
+    public async Task<ProductPreferences> UpsertProductPreferencesAsync(
         Guid clientId,
         string productId,
         Optional<bool> isFavorite,
@@ -47,7 +40,7 @@ public class ProductFeedbackService(
         {
             if (await productRepository.GetProductByIdAsync(productId) is null)
             {
-                return EitherExtensions.Failure<IServiceError, ProductPreferences>(
+                throw new MarketTrackerServiceException(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
@@ -86,47 +79,33 @@ public class ProductFeedbackService(
                 );
             }
 
-            return EitherExtensions.Success<IServiceError, ProductPreferences>(
-                new ProductPreferences(updatedIsFavourite, updatedReview)
-            );
+            return new ProductPreferences(updatedIsFavourite, updatedReview);
         });
     }
 
-    public async Task<Either<IServiceError, ProductPreferences>> GetProductsPreferencesAsync(Guid clientId,
+    public async Task<ProductPreferences> GetProductsPreferencesAsync(Guid clientId,
         string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             if (await productRepository.GetProductByIdAsync(productId) is null)
-            {
-                return EitherExtensions.Failure<IServiceError, ProductPreferences>(
+                throw new MarketTrackerServiceException(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
-            }
 
-            var clientFeedback = await productFeedbackRepository.GetProductsPreferencesAsync(
+            return await productFeedbackRepository.GetProductsPreferencesAsync(
                 clientId,
                 productId
             );
-
-            return EitherExtensions.Success<IServiceError, ProductPreferences>(clientFeedback);
         });
     }
 
-    public async Task<Either<ProductFetchingError, ProductStats>> GetProductStatsByIdAsync(string productId)
+    public async Task<ProductStats> GetProductStatsByIdAsync(string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
-        {
-            var stats = await productFeedbackRepository.GetProductStatsByIdAsync(productId);
-
-            if (stats is null)
-            {
-                return EitherExtensions.Failure<ProductFetchingError, ProductStats>(
-                    new ProductFetchingError.ProductByIdNotFound(productId)
-                );
-            }
-
-            return EitherExtensions.Success<ProductFetchingError, ProductStats>(stats);
-        });
+            await productFeedbackRepository.GetProductStatsByIdAsync(productId) ??
+            throw new MarketTrackerServiceException(
+                new ProductFetchingError.ProductByIdNotFound(productId)
+            ));
     }
 }

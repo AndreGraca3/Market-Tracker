@@ -1,4 +1,4 @@
-using market_tracker_webapi.Application.Domain.Models.List;
+using market_tracker_webapi.Application.Domain.Schemas.List;
 
 namespace market_tracker_webapi.Application.Service.Results;
 

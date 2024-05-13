@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using market_tracker_webapi.Application.Domain.Models.List;
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
+using market_tracker_webapi.Application.Domain.Schemas.List;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
@@ -11,7 +11,7 @@ public class ListEntryEntity
 {
     [Key] [Column("id")] public string Id { get; } = RandomStringGenerator.GenerateRandomString(25);
 
-    [Column("list_id")] public int ListId { get; set; }
+    [Column("list_id")] public string ListId { get; set; }
 
     [Column("product_id")] public required string ProductId { get; set; }
 

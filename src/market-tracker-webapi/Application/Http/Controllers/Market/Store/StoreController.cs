@@ -1,11 +1,7 @@
-﻿using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
+using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Store;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
-using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Service.Errors.City;
-using market_tracker_webapi.Application.Service.Errors.Company;
-using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Operations.Market.Store;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,137 +11,54 @@ namespace market_tracker_webapi.Application.Http.Controllers.Market.Store;
 public class StoreController(IStoreService storeService) : ControllerBase
 {
     [HttpGet(Uris.Stores.Base)]
-    public async Task<ActionResult<CollectionOutputModel<Domain.Models.Market.Retail.Shop.Store>>> GetStoresAsync(int? companyId, int? cityId, string? name)
+    public async Task<ActionResult<CollectionOutputModel<Domain.Schemas.Market.Retail.Shop.Store>>> GetStoresAsync(
+        int? companyId, int? cityId, string? name)
     {
-        var res = await storeService.GetStoresAsync(companyId, cityId, name);
-        return ResultHandler.Handle(
-            res,
-            _ => new ServerProblem.InternalServerError().ToActionResult()
-        );
+        var stores = await storeService.GetStoresAsync(companyId, cityId, name);
+        return stores.ToCollectionOutputModel();
     }
 
     [HttpGet(Uris.Stores.StoreById)]
-    public async Task<ActionResult<Domain.Models.Market.Retail.Shop.Store>> GetStoreByIdAsync(int id)
+    public async Task<ActionResult<Domain.Schemas.Market.Retail.Shop.Store>> GetStoreByIdAsync(int id)
     {
-        var res = await storeService.GetStoreByIdAsync(id);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    StoreFetchingError.StoreByIdNotFound idNotFoundError
-                        => new StoreProblem.StoreByIdNotFound(idNotFoundError).ToActionResult(),
-                    _
-                        => new ServerProblem.InternalServerError(
-                            nameof(StoreController)
-                        ).ToActionResult()
-                };
-            }
-        );
+        return await storeService.GetStoreByIdAsync(id);
     }
 
     [HttpPost(Uris.Stores.Base)]
     [Authorized([Role.Operator])]
-    public async Task<ActionResult<IntIdOutputModel>> AddStoreAsync(
+    public async Task<ActionResult<StoreId>> AddStoreAsync(
         [FromBody] StoreCreationInputModel model
     )
     {
-        var res = await storeService.AddStoreAsync(
+        var storeId = await storeService.AddStoreAsync(
             model.Name,
             model.Address,
             model.CityId,
             model.CompanyId
         );
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    StoreCreationError.StoreNameAlreadyExists nameAlreadyExistsError
-                        => new StoreProblem.StoreNameAlreadyExists(
-                            nameAlreadyExistsError
-                        ).ToActionResult(),
-                    CityFetchingError.CityByIdNotFound cityIdNotFoundError
-                        => new CityProblem.CityByIdNotFound(
-                            cityIdNotFoundError
-                        ).ToActionResult(),
-                    CompanyFetchingError.CompanyByIdNotFound companyIdNotFoundError
-                        => new CompanyProblem.CompanyByIdNotFound(
-                            companyIdNotFoundError
-                        ).ToActionResult(),
-                    _
-                        => new ServerProblem.InternalServerError(
-                            nameof(StoreController)
-                        ).ToActionResult()
-                };
-            }
-        );
+
+        return Created(Uris.Stores.BuildStoreByIdUri(storeId.Value), storeId);
     }
 
     [HttpPut(Uris.Stores.StoreById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<IntIdOutputModel>> UpdateStoreAsync(
-        int id,
-        [FromBody] StoreUpdateInputModel storeInput
-    )
+    public async Task<ActionResult<StoreItem>> UpdateStoreAsync(
+        int id, [FromBody] StoreUpdateInputModel storeInput)
     {
-        var res = await storeService.UpdateStoreAsync(
+        return await storeService.UpdateStoreAsync(
             id,
             storeInput.Name,
             storeInput.Address,
             storeInput.CityId,
             storeInput.CompanyId
         );
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    StoreFetchingError.StoreByIdNotFound idNotFoundError
-                        => new StoreProblem.StoreByIdNotFound(idNotFoundError).ToActionResult(),
-                    StoreCreationError.StoreNameAlreadyExists nameAlreadyExistsError
-                        => new StoreProblem.StoreNameAlreadyExists(
-                            nameAlreadyExistsError
-                        ).ToActionResult(),
-                    CityFetchingError.CityByIdNotFound cityIdNotFoundError
-                        => new CityProblem.CityByIdNotFound(
-                            cityIdNotFoundError
-                        ).ToActionResult(),
-                    CompanyFetchingError.CompanyByIdNotFound companyIdNotFoundError
-                        => new CompanyProblem.CompanyByIdNotFound(
-                            companyIdNotFoundError
-                        ).ToActionResult(),
-                    _
-                        => new ServerProblem.InternalServerError(
-                            nameof(StoreController)
-                        ).ToActionResult()
-                };
-            }
-        );
     }
 
     [HttpDelete(Uris.Stores.StoreById)]
     [Authorized([Role.Operator])]
-    public async Task<ActionResult<IntIdOutputModel>> DeleteStoreAsync(int id)
+    public async Task<ActionResult<StoreId>> DeleteStoreAsync(int id)
     {
-        var res = await storeService.DeleteStoreAsync(id);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    StoreFetchingError.StoreByIdNotFound idNotFoundError
-                        => new StoreProblem.StoreByIdNotFound(idNotFoundError).ToActionResult(),
-                    _
-                        => new ServerProblem.InternalServerError(
-                            nameof(StoreController)
-                        ).ToActionResult()
-                };
-            }
-        );
+        await storeService.DeleteStoreAsync(id);
+        return NoContent();
     }
 }

@@ -1,10 +1,10 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Filters.Product;
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 
 namespace market_tracker_webapi.Application.Repository.Market.Inventory.Product;
 
-using Product = Domain.Models.Market.Inventory.Product.Product;
+using Product = Domain.Schemas.Market.Inventory.Product.Product;
 
 public interface IProductRepository
 {

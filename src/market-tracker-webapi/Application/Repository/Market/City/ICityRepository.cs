@@ -1,8 +1,8 @@
-﻿using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
 
 namespace market_tracker_webapi.Application.Repository.Market.City;
 
-using City = Domain.Models.Market.Retail.Shop.City;
+using City = Domain.Schemas.Market.Retail.Shop.City;
 
 public interface ICityRepository
 {

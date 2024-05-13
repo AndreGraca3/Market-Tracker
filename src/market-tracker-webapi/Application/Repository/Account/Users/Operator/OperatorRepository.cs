@@ -1,6 +1,5 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Models.Account.Users;
-using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account.Users;
@@ -8,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.Account.Users.Operator;
 
-using Operator = Domain.Models.Account.Users.Operator;
+using Operator = Domain.Schemas.Account.Users.Operator;
 
 public class OperatorRepository(
     MarketTrackerDataContext dataContext
@@ -17,8 +16,8 @@ public class OperatorRepository(
     public async Task<PaginatedResult<OperatorItem>> GetOperatorsAsync(int skip, int take)
     {
         var query = from user in dataContext.User
-            join oper in dataContext.Operator on user.Id equals oper.UserId
-            join store in dataContext.Store on oper.UserId equals store.OperatorId
+            join @operator in dataContext.Operator on user.Id equals @operator.UserId
+            join store in dataContext.Store on @operator.UserId equals store.OperatorId
             where user.Role == Role.Operator.ToString()
             select new OperatorItem(user.Id, user.Name, store.Name);
 
@@ -33,9 +32,9 @@ public class OperatorRepository(
     public async Task<Operator?> GetOperatorByIdAsync(Guid id)
     {
         var query = from user in dataContext.User
-            join oper in dataContext.Operator on user.Id equals oper.UserId
+            join @operator in dataContext.Operator on user.Id equals @operator.UserId
             where user.Role == Role.Operator.ToString() && user.Id == id
-            select new Operator(user.Id, user.Name, user.Email, oper.PhoneNumber, user.CreatedAt);
+            select new Operator(user.Id, user.Name, user.Email, @operator.PhoneNumber, user.CreatedAt);
 
         return await query.FirstOrDefaultAsync();
     }
@@ -43,10 +42,10 @@ public class OperatorRepository(
     public async Task<Operator?> GetOperatorByEmailAsync(string email)
     {
         var query = from user in dataContext.User
-            join oper in dataContext.Operator on user.Id equals oper.UserId
-            join store in dataContext.Store on oper.UserId equals store.OperatorId
+            join @operator in dataContext.Operator on user.Id equals @operator.UserId
+            join store in dataContext.Store on @operator.UserId equals store.OperatorId
             where user.Role == Role.Operator.ToString()
-            select new Operator(user.ToUser(), oper.PhoneNumber);
+            select new Operator(user.ToUser(), @operator.PhoneNumber);
 
         return await query.FirstOrDefaultAsync();
     }

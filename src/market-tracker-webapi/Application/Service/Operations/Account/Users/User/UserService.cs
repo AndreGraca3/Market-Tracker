@@ -1,17 +1,17 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Models.Account.Users;
-using market_tracker_webapi.Application.Http.Controllers.Account;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
 using market_tracker_webapi.Application.Repository.Account.Credential;
 using market_tracker_webapi.Application.Repository.Account.Token;
 using market_tracker_webapi.Application.Repository.Account.Users.User;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.User;
 using market_tracker_webapi.Application.Service.Transaction;
-using market_tracker_webapi.Application.Utils;
+using Microsoft.IdentityModel.Tokens;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Users.User;
 
-using User = Domain.Models.Account.Users.User;
+using User = Domain.Schemas.Account.Users.User;
 
 public class UserService(
     IUserRepository userRepository,
@@ -20,33 +20,21 @@ public class UserService(
     ITransactionManager transactionManager
 ) : IUserService
 {
-    public async Task<Either<IServiceError, PaginatedResult<UserItem>>> GetUsersAsync(
+    public async Task<PaginatedResult<UserItem>> GetUsersAsync(
         string? role,
         int skip,
         int take
     )
     {
-        return EitherExtensions.Success<IServiceError, PaginatedResult<UserItem>>(
-            await userRepository.GetUsersAsync(role, skip, take)
-        );
+        return await userRepository.GetUsersAsync(role, skip, take);
     }
 
-    public async Task<Either<UserFetchingError, User>> GetUserAsync(Guid id)
+    public async Task<User> GetUserAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
-        {
-            var user = await userRepository.GetUserByIdAsync(id);
-            if (user is null)
-            {
-                return EitherExtensions.Failure<UserFetchingError, User>(
-                    new UserFetchingError.UserByIdNotFound(id)
-                );
-            }
-
-            return EitherExtensions.Success<UserFetchingError, User>(
-                user
-            );
-        });
+            await userRepository.GetUserByIdAsync(id) ??
+            throw new MarketTrackerServiceException(new UserFetchingError.UserByIdNotFound(id))
+        );
     }
 
     // Helper function, does not return Either
@@ -64,7 +52,7 @@ public class UserService(
         return new AuthenticatedUser(user!, token);
     }
 
-    public async Task<Either<UserCreationError, UserId>> CreateUserAsync(
+    public async Task<UserId> CreateUserAsync(
         string name,
         string email,
         string password,
@@ -75,7 +63,7 @@ public class UserService(
         {
             if (await userRepository.GetUserByEmailAsync(email) is not null)
             {
-                return EitherExtensions.Failure<UserCreationError, UserId>(
+                throw new MarketTrackerServiceException(
                     new UserCreationError.CredentialAlreadyInUse(email, nameof(email))
                 );
             }
@@ -83,52 +71,35 @@ public class UserService(
             var userId = (await userRepository.CreateUserAsync(name, email, role)).Value;
             await accountRepository.CreatePasswordAsync(userId, password);
 
-            return EitherExtensions.Success<UserCreationError, UserId>(
-                new UserId(userId)
-            );
+            return new UserId(userId);
         });
     }
 
-    public async Task<Either<UserFetchingError, User>> UpdateUserAsync(
-        Guid id,
-        string? name
-    )
+    public async Task<User> UpdateUserAsync(Guid id, string? name)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var user = await userRepository.UpdateUserAsync(
                 id,
-                name == "" ? null : name
+                name.IsNullOrEmpty() ? null : name
             );
 
             if (user is null)
             {
-                return EitherExtensions.Failure<UserFetchingError, User>(
+                throw new MarketTrackerServiceException(
                     new UserFetchingError.UserByIdNotFound(id)
                 );
             }
 
-            return EitherExtensions.Success<UserFetchingError, User>(
-                user
-            );
+            return user;
         });
     }
 
-    public async Task<Either<UserFetchingError, UserId>> DeleteUserAsync(Guid id)
+    public async Task<UserId> DeleteUserAsync(Guid id)
     {
         return await transactionManager.ExecuteAsync(async () =>
-        {
-            var user = await userRepository.DeleteUserAsync(id);
-            if (user is null)
-            {
-                return EitherExtensions.Failure<UserFetchingError, UserId>(
-                    new UserFetchingError.UserByIdNotFound(id)
-                );
-            }
-
-            return EitherExtensions.Success<UserFetchingError, UserId>(
-                user.Id
-            );
-        });
+            (await userRepository.DeleteUserAsync(id))?.Id ??
+            throw new MarketTrackerServiceException(new UserFetchingError.UserByIdNotFound(id))
+        );
     }
 }

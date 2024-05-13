@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Models.List;
+using market_tracker_webapi.Application.Domain.Schemas.List;
+using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
 
@@ -11,7 +11,7 @@ public class ListEntity
     [Key]
     [Column("id")]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    public string Id { get; set; } = RandomStringGenerator.GenerateRandomString(25);
 
     [Column("name")] public required string Name { get; set; }
 
@@ -21,9 +21,21 @@ public class ListEntity
 
     [Column("owner_id")] public required Guid OwnerId { get; set; }
 
-    public ShoppingList ToShoppingList()
+    public ShoppingList ToShoppingList(IEnumerable<Guid> memberIds)
     {
         return new ShoppingList(
+            Id,
+            Name,
+            ArchivedAt,
+            CreatedAt,
+            OwnerId,
+            memberIds
+        );
+    }
+
+    public ShoppingListItem ToShoppingListItem()
+    {
+        return new ShoppingListItem(
             Id,
             Name,
             ArchivedAt,

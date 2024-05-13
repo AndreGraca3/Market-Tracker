@@ -6,9 +6,10 @@ public class UserFetchingError: IUserError
     {
         public Guid Id { get; } = id;
     }
-
-    public class UserByTokenValueNotFound(Guid tokenValue) : UserFetchingError
+    
+    public class DeviceTokenNotFound(Guid clientId, string deviceId) : UserFetchingError
     {
-        public Guid TokenValue { get; } = tokenValue;
+        public Guid ClientId { get; } = clientId;
+        public string DeviceId { get; } = deviceId;
     }
 }

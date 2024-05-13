@@ -1,4 +1,4 @@
-using market_tracker_webapi.Application.Domain.Models.Account;
+using market_tracker_webapi.Application.Domain.Schemas.Account;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +23,7 @@ public class ClientDeviceRepository(MarketTrackerDataContext dataContext) : ICli
             .FirstOrDefaultAsync();
     }
 
-    public async Task<DeviceToken?> AddDeviceTokenAsync(Guid clientId, string deviceId, string firebaseToken)
+    public async Task<DeviceToken> AddDeviceTokenAsync(Guid clientId, string deviceId, string firebaseToken)
     {
         var fcmRegisterEntity = new FcmRegisterEntity
         {

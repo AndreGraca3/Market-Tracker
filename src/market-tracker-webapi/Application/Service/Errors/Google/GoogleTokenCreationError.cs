@@ -1,12 +1,6 @@
 ﻿namespace market_tracker_webapi.Application.Service.Errors.Google;
 
-public class GoogleTokenCreationError: IServiceError
+public class GoogleTokenCreationError: IGoogleTokenError
 {
-    public class InvalidIssuer(string issuerName) : GoogleTokenCreationError
-    {
-    }
-
-    public class InvalidValue() : GoogleTokenCreationError
-    {
-    }
+    public class InvalidGoogleToken(string token) : GoogleTokenCreationError;
 }

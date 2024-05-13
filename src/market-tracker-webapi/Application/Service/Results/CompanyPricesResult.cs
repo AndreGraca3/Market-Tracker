@@ -1,4 +1,4 @@
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales;
 
 namespace market_tracker_webapi.Application.Service.Results;
 

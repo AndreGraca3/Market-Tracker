@@ -10,9 +10,9 @@ public class AccountEntity
 
     [Column("password")] public required string Password { get; set; }
 
-    public Application.Domain.Models.Account.Auth.Account ToAccount()
+    public Application.Domain.Schemas.Account.Auth.Account ToAccount()
     {
-        return new Application.Domain.Models.Account.Auth.Account(
+        return new Application.Domain.Schemas.Account.Auth.Account(
             UserId,
             Password
         );

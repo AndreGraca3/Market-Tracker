@@ -1,15 +1,15 @@
-﻿using market_tracker_webapi.Application.Domain.Models.List;
+﻿using market_tracker_webapi.Application.Domain.Schemas.List;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.List.ListEntry;
 
-using ListEntry = Domain.Models.List.ListEntry;
+using ListEntry = Domain.Schemas.List.ListEntry;
 
 public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEntryRepository
 {
-    public async Task<IEnumerable<ListEntry>> GetListEntriesAsync(int listId, int? storeId = null)
+    public async Task<IEnumerable<ListEntry>> GetListEntriesAsync(string listId, int? storeId = null)
     {
         var query = from listEntry in dataContext.ListEntry
             join product in dataContext.Product on listEntry.ProductId equals product.Id
@@ -31,7 +31,7 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
             .ToListAsync();
     }
 
-    public async Task<ListEntry?> GetListEntryAsync(int listId, string productId)
+    public async Task<ListEntry?> GetListEntryAsync(string listId, string productId)
     {
         var query = from listEntry in dataContext.ListEntry
             join product in dataContext.Product on listEntry.ProductId equals product.Id
@@ -52,7 +52,7 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
             result.CategoryEntity.ToCategory()));
     }
 
-    public async Task<ListEntryId> AddListEntryAsync(int listId, string productId, int storeId, int quantity)
+    public async Task<ListEntryId> AddListEntryAsync(string listId, string productId, int storeId, int quantity)
     {
         var productInListEntity = new ListEntryEntity()
         {
@@ -68,7 +68,7 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
         return new ListEntryId(productInListEntity.Id);
     }
 
-    public async Task<ListEntry?> UpdateListEntryAsync(int listId, string productId, int? storeId = null,
+    public async Task<ListEntry?> UpdateListEntryAsync(string listId, string productId, int? storeId = null,
         int? quantity = null)
     {
         var listEntryEntity = await dataContext.ListEntry.FindAsync(listId, productId);
@@ -93,7 +93,7 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
         return await GetListEntryAsync(listId, productId);
     }
 
-    public async Task<ListEntry?> DeleteListEntryAsync(int listId, string productId)
+    public async Task<ListEntry?> DeleteListEntryAsync(string listId, string productId)
     {
         var productInListEntity = await dataContext.ListEntry.FindAsync(listId, productId);
 

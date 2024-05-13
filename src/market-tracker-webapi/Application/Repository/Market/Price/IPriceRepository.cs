@@ -1,12 +1,11 @@
-using market_tracker_webapi.Application.Domain;
 using market_tracker_webapi.Application.Domain.Filters.Product;
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales;
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales.Pricing;
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales.Pricing;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
 
 namespace market_tracker_webapi.Application.Repository.Market.Price;
 
-using Price = Domain.Models.Market.Retail.Sales.Pricing.Price;
+using Price = Domain.Schemas.Market.Retail.Sales.Pricing.Price;
 
 public interface IPriceRepository
 {

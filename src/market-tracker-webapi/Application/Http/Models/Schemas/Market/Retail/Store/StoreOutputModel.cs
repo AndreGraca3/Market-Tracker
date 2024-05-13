@@ -1,6 +1,6 @@
 namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Store;
 
-using Store = Domain.Models.Market.Retail.Shop.Store;
+using Store = Domain.Schemas.Market.Retail.Shop.Store;
 
 public class StoreOutputModel
 {

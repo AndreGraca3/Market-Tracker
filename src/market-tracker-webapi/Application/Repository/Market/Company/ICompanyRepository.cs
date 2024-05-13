@@ -1,8 +1,8 @@
-﻿using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
 
 namespace market_tracker_webapi.Application.Repository.Market.Company;
 
-using Company = Domain.Models.Market.Retail.Shop.Company;
+using Company = Domain.Schemas.Market.Retail.Shop.Company;
 
 public interface ICompanyRepository
 {

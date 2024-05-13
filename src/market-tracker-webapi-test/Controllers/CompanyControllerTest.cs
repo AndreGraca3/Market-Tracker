@@ -1,15 +1,4 @@
-﻿using FluentAssertions;
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Controllers;
-using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Service.Errors;
-using market_tracker_webapi.Application.Service.Errors.Company;
-using market_tracker_webapi.Application.Utils;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-
-namespace market_tracker_webapi_test.Controllers;
+﻿namespace market_tracker_webapi_test.Controllers;
 
 /*
 public class CompanyControllerTest

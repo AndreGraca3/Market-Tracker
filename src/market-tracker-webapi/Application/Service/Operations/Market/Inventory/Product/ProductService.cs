@@ -1,5 +1,5 @@
 using market_tracker_webapi.Application.Domain.Filters.Product;
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Repository.Account.Users.Client;
 using market_tracker_webapi.Application.Repository.Market.Alert;
 using market_tracker_webapi.Application.Repository.Market.Inventory.Brand;
@@ -18,7 +18,7 @@ using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
 
-using Product = Domain.Models.Market.Inventory.Product.Product;
+using Product = Domain.Schemas.Market.Inventory.Product.Product;
 
 public class ProductService(
     IProductRepository productRepository,
@@ -32,13 +32,12 @@ public class ProductService(
     ITransactionManager transactionManager
 ) : IProductService
 {
-    public async Task<Either<IServiceError, PaginatedProductOffers>> GetBestAvailableProductsOffersAsync(int skip,
+    public async Task<PaginatedProductOffers> GetBestAvailableProductsOffersAsync(int skip,
         int take, int maxValuesPerFacet, ProductsSortOption? sortBy, string? searchName, IList<int>? categoryIds,
         IList<int>? brandIds, IList<int>? companyIds, int? minPrice, int? maxPrice, int? minRating, int? maxRating)
     {
         return await transactionManager.ExecuteAsync(async () =>
-        {
-            var paginatedOffers = await priceRepository.GetBestAvailableProductsOffersAsync(
+            await priceRepository.GetBestAvailableProductsOffersAsync(
                 skip,
                 take,
                 maxValuesPerFacet,
@@ -51,29 +50,18 @@ public class ProductService(
                 minRating,
                 maxRating,
                 companyIds
-            );
-
-            return EitherExtensions.Success<IServiceError, PaginatedProductOffers>(paginatedOffers);
-        });
+            ));
     }
 
-    public async Task<Either<ProductFetchingError, Product>> GetProductByIdAsync(string productId)
+    public async Task<Product> GetProductByIdAsync(string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
-        {
-            var product = await productRepository.GetProductByIdAsync(productId);
-            if (product is null)
-            {
-                return EitherExtensions.Failure<ProductFetchingError, Product>(
-                    new ProductFetchingError.ProductByIdNotFound(productId)
-                );
-            }
-
-            return EitherExtensions.Success<ProductFetchingError, Product>(product);
-        });
+            await productRepository.GetProductByIdAsync(productId) ?? throw new MarketTrackerServiceException(
+                new ProductFetchingError.ProductByIdNotFound(productId)
+            ));
     }
 
-    public async Task<Either<IServiceError, ProductCreationResult>> AddProductAsync(
+    public async Task<ProductCreationResult> AddProductAsync(
         Guid operatorId,
         string productId,
         string name,
@@ -93,7 +81,7 @@ public class ProductService(
             {
                 if (await categoryRepository.GetCategoryByIdAsync(categoryId) is null)
                 {
-                    return EitherExtensions.Failure<IServiceError, ProductCreationResult>(
+                    throw new MarketTrackerServiceException(
                         new CategoryFetchingError.CategoryByIdNotFound(categoryId)
                     );
                 }
@@ -118,25 +106,25 @@ public class ProductService(
 
             if (store is null)
             {
-                return EitherExtensions.Failure<IServiceError, ProductCreationResult>(
+                throw new MarketTrackerServiceException(
                     new StoreFetchingError.StoreByOperatorIdNotFound(operatorId)
                 );
             }
 
             var oldStoreOffer = oldProduct is null
                 ? null
-                : await priceRepository.GetStoreOfferAsync(productId, store.Id, DateTime.Now);
+                : await priceRepository.GetStoreOfferAsync(productId, store.Id.Value, DateTime.Now);
 
             var newPrice = price.ApplyPercentage(promotionPercentage);
             var priceChanged = oldStoreOffer?.PriceData.FinalPrice != newPrice;
 
             if (priceChanged)
             {
-                await priceRepository.AddPriceAsync(productId, store.Id, price, promotionPercentage);
+                await priceRepository.AddPriceAsync(productId, store.Id.Value, price, promotionPercentage);
 
                 // Notify clients with price alerts
                 var eligiblePriceAlerts =
-                    await priceAlertRepository.GetPriceAlertsAsync(productId: productId, storeId: store.Id,
+                    await priceAlertRepository.GetPriceAlertsAsync(productId: productId, storeId: store.Id.Value,
                         minPriceThreshold: newPrice);
                 foreach (var priceAlert in eligiblePriceAlerts)
                 {
@@ -151,19 +139,18 @@ public class ProductService(
                 }
             }
 
-            await productRepository.SetProductAvailabilityAsync(productId, store.Id, true);
+            await productRepository.SetProductAvailabilityAsync(productId, store.Id.Value, true);
 
-            return EitherExtensions.Success<IServiceError, ProductCreationResult>(
-                new ProductCreationResult
-                {
-                    Id = productId,
-                    IsNew = oldProduct is null,
-                    PriceChanged = priceChanged
-                });
+            return new ProductCreationResult
+            {
+                Id = productId,
+                IsNew = oldProduct is null,
+                PriceChanged = priceChanged
+            };
         });
     }
 
-    public async Task<Either<IServiceError, ProductId>> SetProductAvailabilityAsync(
+    public async Task<ProductId> SetProductAvailabilityAsync(
         Guid operatorId, string productId, bool isAvailable)
     {
         return await transactionManager.ExecuteAsync(async () =>
@@ -171,7 +158,7 @@ public class ProductService(
             var store = await storeRepository.GetStoreByOperatorIdAsync(operatorId);
             if (store is null)
             {
-                return EitherExtensions.Failure<IServiceError, ProductId>(
+                throw new MarketTrackerServiceException(
                     new StoreFetchingError.StoreByOperatorIdNotFound(operatorId)
                 );
             }
@@ -179,18 +166,18 @@ public class ProductService(
             var product = await productRepository.GetProductByIdAsync(productId);
             if (product is null)
             {
-                return EitherExtensions.Failure<IServiceError, ProductId>(
+                throw new MarketTrackerServiceException(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
 
-            await productRepository.SetProductAvailabilityAsync(productId, store.Id, isAvailable);
+            await productRepository.SetProductAvailabilityAsync(productId, store.Id.Value, isAvailable);
 
-            return EitherExtensions.Success<IServiceError, ProductId>(product.Id);
+            return product.Id;
         });
     }
 
-    public async Task<Either<IServiceError, Product>> UpdateProductAsync(
+    public async Task<Product> UpdateProductAsync(
         string productId,
         string? name,
         string? imageUrl,
@@ -205,7 +192,7 @@ public class ProductService(
             var product = await productRepository.GetProductByIdAsync(productId);
             if (product is null)
             {
-                return EitherExtensions.Failure<IServiceError, Product>(
+                throw new MarketTrackerServiceException(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
             }
@@ -215,19 +202,17 @@ public class ProductService(
                   ?? await brandRepository.AddBrandAsync(brandName)
                 : product.Brand;
 
-            var category = product.Category;
             if (categoryId is not null)
             {
-                category = await categoryRepository.GetCategoryByIdAsync(categoryId.Value);
-                if (category is null)
+                if (await categoryRepository.GetCategoryByIdAsync(categoryId.Value) is null)
                 {
-                    return EitherExtensions.Failure<IServiceError, Product>(
+                    throw new MarketTrackerServiceException(
                         new CategoryFetchingError.CategoryByIdNotFound(categoryId.Value)
                     );
                 }
             }
 
-            var updatedProduct = await productRepository.UpdateProductAsync(
+            return (await productRepository.UpdateProductAsync(
                 productId,
                 name,
                 imageUrl,
@@ -235,27 +220,15 @@ public class ProductService(
                 unit,
                 brand.Id,
                 categoryId
-            );
-
-            return EitherExtensions.Success<IServiceError, Product>(updatedProduct!);
+            ))!;
         });
     }
 
-    public async Task<Either<ProductFetchingError, ProductId>> RemoveProductAsync(string productId)
+    public async Task<ProductId> RemoveProductAsync(string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
-        {
-            var removedProduct = await productRepository.RemoveProductAsync(productId);
-            if (removedProduct is null)
-            {
-                return EitherExtensions.Failure<ProductFetchingError, ProductId>(
-                    new ProductFetchingError.ProductByIdNotFound(productId)
-                );
-            }
-
-            return EitherExtensions.Success<ProductFetchingError, ProductId>(
-                removedProduct.Id
-            );
-        });
+            (await productRepository.RemoveProductAsync(productId))?.Id ?? throw new MarketTrackerServiceException(
+                new ProductFetchingError.ProductByIdNotFound(productId)
+            ));
     }
 }

@@ -1,8 +1,8 @@
-﻿using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
 
 namespace market_tracker_webapi.Application.Repository.Market.Store;
 
-using Store = Domain.Models.Market.Retail.Shop.Store;
+using Store = Domain.Schemas.Market.Retail.Shop.Store;
 
 public interface IStoreRepository
 {

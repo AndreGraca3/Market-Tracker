@@ -1,16 +1,16 @@
 using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Filters.Product;
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales;
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales.Pricing;
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Shop;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales.Pricing;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
 using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Repository.Market.Price;
 
-using Price = Domain.Models.Market.Retail.Sales.Pricing.Price;
+using Price = Domain.Schemas.Market.Retail.Sales.Pricing.Price;
 
 public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepository
 {

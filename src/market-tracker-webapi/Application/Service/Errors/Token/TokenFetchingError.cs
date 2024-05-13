@@ -1,9 +1,9 @@
 ﻿namespace market_tracker_webapi.Application.Service.Errors.Token;
 
-public class TokenFetchingError : TokenError
+public class TokenFetchingError : ITokenError
 {
-    public class TokenByTokenValueNotFound(String tokenValue) : TokenFetchingError
+    public class TokenByTokenValueNotFound(string tokenValue) : TokenFetchingError
     {
-        public String TokenValue { get; } = tokenValue;
+        public string TokenValue { get; } = tokenValue;
     }
 }

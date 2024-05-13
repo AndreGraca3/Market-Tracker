@@ -11,4 +11,14 @@ public class PaginatedResult<T>(IEnumerable<T> items, int totalItems, int skip, 
     public int TotalItems { get; set; } = totalItems;
 
     public int TotalPages { get; set; } = (int)Math.Ceiling((double)totalItems / take);
+    
+    public PaginatedResult<TR> Select<TR>(Func<T, TR> selector)
+    {
+        return new PaginatedResult<TR>(
+            Items.Select(selector),
+            TotalItems,
+            skip,
+            take
+        );
+    }
 }

@@ -1,4 +1,4 @@
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales.Pricing;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales.Pricing;
 
 namespace market_tracker_webapi.Application.Repository.Market.Alert;
 

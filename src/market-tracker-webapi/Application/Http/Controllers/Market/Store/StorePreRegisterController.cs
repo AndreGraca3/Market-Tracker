@@ -1,11 +1,9 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Store;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
-using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Service.Errors.PreRegister;
 using market_tracker_webapi.Application.Service.Operations.Account.Auth.PreRegister;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,77 +18,43 @@ public class StorePreRegisterController(IPreRegistrationService preRegistrationS
         [FromQuery] bool? isValid,
         [FromQuery] PaginationInputs paginationInputs)
     {
-        return ResultHandler.Handle(
-            await preRegistrationService.GetPreRegistrationsAsync(isValid, paginationInputs.Skip,
-                paginationInputs.ItemsPerPage),
-            _ => new ServerProblem.InternalServerError().ToActionResult()
-        );
+        var operators = await preRegistrationService.GetPreRegistrationsAsync(isValid, paginationInputs.Skip,
+            paginationInputs.ItemsPerPage);
+        return operators.Select(preRegister => preRegister.ToOutputModel());
     }
 
     [HttpGet(Uris.Stores.StoresPendingById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<PreRegisterInfo>> GetPendingOperatorByIdAsync(
-        Guid id
-    )
+    public async Task<ActionResult<PreRegisterOutputModel>> GetPendingOperatorByIdAsync(Guid id)
     {
-        return ResultHandler.Handle(
-            await preRegistrationService.GetPreRegistrationByIdAsync(id),
-            error =>
-            {
-                return error switch
-                {
-                    PreRegistrationFetchingError.PreRegistrationByIdNotFound preRegisterFetchingError =>
-                        new PreRegistrationProblem.PreRegistrationByIdNotFound(preRegisterFetchingError)
-                            .ToActionResult()
-                };
-            }
-        );
+        throw new Exception();
+//        var preRegistration = await preRegistrationService.GetPreRegistrationByIdAsync(id);
+//        return preRegistration.ToPreRegisterOutputModel(preRegistration); // TODO: discuss this
     }
 
     [HttpPost(Uris.Stores.StoresPreRegister)]
-    public async Task<ActionResult<GuidOutputModel>> AddPreRegisterAsync(
-        [FromBody] PreRegisterCreationInputModel form
-    )
+    public async Task<ActionResult<PreRegistrationCode>> AddPreRegisterAsync(
+        [FromBody] PreRegisterCreationInputModel form)
     {
-        return ResultHandler.Handle(
-            await preRegistrationService.AddPreRegistrationAsync(
-                form.OperatorName,
-                form.Email,
-                form.PhoneNumber,
-                form.StoreName,
-                form.StoreAddress,
-                form.CompanyName,
-                form.CityName,
-                form.Document
-            ),
-            error =>
-            {
-                return error switch
-                {
-                    PreRegistrationCreationError.EmailAlreadyInUse emailAlreadyInUse =>
-                        new PreRegistrationProblem.OperatorAlreadyExists(emailAlreadyInUse).ToActionResult()
-                };
-            }
+        return await preRegistrationService.AddPreRegistrationAsync(
+            form.OperatorName,
+            form.Email,
+            form.PhoneNumber,
+            form.StoreName,
+            form.StoreAddress,
+            form.CompanyName,
+            form.CityName,
+            form.Document
         );
     }
 
     [HttpPost(Uris.Stores.StoresPendingById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<GuidOutputModel>> UpdateStatePreRegistrationByIdAsync(
+    public async Task<ActionResult<PreRegistrationCode>> UpdateStatePreRegistrationByIdAsync(
         Guid id,
         [FromBody] bool isApproved
     )
     {
-        return ResultHandler.Handle(
-            await preRegistrationService.UpdatePreRegistrationByIdAsync(id, isApproved),
-            error =>
-            {
-                return error switch
-                {
-                    PreRegistrationFetchingError.PreRegistrationByIdNotFound idNotFound =>
-                        new PreRegistrationProblem.PreRegistrationByIdNotFound(idNotFound).ToActionResult()
-                };
-            }
-        );
+        return await preRegistrationService.UpdatePreRegistrationByIdAsync(id, isApproved);
     }
 }

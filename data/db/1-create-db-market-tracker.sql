@@ -193,17 +193,17 @@ create table if not exists product_stats_counts
 
 create table if not exists list
 (
-    id          int generated always as identity primary key,
+    id          varchar(25) primary key default substr(md5(random()::text), 1, 25) check ( length(id) < 25), -- TODO: change to equal 25
     name        varchar(30) NOT NULL,
     archived_at timestamp,
-    created_at  timestamp   not null default now(),
+    created_at  timestamp   not null    default now(),
     owner_id    uuid references client (id) on delete cascade
 );
 
 create table if not exists list_entry
 (
     id         varchar(25) primary key default substr(md5(random()::text), 1, 25) check ( length(id) = 25),
-    list_id    int references list (id) on delete cascade,
+    list_id    varchar(25) references list (id) on delete cascade,
     product_id varchar(18) references product (id) on delete cascade,
     store_id   int references store (id) on delete SET NULL,
     quantity   int not null
@@ -211,7 +211,7 @@ create table if not exists list_entry
 
 create table if not exists list_client
 (
-    list_id   int references list (id) on delete cascade,
+    list_id   varchar(25) references list (id) on delete cascade,
     client_id uuid references client (id) on delete cascade,
     primary key (list_id, client_id)
 );
@@ -223,7 +223,7 @@ create table if not exists post
     text       varchar(255) not null,
     created_at timestamp    not null default now(),
     client_id  uuid references client (id) on delete cascade,
-    list_id    int references list (id) on delete cascade
+    list_id    varchar(25) references list (id) on delete cascade
 );
 
 create table if not exists post_comment

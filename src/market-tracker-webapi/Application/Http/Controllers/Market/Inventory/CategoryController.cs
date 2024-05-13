@@ -1,11 +1,7 @@
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory;
 using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Category;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
-using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Operations.Market.Inventory.Category;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,109 +11,43 @@ namespace market_tracker_webapi.Application.Http.Controllers.Market.Inventory;
 public class CategoryController(ICategoryService categoryService) : ControllerBase
 {
     [HttpGet(Uris.Categories.Base)]
-    public async Task<ActionResult<CollectionOutputModel<Category>>> GetCategoriesAsync()
+    public async Task<ActionResult<CollectionOutputModel<CategoryOutputModel>>> GetCategoriesAsync()
     {
-        var res = await categoryService.GetCategoriesAsync();
-        return ResultHandler.Handle(
-            res,
-            _ => new ServerProblem.InternalServerError().ToActionResult()
-        );
+        var categories = await categoryService.GetCategoriesAsync();
+        return categories.Select(c => c.ToOutputModel()).ToCollectionOutputModel();
     }
 
     [HttpGet(Uris.Categories.CategoryById)]
-    public async Task<ActionResult<Category>> GetCategoryAsync(int categoryId)
+    public async Task<ActionResult<CategoryOutputModel>> GetCategoryAsync(int categoryId)
     {
-        var res = await categoryService.GetCategoryAsync(categoryId);
-        return ResultHandler.Handle(
-            res,
-            _ => new ServerProblem.InternalServerError().ToActionResult()
-        );
+        return (await categoryService.GetCategoryAsync(categoryId)).ToOutputModel();
     }
 
     [HttpPost(Uris.Categories.Base)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<IntIdOutputModel>> AddCategoryAsync(
+    public async Task<ActionResult<CategoryId>> AddCategoryAsync(
         [FromBody] CategoryInputModel categoryInput
     )
     {
-        var res = await categoryService.AddCategoryAsync(categoryInput.Name);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    CategoryFetchingError.CategoryByIdNotFound idNotFoundError
-                        => new CategoryProblem.CategoryByIdNotFound(
-                            idNotFoundError
-                        ).ToActionResult(),
-
-                    CategoryCreationError.CategoryNameAlreadyExists _
-                        => new CategoryProblem.CategoryNameAlreadyExists().ToActionResult(),
-
-                    CategoryCreationError.InvalidParentCategory invalidParentCategoryIdError
-                        => new CategoryProblem.InvalidParentCategory(
-                            invalidParentCategoryIdError
-                        ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            },
-            outputModel =>
-                Created(Uris.Categories.BuildCategoryByIdUri(outputModel.Id), outputModel)
-        );
+        var categoryId = await categoryService.AddCategoryAsync(categoryInput.Name);
+        return Created(Uris.Categories.BuildCategoryByIdUri(categoryId.Value), categoryId);
     }
 
     [HttpPut(Uris.Categories.CategoryById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<Category>> UpdateCategoryAsync(
+    public async Task<ActionResult<CategoryOutputModel>> UpdateCategoryAsync(
         int categoryId,
         [FromBody] CategoryInputModel categoryInput
     )
     {
-        var res = await categoryService.UpdateCategoryAsync(categoryId, categoryInput.Name);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    CategoryFetchingError.CategoryByIdNotFound idNotFoundError
-                        => new CategoryProblem.CategoryByIdNotFound(
-                            idNotFoundError
-                        ).ToActionResult(),
-
-                    CategoryCreationError.CategoryNameAlreadyExists _
-                        => new CategoryProblem.CategoryNameAlreadyExists().ToActionResult(),
-
-                    CategoryCreationError.InvalidParentCategory invalidParentCategoryIdError
-                        => new CategoryProblem.InvalidParentCategory(
-                            invalidParentCategoryIdError
-                        ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            }
-        );
+        return (await categoryService.UpdateCategoryAsync(categoryId, categoryInput.Name)).ToOutputModel();
     }
 
     [HttpDelete(Uris.Categories.CategoryById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<IntIdOutputModel>> RemoveCategoryAsync(int categoryId)
+    public async Task<ActionResult> RemoveCategoryAsync(int categoryId)
     {
-        var res = await categoryService.RemoveCategoryAsync(categoryId);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    CategoryFetchingError.CategoryByIdNotFound idNotFoundError
-                        => new CategoryProblem.CategoryByIdNotFound(
-                            idNotFoundError
-                        ).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            },
-            _ => NoContent()
-        );
+        await categoryService.RemoveCategoryAsync(categoryId);
+        return NoContent();
     }
 }

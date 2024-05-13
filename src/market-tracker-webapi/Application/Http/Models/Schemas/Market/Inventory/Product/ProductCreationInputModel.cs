@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 
 namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
 

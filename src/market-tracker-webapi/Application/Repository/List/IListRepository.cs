@@ -1,27 +1,25 @@
-﻿using market_tracker_webapi.Application.Domain.Models.Account.Users;
-using market_tracker_webapi.Application.Domain.Models.List;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
+using market_tracker_webapi.Application.Domain.Schemas.List;
 
 namespace market_tracker_webapi.Application.Repository.List;
 
 public interface IListRepository
 {
-    Task<IEnumerable<ShoppingList>> GetListsAsync(Guid clientId, bool isOwner, string? listName = null,
+    Task<IEnumerable<ShoppingList>> GetListsFromClientAsync(Guid clientId, bool? isOwner = null, string? listName = null,
         DateTime? createdAfter = null, bool? isArchived = null
     );
 
-    Task<IEnumerable<UserId>> GetClientIdsByListIdAsync(int  listId);
+    Task<IEnumerable<ClientItem>> GetClientMembersByListIdAsync(string  listId);
     
-    Task<bool> IsClientInListAsync(int listId, Guid clientId);
-    
-    Task<ShoppingList?> GetListByIdAsync(int id);
+    Task<ShoppingList?> GetListByIdAsync(string id);
 
     Task<ShoppingListId> AddListAsync(string listName, Guid ownerId);
 
-    Task<ShoppingList?> UpdateListAsync(int id, DateTime? archivedAt, string? listName = null);
+    Task<ShoppingListItem?> UpdateListAsync(string id, DateTime? archivedAt, string? listName = null);
 
-    Task<ShoppingList?> DeleteListAsync(int id);
+    Task<ShoppingListItem?> DeleteListAsync(string id);
     
-    Task<ListClient> AddListClientAsync(int listId, Guid clientId);
+    Task<ListClient> AddListMemberAsync(string listId, Guid clientId);
     
-    Task<ListClient?> DeleteListClientAsync(int listId, Guid clientId);
+    Task<ListClient?> DeleteListMemberAsync(string listId, Guid clientId);
 }

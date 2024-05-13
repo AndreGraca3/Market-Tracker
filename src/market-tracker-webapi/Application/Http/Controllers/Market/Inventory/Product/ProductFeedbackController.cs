@@ -1,11 +1,9 @@
 using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory.Product;
-using market_tracker_webapi.Application.Http.Controllers.Account;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
-using market_tracker_webapi.Application.Http.Problem;
-using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,21 +18,8 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
         [FromQuery] PaginationInputs paginationInputs
     )
     {
-        var res = await productFeedbackService.GetReviewsByProductIdAsync(
-            productId, paginationInputs.Skip, paginationInputs.ItemsPerPage
-        );
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            }
-        );
+        return await productFeedbackService.GetReviewsByProductIdAsync(
+            productId, paginationInputs.Skip, paginationInputs.ItemsPerPage);
     }
 
     [HttpGet(Uris.Products.ProductPreferencesById)]
@@ -42,21 +27,8 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     public async Task<ActionResult<ProductPreferences>> GetProductsPreferencesAsync(string productId)
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
-        var res = await productFeedbackService.GetProductsPreferencesAsync(
-            authUser.User.Id, productId
-        );
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            }
-        );
+        return await productFeedbackService.GetProductsPreferencesAsync(
+            authUser.User.Id.Value, productId);
     }
 
     [HttpPatch(Uris.Products.ProductPreferencesById)]
@@ -67,42 +39,17 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     )
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
-        var res = await productFeedbackService.UpsertProductPreferencesAsync(
-            authUser.User.Id,
+        return await productFeedbackService.UpsertProductPreferencesAsync(
+            authUser.User.Id.Value,
             productId,
             preferencesInput.IsFavourite,
             preferencesInput.Review
         );
-
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            }
-        );
     }
-    
+
     [HttpGet(Uris.Products.StatsByProductId)]
     public async Task<ActionResult<ProductStats>> GetStatsByProductIdAsync(string productId)
     {
-        var res = await productFeedbackService.GetProductStatsByIdAsync(productId);
-        return ResultHandler.Handle(
-            res,
-            error =>
-            {
-                return error switch
-                {
-                    ProductFetchingError.ProductByIdNotFound idNotFoundError
-                        => new ProductProblem.ProductByIdNotFound(idNotFoundError).ToActionResult(),
-                    _ => new ServerProblem.InternalServerError().ToActionResult()
-                };
-            }
-        );
+        return await productFeedbackService.GetProductStatsByIdAsync(productId);
     }
 }

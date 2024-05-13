@@ -1,23 +1,16 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Models.Account.Auth;
-using market_tracker_webapi.Application.Domain.Models.Account.Users;
-using market_tracker_webapi.Application.Http.Models.Identifiers;
-using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
-using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Store;
-using market_tracker_webapi.Application.Service.Errors;
-using market_tracker_webapi.Application.Service.Errors.PreRegister;
-using market_tracker_webapi.Application.Utils;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
 
 namespace market_tracker_webapi.Application.Service.Operations.Account.Auth.PreRegister;
 
 public interface IPreRegistrationService
 {
-    Task<Either<IServiceError, PaginatedResult<OperatorItem>>> GetPreRegistrationsAsync(bool? isValid, int skip,
-        int limit);
+    Task<PaginatedResult<OperatorItem>> GetPreRegistrationsAsync(bool? isValid, int skip, int limit);
 
-    Task<Either<PreRegistrationFetchingError, PreRegistration>> GetPreRegistrationByIdAsync(Guid id);
+    Task<PreRegistration> GetPreRegistrationByIdAsync(Guid id);
 
-    Task<Either<PreRegistrationCreationError, PreRegistrationId>> AddPreRegistrationAsync(
+    Task<PreRegistrationCode> AddPreRegistrationAsync(
         string operatorName,
         string email,
         int phoneNumber,
@@ -28,7 +21,7 @@ public interface IPreRegistrationService
         string document
     );
 
-    Task<Either<PreRegistrationFetchingError, PreRegistrationId>> UpdatePreRegistrationByIdAsync(
+    Task<PreRegistrationCode> UpdatePreRegistrationByIdAsync(
         Guid id,
         bool isApproved
     );

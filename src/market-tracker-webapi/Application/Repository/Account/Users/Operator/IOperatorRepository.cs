@@ -1,10 +1,9 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Models.Account.Users;
-using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
 
 namespace market_tracker_webapi.Application.Repository.Account.Users.Operator;
 
-using Operator = Domain.Models.Account.Users.Operator;
+using Operator = Domain.Schemas.Account.Users.Operator;
 
 public interface IOperatorRepository
 {

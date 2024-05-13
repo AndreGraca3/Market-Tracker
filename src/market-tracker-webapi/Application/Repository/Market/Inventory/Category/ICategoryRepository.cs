@@ -1,8 +1,8 @@
-using market_tracker_webapi.Application.Domain.Models.Market.Inventory;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory;
 
 namespace market_tracker_webapi.Application.Repository.Market.Inventory.Category;
 
-using Category = Domain.Models.Market.Inventory.Category;
+using Category = Domain.Schemas.Market.Inventory.Category;
 
 public interface ICategoryRepository
 {

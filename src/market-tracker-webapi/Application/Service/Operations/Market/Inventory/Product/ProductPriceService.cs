@@ -1,17 +1,14 @@
-using market_tracker_webapi.Application.Domain.Models.Market.Retail.Sales;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales;
 using market_tracker_webapi.Application.Repository.Market.Price;
-using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Service.Results;
-using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
 
-using Company = Domain.Models.Market.Retail.Shop.Company;
+using Company = Domain.Schemas.Market.Retail.Shop.Company;
 
 public class ProductPriceService(IPriceRepository priceRepository) : IProductPriceService
 {
-    public async Task<Either<ProductFetchingError, IEnumerable<CompanyPricesResult>>> GetProductPricesAsync(
-        string productId)
+    public async Task<IEnumerable<CompanyPricesResult>> GetProductPricesAsync(string productId)
     {
         int? minPrice = null;
         int? maxPrice = null;
@@ -33,8 +30,7 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
 
             if (!companyStoresDictionary.ContainsKey(storeOffer!.Store.Company.Id.Value))
             {
-                companyStoresDictionary[storeOffer.Store.Company.Id.Value] =
-                    new List<StoreOffer>();
+                companyStoresDictionary[storeOffer.Store.Company.Id.Value] = [];
             }
 
             if (minPrice is null || storeOffer.PriceData.FinalPrice < minPrice)
@@ -52,14 +48,12 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
             companiesDictionary[storeOffer.Store.Company.Id.Value] = storeOffer.Store.Company;
         }
 
-        return EitherExtensions.Success<ProductFetchingError, IEnumerable<CompanyPricesResult>>(
-            companyStoresDictionary
-                .Select(companyStores => new CompanyPricesResult(
-                    companiesDictionary[companyStores.Key].Id.Value,
-                    companiesDictionary[companyStores.Key].Name,
-                    companyStores.Value
-                ))
-                .ToList()
-        );
+        return companyStoresDictionary
+            .Select(companyStores => new CompanyPricesResult(
+                companiesDictionary[companyStores.Key].Id.Value,
+                companiesDictionary[companyStores.Key].Name,
+                companyStores.Value
+            ))
+            .ToList();
     }
 }

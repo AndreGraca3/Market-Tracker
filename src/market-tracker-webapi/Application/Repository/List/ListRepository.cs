@@ -1,5 +1,5 @@
-﻿using market_tracker_webapi.Application.Domain.Models.Account.Users;
-using market_tracker_webapi.Application.Domain.Models.List;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
+using market_tracker_webapi.Application.Domain.Schemas.List;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
 using Microsoft.EntityFrameworkCore;
@@ -8,64 +8,75 @@ namespace market_tracker_webapi.Application.Repository.List;
 
 public class ListRepository(MarketTrackerDataContext context) : IListRepository
 {
-    public async Task<IEnumerable<ShoppingList>> GetListsAsync(
+    public async Task<IEnumerable<ShoppingList>> GetListsFromClientAsync(
         Guid clientId,
-        bool isOwner,
+        bool? isOwner,
         string? listName = null,
         DateTime? createdAfter = null,
         bool? isArchived = false
     )
     {
-        var query = context.List.AsQueryable()
-            .Join(context.ListClient, listEntity => listEntity.Id, listClient => listClient.ListId,
-                (listEntity, listClient) => listEntity);
-
-        if (isOwner)
-        {
-            query = query.Where(l => l.OwnerId == clientId);
-        }
-
-        if (!string.IsNullOrEmpty(listName))
-        {
-            query = query.Where(l => EF.Functions.ILike(l.Name, $"%{listName}%"));
-        }
-
-        if (isArchived is not null)
-        {
-            query = !isArchived.Value ? query.Where(l => l.ArchivedAt == null) : query.Where(l => l.ArchivedAt != null);
-        }
-
-        if (createdAfter is not null)
-        {
-            query = query.Where(l => l.CreatedAt >= createdAfter);
-        }
+        var query = from listEntity in context.List
+            join listClient in context.ListClient on listEntity.Id equals listClient.ListId into listClients
+            from listClient in listClients.DefaultIfEmpty()
+            where (isOwner == true && listEntity.OwnerId == clientId ||
+                   isOwner == false && listClient.ClientId == clientId ||
+                   isOwner == null && (listEntity.OwnerId == clientId || listClient.ClientId == clientId)
+                  ) &&
+                  (listName == null || EF.Functions.ILike(listEntity.Name, $"%{listName}%")) &&
+                  (createdAfter == null || listEntity.CreatedAt >= createdAfter) &&
+                  (isArchived == true && listEntity.ArchivedAt != null ||
+                   isArchived == false && listEntity.ArchivedAt == null ||
+                   isArchived == null)
+            select listEntity;
 
         return await query
             .OrderByDescending(listEntity => listEntity.CreatedAt)
-            .Select(listEntity => listEntity.ToShoppingList())
+            .Select(listEntity => new ShoppingList(
+                listEntity.Id,
+                listEntity.Name,
+                listEntity.ArchivedAt,
+                listEntity.CreatedAt,
+                listEntity.OwnerId,
+                context.ListClient.Where(lc =>
+                    lc.ListId == listEntity.Id).Select(lc => lc.ClientId).ToList()
+            ))
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<UserId>> GetClientIdsByListIdAsync(int listId)
+    public async Task<IEnumerable<ClientItem>> GetClientMembersByListIdAsync(string listId)
     {
-        var clients = await context.ListClient
-            .Where(listClient => listClient.ListId == listId)
-            .Select(listClient => new UserId(listClient.ClientId))
+        return await (from listClient in context.ListClient
+                join client in context.Client on listClient.ClientId equals client.UserId
+                where listClient.ListId == listId
+                select new ClientItem(client.UserId, client.Username, client.Avatar))
             .ToListAsync();
-
-        return clients;
     }
 
-    public async Task<bool> IsClientInListAsync(int listId, Guid clientId)
+    public async Task<ShoppingList?> GetListByIdAsync(string id)
     {
-        return await context.ListClient
-            .AnyAsync(lc => lc.ListId == listId && lc.ClientId == clientId);
-    }
+        var shoppingList = await (from listEntity in context.List
+            join listClient in context.ListClient on listEntity.Id equals listClient.ListId
+            where listEntity.Id == id
+            select new
+            {
+                List = listEntity,
+                ClientIds = context.ListClient.Where(lc => lc.ListId == listEntity.Id).Select(lc => lc.ClientId)
+                    .ToList()
+            }).FirstOrDefaultAsync();
 
-    public async Task<ShoppingList?> GetListByIdAsync(int id)
-    {
-        var listEntity = await context.List.FindAsync(id);
-        return listEntity?.ToShoppingList();
+        if (shoppingList == null)
+            return null;
+
+
+        return new ShoppingList(
+            shoppingList.List.Id,
+            shoppingList.List.Name,
+            shoppingList.List.ArchivedAt,
+            shoppingList.List.CreatedAt,
+            shoppingList.List.OwnerId,
+            shoppingList.ClientIds
+        );
     }
 
     public async Task<ShoppingListId> AddListAsync(string listName, Guid ownerId)
@@ -82,7 +93,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         return new ShoppingListId(listEntity.Id);
     }
 
-    public async Task<ShoppingList?> UpdateListAsync(int id, DateTime? archivedAt, string? listName = null)
+    public async Task<ShoppingListItem?> UpdateListAsync(string id, DateTime? archivedAt, string? listName = null)
     {
         var listEntity = await context.List.FindAsync(id);
 
@@ -103,10 +114,10 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
 
         await context.SaveChangesAsync();
 
-        return listEntity.ToShoppingList();
+        return listEntity.ToShoppingListItem();
     }
 
-    public async Task<ShoppingList?> DeleteListAsync(int id)
+    public async Task<ShoppingListItem?> DeleteListAsync(string id)
     {
         var listEntity = await context.List.FindAsync(id);
 
@@ -118,10 +129,10 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         context.List.Remove(listEntity);
         await context.SaveChangesAsync();
 
-        return listEntity.ToShoppingList();
+        return listEntity.ToShoppingListItem();
     }
 
-    public async Task<ListClient> AddListClientAsync(int listId, Guid clientId)
+    public async Task<ListClient> AddListMemberAsync(string listId, Guid clientId)
     {
         var listClient = new ListClientEntity()
         {
@@ -135,7 +146,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         return listClient.ToListClient();
     }
 
-    public async Task<ListClient?> DeleteListClientAsync(int listId, Guid clientId)
+    public async Task<ListClient?> DeleteListMemberAsync(string listId, Guid clientId)
     {
         var listClient = await context.ListClient
             .Where(lc => lc.ListId == listId && lc.ClientId == clientId)

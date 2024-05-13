@@ -1,6 +1,6 @@
 ﻿namespace market_tracker_webapi.Application.Repository.Account.Token;
 
-using Token = Domain.Models.Account.Auth.Token;
+using Token = Domain.Schemas.Account.Auth.Token;
 
 public interface ITokenRepository
 {
