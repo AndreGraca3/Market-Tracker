@@ -10,7 +10,6 @@ import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
-import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
