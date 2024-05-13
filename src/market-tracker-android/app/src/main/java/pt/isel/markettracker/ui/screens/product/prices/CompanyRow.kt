@@ -1,12 +1,10 @@
 package pt.isel.markettracker.ui.screens.product.prices
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import pt.isel.markettracker.dummy.dummyCompanyPrices
-import pt.isel.markettracker.http.models.price.CompanyPrices
+import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.ui.screens.product.stores.StoresBottomSheet
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
@@ -39,8 +37,8 @@ import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 fun CompanyRow(companyPrices: CompanyPrices) {
     var showCompanyStores by rememberSaveable { mutableStateOf(false) }
 
-    var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.stores.first().id) }
-    val selectedStorePrice = companyPrices.stores.first { it.id == selectedStoreId }
+    var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.storePrices.first().store.id) }
+    val selectedStorePrice = companyPrices.storePrices.first { it.store.id == selectedStoreId }
 
     Row(
         modifier = Modifier
@@ -60,7 +58,7 @@ fun CompanyRow(companyPrices: CompanyPrices) {
                 contentAlignment = Alignment.CenterStart
             ) {
                 SubcomposeAsyncImage(
-                    model = companyPrices.logoUrl,
+                    model = companyPrices.company.logoUrl,
                     loading = {
                         CircularProgressIndicator()
                     },
@@ -70,7 +68,7 @@ fun CompanyRow(companyPrices: CompanyPrices) {
             }
 
             Text(
-                text = selectedStorePrice.name,
+                text = selectedStorePrice.store.name,
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
                     .clickable {
@@ -85,11 +83,11 @@ fun CompanyRow(companyPrices: CompanyPrices) {
             )
         }
 
-        CompanyPriceBox(price = selectedStorePrice.price)
+        CompanyPriceBox(price = selectedStorePrice.priceData.finalPrice)
     }
     StoresBottomSheet(
         showStores = showCompanyStores,
-        storesPrices = companyPrices.stores,
+        storesPrices = companyPrices.storePrices,
         onStoreSelect = { selectedStoreId = it },
         onDismissRequest = { showCompanyStores = false }
     )

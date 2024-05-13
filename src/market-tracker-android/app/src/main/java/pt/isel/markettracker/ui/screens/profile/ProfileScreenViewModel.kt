@@ -19,7 +19,7 @@ import pt.isel.markettracker.domain.Idle
 import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.domain.loadSuccess
 import pt.isel.markettracker.domain.loading
-import pt.isel.markettracker.http.models.user.UserOutputModel
+import pt.isel.markettracker.domain.model.account.User
 import pt.isel.markettracker.http.service.operations.token.ITokenService
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
@@ -34,7 +34,7 @@ class ProfileScreenViewModel @AssistedInject constructor(
     private val tokenService: ITokenService
 ) : ViewModel() {
 
-    private val userFetchingFlow: MutableStateFlow<IOState<UserOutputModel>> =
+    private val userFetchingFlow: MutableStateFlow<IOState<User>> =
         MutableStateFlow(idle())
 
     val userPhase

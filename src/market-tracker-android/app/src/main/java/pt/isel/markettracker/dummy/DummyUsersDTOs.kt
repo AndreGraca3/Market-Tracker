@@ -1,6 +1,7 @@
 package pt.isel.markettracker.dummy
 
-import pt.isel.markettracker.domain.model.user.User
+import pt.isel.markettracker.domain.model.account.User
+import java.time.LocalDateTime
 
 val dummyUsers = mutableListOf(
         User(
@@ -9,5 +10,6 @@ val dummyUsers = mutableListOf(
             username = "alberto_concertina",
             email = "alberto@gmail.com",
             password = "123",
+            createdAt = LocalDateTime.now()
         )
     )

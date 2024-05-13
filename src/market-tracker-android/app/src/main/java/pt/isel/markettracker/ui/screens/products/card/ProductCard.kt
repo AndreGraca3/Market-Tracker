@@ -19,7 +19,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.domain.model.product.Product
+import pt.isel.markettracker.domain.model.market.inventory.Brand
+import pt.isel.markettracker.domain.model.market.inventory.Category
+import pt.isel.markettracker.domain.model.market.inventory.ProductUnit
+import pt.isel.markettracker.domain.model.market.inventory.product.Product
 import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.dummy.dummyStores
 import pt.isel.markettracker.ui.components.LoadableImage
@@ -62,7 +65,7 @@ fun ProductCard(product: Product, onProductClick: (String) -> Unit) {
             }
             ProductCardSpecs(product = product)
             CompanyPriceCardHeader(
-                dummyCompanyPrices.minOf { companyPrices -> companyPrices.stores.minOf { it.price } },
+                dummyCompanyPrices.minOf { companyPrices -> companyPrices.storePrices.minOf { it.priceData.finalPrice } },
                 dummyStores.first().company.logoUrl
             )
 
@@ -76,7 +79,16 @@ fun ProductCard(product: Product, onProductClick: (String) -> Unit) {
 fun ProductCardPreview() {
     MarkettrackerTheme {
         ProductCard(
-            Product("id", "name", "image", 1, "uni", 1.0, "brand", "category"),
+            Product(
+                "id",
+                "name",
+                "image",
+                1,
+                ProductUnit.UNIT,
+                1.0,
+                Brand(1, "brand"),
+                Category(1, "category")
+            ),
             onProductClick = {}
         )
     }

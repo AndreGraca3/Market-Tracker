@@ -1,8 +1,9 @@
 package pt.isel.markettracker.http.models.product
 
-import pt.isel.markettracker.domain.model.category.Category
-import pt.isel.markettracker.domain.model.brand.Brand
-import pt.isel.markettracker.domain.model.product.Product
+import pt.isel.markettracker.domain.model.market.inventory.Category
+import pt.isel.markettracker.domain.model.market.inventory.Brand
+import pt.isel.markettracker.domain.model.market.inventory.ProductUnit
+import pt.isel.markettracker.domain.model.market.inventory.product.Product
 
 data class ProductOutputModel(
     val id: String,
@@ -19,9 +20,9 @@ data class ProductOutputModel(
         name,
         imageUrl,
         quantity,
-        unit,
+        ProductUnit.fromTitle(unit),
         rating,
-        brand.name,
-        category.name
+        brand,
+        category
     )
 }
