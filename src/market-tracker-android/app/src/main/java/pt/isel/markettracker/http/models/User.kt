@@ -1,11 +1,13 @@
 package pt.isel.markettracker.http.models
 
+import java.time.LocalDateTime
+
 data class UserInfo(
     val id: Int,
     val name: String,
     val nickName: String,
     val avatarUrl: String?,
-    val createdAt: String,
+    val createdAt: LocalDateTime,
 )
 
 data class UserDetails(
@@ -14,7 +16,7 @@ data class UserDetails(
     val name: String,
     val nickName: String,
     val avatarUrl: String?,
-    val createdAt: String,
+    val createdAt: LocalDateTime,
 )
 
 data class UserItem(

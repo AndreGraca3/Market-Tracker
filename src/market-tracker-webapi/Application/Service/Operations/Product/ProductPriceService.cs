@@ -3,16 +3,25 @@ using market_tracker_webapi.Application.Http.Models.Price;
 using market_tracker_webapi.Application.Http.Models.Store;
 using market_tracker_webapi.Application.Repository.Dto;
 using market_tracker_webapi.Application.Repository.Operations.Price;
+using market_tracker_webapi.Application.Repository.Operations.Product;
 using market_tracker_webapi.Application.Service.Errors.Product;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Product;
 
-public class ProductPriceService(IPriceRepository priceRepository) : IProductPriceService
+public class ProductPriceService(IProductRepository productRepository, IPriceRepository priceRepository)
+    : IProductPriceService
 {
     public async Task<Either<ProductFetchingError, CollectionOutputModel<CompanyPricesOutputModel>>>
         GetProductPricesAsync(string productId)
     {
+        if (await productRepository.GetProductByIdAsync(productId) is null)
+        {
+            return EitherExtensions.Failure<ProductFetchingError, CollectionOutputModel<CompanyPricesOutputModel>>(
+                new ProductFetchingError.ProductByIdNotFound(productId)
+            );
+        }
+
         int? minPrice = null;
         int? maxPrice = null;
 

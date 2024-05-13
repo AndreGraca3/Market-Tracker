@@ -1,6 +1,7 @@
 package pt.isel.markettracker.http.service
 
 import android.util.Log
+import com.example.markettracker.BuildConfig
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -20,14 +21,26 @@ import kotlin.coroutines.resumeWithException
 
 abstract class MarketTrackerService {
     companion object {
-        const val MT_API_URL = "http://localhost:2001/api" //"https://192.168.1.X:2001/api"
+        const val MT_API_URL = BuildConfig.API_URL
     }
 
     abstract val httpClient: OkHttpClient
     abstract val gson: Gson
 
-    protected suspend inline fun <reified T> requestHandler(request: Request): T =
-        suspendCancellableCoroutine {
+    protected suspend fun <T> requestHandler(
+        path: String,
+        method: HttpMethod,
+        input: Any? = null
+    ): T {
+        val url = URL(MT_API_URL + path)
+        Log.v("requestHandler", "Request to API: $url")
+        val request = Request.Builder().buildRequest(
+            url,
+            method,
+            input
+        )
+
+        return suspendCancellableCoroutine {
             val call = httpClient.newCall(request)
             call.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
@@ -57,11 +70,12 @@ abstract class MarketTrackerService {
             })
             it.invokeOnCancellation { call.cancel() }
         }
+    }
 
-    protected fun Request.Builder.buildRequest(
+    private fun Request.Builder.buildRequest(
         url: URL,
         method: HttpMethod,
-        input: Any = HttpMethod.GET
+        input: Any? = null
     ): Request {
         val hypermediaType = "application/json".toMediaType()
         val request = this

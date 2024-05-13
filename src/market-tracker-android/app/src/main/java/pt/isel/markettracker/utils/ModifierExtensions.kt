@@ -1,11 +1,15 @@
 package pt.isel.markettracker.utils
 
 import android.graphics.BlurMaskFilter
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -13,11 +17,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -64,18 +70,6 @@ fun Modifier.advanceShadow(
     }
 }
 
-fun Modifier.bottomBorder(strokeWidth: Dp, color: Color = Color.Black): Modifier {
-    this.drawBehind {
-        drawLine(
-            color = color,
-            start = Offset(0f, size.height - strokeWidth.toPx()),
-            end = Offset(size.width, size.height - strokeWidth.toPx()),
-            strokeWidth = strokeWidth.toPx()
-        )
-    }
-    return this
-}
-
 fun Modifier.shimmerEffect(): Modifier = composed {
     var size by remember {
         mutableStateOf(IntSize.Zero)
@@ -111,4 +105,55 @@ fun Modifier.conditional(condition : Boolean, modifier : Modifier.() -> Modifier
     } else {
         this
     }
+}
+
+fun Modifier.bounceAnimation() = composed {
+    val transition = rememberInfiniteTransition(label = "bounce")
+
+    val animationSpec = infiniteRepeatable<Float>(
+        animation = tween(
+            durationMillis = (500..1000).random(),
+            easing = LinearEasing
+        ),
+        repeatMode = RepeatMode.Reverse
+    )
+
+    val offsetY by transition.animateFloat(
+        initialValue = 1F,
+        targetValue = 4F,
+        animationSpec,
+        label = "offsetY"
+    )
+
+    val bounceScale by transition.animateFloat(
+        initialValue = 0.9F,
+        targetValue = 1F,
+        animationSpec = animationSpec,
+        label = "bounceScale"
+    )
+    this
+        .offset(y = offsetY.dp)
+        .scale(scaleX = bounceScale, scaleY = 1F)
+}
+
+fun Modifier.spin(duration: Int = 1000, delay: Int = 0): Modifier = composed {
+    val transition = rememberInfiniteTransition(label = "spin")
+
+    val animationSpec = infiniteRepeatable<Float>(
+        animation = tween(
+            durationMillis = duration,
+            delayMillis = delay,
+            easing = EaseInOut
+        ),
+        repeatMode = RepeatMode.Restart
+    )
+
+    val rotation by transition.animateFloat(
+        initialValue = 0F,
+        targetValue = 360F,
+        animationSpec = animationSpec,
+        label = "rotation"
+    )
+
+    this.graphicsLayer(rotationZ = rotation)
 }

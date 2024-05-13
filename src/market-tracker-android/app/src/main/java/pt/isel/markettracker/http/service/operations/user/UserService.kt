@@ -3,15 +3,15 @@ package pt.isel.markettracker.http.service.operations.user
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
-import pt.isel.markettracker.domain.model.user.User
+import pt.isel.markettracker.domain.PaginatedResult
+import pt.isel.markettracker.domain.model.account.User
 import pt.isel.markettracker.dummy.dummyUsers
-import pt.isel.markettracker.http.models.StringIdOutputModel
+import pt.isel.markettracker.http.models.identifiers.StringIdOutputModel
 import pt.isel.markettracker.http.models.user.UserCreationInputModel
-import pt.isel.markettracker.http.models.user.UserOutputModel
 import pt.isel.markettracker.http.models.user.UserUpdateInputModel
-import pt.isel.markettracker.http.models.user.UsersOutputModel
 import pt.isel.markettracker.http.service.MarketTrackerService
 import java.net.URL
+import java.time.LocalDateTime
 
 class UserService(
     override val httpClient: OkHttpClient,
@@ -23,7 +23,7 @@ class UserService(
         private val USER_REQUEST_URL = URL("${MT_API_URL}/users")
     }
 
-    override suspend fun getUsers(username: String?): UsersOutputModel {
+    override suspend fun getUsers(username: String?): PaginatedResult<User> {
         /*return requestHandler<UsersOutputModel>(
             request = Request.Builder().buildRequest(
                 url = USERS_REQUEST_URL,
@@ -35,13 +35,16 @@ class UserService(
             dummyUsers.filter { it.username.contains(username) }
         } else dummyUsers
 
-        return UsersOutputModel(
-            users = newUsers.map { user -> user.toUserOutputModel() },
-            total = newUsers.size
+        return PaginatedResult(
+            items = newUsers,
+            currentPage = 1,
+            itemsPerPage = newUsers.size,
+            totalItems = newUsers.size,
+            totalPages = 1,
         )
     }
 
-    override suspend fun getUser(id: String): UserOutputModel {
+    override suspend fun getUser(id: String): User {
         //return requestHandler<UserOutputModel>(
         //    request = Request.Builder().buildRequest(
         //        url = USER_REQUEST_URL,
@@ -49,11 +52,11 @@ class UserService(
         //    )
         //)
         delay(1000)
-        return dummyUsers.first { it.id == id }.toUserOutputModel()
+        return dummyUsers.first { it.id == id }
     }
 
-    override suspend fun createUser(input: UserCreationInputModel): StringIdOutputModel {
-        /*return requestHandler<IdOutputModel>(
+    override suspend fun createUser(input: UserCreationInputModel): String {
+        /*return requestHandler<StringIdOutputModel>(
             request = Request.Builder().buildRequest(
                 url = USER_REQUEST_URL,
                 input = input,
@@ -67,13 +70,15 @@ class UserService(
                 username = input.username,
                 name = input.name,
                 email = input.email,
-                password = input.password
+                password = input.password,
+                "avatar",
+                LocalDateTime.now()
             )
         )
-        return StringIdOutputModel(id)
+        return id
     }
 
-    override suspend fun updateUser(id: String, input: UserUpdateInputModel): UserOutputModel {
+    override suspend fun updateUser(id: String, input: UserUpdateInputModel): User {
         //return requestHandler<UserOutputModel>(
         //    request = Request.Builder().buildRequest(
         //        url = USER_REQUEST_URL,
@@ -81,17 +86,7 @@ class UserService(
         //        method = HttpMethod.PUT
         //    )
         //)
-        dummyUsers.map {
-            if (it.id == id) {
-                UserOutputModel(
-                    id = id,
-                    name = input.name ?: it.name,
-                    username = input.username ?: it.username,
-                    email = it.email
-                )
-            }
-        }
-        return dummyUsers.first { it.id == id }.toUserOutputModel()
+        return dummyUsers.first { it.id == id }
     }
 
     override suspend fun updateUserAvatar(id: String, avatar: String) {
@@ -111,14 +106,5 @@ class UserService(
         //)
         dummyUsers.removeIf { it.id == id } // verify if true
         return StringIdOutputModel(id)
-    }
-
-    private fun User.toUserOutputModel(): UserOutputModel {
-        return UserOutputModel(
-            id = this.id,
-            name = this.name,
-            username = this.username,
-            email = this.email
-        )
     }
 }

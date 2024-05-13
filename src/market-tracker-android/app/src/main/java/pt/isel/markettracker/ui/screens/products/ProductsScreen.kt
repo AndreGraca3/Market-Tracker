@@ -13,11 +13,14 @@ fun ProductsScreen(
 ) {
     val state by productsScreenViewModel.stateFlow.collectAsState()
 
-    ProductsView(
+    ProductsScreenView(
         state = state,
-        fetchProducts = { query, forceRefresh, forceReset ->
-            productsScreenViewModel.fetchProducts(query, forceRefresh, forceReset)
+        query = productsScreenViewModel.query,
+        onQueryChange = { productsScreenViewModel.query = it },
+        fetchProducts = { query, forceRefresh ->
+            productsScreenViewModel.fetchProducts(query, forceRefresh)
         },
+        loadMoreProducts = { productsScreenViewModel.loadMoreProducts(it) },
         onProductClick = onProductClick,
         onBarcodeScanRequest = onBarcodeScanRequest
     )

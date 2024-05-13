@@ -1,21 +1,28 @@
 package pt.isel.markettracker.http.service.operations.product
 
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import pt.isel.markettracker.domain.model.product.PaginatedProductOffers
-import pt.isel.markettracker.domain.model.product.ProductInfo
-import pt.isel.markettracker.domain.model.product.ProductPreferences
-import pt.isel.markettracker.domain.model.product.ProductStats
-import pt.isel.markettracker.domain.model.product.ProductStatsCounts
+import pt.isel.markettracker.domain.model.market.Company
+import pt.isel.markettracker.domain.model.market.inventory.Brand
+import pt.isel.markettracker.domain.model.market.inventory.product.FacetCounter
+import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
+import pt.isel.markettracker.domain.model.market.inventory.product.Product
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductStatsCounts
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductsFacetsCounters
+import pt.isel.markettracker.domain.model.market.price.CompanyPrices
+import pt.isel.markettracker.dummy.dummyBrands
+import pt.isel.markettracker.dummy.dummyCategories
+import pt.isel.markettracker.dummy.dummyCompanies
 import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.dummy.dummyProducts
-import pt.isel.markettracker.http.models.price.CompanyPrices
 import pt.isel.markettracker.http.service.MarketTrackerService
-import java.net.URL
 
-private fun buildProductsUrl(
+private fun buildProductsPath(
     page: Int,
     itemsPerPage: Int?,
     searchQuery: String?,
@@ -25,7 +32,7 @@ private fun buildProductsUrl(
         searchQuery?.let { "&name=$it" }.orEmpty() +
         sortOption?.let { "&sortBy=$it" }.orEmpty()
 
-private const val PRODUCT_URL = "/products/{id}"
+private fun buildProductByIdPath(id: String) = "/products/$id"
 
 class ProductService(
     override val httpClient: OkHttpClient,
@@ -37,24 +44,69 @@ class ProductService(
         searchQuery: String?,
         sortOption: String?
     ): PaginatedProductOffers {
-        return requestHandler<PaginatedProductOffers>(
-            request = Request.Builder().buildRequest(
-                url = URL(
-                    buildProductsUrl(
-                        page = page,
-                        itemsPerPage = itemsPerPage,
-                        searchQuery = searchQuery,
-                        sortOption = sortOption
+        /*return requestHandler(
+            path = buildProductsPath(
+                page = page,
+                itemsPerPage = itemsPerPage,
+                searchQuery = searchQuery,
+                sortOption = sortOption
+            ),
+            method = HttpMethod.GET
+        )*/
+        Log.v("ProductService", "Fetching products")
+        delay(3000)
+        return PaginatedProductOffers(
+            dummyProducts.shuffled().map {
+                ProductOffer(
+                    it,
+                    dummyCompanyPrices.first().storePrices.first()
+                )
+            },
+            ProductsFacetsCounters(
+                listOf(
+                    FacetCounter(
+                        dummyBrands.random(),
+                        (100..230).random()
+                    ),
+                    FacetCounter(
+                        dummyBrands.random(),
+                        (200..300).random()
                     )
                 ),
-                method = HttpMethod.GET
-            )
+                listOf(
+                    FacetCounter(
+                        dummyCompanies.random(),
+                        (100..230).random()
+                    ),
+                    FacetCounter(
+                        dummyCompanies.random(),
+                        (100..230).random()
+                    )
+                ),
+                listOf(
+                    FacetCounter(
+                        dummyCategories.random(),
+                        (1..10).random()
+                    ),
+                    FacetCounter(
+                        dummyCategories.random(),
+                        (1..10).random()
+                    )
+                )
+            ),
+            0,
+            0,
+            0,
+            0,
+            true
         )
     }
 
-    override suspend fun getProductById(id: String): ProductInfo {
-        delay(1000)
-        return dummyProducts.first { it.id == id }
+    override suspend fun getProductById(id: String): Product {
+        return requestHandler(
+            path = buildProductByIdPath(id),
+            method = HttpMethod.GET
+        )
     }
 
     override suspend fun getProductPrices(id: String): List<CompanyPrices> {

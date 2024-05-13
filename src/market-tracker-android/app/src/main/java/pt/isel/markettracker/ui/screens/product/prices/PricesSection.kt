@@ -13,10 +13,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,7 +25,7 @@ import pt.isel.markettracker.domain.Fail
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.Loaded
 import pt.isel.markettracker.domain.extractValue
-import pt.isel.markettracker.http.models.price.CompanyPrices
+import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.utils.shimmerEffect
 

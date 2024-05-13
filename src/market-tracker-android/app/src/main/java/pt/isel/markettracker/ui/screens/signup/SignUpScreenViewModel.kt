@@ -15,7 +15,7 @@ import pt.isel.markettracker.domain.fail
 import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.domain.loaded
 import pt.isel.markettracker.domain.loading
-import pt.isel.markettracker.http.models.StringIdOutputModel
+import pt.isel.markettracker.http.models.identifiers.StringIdOutputModel
 import pt.isel.markettracker.http.models.user.UserCreationInputModel
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import javax.inject.Inject
@@ -25,10 +25,10 @@ class SignUpScreenViewModel @Inject constructor(
     private val userService: IUserService
 ) : ViewModel() {
 
-    private val signUpPhaseFlow: MutableStateFlow<IOState<StringIdOutputModel>> =
+    private val signUpPhaseFlow: MutableStateFlow<IOState<String>> =
         MutableStateFlow(idle())
 
-    val signUpPhase: Flow<IOState<StringIdOutputModel>>
+    val signUpPhase: Flow<IOState<String>>
         get() = signUpPhaseFlow.asStateFlow()
 
     var name by mutableStateOf("")

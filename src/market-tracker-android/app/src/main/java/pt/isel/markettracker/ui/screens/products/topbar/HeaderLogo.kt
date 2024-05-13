@@ -34,7 +34,7 @@ fun HeaderLogo(modifier: Modifier = Modifier) {
         Image(
             painter = painterResource(id = R.drawable.mt_logo), contentDescription = "",
             modifier = Modifier
-                .padding(4.dp)
+                .padding(2.dp)
         )
     }
 }
