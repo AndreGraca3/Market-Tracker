@@ -15,41 +15,77 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
             join product in dataContext.Product on listEntry.ProductId equals product.Id
             join brand in dataContext.Brand on product.BrandId equals brand.Id
             join category in dataContext.Category on product.CategoryId equals category.Id
+            join store in dataContext.Store on listEntry.StoreId equals store.Id
             where listEntry.ListId == listId && (storeId == null || listEntry.StoreId == storeId)
             select new
             {
                 ListEntryEntity = listEntry,
                 ProductEntity = product,
+                StoreEntity = store,
                 BrandEntity = brand,
                 CategoryEntity = category
             };
 
         return await query
             .Select(g =>
-                g.ListEntryEntity.ToListEntry(g.ProductEntity.ToProduct(g.BrandEntity.ToBrand(),
-                    g.CategoryEntity.ToCategory())))
+                g.ListEntryEntity.ToListEntry(
+                    g.ProductEntity.ToProduct(g.BrandEntity.ToBrand(), g.CategoryEntity.ToCategory()),
+                    g.StoreEntity.ToStoreItem()
+                )
+            )
             .ToListAsync();
     }
 
-    public async Task<ListEntry?> GetListEntryAsync(string listId, string productId)
+    public async Task<ListEntry?> GetListEntryByIdAsync(string entryId)
     {
         var query = from listEntry in dataContext.ListEntry
             join product in dataContext.Product on listEntry.ProductId equals product.Id
             join brand in dataContext.Brand on product.BrandId equals brand.Id
             join category in dataContext.Category on product.CategoryId equals category.Id
-            where listEntry.ListId == listId && listEntry.ProductId == productId
+            join store in dataContext.Store on listEntry.StoreId equals store.Id
+            where listEntry.Id == entryId
             select new
             {
                 ListEntryEntity = listEntry,
                 ProductEntity = product,
+                StoreEntity = store,
                 BrandEntity = brand,
                 CategoryEntity = category
             };
 
-        var result = await query.FirstOrDefaultAsync();
+        return await query
+            .Select(g => g.ListEntryEntity.ToListEntry(
+                g.ProductEntity.ToProduct(g.BrandEntity.ToBrand(), g.CategoryEntity.ToCategory()),
+                g.StoreEntity.ToStoreItem())
+            ).FirstOrDefaultAsync();
+    }
 
-        return result?.ListEntryEntity.ToListEntry(result.ProductEntity.ToProduct(result.BrandEntity.ToBrand(),
-            result.CategoryEntity.ToCategory()));
+    public async Task<ListEntry?> GetListEntryByProductIdAsync(string listId, string productId)
+    {
+        var query = from listEntry in dataContext.ListEntry
+            where listEntry.ListId == listId && listEntry.ProductId == productId
+            select listEntry
+            into listEntryEntity
+            join product in dataContext.Product on listEntryEntity.ProductId equals product.Id
+            join brand in dataContext.Brand on product.BrandId equals brand.Id
+            join category in dataContext.Category on product.CategoryId equals category.Id
+            join store in dataContext.Store on listEntryEntity.StoreId equals store.Id
+            select new
+            {
+                ListEntryEntity = listEntryEntity,
+                ProductEntity = product,
+                StoreEntity = store,
+                BrandEntity = brand,
+                CategoryEntity = category
+            };
+        return await query
+            .Select(g =>
+                g.ListEntryEntity.ToListEntry(
+                    g.ProductEntity.ToProduct(g.BrandEntity.ToBrand(), g.CategoryEntity.ToCategory()),
+                    g.StoreEntity.ToStoreItem()
+                )
+            )
+            .FirstOrDefaultAsync();
     }
 
     public async Task<ListEntryId> AddListEntryAsync(string listId, string productId, int storeId, int quantity)
@@ -68,10 +104,10 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
         return new ListEntryId(productInListEntity.Id);
     }
 
-    public async Task<ListEntry?> UpdateListEntryAsync(string listId, string productId, int? storeId = null,
-        int? quantity = null)
+    public async Task<ListEntry?> UpdateListEntryByIdAsync(string entryId, int? storeId,
+        int? quantity)
     {
-        var listEntryEntity = await dataContext.ListEntry.FindAsync(listId, productId);
+        var listEntryEntity = await dataContext.ListEntry.FindAsync(entryId);
 
         if (listEntryEntity == null)
         {
@@ -90,12 +126,12 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
 
         await dataContext.SaveChangesAsync();
 
-        return await GetListEntryAsync(listId, productId);
+        return await GetListEntryByIdAsync(entryId);
     }
 
-    public async Task<ListEntry?> DeleteListEntryAsync(string listId, string productId)
+    public async Task<ListEntry?> DeleteListEntryByIdAsync(string entryId)
     {
-        var productInListEntity = await dataContext.ListEntry.FindAsync(listId, productId);
+        var productInListEntity = await dataContext.ListEntry.FindAsync(entryId);
 
         if (productInListEntity == null)
         {
@@ -105,6 +141,6 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
         dataContext.ListEntry.Remove(productInListEntity);
         await dataContext.SaveChangesAsync();
 
-        return await GetListEntryAsync(listId, productId);
+        return await GetListEntryByIdAsync(entryId);
     }
 }

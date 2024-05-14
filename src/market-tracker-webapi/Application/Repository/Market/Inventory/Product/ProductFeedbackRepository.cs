@@ -70,7 +70,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         reviewEntity.Text = comment;
 
         await dataContext.SaveChangesAsync();
-        return (await GetProductsPreferencesAsync(clientId, productId)).Review;
+        return (await GetProductPreferencesAsync(clientId, productId)).Review;
     }
 
     public async Task<ProductReview?> RemoveReviewAsync(Guid clientId, string productId)
@@ -81,10 +81,10 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
             return null;
         }
 
+        var review = (await GetProductPreferencesAsync(clientId, productId)).Review;
         dataContext.ProductReview.Remove(reviewEntity);
-
         await dataContext.SaveChangesAsync();
-        return (await GetProductsPreferencesAsync(clientId, productId)).Review;
+        return review;
     }
 
     public async Task<bool> UpdateProductFavouriteAsync(
@@ -111,7 +111,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         return isFavourite;
     }
 
-    public async Task<ProductPreferences> GetProductsPreferencesAsync(
+    public async Task<ProductPreferences> GetProductPreferencesAsync(
         Guid clientId,
         string productId
     )

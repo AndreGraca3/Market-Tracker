@@ -2,9 +2,8 @@
 
 public class ListEntryFetchingError : IListEntryError
 {
-    public class ListEntryByIdNotFound(string listId, string productId) : ListEntryFetchingError
+    public class ListEntryByIdNotFound(string entryId) : ListEntryFetchingError
     {
-        public string ListId { get; } = listId;
-        public string ProductId { get; } = productId;
+        public string EntryId { get; } = entryId;
     }
 }

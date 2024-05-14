@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
+namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product.Offer;
 
 public class ProductsFiltersInputModel
 {

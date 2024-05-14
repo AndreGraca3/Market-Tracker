@@ -4,7 +4,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Market.Inventory.
 
 public interface IProductPriceService
 {
-    public Task<IEnumerable<CompanyPricesResult>> GetProductPricesAsync(string productId);
+    public Task<CompaniesPricesResult> GetProductPricesAsync(string productId);
 
     // TODO: price history
 }

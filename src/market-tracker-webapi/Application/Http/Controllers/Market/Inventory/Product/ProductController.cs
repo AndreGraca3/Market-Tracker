@@ -1,8 +1,8 @@
 using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
-using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product.Offer;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
 using market_tracker_webapi.Application.Service.Results;
@@ -46,11 +46,11 @@ public class ProductController(IProductService productService, IProductPriceServ
     }
 
     [HttpGet(Uris.Products.PricesByProductId)]
-    public async Task<ActionResult<CollectionOutputModel<CompanyPricesResult>>> GetProductPricesAsync(
+    public async Task<ActionResult<CompaniesPricesResultOutputModel>> GetProductPricesAsync(
         string productId)
     {
-        var companyPricesResults = await productPriceService.GetProductPricesAsync(productId);
-        return companyPricesResults.ToCollectionOutputModel();
+        var companiesPricesResult = await productPriceService.GetProductPricesAsync(productId);
+        return companiesPricesResult.ToOutputModel();
     }
 
     [HttpPost(Uris.Products.Base)]
@@ -80,7 +80,7 @@ public class ProductController(IProductService productService, IProductPriceServ
 
     [HttpPut(Uris.Products.AvailabilityByProductId)]
     [Authorized([Role.Operator])]
-    public async Task<ActionResult<ProductId>> SetProductAvailabilityAsync(
+    public async Task<ActionResult> SetProductAvailabilityAsync(
         string productId, [FromBody] ProductAvailabilityInputModel availabilityInput
     )
     {

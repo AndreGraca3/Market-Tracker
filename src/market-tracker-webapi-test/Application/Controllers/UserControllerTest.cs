@@ -1,4 +1,4 @@
-﻿namespace market_tracker_webapi_test.Controllers
+﻿namespace market_tracker_webapi_test.Application.Controllers
 {
     /*public class UserControllerTest
     {

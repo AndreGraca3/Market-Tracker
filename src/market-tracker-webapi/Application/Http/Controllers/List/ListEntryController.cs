@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using market_tracker_webapi.Application.Domain.Filters.List;
 using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
 using market_tracker_webapi.Application.Domain.Schemas.List;
 using market_tracker_webapi.Application.Http.Models.Schemas.List.ListEntry;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.Operations.List;
-using market_tracker_webapi.Application.Service.Results;
 using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.List;
@@ -29,40 +29,40 @@ public class ListEntryController(IListEntryService listEntryService) : Controlle
 
     [HttpPatch(Uris.Lists.ListEntryEntryById)]
     [Authorized([Role.Client])]
-    public async Task<ActionResult<ListEntry>> UpdateListEntryAsync(
+    public async Task<ActionResult<ListEntryOutputModel>> UpdateListEntryAsync(
         string listId,
-        string productId,
+        string entryId,
         [FromBody] ListEntryUpdateInputModel inputModel)
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
-        return await listEntryService.UpdateListEntryAsync(
-            listId, authUser.User.Id.Value, productId, inputModel.StoreId, inputModel.Quantity
-        );
+        return (await listEntryService.UpdateListEntryAsync(
+            listId, authUser.User.Id.Value, entryId, inputModel.StoreId, inputModel.Quantity
+        )).ToOutputModel();
     }
 
     [HttpDelete(Uris.Lists.ListEntryEntryById)]
     [Authorized([Role.Client])]
-    public async Task<ActionResult<ListEntry>> DeleteListEntryAsync(
+    public async Task<ActionResult> DeleteListEntryAsync(
         string listId,
-        string productId)
+        string entryId)
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
-        await listEntryService.DeleteListEntryAsync(listId, authUser.User.Id.Value, productId);
+        await listEntryService.DeleteListEntryAsync(listId, authUser.User.Id.Value, entryId);
         return NoContent();
     }
 
     [HttpGet(Uris.Lists.EntriesByListId)]
-    public async Task<ActionResult<ShoppingListEntriesResult>> GetListEntriesAsync(
+    public async Task<ActionResult<ShoppingListEntriesResultOutputModel>> GetListEntriesAsync(
         string listId,
         [FromQuery] ShoppingListAlternativeType? alternativeType,
         [FromQuery] AlternativeListFiltersInputModel filters,
         [Required] Guid clientId
     )
     {
-        return await listEntryService.GetListEntriesAsync(listId, clientId, alternativeType,
+        return (await listEntryService.GetListEntriesAsync(listId, clientId, alternativeType,
             filters.CompanyIds,
             filters.StoreIds,
             filters.CityIds
-        );
+        )).ToOutputModel();
     }
 }

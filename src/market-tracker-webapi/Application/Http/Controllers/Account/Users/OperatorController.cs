@@ -13,9 +13,8 @@ public class OperatorController(IOperatorService operatorService) : ControllerBa
 {
     [HttpGet(Uris.Operator.Base)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<PaginatedResult<OperatorOutputModel>>> GetOperatorsAsync(
-        [FromQuery] PaginationInputs paginationInputs
-    )
+    public async Task<ActionResult<PaginatedResult<OperatorItemOutputModel>>> GetOperatorsAsync(
+        [FromQuery] PaginationInputs paginationInputs)
     {
         var paginatedResult = await operatorService.GetOperatorsAsync(paginationInputs.Skip,
             paginationInputs.ItemsPerPage);
@@ -24,9 +23,9 @@ public class OperatorController(IOperatorService operatorService) : ControllerBa
 
     [HttpGet(Uris.Operator.OperatorById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<Operator>> GetOperatorAsync(Guid id)
+    public async Task<ActionResult<OperatorOutputModel>> GetOperatorAsync(Guid id)
     {
-        return await operatorService.GetOperatorByIdAsync(id);
+        return (await operatorService.GetOperatorByIdAsync(id)).ToOutputModel();
     }
 
     [HttpPost(Uris.Operator.Base)]

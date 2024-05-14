@@ -11,30 +11,29 @@ namespace market_tracker_webapi.Application.Http.Controllers.Market.Store;
 public class StoreController(IStoreService storeService) : ControllerBase
 {
     [HttpGet(Uris.Stores.Base)]
-    public async Task<ActionResult<CollectionOutputModel<Domain.Schemas.Market.Retail.Shop.Store>>> GetStoresAsync(
+    public async Task<ActionResult<CollectionOutputModel<StoreOutputModel>>> GetStoresAsync(
         int? companyId, int? cityId, string? name)
     {
         var stores = await storeService.GetStoresAsync(companyId, cityId, name);
-        return stores.ToCollectionOutputModel();
+        return stores.Select(s => s.ToOutputModel()).ToCollectionOutputModel();
     }
 
     [HttpGet(Uris.Stores.StoreById)]
-    public async Task<ActionResult<Domain.Schemas.Market.Retail.Shop.Store>> GetStoreByIdAsync(int id)
+    public async Task<ActionResult<StoreOutputModel>> GetStoreByIdAsync(int id)
     {
-        return await storeService.GetStoreByIdAsync(id);
+        return (await storeService.GetStoreByIdAsync(id)).ToOutputModel();
     }
 
     [HttpPost(Uris.Stores.Base)]
     [Authorized([Role.Operator])]
     public async Task<ActionResult<StoreId>> AddStoreAsync(
-        [FromBody] StoreCreationInputModel model
-    )
+        [FromBody] StoreCreationInputModel input)
     {
         var storeId = await storeService.AddStoreAsync(
-            model.Name,
-            model.Address,
-            model.CityId,
-            model.CompanyId
+            input.Name,
+            input.Address,
+            input.CityId,
+            input.CompanyId
         );
 
         return Created(Uris.Stores.BuildStoreByIdUri(storeId.Value), storeId);
@@ -42,21 +41,21 @@ public class StoreController(IStoreService storeService) : ControllerBase
 
     [HttpPut(Uris.Stores.StoreById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<StoreItem>> UpdateStoreAsync(
+    public async Task<ActionResult<StoreItemOutputModel>> UpdateStoreAsync(
         int id, [FromBody] StoreUpdateInputModel storeInput)
     {
-        return await storeService.UpdateStoreAsync(
+        return (await storeService.UpdateStoreAsync(
             id,
             storeInput.Name,
             storeInput.Address,
             storeInput.CityId,
             storeInput.CompanyId
-        );
+        )).ToOutputModel();
     }
 
     [HttpDelete(Uris.Stores.StoreById)]
     [Authorized([Role.Operator])]
-    public async Task<ActionResult<StoreId>> DeleteStoreAsync(int id)
+    public async Task<ActionResult> DeleteStoreAsync(int id)
     {
         await storeService.DeleteStoreAsync(id);
         return NoContent();

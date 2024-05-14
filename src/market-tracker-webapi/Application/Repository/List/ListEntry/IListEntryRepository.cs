@@ -8,11 +8,13 @@ public interface IListEntryRepository
 {
     Task<IEnumerable<ListEntry>> GetListEntriesAsync(string listId, int? storeId = null);
 
-    Task<ListEntry?> GetListEntryAsync(string listId, string productId);
+    Task<ListEntry?> GetListEntryByIdAsync(string entryId);
 
+    Task<ListEntry?> GetListEntryByProductIdAsync(string listId, string productId);
+    
     Task<ListEntryId> AddListEntryAsync(string listId, string productId, int storeId, int quantity);
 
-    Task<ListEntry?> UpdateListEntryAsync(string listId, string productId, int? storeId = null, int? quantity = null);
+    Task<ListEntry?> UpdateListEntryByIdAsync(string entryId, int? storeId = null, int? quantity = null);
 
-    Task<ListEntry?> DeleteListEntryAsync(string listId, string productId);
+    Task<ListEntry?> DeleteListEntryByIdAsync(string entryId);
 }

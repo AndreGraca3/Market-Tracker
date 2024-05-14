@@ -1,6 +1,6 @@
 using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
-using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product.Feedback;
 using market_tracker_webapi.Application.Repository.Market.Inventory.Product;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -45,7 +45,7 @@ public class ProductFeedbackService(
                 );
             }
 
-            var oldPreferences = await productFeedbackRepository.GetProductsPreferencesAsync(
+            var oldPreferences = await productFeedbackRepository.GetProductPreferencesAsync(
                 clientId, productId);
 
             var updatedReview = oldPreferences.Review;
@@ -83,7 +83,7 @@ public class ProductFeedbackService(
         });
     }
 
-    public async Task<ProductPreferences> GetProductsPreferencesAsync(Guid clientId,
+    public async Task<ProductPreferences> GetProductPreferencesAsync(Guid clientId,
         string productId)
     {
         return await transactionManager.ExecuteAsync(async () =>
@@ -93,7 +93,7 @@ public class ProductFeedbackService(
                     new ProductFetchingError.ProductByIdNotFound(productId)
                 );
 
-            return await productFeedbackRepository.GetProductsPreferencesAsync(
+            return await productFeedbackRepository.GetProductPreferencesAsync(
                 clientId,
                 productId
             );

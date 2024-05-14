@@ -1,5 +1,5 @@
-﻿using market_tracker_webapi.Application.Domain.Schemas.List;
-using market_tracker_webapi.Application.Http.Models.Schemas.List.ListEntry;
+﻿using market_tracker_webapi.Application.Domain.Filters.List;
+using market_tracker_webapi.Application.Domain.Schemas.List;
 using market_tracker_webapi.Application.Service.Results;
 
 namespace market_tracker_webapi.Application.Service.Operations.List;
@@ -15,8 +15,8 @@ public interface IListEntryService
     Task<ListEntryId> AddListEntryAsync(string listId, Guid clientId, string productId,
         int storeId, int quantity);
 
-    Task<ListEntry> UpdateListEntryAsync(string listId, Guid clientId, string productId,
+    Task<ListEntry> UpdateListEntryAsync(string listId, Guid clientId, string entryId,
         int? storeId, int? quantity);
 
-    Task<ListEntryId> DeleteListEntryAsync(string listId, Guid clientId, string productId);
+    Task<ListEntryId> DeleteListEntryAsync(string listId, Guid clientId, string entryId);
 }

@@ -1,6 +1,5 @@
 using FluentAssertions;
 using market_tracker_webapi.Application.Repository.Market.Inventory.Category;
-using market_tracker_webapi.Infrastructure.PostgreSQLTables;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory;
 
 namespace market_tracker_webapi_test.Application.Repository;

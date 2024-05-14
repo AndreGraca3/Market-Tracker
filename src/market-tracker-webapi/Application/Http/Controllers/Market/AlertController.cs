@@ -43,7 +43,7 @@ public class AlertController(IAlertService alertService) : ControllerBase
 
     [HttpDelete(Uris.Alerts.AlertById)]
     [Authorized([Role.Client])]
-    public async Task<ActionResult<PriceAlert>> RemovePriceAlertByProductIdAsync(string alertId)
+    public async Task<ActionResult> RemovePriceAlertByProductIdAsync(string alertId)
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
         await alertService.RemovePriceAlertAsync(

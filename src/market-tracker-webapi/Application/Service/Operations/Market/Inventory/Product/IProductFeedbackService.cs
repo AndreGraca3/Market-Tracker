@@ -1,6 +1,6 @@
 using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
-using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product.Feedback;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
@@ -20,7 +20,7 @@ public interface IProductFeedbackService
         Optional<ProductReviewInputModel?> review
     );
 
-    Task<ProductPreferences> GetProductsPreferencesAsync(Guid clientId, string productId);
+    Task<ProductPreferences> GetProductPreferencesAsync(Guid clientId, string productId);
 
     Task<ProductStats> GetProductStatsByIdAsync(string productId);
 }

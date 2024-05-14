@@ -15,7 +15,8 @@ public class PreRegistrationRepository(
     {
         var query = from preRegister in dataContext.PreRegister
             where isValid == null || preRegister.IsApproved == isValid
-            select new OperatorItem(preRegister.Code, preRegister.OperatorName, preRegister.StoreName);
+            select new OperatorItem(preRegister.Code, preRegister.OperatorName, preRegister.PhoneNumber,
+                preRegister.StoreName);
 
         var operators = await query
             .Skip(skip)

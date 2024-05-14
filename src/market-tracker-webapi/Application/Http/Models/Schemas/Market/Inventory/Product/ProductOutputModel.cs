@@ -16,6 +16,8 @@ public record ProductOutputModel(
     CategoryOutputModel Category
 );
 
+public record ProductItemOutputModel(string ProductId, string Name, string ImageUrl, string BrandName);
+
 public static class ProductInfoOutputModelMapper
 {
     public static ProductOutputModel ToOutputModel(this Product product)
@@ -28,6 +30,16 @@ public static class ProductInfoOutputModelMapper
             product.Unit.GetDisplayName(),
             product.Brand,
             product.Category.ToOutputModel()
+        );
+    }
+    
+    public static ProductItemOutputModel ToProductItemOutputModel(this Product product)
+    {
+        return new ProductItemOutputModel(
+            product.Id.Value,
+            product.Name,
+            product.ImageUrl,
+            product.Brand.Name
         );
     }
 }

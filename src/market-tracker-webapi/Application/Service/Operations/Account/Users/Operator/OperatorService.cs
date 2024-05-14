@@ -26,8 +26,7 @@ public class OperatorService(
     ITransactionManager transactionManager
 ) : IOperatorService
 {
-    public async Task<PaginatedResult<OperatorItem>> GetOperatorsAsync(int skip,
-        int take)
+    public async Task<PaginatedResult<OperatorItem>> GetOperatorsAsync(int skip, int take)
     {
         return await operatorRepository.GetOperatorsAsync(skip, take);
     }
@@ -84,18 +83,20 @@ public class OperatorService(
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var user = await userRepository.GetUserByIdAsync(id);
+            var user = await userRepository.GetUserByIdAsync(id) ?? throw new MarketTrackerServiceException(
+                new UserFetchingError.UserByIdNotFound(id)
+            );
 
             if (await operatorRepository.GetOperatorByIdAsync(id) is not null)
             {
-                await operatorRepository.UpdateOperatorAsync(id, phoneNumber); // TODO: discuss this, why update?
+                await operatorRepository.UpdateOperatorAsync(id, phoneNumber);
             }
             else
             {
-                await operatorRepository.CreateOperatorAsync(id, phoneNumber);
+                await operatorRepository.CreateOperatorAsync(id, phoneNumber); // TODO: discuss this, why create?
             }
 
-            return new Operator(user!, phoneNumber); // discuss this, double bang in service auth cases?
+            return new Operator(user, phoneNumber);
         });
     }
 

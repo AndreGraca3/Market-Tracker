@@ -36,11 +36,12 @@ public record Operator(
     }
 }
 
-public record OperatorItem(UserId Id, string Name, string StoreName)
+public record OperatorItem(UserId Id, string Name, int PhoneNumber, string StoreName)
 {
-    public OperatorItem(Guid id, string name, string storeName) : this(
+    public OperatorItem(Guid id, string name, int phoneNumber, string storeName) : this(
         new UserId(id),
         name,
+        phoneNumber,
         storeName
     )
     {

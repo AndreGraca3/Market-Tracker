@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using market_tracker_webapi.Application.Domain.Schemas.List;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
 using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
@@ -19,12 +20,12 @@ public class ListEntryEntity
 
     [Column("quantity")] public int Quantity { get; set; }
 
-    public ListEntry ToListEntry(Product product)
+    public ListEntry ToListEntry(Product product, StoreItem? Store)
     {
         return new ListEntry(
             new ListEntryId(Id),
             product,
-            StoreId,
+            Store,
             Quantity
         );
     }

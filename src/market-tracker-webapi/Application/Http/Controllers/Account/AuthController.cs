@@ -12,8 +12,7 @@ public class AuthController(IGoogleAuthService googleAuthService, ITokenService 
 {
     [HttpPost(Uris.Auth.GoogleAuth)]
     public async Task<ActionResult> CreateGoogleTokenAsync(
-        [FromBody] GoogleTokenCreationInputModel googleJsonWebToken
-    )
+        [FromBody] GoogleTokenCreationInputModel googleJsonWebToken)
     {
         var token = await googleAuthService.CreateTokenAsync(googleJsonWebToken.IdToken);
 

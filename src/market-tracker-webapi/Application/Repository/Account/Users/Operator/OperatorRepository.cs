@@ -19,7 +19,7 @@ public class OperatorRepository(
             join @operator in dataContext.Operator on user.Id equals @operator.UserId
             join store in dataContext.Store on @operator.UserId equals store.OperatorId
             where user.Role == Role.Operator.ToString()
-            select new OperatorItem(user.Id, user.Name, store.Name);
+            select new OperatorItem(user.Id, user.Name, @operator.PhoneNumber, store.Name);
 
         var operators = await query
             .Skip(skip)

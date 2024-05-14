@@ -2,7 +2,7 @@ using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Price;
 
-namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
+namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product.Offer;
 
 public record PaginatedProductOffersOutputModel(
     IEnumerable<ProductOfferOutputModel> Items,
@@ -31,7 +31,7 @@ public static class PaginatedProductOffersOutputModelMapper
 public record ProductOfferOutputModel(
     ProductOutputModel Product,
     StoreOfferOutputModel? StoreOffer,
-    bool IsAvailable // TODO: discuss if here or in StoreOffer cuz its repeated
+    bool IsAvailable
 );
 
 public static class ProductOfferOutputModelMapper
@@ -40,7 +40,7 @@ public static class ProductOfferOutputModelMapper
     {
         return new ProductOfferOutputModel(
             productOffer.Product.ToOutputModel(),
-            productOffer.StoreOffer?.ToOutputModel(productOffer.IsAvailable),
+            productOffer.StoreOffer?.ToOutputModel(),
             productOffer.IsAvailable
         );
     }

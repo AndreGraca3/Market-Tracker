@@ -170,8 +170,9 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
             return null;
         }
 
+        var product = await GetProductByIdAsync(productId);
         dataContext.Product.Remove(productEntity);
         await dataContext.SaveChangesAsync();
-        return await GetProductByIdAsync(productId);
+        return product;
     }
 }

@@ -37,6 +37,4 @@ public record Product(
     }
 }
 
-public record ProductItem(string ProductId, string Name, string ImageUrl, string BrandName);
-
 public record ProductId(string Value);

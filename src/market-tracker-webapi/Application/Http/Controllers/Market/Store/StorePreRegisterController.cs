@@ -14,13 +14,13 @@ public class StorePreRegisterController(IPreRegistrationService preRegistrationS
 {
     [HttpGet(Uris.Stores.StoresPending)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<PaginatedResult<OperatorOutputModel>>> GetPendingOperatorsAsync(
+    public async Task<ActionResult<PaginatedResult<OperatorItemOutputModel>>> GetPendingOperatorsAsync(
         [FromQuery] bool? isValid,
         [FromQuery] PaginationInputs paginationInputs)
     {
         var operators = await preRegistrationService.GetPreRegistrationsAsync(isValid, paginationInputs.Skip,
             paginationInputs.ItemsPerPage);
-        return operators.Select(preRegister => preRegister.ToOutputModel());
+        return operators.Select(o => o.ToOutputModel());
     }
 
     [HttpGet(Uris.Stores.StoresPendingById)]

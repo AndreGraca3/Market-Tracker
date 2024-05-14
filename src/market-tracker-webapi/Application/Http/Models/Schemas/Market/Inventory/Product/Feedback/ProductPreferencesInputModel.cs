@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using market_tracker_webapi.Application.Utils;
 
-namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
+namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product.Feedback;
 
 public class ProductPreferencesInputModel
 {

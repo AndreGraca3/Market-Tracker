@@ -8,7 +8,7 @@ using Company = Domain.Schemas.Market.Retail.Shop.Company;
 
 public class ProductPriceService(IPriceRepository priceRepository) : IProductPriceService
 {
-    public async Task<IEnumerable<CompanyPricesResult>> GetProductPricesAsync(string productId)
+    public async Task<CompaniesPricesResult> GetProductPricesAsync(string productId)
     {
         int? minPrice = null;
         int? maxPrice = null;
@@ -48,12 +48,19 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
             companiesDictionary[storeOffer.Store.Company.Id.Value] = storeOffer.Store.Company;
         }
 
-        return companyStoresDictionary
-            .Select(companyStores => new CompanyPricesResult(
+        var companiesPrices = companyStoresDictionary
+            .Select(companyStores => new CompanyPrices(
                 companiesDictionary[companyStores.Key].Id.Value,
                 companiesDictionary[companyStores.Key].Name,
-                companyStores.Value
-            ))
-            .ToList();
+                companyStores.Value.Select(s =>
+                    new StoreOfferResult(s.Store, s.PriceData, s.PriceData.FinalPrice == minPrice)
+                ).ToList()
+            ));
+
+        return new CompaniesPricesResult(
+            companiesPrices.ToList(),
+            minPrice ?? 0,
+            maxPrice ?? 0
+        );
     }
 }
