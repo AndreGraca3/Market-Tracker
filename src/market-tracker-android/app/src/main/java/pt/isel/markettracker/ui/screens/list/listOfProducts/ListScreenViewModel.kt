@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list
+package pt.isel.markettracker.ui.screens.list.listOfProducts
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

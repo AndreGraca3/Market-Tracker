@@ -1,7 +1,5 @@
 package pt.isel.markettracker.ui.screens
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.padding
@@ -23,8 +21,8 @@ import pt.isel.markettracker.navigation.NavBar
 import pt.isel.markettracker.navigation.toDestination
 import pt.isel.markettracker.repository.auth.AuthEvent
 import pt.isel.markettracker.repository.auth.IAuthRepository
-import pt.isel.markettracker.ui.screens.list.ListScreen
-import pt.isel.markettracker.ui.screens.list.ListScreenViewModel
+import pt.isel.markettracker.ui.screens.list.listOfProducts.ListScreen
+import pt.isel.markettracker.ui.screens.list.listOfProducts.ListScreenViewModel
 import pt.isel.markettracker.ui.screens.login.LoginScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.products.ProductsScreen

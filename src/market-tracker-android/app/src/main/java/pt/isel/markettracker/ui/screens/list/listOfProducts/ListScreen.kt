@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list
+package pt.isel.markettracker.ui.screens.list.listOfProducts
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

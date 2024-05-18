@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list
+package pt.isel.markettracker.ui.screens.list.listOfProducts
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list
+package pt.isel.markettracker.ui.screens.list.listOfProducts
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,9 +21,9 @@ import pt.isel.markettracker.utils.advanceShadow
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
-import pt.isel.markettracker.ui.screens.list.components.ListNameDisplay
-import pt.isel.markettracker.ui.screens.list.components.ParticipantBadge
-import pt.isel.markettracker.ui.screens.list.components.OwnershipStatusIcon
+import pt.isel.markettracker.ui.screens.list.listOfProducts.components.ListNameDisplay
+import pt.isel.markettracker.ui.screens.list.listOfProducts.components.ParticipantBadge
+import pt.isel.markettracker.ui.screens.list.listOfProducts.components.OwnershipStatusIcon
 
 @Composable
 fun ListItemCard(listInfo: ListInfo, onListItemClick: (Int) -> Unit) {
