@@ -1,6 +1,6 @@
 package pt.isel.markettracker.dummy
 
-import pt.isel.markettracker.domain.list.ListInfo
+import pt.isel.markettracker.domain.model.market.list.ListInfo
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -11,7 +11,8 @@ val dummyList = listOf(
         LocalDateTime.now().minusDays(1),
         LocalDateTime.now().minusDays(2),
         UUID(1, 1),
-        0
+        0,
+        isOwner = true
     ),
     ListInfo(
         2,
@@ -19,7 +20,8 @@ val dummyList = listOf(
         null,
         LocalDateTime.now().minusDays(2),
         UUID(1, 1),
-        1
+        1,
+        isOwner = true
     ),
     ListInfo(
         3,
@@ -27,7 +29,8 @@ val dummyList = listOf(
         null,
         LocalDateTime.now().minusDays(2),
         UUID(1, 1),
-        1
+        1,
+        isOwner = false
     ),
     ListInfo(
         4,
@@ -35,7 +38,8 @@ val dummyList = listOf(
         LocalDateTime.now().minusDays(1),
         LocalDateTime.now().minusDays(2),
         UUID(1, 1),
-        5
+        5,
+        isOwner = false
     ),
     ListInfo(
         5,
@@ -43,7 +47,8 @@ val dummyList = listOf(
         LocalDateTime.now().minusDays(1),
         LocalDateTime.now().minusDays(2),
         UUID(1, 1),
-        2
+        2,
+        isOwner = false
     ),
     ListInfo(
         6,
@@ -51,7 +56,8 @@ val dummyList = listOf(
         LocalDateTime.now().minusDays(1),
         LocalDateTime.now().minusDays(2),
         UUID(1, 1),
-        7
+        7,
+        isOwner = false
     ),
     ListInfo(
         7,
@@ -59,6 +65,7 @@ val dummyList = listOf(
         LocalDateTime.now().minusDays(1),
         LocalDateTime.now().minusDays(2),
         UUID(1, 1),
-        4
+        4,
+        isOwner = false
     )
 )

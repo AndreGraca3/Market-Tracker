@@ -9,7 +9,7 @@ import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.Idle
 import pt.isel.markettracker.domain.fail
 import pt.isel.markettracker.domain.idle
-import pt.isel.markettracker.domain.list.ListInfo
+import pt.isel.markettracker.domain.model.market.list.ListInfo
 import pt.isel.markettracker.domain.loaded
 import pt.isel.markettracker.domain.loading
 import pt.isel.markettracker.http.service.operations.list.IListService

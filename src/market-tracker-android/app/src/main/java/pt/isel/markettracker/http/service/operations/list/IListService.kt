@@ -1,6 +1,6 @@
 package pt.isel.markettracker.http.service.operations.list
 
-import pt.isel.markettracker.domain.list.ListInfo
+import pt.isel.markettracker.domain.model.market.list.ListInfo
 
 interface IListService {
 

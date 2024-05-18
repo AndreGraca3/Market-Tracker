@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.IOState
-import pt.isel.markettracker.domain.list.ListInfo
+import pt.isel.markettracker.domain.model.market.list.ListInfo
 import pt.isel.markettracker.ui.components.common.IOResourceLoader
 
 @Composable

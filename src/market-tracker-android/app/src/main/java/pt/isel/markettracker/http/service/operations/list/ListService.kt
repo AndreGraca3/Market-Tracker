@@ -3,7 +3,7 @@ package pt.isel.markettracker.http.service.operations.list
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
-import pt.isel.markettracker.domain.list.ListInfo
+import pt.isel.markettracker.domain.model.market.list.ListInfo
 import pt.isel.markettracker.dummy.dummyList
 import pt.isel.markettracker.http.service.MarketTrackerService
 
