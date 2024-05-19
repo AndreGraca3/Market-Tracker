@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.ui.components.dropdowns.Dropdown
-import pt.isel.markettracker.ui.screens.ProductsSortOption
+import pt.isel.markettracker.ui.screens.products.ProductsSortOption
 
 @Composable
 fun FilterOptionsRow(

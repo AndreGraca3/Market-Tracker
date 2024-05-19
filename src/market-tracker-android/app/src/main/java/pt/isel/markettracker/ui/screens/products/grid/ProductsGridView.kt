@@ -16,8 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.example.markettracker.R
 import pt.isel.markettracker.ui.components.common.LoadingIcon
-import pt.isel.markettracker.ui.screens.ProductsScreenState
-import pt.isel.markettracker.ui.screens.extractProductsOffers
+import pt.isel.markettracker.ui.screens.products.ProductsScreenState
+import pt.isel.markettracker.ui.screens.products.extractProductsOffers
 
 @Composable
 fun ProductsGridView(

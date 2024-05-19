@@ -4,8 +4,6 @@ import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
-import pt.isel.markettracker.domain.model.market.Company
-import pt.isel.markettracker.domain.model.market.inventory.Brand
 import pt.isel.markettracker.domain.model.market.inventory.product.FacetCounter
 import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
@@ -15,6 +13,7 @@ import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStatsCounts
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductsFacetsCounters
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
+import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.dummy.dummyBrands
 import pt.isel.markettracker.dummy.dummyCategories
 import pt.isel.markettracker.dummy.dummyCompanies
@@ -103,10 +102,11 @@ class ProductService(
     }
 
     override suspend fun getProductById(id: String): Product {
-        return requestHandler(
+        /*return requestHandler(
             path = buildProductByIdPath(id),
             method = HttpMethod.GET
-        )
+        )*/
+        return dummyProducts.first()
     }
 
     override suspend fun getProductPrices(id: String): List<CompanyPrices> {
@@ -127,8 +127,18 @@ class ProductService(
         delay(1500)
         return ProductPreferences(
             false,
-            null,
-            null,
+            null
+        )
+    }
+
+    override suspend fun getProductAlerts(id: String): List<PriceAlert> {
+        delay(1500)
+        return listOf(
+            PriceAlert(
+                "1",
+                10,
+                100
+            )
         )
     }
 }

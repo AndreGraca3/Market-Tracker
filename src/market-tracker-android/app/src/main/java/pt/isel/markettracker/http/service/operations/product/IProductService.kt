@@ -5,6 +5,7 @@ import pt.isel.markettracker.domain.model.market.inventory.product.Product
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
+import pt.isel.markettracker.domain.model.market.price.PriceAlert
 
 interface IProductService {
     suspend fun getProducts(
@@ -21,4 +22,6 @@ interface IProductService {
     suspend fun getProductStats(id: String): ProductStats
 
     suspend fun getProductPreferences(id: String): ProductPreferences
+
+    suspend fun getProductAlerts(id: String): List<PriceAlert>
 }

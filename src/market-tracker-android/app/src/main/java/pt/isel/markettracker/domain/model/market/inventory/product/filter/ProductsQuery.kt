@@ -4,7 +4,7 @@ import pt.isel.markettracker.domain.model.market.Company
 import pt.isel.markettracker.domain.model.market.inventory.Brand
 import pt.isel.markettracker.domain.model.market.inventory.Category
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductsFacetsCounters
-import pt.isel.markettracker.ui.screens.ProductsSortOption
+import pt.isel.markettracker.ui.screens.products.ProductsSortOption
 
 data class ProductsQuery(
     val searchTerm: String? = null,

@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.ui.components.common.PullToRefreshLazyColumn
-import pt.isel.markettracker.ui.screens.ProductsScreenState
 import pt.isel.markettracker.ui.screens.products.filters.FilterOptionsRow
 import pt.isel.markettracker.ui.screens.products.grid.ProductsGridView
 import pt.isel.markettracker.ui.screens.products.topbar.ProductsTopBar

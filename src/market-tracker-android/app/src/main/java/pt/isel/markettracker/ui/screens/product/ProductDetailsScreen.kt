@@ -39,6 +39,7 @@ fun ProductDetailsScreen(
 ) {
     val productState by vm.product.collectAsState()
     val preferencesState by vm.preferences.collectAsState()
+    val alertsState by vm.alerts.collectAsState()
     val pricesState by vm.prices.collectAsState()
     val statsState by vm.stats.collectAsState()
 
