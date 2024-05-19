@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using market_tracker_webapi.Application.Domain.Filters.List;
+﻿using market_tracker_webapi.Application.Domain.Filters.List;
 using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
 using market_tracker_webapi.Application.Domain.Schemas.List;
 using market_tracker_webapi.Application.Http.Models.Schemas.List.ListEntry;
@@ -51,15 +50,16 @@ public class ListEntryController(IListEntryService listEntryService) : Controlle
         return NoContent();
     }
 
+    [Authorized([Role.Client])]
     [HttpGet(Uris.Lists.EntriesByListId)]
     public async Task<ActionResult<ShoppingListEntriesResultOutputModel>> GetListEntriesAsync(
         string listId,
         [FromQuery] ShoppingListAlternativeType? alternativeType,
-        [FromQuery] AlternativeListFiltersInputModel filters,
-        [Required] Guid clientId
+        [FromQuery] AlternativeListFiltersInputModel filters
     )
     {
-        return (await listEntryService.GetListEntriesAsync(listId, clientId, alternativeType,
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        return (await listEntryService.GetListEntriesAsync(listId, authUser.User.Id.Value, alternativeType,
             filters.CompanyIds,
             filters.StoreIds,
             filters.CityIds
