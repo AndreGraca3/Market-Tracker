@@ -1,7 +1,6 @@
 package pt.isel.markettracker.ui.screens
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -11,6 +10,7 @@ import com.journeyapps.barcodescanner.ScanOptions
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.ui.screens.list.listProductItem.ListProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
@@ -60,11 +60,11 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     onListClick = {
-//                        navigateTo<ListInfoActivity>(
-//                            this,
-//                            ListInfoActivity.LIST_ID_EXTRA,
-//                            ListIdExtra(it)
-//                        )
+                        navigateTo<ListProductDetailsActivity>(
+                            this,
+                            ListInfoActivity.LIST_ID_EXTRA,
+                            ListIdExtra(it)
+                        )
                     },
                     onSignUpRequested = {
                         navigateTo<SignUpActivity>(this)

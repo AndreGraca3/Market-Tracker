@@ -17,4 +17,9 @@ class ListService(
         delay(1000)
         return dummyList
     }
+
+    override suspend fun deleteListById(id: Int) {
+        delay(1000)
+        dummyList.removeIf { it.id == id }
+    }
 }

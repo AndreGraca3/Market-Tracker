@@ -6,4 +6,6 @@ interface IListService {
 
     suspend fun getListsInfo(): List<ListInfo>
 
+    suspend fun deleteListById(id: Int)
+
 }

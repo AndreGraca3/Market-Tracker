@@ -4,7 +4,7 @@ import pt.isel.markettracker.domain.model.market.list.ListInfo
 import java.time.LocalDateTime
 import java.util.UUID
 
-val dummyList = listOf(
+val dummyList = mutableListOf(
     ListInfo(
         1,
         "Festa de aniversário",
