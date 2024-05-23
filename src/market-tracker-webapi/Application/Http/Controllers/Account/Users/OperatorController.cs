@@ -1,4 +1,5 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
 using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
 using market_tracker_webapi.Application.Http.Models;
 using market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
@@ -39,13 +40,13 @@ public class OperatorController(IOperatorService operatorService) : ControllerBa
     }
 
 
-    [HttpPatch(Uris.Operator.OperatorById)]
+    [HttpPatch(Uris.Operator.Base)]
     [Authorized([Role.Operator])]
     public async Task<ActionResult<Operator>> UpdateOperatorAsync(
-        Guid id,
         [FromBody] OperatorUpdateInputModel operatorInput
     )
     {
-        return await operatorService.UpdateOperatorAsync(id, operatorInput.NewPhoneNumber);
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        return await operatorService.UpdateOperatorAsync(authUser.User.Id.Value, operatorInput.NewPhoneNumber);
     }
 }

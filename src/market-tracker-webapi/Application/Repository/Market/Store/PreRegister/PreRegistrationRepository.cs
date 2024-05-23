@@ -15,8 +15,7 @@ public class PreRegistrationRepository(
     {
         var query = from preRegister in dataContext.PreRegister
             where isValid == null || preRegister.IsApproved == isValid
-            select new OperatorItem(preRegister.Code, preRegister.OperatorName, preRegister.PhoneNumber,
-                preRegister.StoreName);
+            select new OperatorItem(preRegister.Code, preRegister.OperatorName, preRegister.CompanyLogoUrl);
 
         var operators = await query
             .Skip(skip)
@@ -40,6 +39,7 @@ public class PreRegistrationRepository(
         string storeName,
         string storeAddress,
         string companyName,
+        string companyLogoUrl,
         string? cityName,
         string document)
     {
@@ -51,6 +51,7 @@ public class PreRegistrationRepository(
             StoreName = storeName,
             StoreAddress = storeAddress,
             CompanyName = companyName,
+            CompanyLogoUrl = companyLogoUrl,
             CityName = cityName,
             Document = document
         };

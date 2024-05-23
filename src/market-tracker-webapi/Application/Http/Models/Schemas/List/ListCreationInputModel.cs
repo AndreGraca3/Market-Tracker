@@ -1,6 +1,5 @@
-﻿namespace market_tracker_webapi.Application.Http.Models.Schemas.List;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class ListCreationInputModel
-{
-    public required string ListName { get; set; }
-}
+namespace market_tracker_webapi.Application.Http.Models.Schemas.List;
+
+public record ListCreationInputModel([Required] [MaxLength(30)] string ListName);

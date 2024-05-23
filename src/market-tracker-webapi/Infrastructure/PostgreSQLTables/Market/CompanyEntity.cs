@@ -17,6 +17,9 @@ public class CompanyEntity
     [Column("name")]
     public required string Name { get; set; }
 
+
+    [Required] [Column("logo_url")] public required string LogoUrl { get; set; }
+
     [Required]
     [DataType(DataType.Date)]
     [Column("created_at")]
@@ -24,6 +27,6 @@ public class CompanyEntity
 
     public Company ToCompany()
     {
-        return new Company(Id, Name, CreatedAt);
+        return new Company(Id, Name, LogoUrl, CreatedAt);
     }
 }

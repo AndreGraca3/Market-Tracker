@@ -12,7 +12,7 @@ public record CompaniesPricesResultOutputModel(
 public record CompanyPricesOutputModel(
     int Id,
     string Name,
-    IEnumerable<StoreOfferResultOutputModel> Stores
+    IEnumerable<StoreOfferOutputModel> Stores
 );
 
 public static class CompaniesPricesOutputModelMapper

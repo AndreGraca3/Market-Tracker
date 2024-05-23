@@ -12,7 +12,7 @@ public interface ICompanyRepository
 
     Task<Company?> GetCompanyByNameAsync(string name);
 
-    Task<CompanyId> AddCompanyAsync(string name);
+    Task<CompanyId> AddCompanyAsync(string name, string logoUrl);
 
     Task<Company?> UpdateCompanyAsync(int id, string name);
 

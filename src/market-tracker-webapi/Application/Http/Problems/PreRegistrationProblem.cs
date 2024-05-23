@@ -13,8 +13,8 @@ public class PreRegistrationProblem(
     public class PreRegistrationByIdNotFound(PreRegistrationFetchingError.PreRegistrationByIdNotFound data)
         : PreRegistrationProblem(
             404,
-            "operator-not-found",
-            "Operator not found",
+            "pre-registration-not-found",
+            "Pre registration not found",
             $"Registration with id {data.Id} not found",
             data
         );

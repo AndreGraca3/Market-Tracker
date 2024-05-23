@@ -1,8 +1,13 @@
-﻿namespace market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.User;
+﻿using System.ComponentModel.DataAnnotations;
+using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 
-public record UserCreationOutputModel(Guid Id, string Role)
-{
-    public const string Client = "Client";
-    public const string Operator = "Operator";
-    public const string Moderator = "Moderator";
-};
+namespace market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.User;
+
+public record UserCreationOutputModel(
+    Guid Id,
+    [RegularExpression(
+        "^(Moderator|Client|Operator)$",
+        ErrorMessage = "Wrong role provided. Must be 'Moderator', 'Client' or 'Operator'."
+    )]
+    string Role
+);

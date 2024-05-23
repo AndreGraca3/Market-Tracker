@@ -5,6 +5,7 @@ using Company = Domain.Schemas.Market.Retail.Shop.Company;
 public record CompanyOutputModel(
     int Id,
     string CompanyName,
+    string CompanyLogoUrl,
     DateTime CreatedAt
 );
 
@@ -15,6 +16,7 @@ public static class CompanyOutputModelMapper
         return new CompanyOutputModel(
             company.Id.Value,
             company.Name,
+            company.LogoUrl,
             company.CreatedAt
         );
     }

@@ -18,8 +18,9 @@ public class OperatorRepository(
         var query = from user in dataContext.User
             join @operator in dataContext.Operator on user.Id equals @operator.UserId
             join store in dataContext.Store on @operator.UserId equals store.OperatorId
+            join company in dataContext.Company on store.CompanyId equals company.Id
             where user.Role == Role.Operator.ToString()
-            select new OperatorItem(user.Id, user.Name, @operator.PhoneNumber, store.Name);
+            select new OperatorItem(user.Id, user.Name, company.LogoUrl);
 
         var operators = await query
             .Skip(skip)
@@ -43,8 +44,7 @@ public class OperatorRepository(
     {
         var query = from user in dataContext.User
             join @operator in dataContext.Operator on user.Id equals @operator.UserId
-            join store in dataContext.Store on @operator.UserId equals store.OperatorId
-            where user.Role == Role.Operator.ToString()
+            where user.Role == Role.Operator.ToString() && user.Email == email
             select new Operator(user.ToUser(), @operator.PhoneNumber);
 
         return await query.FirstOrDefaultAsync();

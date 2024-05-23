@@ -1,8 +1,8 @@
 ﻿namespace market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
 
-public record OperatorOutputModel(Guid Id, string Name, int PhoneNumber, string StoreName, DateTime CreatedAt);
+public record OperatorOutputModel(Guid Id, string Name, string Email, int PhoneNumber, DateTime CreatedAt);
 
-public record OperatorItemOutputModel(Guid Id, string Name, int PhoneNumber, string StoreName);
+public record OperatorItemOutputModel(Guid Id, string Name, string CompanyLogoUrl);
 
 public static class OperatorModelMapper
 {
@@ -11,19 +11,18 @@ public static class OperatorModelMapper
         return new OperatorOutputModel(
             @operator.Id.Value,
             @operator.Name,
+            @operator.Email,
             @operator.PhoneNumber,
-            "",
-            DateTime.Now // TODO: discuss
+            DateTime.Now
         );
     }
-    
+
     public static OperatorItemOutputModel ToOutputModel(this Domain.Schemas.Account.Users.OperatorItem operatorItem)
     {
         return new OperatorItemOutputModel(
             operatorItem.Id.Value,
             operatorItem.Name,
-            operatorItem.PhoneNumber,
-            operatorItem.StoreName
+            operatorItem.CompanyLogoUrl
         );
     }
 }

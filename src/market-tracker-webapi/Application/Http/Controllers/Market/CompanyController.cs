@@ -29,7 +29,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
         [FromBody] CompanyCreationInputModel companyInput
     )
     {
-        var companyId = await companyService.AddCompanyAsync(companyInput.CompanyName);
+        var companyId = await companyService.AddCompanyAsync(companyInput.CompanyName, companyInput.CompanyLogoUrl);
         return Created(Uris.Companies.BuildCompanyByIdUri(companyId.Value), companyId);
     }
 

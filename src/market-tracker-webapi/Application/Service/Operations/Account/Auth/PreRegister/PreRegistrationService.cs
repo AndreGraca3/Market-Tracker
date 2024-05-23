@@ -38,6 +38,7 @@ public class PreRegistrationService(
         string storeName,
         string storeAddress,
         string companyName,
+        string companyLogoUrl,
         string? cityName,
         string document)
     {
@@ -64,6 +65,7 @@ public class PreRegistrationService(
                 storeName,
                 storeAddress,
                 companyName,
+                companyLogoUrl,
                 cityName,
                 document
             );

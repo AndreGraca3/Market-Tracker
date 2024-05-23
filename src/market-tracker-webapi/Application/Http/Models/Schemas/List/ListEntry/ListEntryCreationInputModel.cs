@@ -1,8 +1,9 @@
-﻿namespace market_tracker_webapi.Application.Http.Models.Schemas.List.ListEntry;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class ListEntryCreationInputModel
-{
-    public required string ProductId { get; set; }
-    public required int StoreId { get; set; }
-    public required int Quantity { get; set; }
-}
+namespace market_tracker_webapi.Application.Http.Models.Schemas.List.ListEntry;
+
+public record ListEntryCreationInputModel(
+    [Required] string ProductId,
+    [Required] int StoreId,
+    [Required] int Quantity
+);

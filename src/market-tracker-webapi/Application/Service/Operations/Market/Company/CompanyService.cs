@@ -34,7 +34,7 @@ public class CompanyService(
         );
     }
 
-    public async Task<CompanyId> AddCompanyAsync(string companyName)
+    public async Task<CompanyId> AddCompanyAsync(string companyName, string companyLogoUrl)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
@@ -45,7 +45,7 @@ public class CompanyService(
                 );
             }
 
-            return await companyRepository.AddCompanyAsync(companyName);
+            return await companyRepository.AddCompanyAsync(companyName, companyLogoUrl);
         });
     }
 

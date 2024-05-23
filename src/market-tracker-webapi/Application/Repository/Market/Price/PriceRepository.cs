@@ -122,8 +122,9 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                         ),
                         new Price(g.Price.Price,
                             g.Promotion == null ? null : g.Promotion.ToPromotion(),
-                            g.Price.CreatedAt)
-                    ), g.Availability.IsAvailable
+                            g.Price.CreatedAt),
+                        g.Availability.ToStoreAvailability()
+                    )
                 ))
             )
             .Skip(skip)
@@ -133,7 +134,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
 
         bestOffers = sortBy switch
         {
-            ProductsSortOption.Popularity => bestOffers.OrderBy(queryRes => queryRes.Product.Id).ToList(),
+            ProductsSortOption.Popularity => bestOffers.OrderBy(queryRes => queryRes.Product.Views).ToList(),
             ProductsSortOption.NameLowToHigh => bestOffers.OrderBy(queryRes => queryRes.Product.Name).ToList(),
             ProductsSortOption.NameHighToLow =>
                 bestOffers.OrderByDescending(queryRes => queryRes.Product.Name).ToList(),
@@ -188,24 +189,26 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 City = city,
                 Company = company,
                 PriceEntry = priceEntry,
-                Promotion = promotion
+                Promotion = promotion,
+                Availability = availability
             };
 
         if (!query.Any())
         {
             return null;
         }
-
-        return query
-            .Select(g =>
+        
+        return (await query.Select(g =>
                 new StoreOffer(
                     g.Store.ToStore(g.City == null ? null : g.City.ToCity(), g.Company.ToCompany()),
                     new Price(
                         g.PriceEntry.Price,
                         g.Promotion == null ? null : g.Promotion.ToPromotion(),
-                        g.PriceEntry.CreatedAt)
+                        g.PriceEntry.CreatedAt),
+                    g.Availability.ToStoreAvailability()
                 )
-            ).MinBy(group => group.PriceData.FinalPrice);
+            ).ToListAsync())
+            .MinBy(storeOffer => storeOffer.PriceData.FinalPrice);
     }
 
     public async Task<IEnumerable<StoreAvailability>> GetStoresAvailabilityAsync(string productId)
@@ -214,18 +217,11 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
 
         return await query
             .Where(availability => availability.ProductId == productId)
-            .Join(
-                dataContext.Company,
-                availability => availability.StoreId,
-                company => company.Id,
-                (availability, company) => new { availability, company }
-            )
-            .Select(availabilityTuple => new StoreAvailability(
-                availabilityTuple.availability.StoreId,
-                availabilityTuple.availability.ProductId,
-                availabilityTuple.company.Id,
-                availabilityTuple.availability.IsAvailable,
-                availabilityTuple.availability.LastChecked
+            .Select(availabilityEntity => new StoreAvailability(
+                availabilityEntity.StoreId,
+                availabilityEntity.ProductId,
+                availabilityEntity.IsAvailable,
+                availabilityEntity.LastChecked
             ))
             .ToListAsync();
     }
@@ -235,8 +231,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         var queryRes = await (
             from availability in dataContext.ProductAvailability
             where availability.ProductId == productId && availability.StoreId == storeId
-            join company in dataContext.Company on storeId equals company.Id
-            select new { availability, company }
+            select new { availability }
         ).FirstOrDefaultAsync();
 
         if (queryRes is null)
@@ -247,7 +242,6 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         return new StoreAvailability(
             queryRes.availability.StoreId,
             queryRes.availability.ProductId,
-            queryRes.company.Id,
             queryRes.availability.IsAvailable,
             queryRes.availability.LastChecked
         );
@@ -273,6 +267,8 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             join promotion in dataContext.Promotion
                 on priceEntry.Id equals promotion.PriceEntryId
                 into promotionGroup
+            join availability in dataContext.ProductAvailability on store.Id equals availability.StoreId
+            where availability.ProductId == productId && availability.IsAvailable
             from promotion in promotionGroup.DefaultIfEmpty()
             select new
             {
@@ -280,7 +276,8 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 City = city,
                 Company = company,
                 PriceEntry = priceEntry,
-                Promotion = promotion
+                Promotion = promotion,
+                Availability = availability
             };
 
         return await query
@@ -290,7 +287,8 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                     new Price(
                         g.PriceEntry.Price,
                         g.Promotion == null ? null : g.Promotion.ToPromotion(),
-                        g.PriceEntry.CreatedAt)
+                        g.PriceEntry.CreatedAt),
+                    g.Availability.ToStoreAvailability()
                 )
             ).FirstOrDefaultAsync();
     }

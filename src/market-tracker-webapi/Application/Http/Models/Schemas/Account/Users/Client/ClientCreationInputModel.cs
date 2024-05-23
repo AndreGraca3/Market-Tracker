@@ -1,9 +1,11 @@
-﻿namespace market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Client;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Client;
 
 public record ClientCreationInputModel(
-    string Username,
-    string Name,
-    string Email,
-    string Password,
+    [Required] [MaxLength(20)] string Username,
+    [Required] [MaxLength(30)] string Name,
+    [Required] [MaxLength(200)] string Email,
+    [Required] [MaxLength(30)] string Password,
     string? Avatar
 );

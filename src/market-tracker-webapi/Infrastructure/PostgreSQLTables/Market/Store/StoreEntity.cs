@@ -32,7 +32,7 @@ public class StoreEntity
 
     [ForeignKey("operator")]
     [Column("operator_id")]
-    public Guid OperatorId { get; set; }
+    public required Guid OperatorId { get; set; }
 
     public Store ToStore(City? city, Company company)
     {

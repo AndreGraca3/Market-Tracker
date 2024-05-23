@@ -1,6 +1,5 @@
-﻿namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.City;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class CityUpdateInputModel
-{
-    public required string CityName { get; set; }
-}
+namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.City;
+
+public record CityUpdateInputModel([Required] [MaxLength(30)] string CityName);

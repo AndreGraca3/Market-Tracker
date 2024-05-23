@@ -1,5 +1,4 @@
-using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales.Pricing;
-using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales;
 
 namespace market_tracker_webapi.Application.Service.Results;
 
@@ -12,7 +11,5 @@ public record CompaniesPricesResult(
 public record CompanyPrices(
     int Id,
     string Name,
-    IEnumerable<StoreOfferResult> Stores
+    IEnumerable<StoreOffer> Stores
 );
-
-public record StoreOfferResult(Store Store, Price PriceData, bool IsCheapestOffer);

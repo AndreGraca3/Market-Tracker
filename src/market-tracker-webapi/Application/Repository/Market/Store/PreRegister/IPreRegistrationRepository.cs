@@ -13,7 +13,8 @@ public interface IPreRegistrationRepository
     Task<PreRegistration?> GetPreRegisterByEmail(string email);
 
     Task<PreRegistrationCode> CreatePreRegisterAsync(string operatorName, string email, int phoneNumber,
-        string storeName, string storeAddress, string companyName, string? cityName, string document);
+        string storeName, string storeAddress, string companyName, string companyLogoUrl, string? cityName,
+        string document);
 
     Task<PreRegistration?> UpdatePreRegistrationById(Guid id, bool isApproved);
 

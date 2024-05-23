@@ -17,6 +17,7 @@ public interface IPreRegistrationService
         string storeName,
         string storeAddress,
         string companyName,
+        string companyLogoUrl,
         string? cityName,
         string document
     );

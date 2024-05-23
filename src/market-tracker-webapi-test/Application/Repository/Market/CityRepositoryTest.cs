@@ -1,11 +1,4 @@
-﻿using FluentAssertions;
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Infrastructure;
-using market_tracker_webapi.Infrastructure.PostgreSQLTables;
-using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
-using Microsoft.EntityFrameworkCore;
-
-namespace market_tracker_webapi_test.Application.Repository;
+﻿namespace market_tracker_webapi_test.Application.Repository;
 
 /*public class CityRepositoryTest
 {

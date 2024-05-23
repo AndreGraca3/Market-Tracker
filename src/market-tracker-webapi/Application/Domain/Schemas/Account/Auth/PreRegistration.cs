@@ -1,4 +1,6 @@
-﻿namespace market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
+
+namespace market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
 
 public record PreRegistration(
     PreRegistrationCode Code,
@@ -7,6 +9,7 @@ public record PreRegistration(
     int PhoneNumber,
     string StoreName,
     string CompanyName,
+    string CompanyLogoUrl,
     string StoreAddress,
     string? CityName,
     string Document,
@@ -21,6 +24,7 @@ public record PreRegistration(
         int PhoneNumber,
         string StoreName,
         string CompanyName,
+        string companyLogoUrl,
         string StoreAddress,
         string? CityName,
         string Document,
@@ -33,6 +37,7 @@ public record PreRegistration(
         PhoneNumber,
         StoreName,
         CompanyName,
+        companyLogoUrl,
         StoreAddress,
         CityName,
         Document,

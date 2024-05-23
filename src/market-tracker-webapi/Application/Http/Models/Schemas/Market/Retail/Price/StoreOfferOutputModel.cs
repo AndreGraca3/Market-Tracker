@@ -12,17 +12,9 @@ public record StoreOfferOutputModel(
     string Address,
     bool IsOnline,
     CityOutputModel? City,
-    Price Price
-);
-
-public record StoreOfferResultOutputModel(
-    int Id,
-    string Name,
-    string Address,
-    bool IsOnline,
-    CityOutputModel? City,
     Price Price,
-    bool IsCheapestOffer
+    bool IsAvailable,
+    DateTime LastChecked
 );
 
 public static class StoreOfferOutputModelMapper
@@ -35,20 +27,9 @@ public static class StoreOfferOutputModelMapper
             storeOffer.Store.Address,
             storeOffer.Store.IsOnline,
             storeOffer.Store.City?.ToOutputModel(),
-            storeOffer.PriceData
-        );
-    }
-
-    public static StoreOfferResultOutputModel ToOutputModel(this StoreOfferResult storeOfferResult)
-    {
-        return new StoreOfferResultOutputModel(
-            storeOfferResult.Store.Id.Value,
-            storeOfferResult.Store.Name,
-            storeOfferResult.Store.Address,
-            storeOfferResult.Store.IsOnline,
-            storeOfferResult.Store.City?.ToOutputModel(),
-            storeOfferResult.PriceData,
-            storeOfferResult.IsCheapestOffer
+            storeOffer.PriceData,
+            storeOffer.StoreAvailability.IsAvailable,
+            storeOffer.StoreAvailability.LastChecked
         );
     }
 }

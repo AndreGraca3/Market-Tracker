@@ -1,6 +1,7 @@
 ﻿using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
+using market_tracker_webapi.Application.Repository.Account.Credential;
 using market_tracker_webapi.Application.Repository.Account.Users.Operator;
 using market_tracker_webapi.Application.Repository.Account.Users.User;
 using market_tracker_webapi.Application.Repository.Market.City;
@@ -17,6 +18,7 @@ namespace market_tracker_webapi.Application.Service.Operations.Account.Users.Ope
 using Operator = Domain.Schemas.Account.Users.Operator;
 
 public class OperatorService(
+    IAccountRepository accountRepository,
     ICityRepository cityRepository,
     IStoreRepository storeRepository,
     ICompanyRepository companyRepository,
@@ -64,16 +66,19 @@ public class OperatorService(
                 preRegistrationOperator.Email,
                 Role.Operator.ToString());
 
+            await accountRepository.CreatePasswordAsync(userId.Value, password);
+
             await operatorRepository.CreateOperatorAsync(userId.Value, preRegistrationOperator.PhoneNumber);
             // create company
-            var companyId = (await companyRepository.AddCompanyAsync(preRegistrationOperator.CompanyName)).Value;
+            var companyId = (await companyRepository.AddCompanyAsync(preRegistrationOperator.CompanyName,
+                preRegistrationOperator.CompanyLogoUrl)).Value;
             // create city
             var cityId = preRegistrationOperator.CityName is not null
                 ? (await cityRepository.AddCityAsync(preRegistrationOperator.CityName)).Value
                 : (int?)null;
             // create Store
             await storeRepository.AddStoreAsync(preRegistrationOperator.StoreName,
-                preRegistrationOperator.StoreAddress, cityId, companyId);
+                preRegistrationOperator.StoreAddress, cityId, companyId, userId.Value);
 
             return userId;
         });

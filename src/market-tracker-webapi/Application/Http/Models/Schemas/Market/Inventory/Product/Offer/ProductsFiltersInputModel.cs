@@ -2,23 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product.Offer;
 
-public class ProductsFiltersInputModel
-{
-    public string? Name { get; set; }
-
-    public IList<int>? CategoryIds { get; set; }
-
-    public IList<int>? BrandIds { get; set; }
-
-    public IList<int>? CompanyIds { get; set; }
-
-    [Range(0, int.MaxValue)] public int? MinPrice { get; set; }
-
-    [Range(0, int.MaxValue)] public int? MaxPrice { get; set; }
-
-    [Range(1, 5)] public int? MinRating { get; set; }
-
-    [Range(1, 5)] public int? MaxRating { get; set; }
-
-    public int MaxValuesPerFacet { get; set; } = 10;
-}
+public record ProductsFiltersInputModel(
+    [MaxLength(100)] string? Name,
+    IList<int>? CategoryIds,
+    IList<int>? BrandIds,
+    IList<int>? CompanyIds,
+    [Range(0, int.MaxValue)] int? MinPrice,
+    [Range(0, int.MaxValue)] int? MaxPrice,
+    [Range(1, 5)] int? MinRating,
+    [Range(1, 5)] int? MaxRating,
+    int MaxValuesPerFacet = 10
+);

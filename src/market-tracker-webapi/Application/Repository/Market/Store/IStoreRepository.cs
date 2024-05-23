@@ -14,7 +14,7 @@ public interface IStoreRepository
 
     Task<Store?> GetStoreByOperatorIdAsync(Guid operatorId);
 
-    Task<StoreId> AddStoreAsync(string name, string address, int? cityId, int companyId);
+    Task<StoreId> AddStoreAsync(string name, string address, int? cityId, int companyId, Guid operatorId);
 
     Task<StoreItem?> UpdateStoreAsync(int id, string address, int cityId, int companyId);
 

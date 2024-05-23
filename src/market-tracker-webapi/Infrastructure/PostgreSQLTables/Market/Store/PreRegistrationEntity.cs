@@ -12,24 +12,28 @@ public class PreRegistrationEntity
     [Key]
     public Guid Code { get; set; }
 
-    [Column("operator_name")] public required string OperatorName { get; set; }
+    [Required] [Column("operator_name")] public required string OperatorName { get; set; }
 
-    [Column("email")] public required string Email { get; set; }
+    [Required] [Column("email")] public required string Email { get; set; }
 
-    [Column("phone_number")] public required int PhoneNumber { get; set; }
+    [Required] [Column("phone_number")] public required int PhoneNumber { get; set; }
 
-    [Column("store_name")] public required string StoreName { get; set; }
+    [Required] [Column("store_name")] public required string StoreName { get; set; }
 
-    [Column("store_address")] public required string StoreAddress { get; set; }
+    [Required] [Column("store_address")] public required string StoreAddress { get; set; }
 
-    [Column("company_name")] public required string CompanyName { get; set; }
+    [Required] [Column("company_name")] public required string CompanyName { get; set; }
+
+    [Required]
+    [Column("company_logo_url")]
+    public required string CompanyLogoUrl { get; set; }
 
     [Column("city_name")] public string? CityName { get; set; }
 
     [DataType(DataType.Date)] [Column("created_at")]
     public readonly DateTime CreatedAt;
 
-    [Column("document")] public required string Document { get; set; }
+    [Required] [Column("document")] public required string Document { get; set; }
 
     [Column("is_approved")] public bool IsApproved { get; set; }
 
@@ -42,6 +46,7 @@ public class PreRegistrationEntity
             PhoneNumber,
             StoreName,
             CompanyName,
+            CompanyLogoUrl,
             StoreAddress,
             CityName,
             Document,

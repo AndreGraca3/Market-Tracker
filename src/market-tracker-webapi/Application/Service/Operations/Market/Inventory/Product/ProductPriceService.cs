@@ -52,9 +52,7 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
             .Select(companyStores => new CompanyPrices(
                 companiesDictionary[companyStores.Key].Id.Value,
                 companiesDictionary[companyStores.Key].Name,
-                companyStores.Value.Select(s =>
-                    new StoreOfferResult(s.Store, s.PriceData, s.PriceData.FinalPrice == minPrice)
-                ).ToList()
+                companyStores.Value.ToList()
             ));
 
         return new CompaniesPricesResult(

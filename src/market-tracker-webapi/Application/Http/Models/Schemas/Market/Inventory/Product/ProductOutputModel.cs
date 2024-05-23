@@ -1,4 +1,5 @@
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Category;
 using Microsoft.OpenApi.Extensions;
 
@@ -27,7 +28,7 @@ public static class ProductInfoOutputModelMapper
             product.Name,
             product.ImageUrl,
             product.Quantity,
-            product.Unit.GetDisplayName(),
+            product.Unit.GetUnitName(),
             product.Brand,
             product.Category.ToOutputModel()
         );

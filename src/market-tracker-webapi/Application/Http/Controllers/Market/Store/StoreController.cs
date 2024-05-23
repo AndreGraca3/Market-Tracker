@@ -33,7 +33,8 @@ public class StoreController(IStoreService storeService) : ControllerBase
             input.Name,
             input.Address,
             input.CityId,
-            input.CompanyId
+            input.CompanyId,
+            input.OperatorId
         );
 
         return Created(Uris.Stores.BuildStoreByIdUri(storeId.Value), storeId);

@@ -1,4 +1,5 @@
 create extension if not exists pg_trgm SCHEMA pg_catalog;
+drop table if exists pre_registration;
 drop table if exists post_comment;
 drop table if exists post;
 drop table if exists product_favourite;
@@ -60,6 +61,7 @@ create table if not exists company
 (
     id         int generated always as identity primary key,
     name       varchar(30) unique not null,
+    logo_url   TEXT               not null,
     created_at timestamp          not null default now()
 );
 
@@ -238,18 +240,19 @@ create table if not exists post_comment
 create table if not exists pre_registration
 (
     -- pre-operator
-    code          uuid primary key             default gen_random_uuid(),
-    operator_name varchar(30)         not null,
-    email         varchar(200) unique not null,
-    phone_number  int                 not null check (phone_number between 210000000 and 999999999),
+    code             uuid primary key             default gen_random_uuid(),
+    operator_name    varchar(30)         not null,
+    email            varchar(200) unique not null,
+    phone_number     int                 not null check (phone_number between 210000000 and 999999999),
     -- pre-store
-    store_name    varchar(30)         not null,
-    store_address varchar(30)                  default null,
+    store_name       varchar(30)         not null,
+    store_address    varchar(30)                  default null,
     -- pre-company
-    company_name  varchar(30)         not null,
+    company_name     varchar(30)         not null,
+    company_logo_url TEXT                not null,
     -- pre city
-    city_name     varchar(30),
-    created_at    timestamp           not null default now(),
-    document      Text unique         not null,
-    is_approved   boolean                      default false
+    city_name        varchar(30),
+    created_at       timestamp           not null default now(),
+    document         Text unique         not null,
+    is_approved      boolean                      default false
 );

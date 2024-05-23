@@ -53,12 +53,10 @@ public class ListEntryService(
                     {
                         var storeOffer = await priceRepository.GetCheapestStoreOfferAvailableByProductIdAsync(
                             entry.Product.Id.Value, companyIds, storeIds, cityIds);
-                        var isAvailable = storeOffer is not null;
                         return new ListEntryOffer(
                             new ProductOffer(
                                 entry.Product,
-                                storeOffer,
-                                isAvailable
+                                storeOffer
                             ),
                             entry.Quantity
                         );
@@ -83,8 +81,7 @@ public class ListEntryService(
                         return new ListEntryOffer(
                             new ProductOffer(
                                 entry.Product,
-                                storeOffer,
-                                isAvailable
+                                storeOffer
                             ),
                             entry.Quantity
                         );
@@ -162,7 +159,7 @@ public class ListEntryService(
             if (listEntry is null)
                 throw new MarketTrackerServiceException(
                     new ListEntryFetchingError.ListEntryByIdNotFound(entryId));
-            
+
             var productId = listEntry.Product.Id.Value;
             if (await productRepository.GetProductByIdAsync(productId) is null)
                 throw new MarketTrackerServiceException(

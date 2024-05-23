@@ -1,6 +1,5 @@
-﻿namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Company;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class CompanyUpdateInputModel
-{
-    public required string CompanyName { get; set; }
-}
+namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Company;
+
+public record CompanyUpdateInputModel([Required] [MaxLength(30)] string CompanyName);

@@ -1,6 +1,5 @@
-﻿namespace market_tracker_webapi.Application.Http.Models.Schemas.List;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class ListInviteInputModel
-{
-    public required Guid ClientId { get; set; }
-}
+namespace market_tracker_webapi.Application.Http.Models.Schemas.List;
+
+public record ListInviteInputModel([Required] Guid ClientId);

@@ -1,3 +1,9 @@
-﻿namespace market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record OperatorUpdateInputModel(int NewPhoneNumber);
+namespace market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.Operator;
+
+public record OperatorUpdateInputModel(
+    [Required]
+    [Range(210000000, 999999999)]
+    int NewPhoneNumber
+);

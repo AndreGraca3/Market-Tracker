@@ -1,3 +1,5 @@
-﻿namespace market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.User;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record UserUpdateInputModel(string? Name);
+namespace market_tracker_webapi.Application.Http.Models.Schemas.Account.Users.User;
+
+public record UserUpdateInputModel([MaxLength(30)] string? Name);

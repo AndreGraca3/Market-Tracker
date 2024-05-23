@@ -25,16 +25,15 @@ public class StorePreRegisterController(IPreRegistrationService preRegistrationS
 
     [HttpGet(Uris.Stores.StoresPendingById)]
     [Authorized([Role.Moderator])]
-    public async Task<ActionResult<PreRegisterOutputModel>> GetPendingOperatorByIdAsync(Guid id)
+    public async Task<ActionResult<PreRegistrationOutputModel>> GetPendingOperatorByIdAsync(Guid id)
     {
-        throw new Exception();
-//        var preRegistration = await preRegistrationService.GetPreRegistrationByIdAsync(id);
-//        return preRegistration.ToPreRegisterOutputModel(preRegistration); // TODO: discuss this
+        var preRegistration = await preRegistrationService.GetPreRegistrationByIdAsync(id);
+        return preRegistration.ToPreRegisterOutputModel(); 
     }
 
     [HttpPost(Uris.Stores.StoresPreRegister)]
     public async Task<ActionResult<PreRegistrationCode>> AddPreRegisterAsync(
-        [FromBody] PreRegisterCreationInputModel form)
+        [FromBody] PreRegistrationCreationInputModel form)
     {
         return await preRegistrationService.AddPreRegistrationAsync(
             form.OperatorName,
@@ -43,6 +42,7 @@ public class StorePreRegisterController(IPreRegistrationService preRegistrationS
             form.StoreName,
             form.StoreAddress,
             form.CompanyName,
+            form.CompanyLogoUrl,
             form.CityName,
             form.Document
         );
@@ -52,9 +52,9 @@ public class StorePreRegisterController(IPreRegistrationService preRegistrationS
     [Authorized([Role.Moderator])]
     public async Task<ActionResult<PreRegistrationCode>> UpdateStatePreRegistrationByIdAsync(
         Guid id,
-        [FromBody] bool isApproved
+        [FromBody] PreRegistrationValidationInputModel input
     )
     {
-        return await preRegistrationService.UpdatePreRegistrationByIdAsync(id, isApproved);
+        return await preRegistrationService.UpdatePreRegistrationByIdAsync(id, input.IsApproved);
     }
 }

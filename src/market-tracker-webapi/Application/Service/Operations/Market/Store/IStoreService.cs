@@ -16,7 +16,8 @@ public interface IStoreService
         string name,
         string address,
         int? cityId,
-        int companyId
+        int companyId,
+        Guid operatorId
     );
 
     Task<StoreItem> UpdateStoreAsync(

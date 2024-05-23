@@ -2,8 +2,7 @@
 
 namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Company;
 
-public class CompanyCreationInputModel
-{
-    [Required]
-    public string CompanyName { get; set; }
-}
+public record CompanyCreationInputModel(
+    [Required] [MaxLength(30)] string CompanyName,
+    [Required] string CompanyLogoUrl
+);

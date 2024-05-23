@@ -30,8 +30,7 @@ public static class PaginatedProductOffersOutputModelMapper
 
 public record ProductOfferOutputModel(
     ProductOutputModel Product,
-    StoreOfferOutputModel? StoreOffer,
-    bool IsAvailable
+    StoreOfferOutputModel? StoreOffer
 );
 
 public static class ProductOfferOutputModelMapper
@@ -40,8 +39,7 @@ public static class ProductOfferOutputModelMapper
     {
         return new ProductOfferOutputModel(
             productOffer.Product.ToOutputModel(),
-            productOffer.StoreOffer?.ToOutputModel(),
-            productOffer.IsAvailable
+            productOffer.StoreOffer?.ToOutputModel()
         );
     }
 }

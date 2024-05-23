@@ -41,7 +41,8 @@ public class StoreService(
         string name,
         string address,
         int? cityId,
-        int companyId
+        int companyId,
+        Guid operatorId
     )
     {
         return await transactionManager.ExecuteAsync(async () =>
@@ -67,7 +68,7 @@ public class StoreService(
                 );
             }
 
-            return await storeRepository.AddStoreAsync(name, address, cityId, companyId);
+            return await storeRepository.AddStoreAsync(name, address, cityId, companyId, operatorId);
         });
     }
 

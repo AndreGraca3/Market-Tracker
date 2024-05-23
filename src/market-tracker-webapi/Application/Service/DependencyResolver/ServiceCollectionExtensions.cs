@@ -4,6 +4,7 @@ using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Account.Credential;
 using market_tracker_webapi.Application.Repository.Account.Token;
 using market_tracker_webapi.Application.Repository.Account.Users.Client;
+using market_tracker_webapi.Application.Repository.Account.Users.Operator;
 using market_tracker_webapi.Application.Repository.Account.Users.User;
 using market_tracker_webapi.Application.Repository.List;
 using market_tracker_webapi.Application.Repository.List.ListEntry;
@@ -15,10 +16,14 @@ using market_tracker_webapi.Application.Repository.Market.Inventory.Category;
 using market_tracker_webapi.Application.Repository.Market.Inventory.Product;
 using market_tracker_webapi.Application.Repository.Market.Price;
 using market_tracker_webapi.Application.Repository.Market.Store;
+using market_tracker_webapi.Application.Repository.Market.Store.PreRegister;
+using market_tracker_webapi.Application.Service.Errors.PreRegister;
 using market_tracker_webapi.Application.Service.External;
 using market_tracker_webapi.Application.Service.Operations.Account.Auth.GoogleAuth;
+using market_tracker_webapi.Application.Service.Operations.Account.Auth.PreRegister;
 using market_tracker_webapi.Application.Service.Operations.Account.Auth.Token;
 using market_tracker_webapi.Application.Service.Operations.Account.Users.Client;
+using market_tracker_webapi.Application.Service.Operations.Account.Users.Operator;
 using market_tracker_webapi.Application.Service.Operations.Account.Users.User;
 using market_tracker_webapi.Application.Service.Operations.List;
 using market_tracker_webapi.Application.Service.Operations.Market.Alert;
@@ -118,9 +123,15 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
 
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<IClientRepository, ClientRepository>();
-            
+
             services.AddScoped<IClientDeviceService, ClientDeviceService>();
             services.AddScoped<IClientDeviceRepository, ClientDeviceRepository>();
+
+            services.AddScoped<IOperatorService, OperatorService>();
+            services.AddScoped<IOperatorRepository, OperatorRepository>();
+
+            services.AddScoped<IPreRegistrationRepository, PreRegistrationRepository>();
+            services.AddScoped<IPreRegistrationService, PreRegistrationService>();
 
             return services;
         }

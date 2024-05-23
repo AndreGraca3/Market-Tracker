@@ -1,6 +1,6 @@
-insert into company (name)
-values ('Continente'), --1
-       ('Pingo Doce'), --2
-       ('Auchan'),     --3
-       ('Meu Super'),  --4
-       ('Lidl'); --5
+insert into company (name, logo_url)
+values ('Continente', 'ContinenteLogoUrl'), --1
+       ('Pingo Doce', 'PingoDoceLogoUrl'), --2
+       ('Auchan', 'AuchanLogoUrl'),     --3
+       ('Meu Super', 'MeuSuperLogoUrl'),  --4
+       ('Lidl', 'LidlLogoUrl') ; --5
