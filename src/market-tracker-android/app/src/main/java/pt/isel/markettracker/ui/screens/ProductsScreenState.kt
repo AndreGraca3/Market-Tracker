@@ -1,37 +1,39 @@
 package pt.isel.markettracker.ui.screens
 
-import pt.isel.markettracker.domain.model.product.Product
-import pt.isel.markettracker.domain.model.product.ProductOffer
+import pt.isel.markettracker.domain.model.market.Company
+import pt.isel.markettracker.domain.model.market.inventory.Brand
+import pt.isel.markettracker.domain.model.market.inventory.Category
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductsFacetsCounters
 
 sealed class ProductsScreenState {
     data object Idle : ProductsScreenState()
-    data object Loading : ProductsScreenState()
-    data class Loaded(val query: ProductsQuery, val products: List<ProductOffer>) :
-        ProductsScreenState()
 
-    data class Error(val query: ProductsQuery, val error: Throwable) : ProductsScreenState()
+    data object Loading : ProductsScreenState()
+
+    abstract class Loaded(
+        open val productsOffers: List<ProductOffer>,
+        open val hasMore: Boolean
+    ) : ProductsScreenState()
+
+    data class IdleLoaded(
+        override val productsOffers: List<ProductOffer>,
+        override val hasMore: Boolean
+    ) : Loaded(productsOffers, hasMore)
+
+    data class LoadingMore(
+        override val productsOffers: List<ProductOffer>
+    ) : Loaded(productsOffers, true)
+
+    data class Error(val error: Throwable) :
+        ProductsScreenState()
 }
 
-fun ProductsScreenState.extractProducts() =
+fun ProductsScreenState.extractProductsOffers() =
     when (this) {
-        is ProductsScreenState.Loaded -> products
+        is ProductsScreenState.Loaded -> productsOffers
         else -> emptyList()
     }
-
-data class ProductsQuery(
-    val searchTerm: String? = null,
-    val filters: ProductsFilters = ProductsFilters(),
-    val sortOption: ProductsSortOption = ProductsSortOption.Popularity
-)
-
-data class ProductsFilters(
-    val brandIds: List<Int>? = null,
-    val categoryIds: List<Int>? = null,
-    val minRating: String? = null,
-    val maxRating: String? = null,
-    val minPrice: String? = null,
-    val maxPrice: String? = null
-)
 
 enum class ProductsSortOption(val title: String) {
     Popularity("Popularidade"),
@@ -40,5 +42,9 @@ enum class ProductsSortOption(val title: String) {
     RatingLowToHigh("Menor Avaliação"),
     RatingHighToLow("Maior Avaliação"),
     PriceLowToHigh("Menor Preço"),
-    PriceHighToLow("Maior Preço")
+    PriceHighToLow("Maior Preço");
+
+    companion object {
+        fun fromTitle(title: String) = entries.first { it.title == title }
+    }
 }

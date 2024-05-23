@@ -42,16 +42,11 @@ class MainActivity : ComponentActivity() {
                 ProductDetailsActivity.PRODUCT_ID_EXTRA,
                 ProductIdExtra(result.contents ?: "")
             )
-        } else {
-            Toast.makeText(this, "Failed to scan barcode", Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen().setKeepOnScreenCondition {
-            // upload FCM token to server
-            false
-        }
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
         setContent {

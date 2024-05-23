@@ -11,11 +11,11 @@ import pt.isel.markettracker.domain.fail
 import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.domain.loaded
 import pt.isel.markettracker.domain.loading
-import pt.isel.markettracker.domain.model.product.ProductInfo
-import pt.isel.markettracker.domain.model.product.ProductPreferences
-import pt.isel.markettracker.domain.model.product.ProductReview
-import pt.isel.markettracker.domain.model.product.ProductStats
-import pt.isel.markettracker.http.models.price.CompanyPrices
+import pt.isel.markettracker.domain.model.market.inventory.product.Product
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
+import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import javax.inject.Inject
 
@@ -24,7 +24,7 @@ class ProductDetailsScreenViewModel @Inject constructor(
     private val productService: IProductService
 ) : ViewModel() {
 
-    private val productFlow = MutableStateFlow<IOState<ProductInfo>>(idle())
+    private val productFlow = MutableStateFlow<IOState<Product>>(idle())
     val product
         get() = productFlow
 

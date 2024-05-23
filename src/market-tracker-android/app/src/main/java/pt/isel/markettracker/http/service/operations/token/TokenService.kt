@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
-import pt.isel.markettracker.domain.model.token.Token
+import pt.isel.markettracker.domain.model.account.Token
 import pt.isel.markettracker.dummy.dummyTokens
 import pt.isel.markettracker.dummy.dummyUsers
 import pt.isel.markettracker.http.models.token.TokenCreationInputModel

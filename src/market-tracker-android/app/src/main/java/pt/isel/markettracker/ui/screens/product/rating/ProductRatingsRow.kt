@@ -12,8 +12,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
 import pt.isel.markettracker.domain.IOState
-import pt.isel.markettracker.domain.model.product.ProductReview
-import pt.isel.markettracker.domain.model.product.ProductStats
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
