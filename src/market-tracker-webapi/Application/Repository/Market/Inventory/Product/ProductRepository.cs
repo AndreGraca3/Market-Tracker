@@ -131,6 +131,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         else
         {
             availability.IsAvailable = isAvailable;
+            availability.LastChecked = DateTime.Now;
         }
 
         await dataContext.SaveChangesAsync();

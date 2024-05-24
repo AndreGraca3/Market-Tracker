@@ -49,9 +49,9 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                   && (storeIds == null || storeIds.Contains(store.Id))
                   && (cityIds == null || cityIds.Contains(city.Id))
                   && (minPrice == null ||
-                      price.Price - (promotion == null ? 0 : price.Price * promotion.Percentage / 100) >= minPrice)
+                      price.Price - (promotion == null ? 0 : price.Price * (promotion.Percentage / 100)) >= minPrice)
                   && (maxPrice == null ||
-                      price.Price - (promotion == null ? 0 : price.Price * promotion.Percentage / 100) <= maxPrice)
+                      price.Price - (promotion == null ? 0 : price.Price * (promotion.Percentage / 100)) <= maxPrice)
             select new
             {
                 Product = product,
@@ -102,11 +102,11 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             ProductsSortOption.PriceLowToHigh => query.OrderBy(queryRes =>
                 queryRes.Price.Price - (queryRes.Promotion == null
                     ? 0
-                    : queryRes.Price.Price * queryRes.Promotion.Percentage / 100)),
+                    : queryRes.Price.Price * (queryRes.Promotion.Percentage / 100))),
             ProductsSortOption.PriceHighToLow => query.OrderByDescending(queryRes =>
                 queryRes.Price.Price - (queryRes.Promotion == null
                     ? 0
-                    : queryRes.Price.Price * queryRes.Promotion.Percentage / 100)),
+                    : queryRes.Price.Price * (queryRes.Promotion.Percentage / 100))),
             _ => query
         };
 
