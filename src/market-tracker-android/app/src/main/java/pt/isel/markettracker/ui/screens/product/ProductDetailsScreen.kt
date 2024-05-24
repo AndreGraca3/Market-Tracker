@@ -16,18 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
-import pt.isel.markettracker.domain.Loaded
-import pt.isel.markettracker.domain.exceptionOrNull
-import pt.isel.markettracker.domain.extractValue
-import pt.isel.markettracker.domain.getOrNull
-import pt.isel.markettracker.domain.loaded
-import pt.isel.markettracker.domain.loading
-import pt.isel.markettracker.domain.toResultSuccess
-import pt.isel.markettracker.ui.screens.product.alert.PriceAlertDialog
+import com.talhafaki.composablesweettoast.util.SweetToastUtil
 import pt.isel.markettracker.ui.screens.product.components.ProductNotFoundDialog
 import pt.isel.markettracker.ui.screens.product.components.ProductTopBar
 import pt.isel.markettracker.ui.screens.product.prices.PricesSection
-import pt.isel.markettracker.ui.screens.product.rating.ProductRatingsRow
+import pt.isel.markettracker.ui.screens.product.rating.ProductRatingsColumn
+import pt.isel.markettracker.ui.screens.product.rating.RatingDialog
 import pt.isel.markettracker.ui.screens.product.reviews.ReviewsBottomSheet
 import pt.isel.markettracker.ui.screens.product.specs.ProductImage
 import pt.isel.markettracker.ui.screens.product.specs.ProductSpecs
@@ -37,14 +31,11 @@ fun ProductDetailsScreen(
     onBackRequest: () -> Unit,
     vm: ProductDetailsScreenViewModel
 ) {
-    val productState by vm.product.collectAsState()
-    val preferencesState by vm.preferences.collectAsState()
-    val alertsState by vm.alerts.collectAsState()
-    val pricesState by vm.prices.collectAsState()
-    val statsState by vm.stats.collectAsState()
+    val screenState by vm.stateFlow.collectAsState()
 
     var isReviewsSectionOpen by remember { mutableStateOf(false) }
-    var isPriceAlertOpen by remember { mutableStateOf(false) }
+    var isRatingDialogOpen by remember { mutableStateOf(false) }
+    var isPriceAlertDialogOpen by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -53,20 +44,18 @@ fun ProductDetailsScreen(
     ) {
         ProductTopBar(
             onBackRequest = onBackRequest,
-            preferencesState = preferencesState,
-            onAlertRequest = { isPriceAlertOpen = true },
+            screenState.extractPreferences(),
             onFavoriteRequest = {}
         )
 
-        productState.exceptionOrNull()?.let {
+        if (screenState is ProductDetailsScreenState.FailedToLoadProduct) {
             ProductNotFoundDialog(
                 message = stringResource(id = R.string.product_not_found_title),
                 onDismissRequest = onBackRequest
             )
         }
 
-        val product = productState.getOrNull()
-
+        val product = screenState.extractProduct()
         ProductImage(product?.imageUrl)
 
         Column(
@@ -75,31 +64,47 @@ fun ProductDetailsScreen(
         ) {
             ProductSpecs(product)
 
-            ProductRatingsRow(
-                statsState = statsState,
-                productReviewState = when (val loadedPrefs = preferencesState) {
-                    is Loaded -> loaded(loadedPrefs.extractValue().review.toResultSuccess())
-                    else -> loading()
-                },
-                onCommunityReviewsRequest = { isReviewsSectionOpen = true }
+            ProductRatingsColumn(
+                productPreferences = screenState.extractPreferences(),
+                productStats = screenState.extractStats(),
+                onCommunityReviewsRequest = { isReviewsSectionOpen = true },
+                onUserRatingRequest = {
+                    isRatingDialogOpen = true
+                }
             )
 
-            PricesSection(pricesState)
+            PricesSection(screenState.extractPrices())
         }
 
         ReviewsBottomSheet(
             isReviewsSectionOpen,
+            reviews = screenState.extractReviews(),
             onDismissRequest = { isReviewsSectionOpen = false }
         )
 
-        preferencesState.let {
-            if (it is Loaded && isPriceAlertOpen) {
+        if (isRatingDialogOpen) {
+            RatingDialog(
+                review = screenState.extractPreferences()?.review,
+                onReviewRequest = { rating, text ->
+                    if (product != null) vm.submitUserRating(product.id, rating, text)
+                    isRatingDialogOpen = false
+                },
+                onDismissRequest = { isRatingDialogOpen = false }
+            )
+        }
+
+        /*screenState.OnAlertsLoaded { alerts ->
+            if (isPriceAlertOpen) {
                 PriceAlertDialog(
                     price = it.extractValue().priceAlert?.priceThreshold ?: 0,
                     onAlertSet = { isPriceAlertOpen = false },
                     onDismissRequest = { isPriceAlertOpen = false }
                 )
             }
-        }
+        }*/ // TODO: Implement alerts on individual stores
+    }
+
+    if (screenState is ProductDetailsScreenState.Failed) {
+        SweetToastUtil.SweetError(message = stringResource(id = R.string.loading_error))
     }
 }

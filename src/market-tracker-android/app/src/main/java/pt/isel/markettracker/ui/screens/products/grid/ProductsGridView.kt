@@ -1,8 +1,9 @@
 package pt.isel.markettracker.ui.screens.products.grid
 
-import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.markettracker.R
 import pt.isel.markettracker.ui.components.common.LoadingIcon
 import pt.isel.markettracker.ui.screens.products.ProductsScreenState
+import pt.isel.markettracker.ui.screens.products.extractHasMore
 import pt.isel.markettracker.ui.screens.products.extractProductsOffers
 
 @Composable
@@ -36,8 +38,7 @@ fun ProductsGridView(
     }
 
     LaunchedEffect(key1 = isItemReachEndScroll) {
-        if (isItemReachEndScroll) {
-            Log.v("Products", "fetching more items")
+        if (isItemReachEndScroll && state.extractHasMore()) {
             loadMoreProducts()
         }
     }
@@ -56,16 +57,25 @@ fun ProductsGridView(
             is ProductsScreenState.Loaded -> {
                 ProductsGrid(
                     lazyGridState = scrollState,
+                    hasMore = state.hasMore,
                     productsOffers = productsOffers,
                     onProductClick = onProductClick
                 )
             }
 
-            is ProductsScreenState.Error -> {
-                Text(
-                    text = stringResource(id = R.string.product_loading_error),
-                    color = Color.Red
-                )
+            is ProductsScreenState.Failed -> {
+                LazyColumn( // TODO: remove maybe?
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.product_loading_error),
+                            color = Color.Red
+                        )
+                    }
+                }
             }
 
             else -> {

@@ -21,7 +21,7 @@ sealed class ProductsScreenState {
         override val productsOffers: List<ProductOffer>
     ) : Loaded(productsOffers, true)
 
-    data class Error(val error: Throwable) :
+    data class Failed(val error: Throwable) :
         ProductsScreenState()
 }
 
@@ -29,6 +29,12 @@ fun ProductsScreenState.extractProductsOffers() =
     when (this) {
         is ProductsScreenState.Loaded -> productsOffers
         else -> emptyList()
+    }
+
+fun ProductsScreenState.extractHasMore() =
+    when (this) {
+        is ProductsScreenState.Loaded -> hasMore
+        else -> false
     }
 
 enum class ProductsSortOption(val title: String) {

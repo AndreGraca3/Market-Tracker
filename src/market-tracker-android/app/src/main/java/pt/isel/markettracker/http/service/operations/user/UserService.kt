@@ -4,8 +4,8 @@ import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.domain.PaginatedResult
-import pt.isel.markettracker.domain.model.account.User
-import pt.isel.markettracker.dummy.dummyUsers
+import pt.isel.markettracker.domain.model.account.Client
+import pt.isel.markettracker.dummy.dummyClients
 import pt.isel.markettracker.http.models.identifiers.StringIdOutputModel
 import pt.isel.markettracker.http.models.user.UserCreationInputModel
 import pt.isel.markettracker.http.models.user.UserUpdateInputModel
@@ -23,7 +23,7 @@ class UserService(
         private val USER_REQUEST_URL = URL("${MT_API_URL}/users")
     }
 
-    override suspend fun getUsers(username: String?): PaginatedResult<User> {
+    override suspend fun getUsers(username: String?): PaginatedResult<Client> {
         /*return requestHandler<UsersOutputModel>(
             request = Request.Builder().buildRequest(
                 url = USERS_REQUEST_URL,
@@ -32,8 +32,8 @@ class UserService(
         )*/
         delay(1000)
         val newUsers = if (username != null) {
-            dummyUsers.filter { it.username.contains(username) }
-        } else dummyUsers
+            dummyClients.filter { it.username.contains(username) }
+        } else dummyClients
 
         return PaginatedResult(
             items = newUsers,
@@ -44,7 +44,7 @@ class UserService(
         )
     }
 
-    override suspend fun getUser(id: String): User {
+    override suspend fun getUser(id: String): Client {
         //return requestHandler<UserOutputModel>(
         //    request = Request.Builder().buildRequest(
         //        url = USER_REQUEST_URL,
@@ -52,7 +52,7 @@ class UserService(
         //    )
         //)
         delay(1000)
-        return dummyUsers.first { it.id == id }
+        return dummyClients.first { it.id == id }
     }
 
     override suspend fun createUser(input: UserCreationInputModel): String {
@@ -63,9 +63,9 @@ class UserService(
                 method = HttpMethod.POST
             )
         )*/
-        val id = dummyUsers.last().id + 1
-        dummyUsers.add(
-            User(
+        val id = dummyClients.last().id + 1
+        dummyClients.add(
+            Client(
                 id = id,
                 username = input.username,
                 name = input.name,
@@ -78,7 +78,7 @@ class UserService(
         return id
     }
 
-    override suspend fun updateUser(id: String, input: UserUpdateInputModel): User {
+    override suspend fun updateUser(id: String, input: UserUpdateInputModel): Client {
         //return requestHandler<UserOutputModel>(
         //    request = Request.Builder().buildRequest(
         //        url = USER_REQUEST_URL,
@@ -86,11 +86,11 @@ class UserService(
         //        method = HttpMethod.PUT
         //    )
         //)
-        return dummyUsers.first { it.id == id }
+        return dummyClients.first { it.id == id }
     }
 
     override suspend fun updateUserAvatar(id: String, avatar: String) {
-        dummyUsers.map {
+        dummyClients.map {
             if (it.id == id) {
                 it.avatar = avatar
             }
@@ -104,7 +104,7 @@ class UserService(
         //        method = HttpMethod.DELETE
         //    )
         //)
-        dummyUsers.removeIf { it.id == id } // verify if true
+        dummyClients.removeIf { it.id == id } // verify if true
         return StringIdOutputModel(id)
     }
 }

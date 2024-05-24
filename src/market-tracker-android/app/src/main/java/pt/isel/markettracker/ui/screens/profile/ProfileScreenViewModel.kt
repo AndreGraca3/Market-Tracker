@@ -19,7 +19,7 @@ import pt.isel.markettracker.domain.Idle
 import pt.isel.markettracker.domain.idle
 import pt.isel.markettracker.domain.loadSuccess
 import pt.isel.markettracker.domain.loading
-import pt.isel.markettracker.domain.model.account.User
+import pt.isel.markettracker.domain.model.account.Client
 import pt.isel.markettracker.http.service.operations.token.ITokenService
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
@@ -34,27 +34,27 @@ class ProfileScreenViewModel @AssistedInject constructor(
     private val tokenService: ITokenService
 ) : ViewModel() {
 
-    private val userFetchingFlow: MutableStateFlow<IOState<User>> =
+    private val clientFetchingFlow: MutableStateFlow<IOState<Client>> =
         MutableStateFlow(idle())
 
     val userPhase
-        get() = userFetchingFlow.asStateFlow()
+        get() = clientFetchingFlow.asStateFlow()
 
     var avatarPath by mutableStateOf<Uri?>(null)
 
     fun fetchUser() {
-        if (userFetchingFlow.value !is Idle) return
-        userFetchingFlow.value = loading()
+        if (clientFetchingFlow.value !is Idle) return
+        clientFetchingFlow.value = loading()
         viewModelScope.launch {
             val result = runCatchingAPIFailure {
                 userService.getUser("1")
             }
             if (result.isSuccess) {
                 avatarPath?.let { uri -> convertImageToBase64(contentResolver, uri) }
-                userFetchingFlow.value = loadSuccess(result.getOrNull()!!)
+                clientFetchingFlow.value = loadSuccess(result.getOrNull()!!)
                 return@launch
             }
-            userFetchingFlow.value = Fail(result.exceptionOrNull()!!)
+            clientFetchingFlow.value = Fail(result.exceptionOrNull()!!)
         }
     }
 
@@ -65,7 +65,7 @@ class ProfileScreenViewModel @AssistedInject constructor(
             val user = userService.getUser("1")
             tokenService.deleteToken(user.id)
         }
-        userFetchingFlow.value = idle()
+        clientFetchingFlow.value = idle()
     }
 
     fun deleteAccount() {
@@ -73,7 +73,7 @@ class ProfileScreenViewModel @AssistedInject constructor(
             tokenService.deleteToken("1")
             userService.deleteUser("1")
         }
-        userFetchingFlow.value = idle()
+        clientFetchingFlow.value = idle()
     }
 
     fun updateUser() {

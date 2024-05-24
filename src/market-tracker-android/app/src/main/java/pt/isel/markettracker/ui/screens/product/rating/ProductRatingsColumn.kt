@@ -11,41 +11,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
-import pt.isel.markettracker.domain.IOState
-import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
-fun ProductRatingsRow(
-    statsState: IOState<ProductStats>,
-    productReviewState: IOState<ProductReview?>,
-    onCommunityReviewsRequest: () -> Unit
+fun ProductRatingsColumn(
+    productPreferences: ProductPreferences?,
+    productStats: ProductStats?,
+    onCommunityReviewsRequest: () -> Unit,
+    onUserRatingRequest: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(
-            text = stringResource(id = R.string.product_ratings_section_title),
-            style = MarketTrackerTypography.bodyMedium
-        )
-
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(18.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(21.dp),
         ) {
 
             CommunityRatingBox(
-                productStatsState = statsState,
+                productStats = productStats,
                 onCommunityReviewsRequest = onCommunityReviewsRequest
             )
 
             UserRatingBox(
-                productReviewState = productReviewState,
-                onUserRatingRequest = { }
+                preferences = productPreferences,
+                onUserRatingRequest = onUserRatingRequest
             )
         }
     }

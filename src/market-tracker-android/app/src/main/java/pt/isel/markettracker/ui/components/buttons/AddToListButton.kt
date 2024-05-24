@@ -19,17 +19,15 @@ import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.ui.theme.Primary400
 
 @Composable
-fun AddToListButton(onClick: () -> Unit) {
+fun AddToListButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     OutlinedButton(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(Primary400),
         border = BorderStroke(2.dp, Color.Black),
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .clipToBounds()
     ) {
         Row(
-            modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {

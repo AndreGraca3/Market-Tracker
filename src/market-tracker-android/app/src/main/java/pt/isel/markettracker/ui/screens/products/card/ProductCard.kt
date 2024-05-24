@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,12 +21,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.domain.model.market.inventory.Brand
-import pt.isel.markettracker.domain.model.market.inventory.Category
-import pt.isel.markettracker.domain.model.market.inventory.ProductUnit
-import pt.isel.markettracker.domain.model.market.inventory.product.Product
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.dummy.dummyCompanyPrices
-import pt.isel.markettracker.dummy.dummyStores
+import pt.isel.markettracker.dummy.dummyProducts
 import pt.isel.markettracker.ui.components.LoadableImage
 import pt.isel.markettracker.ui.components.buttons.AddToListButton
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
@@ -32,14 +31,13 @@ import pt.isel.markettracker.ui.theme.Primary900
 import pt.isel.markettracker.utils.advanceShadow
 
 @Composable
-fun ProductCard(product: Product, onProductClick: (String) -> Unit) {
+fun ProductCard(productOffer: ProductOffer, onProductClick: (String) -> Unit) {
     val shape = RoundedCornerShape(8.dp)
     Card(
         modifier = Modifier
-            .fillMaxSize()
+            .size(200.dp, 300.dp) // TODO: review this
             .clip(shape)
-            .clickable { onProductClick(product.id) }
-            .padding(2.dp)
+            .clickable { onProductClick(productOffer.product.id) }
             .border(2.dp, Color.Black.copy(.6F), shape)
             .advanceShadow(Primary900, blurRadius = 24.dp),
         colors = CardDefaults.cardColors(Color.White)
@@ -58,18 +56,15 @@ fun ProductCard(product: Product, onProductClick: (String) -> Unit) {
                     .fillMaxHeight(.4F)
             ) {
                 LoadableImage(
-                    model = product.imageUrl,
-                    contentDescription = product.name,
+                    model = productOffer.product.imageUrl,
+                    contentDescription = productOffer.product.name,
                     modifier = Modifier.fillMaxSize()
                 )
             }
-            ProductCardSpecs(product = product)
-            CompanyPriceCardHeader(
-                dummyCompanyPrices.minOf { companyPrices -> companyPrices.storePrices.minOf { it.priceData.finalPrice } },
-                dummyStores.first().company.logoUrl
-            )
+            ProductCardSpecs(product = productOffer.product)
+            CompanyPriceCardHeader(productOffer)
 
-            AddToListButton(onClick = {})
+            AddToListButton(onClick = {}, modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -79,15 +74,10 @@ fun ProductCard(product: Product, onProductClick: (String) -> Unit) {
 fun ProductCardPreview() {
     MarkettrackerTheme {
         ProductCard(
-            Product(
-                "id",
-                "name",
-                "image",
-                1,
-                ProductUnit.UNIT,
-                1.0,
-                Brand(1, "brand"),
-                Category(1, "category")
+            ProductOffer(
+                dummyProducts.first(),
+                dummyCompanyPrices.first().storeOffers.first(),
+                true
             ),
             onProductClick = {}
         )

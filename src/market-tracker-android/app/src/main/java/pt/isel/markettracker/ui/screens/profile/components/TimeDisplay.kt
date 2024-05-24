@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 
 @Composable
 fun TimeDisplay(time: LocalDateTime) {
-    val since = timeSince(time.toString()) // TODO: this may be wrong
+    val since = timeSince(time)
     val sinceParts = since.split(" ")
     var actualTime by remember { mutableIntStateOf(0) }
     val joinedValue = sinceParts[0].toInt()
@@ -27,5 +27,5 @@ fun TimeDisplay(time: LocalDateTime) {
         }
     }
 
-    Text(text = "A poupar com o Market Tracker á $actualTime ${sinceParts[1]}")
+    Text(text = "A poupar com o Market Tracker há $actualTime ${sinceParts[1]}")
 }

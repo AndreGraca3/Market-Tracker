@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -28,6 +27,7 @@ import pt.isel.markettracker.ui.screens.products.card.ProductCard
 @Composable
 fun ProductsGrid(
     lazyGridState: LazyGridState,
+    hasMore: Boolean,
     productsOffers: List<ProductOffer>,
     onProductClick: (String) -> Unit
 ) {
@@ -47,33 +47,29 @@ fun ProductsGrid(
             }
         }
         items(productsOffers.size) { index ->
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(160.dp, 320.dp)
-            ) {
-                ProductCard(
-                    product = productsOffers[index].product,
-                    onProductClick = onProductClick
-                )
-            }
+            ProductCard(
+                productOffer = productsOffers[index],
+                onProductClick = onProductClick
+            )
         }
         item(
             span = {
                 GridItemSpan(maxCurrentLineSpan)
             }
         ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(30.dp)
-            ) {
-                CircularProgressIndicator(
+            if (hasMore) {
+                Box(
+                    contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(4.dp)
-                )
+                        .fillMaxWidth()
+                        .height(30.dp)
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(4.dp)
+                    )
+                }
             }
         }
     }

@@ -1,5 +1,8 @@
 package pt.isel.markettracker.http.service.result
 
+import android.util.Log
+import pt.isel.markettracker.http.problem.InternalServerErrorProblem
+
 sealed class APIResult<T>() {
     companion object {
         fun <T> success(value: T) = Success(value)
@@ -21,6 +24,16 @@ sealed class APIResult<T>() {
         is Failure -> throw exception
     }
 
+    fun onSuccess(block: (T) -> Unit): APIResult<T> {
+        if (this is Success) block(value)
+        return this
+    }
+
+    fun onFailure(block: (APIException) -> Unit): APIResult<T> {
+        if (this is Failure) block(exception)
+        return this
+    }
+
     val isSuccess: Boolean
         get() = this is Success
 
@@ -34,7 +47,9 @@ data class Failure<T>(val exception: APIException) : APIResult<T>()
 inline fun <T> runCatchingAPIFailure(block: () -> T): APIResult<T> {
     return try {
         APIResult.success(block())
-    } catch (e: APIException) {
-        APIResult.failure(e)
+    } catch (e: Throwable) {
+        Log.e("APIResult", "runCatchingAPIFailure", e)
+        if (e is APIException) return APIResult.failure(e)
+        APIResult.failure(APIException(InternalServerErrorProblem()))
     }
 }

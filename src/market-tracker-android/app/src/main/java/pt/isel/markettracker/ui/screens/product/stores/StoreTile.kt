@@ -13,15 +13,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import pt.isel.markettracker.domain.model.market.Store
+import pt.isel.markettracker.domain.model.market.price.Price
 import pt.isel.markettracker.ui.screens.products.card.PriceLabel
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
 fun StoreTile(
-    storeName: String,
-    storeAddress: String,
-    storeCity: String?,
-    storePrice: Int,
+    store: Store,
+    price: Price,
     onStoreSelected: () -> Unit
 ) {
     Row(
@@ -38,20 +38,23 @@ fun StoreTile(
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = storeName,
+                text = store.name,
                 style = MarketTrackerTypography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.DarkGray
             )
-            listOf(storeAddress, storeCity).forEach {
-                if (it != null) Text(
-                    text = it,
-                    style = MarketTrackerTypography.bodyMedium,
-                    color = Color.DarkGray
-                )
+
+            listOf(store.address, store.city?.name).forEach {
+                if (it != null) {
+                    Text(
+                        text = it,
+                        style = MarketTrackerTypography.bodyMedium,
+                        color = Color.DarkGray
+                    )
+                }
             }
         }
 
-        PriceLabel(price = storePrice)
+        PriceLabel(price = price)
     }
 }

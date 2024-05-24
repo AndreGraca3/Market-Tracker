@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.replaceWithState
 import pt.isel.markettracker.http.service.operations.product.IProductService
+import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import javax.inject.Inject
 
 @HiltViewModel
@@ -55,7 +56,7 @@ class ProductsScreenViewModel @Inject constructor(
         val oldProducts = _stateFlow.value.extractProductsOffers()
 
         viewModelScope.launch {
-            val res = kotlin.runCatching {
+            val res = runCatchingAPIFailure {
                 productService.getProducts(
                     currentPage++,
                     searchQuery = productsQuery.searchTerm,
@@ -69,7 +70,7 @@ class ProductsScreenViewModel @Inject constructor(
                 query =
                     productsQuery.copy(filters = productsQuery.filters.replaceWithState(it.facets))
             }
-            res.onFailure { _stateFlow.value = ProductsScreenState.Error(it) }
+            res.onFailure { _stateFlow.value = ProductsScreenState.Failed(it) }
         }
     }
 }

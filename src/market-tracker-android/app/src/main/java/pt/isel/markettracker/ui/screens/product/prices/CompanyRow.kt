@@ -28,17 +28,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
-import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
+import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.ui.screens.product.stores.StoresBottomSheet
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
+
 fun CompanyRow(companyPrices: CompanyPrices) {
     var showCompanyStores by rememberSaveable { mutableStateOf(false) }
 
-    var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.storePrices.first().store.id) }
-    val selectedStorePrice = companyPrices.storePrices.first { it.store.id == selectedStoreId }
+    var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.storeOffers.first().store.id) }
+    val selectedStoreOffer = companyPrices.storeOffers.first { it.store.id == selectedStoreId }
 
     Row(
         modifier = Modifier
@@ -48,8 +49,7 @@ fun CompanyRow(companyPrices: CompanyPrices) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth(0.7F),
+            modifier = Modifier.weight(1F),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Box(
@@ -68,7 +68,7 @@ fun CompanyRow(companyPrices: CompanyPrices) {
             }
 
             Text(
-                text = selectedStorePrice.store.name,
+                text = selectedStoreOffer.store.name,
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
                     .clickable {
@@ -83,11 +83,14 @@ fun CompanyRow(companyPrices: CompanyPrices) {
             )
         }
 
-        CompanyPriceBox(price = selectedStorePrice.priceData.finalPrice)
+        CompanyPriceBox(
+            price = selectedStoreOffer.priceData,
+            lastChecked = selectedStoreOffer.lastChecked
+        )
     }
     StoresBottomSheet(
         showStores = showCompanyStores,
-        storesPrices = companyPrices.storePrices,
+        storesPrices = companyPrices.storeOffers,
         onStoreSelect = { selectedStoreId = it },
         onDismissRequest = { showCompanyStores = false }
     )
