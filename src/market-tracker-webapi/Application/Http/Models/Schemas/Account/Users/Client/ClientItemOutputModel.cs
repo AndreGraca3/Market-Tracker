@@ -7,5 +7,5 @@ public record ClientItemOutputModel(Guid Id, string Username, string? Avatar);
 public static class ClientItemOutputModelMapper
 {
     public static ClientItemOutputModel ToOutputModel(this ClientItem clientItem) =>
-        new ClientItemOutputModel(clientItem.Id.Value, clientItem.Username, clientItem.Avatar);
+        new ClientItemOutputModel(clientItem.Id.Value, clientItem.Username, clientItem.AvatarUrl);
 }

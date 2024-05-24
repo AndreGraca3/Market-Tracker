@@ -11,5 +11,6 @@ public record CompaniesPricesResult(
 public record CompanyPrices(
     int Id,
     string Name,
+    string LogoUrl,
     IEnumerable<StoreOffer> Stores
 );

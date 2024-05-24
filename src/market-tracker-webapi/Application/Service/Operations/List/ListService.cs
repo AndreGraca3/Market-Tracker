@@ -78,7 +78,7 @@ public class ListService(
             if (list is null)
                 throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-            if (list.IsOwner(clientId))
+            if (!list.IsOwner(clientId))
                 throw new MarketTrackerServiceException(new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
             if (list.ArchivedAt != null)
@@ -102,7 +102,7 @@ public class ListService(
             if (list is null)
                 throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-            if (list.IsOwner(clientId))
+            if (!list.IsOwner(clientId))
                 throw new MarketTrackerServiceException(new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
             return (await listRepository.DeleteListAsync(listId))!;
@@ -140,7 +140,7 @@ public class ListService(
             var list = await listRepository.GetListByIdAsync(listId) ??
                        throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-            if (list.IsOwner(clientId))
+            if (!list.IsOwner(clientId))
                 throw new MarketTrackerServiceException(new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
             if (!list.IsMember(clientIdToRemove))

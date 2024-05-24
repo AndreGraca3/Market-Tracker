@@ -57,11 +57,14 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
     {
         var shoppingList = await (from listEntity in context.List
             join listClient in context.ListClient on listEntity.Id equals listClient.ListId
+                into listMembers
             where listEntity.Id == id
             select new
             {
                 List = listEntity,
-                ClientIds = context.ListClient.Where(lc => lc.ListId == listEntity.Id).Select(lc => lc.ClientId)
+                ClientIds = listMembers
+                    .Where(lMembers => lMembers.ListId == listEntity.Id)
+                    .Select(lc => lc.ClientId)
                     .ToList()
             }).FirstOrDefaultAsync();
 

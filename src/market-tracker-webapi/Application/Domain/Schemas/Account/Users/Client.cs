@@ -34,12 +34,12 @@ public record Client(
     public ClientItem ToClientItem() => new ClientItem(Id, Username, AvatarUrl);
 }
 
-public record ClientItem(UserId Id, string Username, string? Avatar)
+public record ClientItem(UserId Id, string Username, string? AvatarUrl)
 {
-    public ClientItem(Guid id, string username, string? avatar) : this(
+    public ClientItem(Guid id, string username, string? avatarUrl) : this(
         new UserId(id),
         username,
-        avatar
+        avatarUrl
     )
     {
     }

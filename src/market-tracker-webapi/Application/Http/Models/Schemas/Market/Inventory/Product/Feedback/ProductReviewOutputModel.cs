@@ -7,7 +7,7 @@ public record ProductReviewOutputModel(
     int Id,
     string ProductId,
     int Rating,
-    string? Text,
+    string? Comment,
     DateTime CreatedAt,
     ClientItemOutputModel Client
 );
@@ -20,7 +20,7 @@ public static class ProductReviewOutputModelMapper
             productReview.Id.Value,
             productReview.ProductId,
             productReview.Rating,
-            productReview.Text,
+            productReview.Comment,
             productReview.CreatedAt,
             productReview.Client.ToOutputModel()
         );

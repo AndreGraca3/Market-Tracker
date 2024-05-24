@@ -73,6 +73,26 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         return (await GetProductPreferencesAsync(clientId, productId)).Review;
     }
 
+    public async Task<ProductReview> UpsertReviewAsync(
+        Guid clientId,
+        string productId,
+        int rating,
+        string? comment
+    )
+    {
+        var reviewEntity = await dataContext.ProductReview.FindAsync(clientId, productId);
+        if (reviewEntity is null)
+        {
+            await AddReviewAsync(clientId, productId, rating, comment);
+            return (await GetProductPreferencesAsync(clientId, productId)).Review!;
+        }
+
+        reviewEntity.Rating = rating;
+        reviewEntity.Text = comment;
+        await dataContext.SaveChangesAsync();
+        return (await GetProductPreferencesAsync(clientId, productId)).Review!;
+    }
+
     public async Task<ProductReview?> RemoveReviewAsync(Guid clientId, string productId)
     {
         var reviewEntity = await dataContext.ProductReview.FindAsync(clientId, productId);

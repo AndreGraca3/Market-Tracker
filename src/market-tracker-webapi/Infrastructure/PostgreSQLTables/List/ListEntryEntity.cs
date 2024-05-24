@@ -20,12 +20,12 @@ public class ListEntryEntity
 
     [Column("quantity")] public int Quantity { get; set; }
 
-    public ListEntry ToListEntry(Product product, StoreItem? Store)
+    public ListEntry ToListEntry(Product product, StoreItem? store)
     {
         return new ListEntry(
             new ListEntryId(Id),
             product,
-            Store,
+            store,
             Quantity
         );
     }

@@ -66,14 +66,7 @@ public class ListEntryService(
                 default:
                     entriesResult = await BuildShoppingListEntriesResult(listEntries, async entry =>
                     {
-                        var isAvailable = entry.Store is not null &&
-                                          ((await priceRepository.GetStoreAvailabilityStatusAsync(
-                                                  entry.Product.Id.Value,
-                                                  entry.Store.Id.Value))
-                                              ?.IsAvailable ?? false
-                                          );
-
-                        var storeOffer = entry.Store is not null && isAvailable
+                        var storeOffer = entry.Store is not null
                             ? await priceRepository.GetStoreOfferAsync(entry.Product.Id.Value, entry.Store.Id.Value,
                                 DateTime.Now)
                             : null;

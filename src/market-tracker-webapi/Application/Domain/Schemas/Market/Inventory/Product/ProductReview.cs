@@ -7,7 +7,7 @@ public record ProductReview(
     ClientItem Client,
     string ProductId,
     int Rating,
-    string? Text,
+    string? Comment,
     DateTime CreatedAt
 )
 {
@@ -16,14 +16,14 @@ public record ProductReview(
         ClientItem Client,
         string ProductId,
         int Rating,
-        string? Text,
+        string? Comment,
         DateTime CreatedAt
     ) : this(
         new ReviewId(Id),
         Client,
         ProductId,
         Rating,
-        Text,
+        Comment,
         CreatedAt
     )
     {

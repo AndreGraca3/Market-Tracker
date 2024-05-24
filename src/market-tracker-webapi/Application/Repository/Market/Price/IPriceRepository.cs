@@ -43,6 +43,9 @@ public interface IPriceRepository
 
     public Task<StoreAvailability?> GetStoreAvailabilityStatusAsync(string productId, int storeId);
 
+    /**
+     * Get the store offer for a product at a specific time.
+     */
     public Task<StoreOffer?> GetStoreOfferAsync(
         string productId,
         int storeId,

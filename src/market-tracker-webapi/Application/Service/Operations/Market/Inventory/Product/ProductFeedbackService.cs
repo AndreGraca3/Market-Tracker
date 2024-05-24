@@ -54,7 +54,7 @@ public class ProductFeedbackService(
             {
                 if (review.Value is not null)
                 {
-                    updatedReview = await productFeedbackRepository.UpdateReviewAsync(
+                    updatedReview = await productFeedbackRepository.UpsertReviewAsync(
                         clientId,
                         productId,
                         review.Value.Rating,

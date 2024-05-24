@@ -1,17 +1,19 @@
 using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales;
-using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.City;
-using market_tracker_webapi.Application.Service.Results;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Store;
 
 namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Price;
 
 using Price = Domain.Schemas.Market.Retail.Sales.Pricing.Price;
 
 public record StoreOfferOutputModel(
-    int Id,
-    string Name,
-    string Address,
-    bool IsOnline,
-    CityOutputModel? City,
+    StoreOutputModel Store,
+    Price Price,
+    bool IsAvailable,
+    DateTime LastChecked
+);
+
+public record StoreOfferItemOutputModel(
+    StoreDetailsOutputModel Store,
     Price Price,
     bool IsAvailable,
     DateTime LastChecked
@@ -22,14 +24,20 @@ public static class StoreOfferOutputModelMapper
     public static StoreOfferOutputModel ToOutputModel(this StoreOffer storeOffer)
     {
         return new StoreOfferOutputModel(
-            storeOffer.Store.Id.Value,
-            storeOffer.Store.Name,
-            storeOffer.Store.Address,
-            storeOffer.Store.IsOnline,
-            storeOffer.Store.City?.ToOutputModel(),
+            storeOffer.Store.ToOutputModel(),
             storeOffer.PriceData,
             storeOffer.StoreAvailability.IsAvailable,
             storeOffer.StoreAvailability.LastChecked
+        );
+    }
+
+    public static StoreOfferItemOutputModel ToStoreOfferItemOutputModel(this StoreOffer storeOfferItem)
+    {
+        return new StoreOfferItemOutputModel(
+            storeOfferItem.Store.ToStoreDetailsOutputModel(),
+            storeOfferItem.PriceData,
+            storeOfferItem.StoreAvailability.IsAvailable,
+            storeOfferItem.StoreAvailability.LastChecked
         );
     }
 }

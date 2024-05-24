@@ -268,7 +268,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 on priceEntry.Id equals promotion.PriceEntryId
                 into promotionGroup
             join availability in dataContext.ProductAvailability on store.Id equals availability.StoreId
-            where availability.ProductId == productId && availability.IsAvailable
+            where availability.ProductId == productId
             from promotion in promotionGroup.DefaultIfEmpty()
             select new
             {

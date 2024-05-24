@@ -12,7 +12,8 @@ public record CompaniesPricesResultOutputModel(
 public record CompanyPricesOutputModel(
     int Id,
     string Name,
-    IEnumerable<StoreOfferOutputModel> Stores
+    string LogoUrl,
+    IEnumerable<StoreOfferItemOutputModel> Stores
 );
 
 public static class CompaniesPricesOutputModelMapper
@@ -31,7 +32,8 @@ public static class CompaniesPricesOutputModelMapper
         return new CompanyPricesOutputModel(
             companyPrices.Id,
             companyPrices.Name,
-            companyPrices.Stores.Select(storeOfferResult => storeOfferResult.ToOutputModel())
+            companyPrices.LogoUrl,
+            companyPrices.Stores.Select(storeOfferResult => storeOfferResult.ToStoreOfferItemOutputModel())
         );
     }
 }

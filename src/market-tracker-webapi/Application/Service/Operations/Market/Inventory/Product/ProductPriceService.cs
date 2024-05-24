@@ -28,7 +28,14 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
                 DateTime.Now
             );
 
-            if (!companyStoresDictionary.ContainsKey(storeOffer!.Store.Company.Id.Value))
+            if (storeOffer is null)
+            {
+                // never happens because we only loop stores that have availability registered
+                // (not necessarily available)
+                continue;
+            }
+
+            if (!companyStoresDictionary.ContainsKey(storeOffer.Store.Company.Id.Value))
             {
                 companyStoresDictionary[storeOffer.Store.Company.Id.Value] = [];
             }
@@ -49,11 +56,18 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
         }
 
         var companiesPrices = companyStoresDictionary
-            .Select(companyStores => new CompanyPrices(
-                companiesDictionary[companyStores.Key].Id.Value,
-                companiesDictionary[companyStores.Key].Name,
-                companyStores.Value.ToList()
-            ));
+            .Select(companyStores =>
+            {
+                var company = companiesDictionary[companyStores.Key];
+                return new CompanyPrices(
+                    company.Id.Value,
+                    company.Name,
+                    company.LogoUrl,
+                    companyStores.Value
+                        .OrderBy(storeOffer => !storeOffer.StoreAvailability.IsAvailable)
+                        .ToList()
+                );
+            });
 
         return new CompaniesPricesResult(
             companiesPrices.ToList(),
