@@ -84,10 +84,11 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
 
     public async Task<ShoppingListId> AddListAsync(string listName, Guid ownerId)
     {
-        var listEntity = new ListEntity()
+        var listEntity = new ListEntity
         {
             Name = listName,
-            OwnerId = ownerId
+            OwnerId = ownerId,
+            CreatedAt = DateTime.Now
         };
 
         await context.List.AddAsync(listEntity);

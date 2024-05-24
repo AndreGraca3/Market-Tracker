@@ -23,7 +23,7 @@ public class CompanyEntity
     [Required]
     [DataType(DataType.Date)]
     [Column("created_at")]
-    public DateTime CreatedAt { get; } = DateTime.Now;
+    public required DateTime CreatedAt { get; set; }
 
     public Company ToCompany()
     {

@@ -119,11 +119,12 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
 
         if (availability is null)
         {
-            availability = new ProductAvailabilityEntity()
+            availability = new ProductAvailabilityEntity
             {
                 ProductId = productId,
                 StoreId = storeId,
-                IsAvailable = isAvailable
+                IsAvailable = isAvailable,
+                LastChecked = DateTime.Now
             };
             await dataContext.ProductAvailability.AddAsync(availability);
         }

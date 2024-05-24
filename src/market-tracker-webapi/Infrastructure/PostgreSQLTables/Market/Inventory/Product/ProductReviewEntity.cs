@@ -14,21 +14,15 @@ public class ProductReviewEntity
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("product_id")]
-    public required string ProductId { get; set; }
+    [Column("product_id")] public required string ProductId { get; set; }
 
-    [Column("client_id")]
-    public required Guid ClientId { get; set; }
+    [Column("client_id")] public required Guid ClientId { get; set; }
 
-    [Column("rating")]
-    public required int Rating { get; set; }
+    [Column("rating")] public required int Rating { get; set; }
 
-    [Column("text")]
-    [MaxLength(255)]
-    public string? Text { get; set; }
+    [Column("text")] public string? Text { get; set; }
 
-    [Column("created_at")]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    [Column("created_at")] public required DateTime CreatedAt { get; set; }
 
     public ProductReview ToProductReview(ClientItem client)
     {

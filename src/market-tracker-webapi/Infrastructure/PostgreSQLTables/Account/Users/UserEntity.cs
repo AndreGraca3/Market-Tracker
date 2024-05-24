@@ -10,15 +10,15 @@ public class UserEntity
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
     public Guid Id { get; set; }
-    
+
     [Column("name")] public required string Name { get; set; }
 
     [Column("email")] public required string Email { get; set; }
 
     [Column("role")] public required string Role { get; set; }
-
-    [DataType(DataType.Date)] [Column("created_at")]
-    public readonly DateTime CreatedAt = DateTime.Now;
+    
+    [Column("created_at")]
+    public required DateTime CreatedAt { get; set; }
 
     public User ToUser()
     {
@@ -30,7 +30,7 @@ public class UserEntity
             CreatedAt
         );
     }
-    
+
     public UserItem ToUserItem()
     {
         return new UserItem(

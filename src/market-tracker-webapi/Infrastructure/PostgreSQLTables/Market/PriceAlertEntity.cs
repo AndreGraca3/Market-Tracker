@@ -21,10 +21,10 @@ public class PriceAlertEntity
 
     [Column("price_threshold")] public required int PriceThreshold { get; set; }
 
-    [Column("created_at")] public DateTime CreatedAt { get; set; } = DateTime.Now;
+    [Column("created_at")] public required DateTime CreatedAt { get; set; }
 
     public PriceAlert ToPriceAlert()
     {
-        return new PriceAlert(Id, ClientId, ProductId,  StoreId, PriceThreshold, CreatedAt);
+        return new PriceAlert(Id, ClientId, ProductId, StoreId, PriceThreshold, CreatedAt);
     }
 }

@@ -9,7 +9,7 @@ public class PromotionEntity
 {
     [Column("percentage")] public required int Percentage { get; set; }
 
-    [Column("created_at")] public DateTime CreatedAt { get; set; } = DateTime.Now;
+    [Column("created_at")] public required DateTime CreatedAt { get; set; }
 
     [Key] [Column("price_entry_id")] public required string PriceEntryId { get; set; }
 

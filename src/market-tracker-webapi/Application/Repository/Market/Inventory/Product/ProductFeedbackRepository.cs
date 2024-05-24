@@ -38,12 +38,13 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         string? comment
     )
     {
-        var productReviewEntity = new ProductReviewEntity()
+        var productReviewEntity = new ProductReviewEntity
         {
             ProductId = productId,
             ClientId = clientId,
             Rating = rating,
-            Text = comment
+            Text = comment,
+            CreatedAt = DateTime.Now
         };
         await dataContext.ProductReview.AddAsync(productReviewEntity);
         await dataContext.SaveChangesAsync();

@@ -15,23 +15,11 @@ public class ListEntity
 
     [Column("name")] public required string Name { get; set; }
 
-    [Column("archived_at")] public DateTime? ArchivedAt { get; set; } = null;
+    [Column("archived_at")] public DateTime? ArchivedAt { get; set; }
 
-    [Column("created_at")] public DateTime CreatedAt { get; set; } = DateTime.Now;
+    [Column("created_at")] public required DateTime CreatedAt { get; set; }
 
     [Column("owner_id")] public required Guid OwnerId { get; set; }
-
-    public ShoppingList ToShoppingList(IEnumerable<Guid> memberIds)
-    {
-        return new ShoppingList(
-            Id,
-            Name,
-            ArchivedAt,
-            CreatedAt,
-            OwnerId,
-            memberIds
-        );
-    }
 
     public ShoppingListItem ToShoppingListItem()
     {

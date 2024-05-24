@@ -195,7 +195,7 @@ create table if not exists product_stats_counts
 
 create table if not exists list
 (
-    id          varchar(25) primary key default substr(md5(random()::text), 1, 25) check ( length(id) < 25), -- TODO: change to equal 25
+    id          varchar(25) primary key default substr(md5(random()::text), 1, 25) check ( length(id) = 25),
     name        varchar(30) NOT NULL,
     archived_at timestamp,
     created_at  timestamp   not null    default now(),

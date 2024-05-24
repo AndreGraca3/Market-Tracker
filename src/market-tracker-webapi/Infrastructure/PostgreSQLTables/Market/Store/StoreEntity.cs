@@ -16,12 +16,8 @@ public class StoreEntity
 
     [Column("name")] public required string Name { get; set; }
 
-    [Required]
-    [StringLength(200)]
-    [Column("address")]
-    public required string Address { get; set; }
+    [Column("address")] public required string Address { get; set; }
 
-    [StringLength(30)]
     [ForeignKey("city")]
     [Column("city_id")]
     public int? CityId { get; set; }

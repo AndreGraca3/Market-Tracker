@@ -10,7 +10,7 @@ public class ProductAvailabilityEntity
 {
     [Column("is_available")] public required bool IsAvailable { get; set; }
 
-    [Column("last_checked")] public DateTime LastChecked { get; set; } = DateTime.Now;
+    [Column("last_checked")] public required DateTime LastChecked { get; set; }
 
     [Column("product_id")] public required string ProductId { get; set; }
 

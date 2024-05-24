@@ -42,7 +42,7 @@ public class AuthController(IGoogleAuthService googleAuthService, ITokenService 
             {
                 HttpOnly = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = token.ExpiresAt
+                Expires = DateTime.SpecifyKind(token.ExpiresAt, DateTimeKind.Utc)
             });
         return new NoContentResult();
     }

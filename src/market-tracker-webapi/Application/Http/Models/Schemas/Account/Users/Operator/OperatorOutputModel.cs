@@ -13,7 +13,7 @@ public static class OperatorModelMapper
             @operator.Name,
             @operator.Email,
             @operator.PhoneNumber,
-            DateTime.Now
+            @operator.CreatedAt
         );
     }
 

@@ -30,8 +30,9 @@ public class PreRegistrationEntity
 
     [Column("city_name")] public string? CityName { get; set; }
 
-    [DataType(DataType.Date)] [Column("created_at")]
-    public readonly DateTime CreatedAt;
+    [DataType(DataType.Date)]
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; }
 
     [Required] [Column("document")] public required string Document { get; set; }
 

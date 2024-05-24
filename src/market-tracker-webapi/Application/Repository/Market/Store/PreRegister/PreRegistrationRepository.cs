@@ -27,7 +27,9 @@ public class PreRegistrationRepository(
 
     public async Task<PreRegistration?> GetPreRegisterByIdAsync(Guid id)
     {
-        return (await dataContext.PreRegister.FindAsync(id))?.ToPreRegistration();
+        var database = (await dataContext.PreRegister.FindAsync(id));
+        var ola = database!.ToPreRegistration();
+        return ola;
     }
 
     public async Task<PreRegistration?> GetPreRegisterByEmail(string email)
@@ -53,7 +55,8 @@ public class PreRegistrationRepository(
             CompanyName = companyName,
             CompanyLogoUrl = companyLogoUrl,
             CityName = cityName,
-            Document = document
+            Document = document,
+            CreatedAt = DateTime.Now
         };
         await dataContext.PreRegister.AddAsync(newPreRegistration);
         await dataContext.SaveChangesAsync();

@@ -197,7 +197,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         {
             return null;
         }
-        
+
         return (await query.Select(g =>
                 new StoreOffer(
                     g.Store.ToStore(g.City == null ? null : g.City.ToCity(), g.Company.ToCompany()),
@@ -335,7 +335,8 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
         {
             ProductId = productId,
             StoreId = storeId,
-            Price = price
+            Price = price,
+            CreatedAt = DateTime.Now
         };
 
         await dataContext.PriceEntry.AddAsync(priceEntry);
@@ -347,7 +348,8 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             var promotion = new PromotionEntity
             {
                 Percentage = promotionPercentage.Value,
-                PriceEntryId = priceEntry.Id
+                PriceEntryId = priceEntry.Id,
+                CreatedAt = DateTime.Now
             };
 
             await dataContext.Promotion.AddAsync(promotion);
