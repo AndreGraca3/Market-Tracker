@@ -34,7 +34,6 @@ import pt.isel.markettracker.ui.screens.product.stores.StoresBottomSheet
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
-
 fun CompanyRow(companyPrices: CompanyPrices) {
     var showCompanyStores by rememberSaveable { mutableStateOf(false) }
 

@@ -4,5 +4,5 @@ import pt.isel.markettracker.domain.model.market.Company
 
 data class CompanyPrices(
     val company: Company,
-    val storeOffers: List<StoreOffer>
+    val storeOffers: List<StoreOfferItem>
 )

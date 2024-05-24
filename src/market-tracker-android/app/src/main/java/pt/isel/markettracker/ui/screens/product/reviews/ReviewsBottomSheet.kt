@@ -25,13 +25,15 @@ import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewsBottomSheet(
-    showReviews: Boolean,
+    reviewsOpen: Boolean,
     reviews: List<ProductReview>?,
+    hasMore: Boolean,
+    loadMoreReviews: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    if (showReviews) {
+    if (reviewsOpen) {
         ModalBottomSheet(
             modifier = Modifier.fillMaxHeight(0.7F),
             onDismissRequest = onDismissRequest,
@@ -59,7 +61,7 @@ fun ReviewsBottomSheet(
             }
         ) {
             reviews?.let {
-                ReviewsList(reviews = it, hasMore = true, loadMoreReviews = {})
+                ReviewsList(reviews = it, hasMore = hasMore, loadMoreReviews = loadMoreReviews)
             } ?: CircularProgressIndicator()
         }
     }

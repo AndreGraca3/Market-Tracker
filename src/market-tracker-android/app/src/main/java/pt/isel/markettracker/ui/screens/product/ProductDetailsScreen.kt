@@ -76,17 +76,20 @@ fun ProductDetailsScreen(
             PricesSection(screenState.extractPrices())
         }
 
-        ReviewsBottomSheet(
-            isReviewsSectionOpen,
-            reviews = screenState.extractReviews(),
-            onDismissRequest = { isReviewsSectionOpen = false }
-        )
+        if (product != null) {
+            ReviewsBottomSheet(
+                reviewsOpen = isReviewsSectionOpen,
+                reviews = screenState.extractReviews(),
+                hasMore = screenState.hasMoreReviews(),
+                loadMoreReviews = { vm.fetchProductReviews(product.id) },
+                onDismissRequest = { isReviewsSectionOpen = false }
+            )
 
-        if (isRatingDialogOpen) {
             RatingDialog(
+                dialogOpen = isRatingDialogOpen,
                 review = screenState.extractPreferences()?.review,
                 onReviewRequest = { rating, text ->
-                    if (product != null) vm.submitUserRating(product.id, rating, text)
+                    vm.submitUserRating(product.id, rating, text)
                     isRatingDialogOpen = false
                 },
                 onDismissRequest = { isRatingDialogOpen = false }

@@ -1,6 +1,7 @@
 package pt.isel.markettracker.ui.screens.product
 
 import android.util.Log
+import pt.isel.markettracker.domain.PaginatedResult
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
@@ -18,7 +19,7 @@ sealed class ProductDetailsScreenState {
         val stats: ProductStats? = null,
         val preferences: ProductPreferences? = null,
         val alerts: List<PriceAlert>? = null,
-        val reviews: List<ProductReview>? = null
+        val reviews: PaginatedResult<ProductReview>? = null
     ) : ProductDetailsScreenState()
 
     abstract class Loaded(
@@ -27,7 +28,7 @@ sealed class ProductDetailsScreenState {
         open val stats: ProductStats,
         open val preferences: ProductPreferences,
         open val alerts: List<PriceAlert>,
-        open val reviews: List<ProductReview>
+        open val reviews: PaginatedResult<ProductReview>
     ) : ProductDetailsScreenState()
 
     data class LoadedDetails(
@@ -36,7 +37,7 @@ sealed class ProductDetailsScreenState {
         override val stats: ProductStats,
         override val preferences: ProductPreferences,
         override val alerts: List<PriceAlert>,
-        override val reviews: List<ProductReview>
+        override val reviews: PaginatedResult<ProductReview>
     ) : Loaded(product, prices, stats, preferences, alerts, reviews)
 
     data class SubmittingPriceAlert(
@@ -45,7 +46,7 @@ sealed class ProductDetailsScreenState {
         override val stats: ProductStats,
         override val preferences: ProductPreferences,
         override val alerts: List<PriceAlert>,
-        override val reviews: List<ProductReview>
+        override val reviews: PaginatedResult<ProductReview>
     ) : Loaded(product, prices, stats, preferences, alerts, reviews)
 
     data class SubmittingReview(
@@ -54,7 +55,7 @@ sealed class ProductDetailsScreenState {
         override val stats: ProductStats,
         override val preferences: ProductPreferences,
         override val alerts: List<PriceAlert>,
-        override val reviews: List<ProductReview>
+        override val reviews: PaginatedResult<ProductReview>
     ) : Loaded(product, prices, stats, preferences, alerts, reviews)
 
     data class FailedToLoadProduct(val error: Throwable) : ProductDetailsScreenState()
@@ -145,8 +146,16 @@ fun ProductDetailsScreenState.extractAlerts(): List<PriceAlert>? {
 
 fun ProductDetailsScreenState.extractReviews(): List<ProductReview>? {
     return when (this) {
-        is ProductDetailsScreenState.LoadingProductDetails -> reviews
-        is ProductDetailsScreenState.Loaded -> reviews
+        is ProductDetailsScreenState.LoadingProductDetails -> reviews?.items
+        is ProductDetailsScreenState.Loaded -> reviews.items
         else -> null
+    }
+}
+
+fun ProductDetailsScreenState.hasMoreReviews(): Boolean {
+    return when (this) {
+        is ProductDetailsScreenState.LoadingProductDetails -> reviews?.hasMore ?: false
+        is ProductDetailsScreenState.Loaded -> reviews.hasMore
+        else -> false
     }
 }

@@ -13,12 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import pt.isel.markettracker.domain.model.market.price.StoreOffer
+import pt.isel.markettracker.domain.model.market.price.StoreOfferItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoresBottomSheet(
     showStores: Boolean,
-    storesPrices: List<StoreOffer>,
+    storesPrices: List<StoreOfferItem>,
     onStoreSelect: (Int) -> Unit,
     onDismissRequest: () -> Unit
 ) {

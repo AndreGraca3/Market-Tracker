@@ -13,14 +13,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.domain.model.market.Store
+import pt.isel.markettracker.domain.model.market.StoreInfo
 import pt.isel.markettracker.domain.model.market.price.Price
 import pt.isel.markettracker.ui.screens.products.card.PriceLabel
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
 fun StoreTile(
-    store: Store,
+    store: StoreInfo,
     price: Price,
     onStoreSelected: () -> Unit
 ) {

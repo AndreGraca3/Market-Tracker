@@ -32,6 +32,7 @@ import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
 fun RatingDialog(
+    dialogOpen: Boolean,
     review: ProductReview?,
     onReviewRequest: (Int, String) -> Unit,
     onDismissRequest: () -> Unit
@@ -39,64 +40,66 @@ fun RatingDialog(
     var rating by remember { mutableIntStateOf(review?.rating ?: 0) }
     var text by remember { mutableStateOf(review?.text ?: "") }
 
-    Dialog(onDismissRequest = onDismissRequest) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Column(
+    if (dialogOpen) {
+        Dialog(onDismissRequest = onDismissRequest) {
+            Card(
                 modifier = Modifier
-                    .padding(21.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                shape = RoundedCornerShape(16.dp),
             ) {
-                Text(
-                    text = stringResource(id = R.string.user_rating_section_title),
-                    style = MarketTrackerTypography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-
-                RatingStarsRow(rating.toDouble(), onStarClicked = {
-                    rating = it
-                })
-
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = {
-                        if (it.length <= 255) text = it
-                    },
-                    minLines = 3,
-                    maxLines = 4,
-                    supportingText = {
-                        Row {
-                            Text(
-                                "${text.length}",
-                                color = if (text.length == 255) Color.Red else Color.Black
-                            )
-                            Text("/255")
-                        }
-                    },
-                    placeholder = {
-                        Text(stringResource(id = R.string.describe_product))
-                    }
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(
-                        10.dp,
-                        Alignment.CenterHorizontally
-                    )
+                Column(
+                    modifier = Modifier
+                        .padding(21.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    ActionButton(
-                        onClick = { onDismissRequest() },
-                        text = stringResource(id = R.string.reject)
+                    Text(
+                        text = stringResource(id = R.string.user_rating_section_title),
+                        style = MarketTrackerTypography.titleLarge,
+                        fontWeight = FontWeight.Bold
                     )
-                    ActionButton(
-                        onClick = { onReviewRequest(rating, text) },
-                        text = stringResource(id = R.string.accept)
+
+                    RatingStarsRow(rating.toDouble(), onStarClicked = {
+                        rating = it
+                    })
+
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = {
+                            if (it.length <= 255) text = it
+                        },
+                        minLines = 3,
+                        maxLines = 4,
+                        supportingText = {
+                            Row {
+                                Text(
+                                    "${text.length}",
+                                    color = if (text.length == 255) Color.Red else Color.Black
+                                )
+                                Text("/255")
+                            }
+                        },
+                        placeholder = {
+                            Text(stringResource(id = R.string.describe_product))
+                        }
                     )
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(
+                            10.dp,
+                            Alignment.CenterHorizontally
+                        )
+                    ) {
+                        ActionButton(
+                            onClick = { onDismissRequest() },
+                            text = stringResource(id = R.string.reject)
+                        )
+                        ActionButton(
+                            onClick = { onReviewRequest(rating, text) },
+                            text = stringResource(id = R.string.accept)
+                        )
+                    }
                 }
             }
         }
@@ -105,7 +108,10 @@ fun RatingDialog(
 
 @Composable
 private fun ActionButton(onClick: () -> Unit, text: String) {
-    Button(onClick = onClick, colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+    ) {
         Text(text)
     }
 }

@@ -1,5 +1,6 @@
 package pt.isel.markettracker.http.service.operations.product
 
+import pt.isel.markettracker.domain.PaginatedResult
 import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
@@ -26,7 +27,7 @@ interface IProductService {
 
     suspend fun getProductAlerts(productId: String): List<PriceAlert>
 
-    suspend fun getProductReviews(productId: String, page: Int, itemsPerPage: Int? = null): List<ProductReview>
+    suspend fun getProductReviews(productId: String, page: Int, itemsPerPage: Int? = null): PaginatedResult<ProductReview>
 
     suspend fun submitProductReview(
         productId: String,

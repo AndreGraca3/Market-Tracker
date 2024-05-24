@@ -136,7 +136,7 @@ class ProductDetailsScreenViewModel @Inject constructor(
                     stats = screenState.stats,
                     preferences = screenState.preferences.copy(review = it),
                     alerts = screenState.alerts,
-                    reviews = screenState.reviews.plus(it)
+                    reviews = screenState.reviews.copy(items = screenState.reviews.items + it)
                 )
             }.onFailure {
                 _stateFlow.value = ProductDetailsScreenState.Failed(it)
