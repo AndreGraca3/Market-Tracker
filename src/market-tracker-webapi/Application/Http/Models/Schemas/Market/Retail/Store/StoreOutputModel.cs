@@ -11,7 +11,7 @@ public record StoreOutputModel(int Id, string Name, string Address, CityOutputMo
     public bool IsOnline => City is null;
 }
 
-public record StoreDetailsOutputModel(int Id, string Name, string Address, CityOutputModel? City)
+public record StoreInfoOutputModel(int Id, string Name, string Address, CityOutputModel? City)
 {
     public bool IsOnline => City is null;
 }
@@ -34,8 +34,8 @@ public static class StoreOutputModelMapper
         return new StoreItemOutputModel(storeItem.Id.Value, storeItem.Name, storeItem.Address, storeItem.CityId);
     }
     
-    public static StoreDetailsOutputModel ToStoreDetailsOutputModel(this Store store)
+    public static StoreInfoOutputModel ToStoreInfoOutputModel(this Store store)
     {
-        return new StoreDetailsOutputModel(store.Id.Value, store.Name, store.Address, store.City?.ToOutputModel());
+        return new StoreInfoOutputModel(store.Id.Value, store.Name, store.Address, store.City?.ToOutputModel());
     }
 }

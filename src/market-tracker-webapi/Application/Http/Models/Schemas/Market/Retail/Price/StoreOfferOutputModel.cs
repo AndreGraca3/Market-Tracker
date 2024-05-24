@@ -13,7 +13,7 @@ public record StoreOfferOutputModel(
 );
 
 public record StoreOfferItemOutputModel(
-    StoreDetailsOutputModel Store,
+    StoreInfoOutputModel Store,
     Price Price,
     bool IsAvailable,
     DateTime LastChecked
@@ -34,7 +34,7 @@ public static class StoreOfferOutputModelMapper
     public static StoreOfferItemOutputModel ToStoreOfferItemOutputModel(this StoreOffer storeOfferItem)
     {
         return new StoreOfferItemOutputModel(
-            storeOfferItem.Store.ToStoreDetailsOutputModel(),
+            storeOfferItem.Store.ToStoreInfoOutputModel(),
             storeOfferItem.PriceData,
             storeOfferItem.StoreAvailability.IsAvailable,
             storeOfferItem.StoreAvailability.LastChecked
