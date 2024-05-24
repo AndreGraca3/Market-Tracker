@@ -1,6 +1,6 @@
 namespace market_tracker_webapi.Application.Service.Errors.Alert;
 
-public class AlertFetchingError : IAlertError
+public abstract class AlertFetchingError : IAlertError
 {
     public class AlertByIdNotFound(string alertId) : AlertFetchingError
     {

@@ -2,9 +2,9 @@
 
 public class ListUpdateError : IListError
 {
-    public class ListIsArchived(int listId) : ListUpdateError
+    public class ListIsArchived(string listId) : ListUpdateError
     {
-        public int ListId { get; } = listId;
+        public string ListId { get; } = listId;
     }
 
 }

@@ -1,5 +1,5 @@
-﻿using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Service.Operations.User;
+﻿using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
+using market_tracker_webapi.Application.Service.Operations.Account.Users.User;
 
 namespace market_tracker_webapi.Application.Http.Pipeline.Authorization;
 

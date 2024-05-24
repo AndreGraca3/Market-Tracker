@@ -1,4 +1,5 @@
 create extension if not exists pg_trgm SCHEMA pg_catalog;
+drop table if exists pre_registration;
 drop table if exists post_comment;
 drop table if exists post;
 drop table if exists product_favourite;
@@ -60,6 +61,7 @@ create table if not exists company
 (
     id         int generated always as identity primary key,
     name       varchar(30) unique not null,
+    logo_url   TEXT               not null,
     created_at timestamp          not null default now()
 );
 
@@ -159,13 +161,12 @@ create table if not exists fcm_registration
 
 create table if not exists product_review
 (
-    id         int generated always as identity,
+    id         int primary key generated always as identity,
     client_id  uuid references client (id) on delete cascade,
     product_id varchar(18) references product (id) on delete cascade,
     rating     int       not null check (rating between 1 and 5),
     text       varchar(255),
-    created_at timestamp not null default now(),
-    primary key (client_id, product_id)
+    created_at timestamp not null default now()
 );
 
 create table if not exists product_favourite
@@ -194,25 +195,25 @@ create table if not exists product_stats_counts
 
 create table if not exists list
 (
-    id          int generated always as identity primary key,
+    id          varchar(25) primary key default substr(md5(random()::text), 1, 25) check ( length(id) = 25),
     name        varchar(30) NOT NULL,
     archived_at timestamp,
-    created_at  timestamp   not null default now(),
+    created_at  timestamp   not null    default now(),
     owner_id    uuid references client (id) on delete cascade
 );
 
 create table if not exists list_entry
 (
-    list_id    int references list (id) on delete cascade,
+    id         varchar(25) primary key default substr(md5(random()::text), 1, 25) check ( length(id) = 25),
+    list_id    varchar(25) references list (id) on delete cascade,
     product_id varchar(18) references product (id) on delete cascade,
     store_id   int references store (id) on delete SET NULL,
-    quantity   int not null,
-    primary key (list_id, product_id)
+    quantity   int not null
 );
 
 create table if not exists list_client
 (
-    list_id   int references list (id) on delete cascade,
+    list_id   varchar(25) references list (id) on delete cascade,
     client_id uuid references client (id) on delete cascade,
     primary key (list_id, client_id)
 );
@@ -224,7 +225,7 @@ create table if not exists post
     text       varchar(255) not null,
     created_at timestamp    not null default now(),
     client_id  uuid references client (id) on delete cascade,
-    list_id    int references list (id) on delete cascade
+    list_id    varchar(25) references list (id) on delete cascade
 );
 
 create table if not exists post_comment
@@ -239,18 +240,19 @@ create table if not exists post_comment
 create table if not exists pre_registration
 (
     -- pre-operator
-    code          uuid primary key             default gen_random_uuid(),
-    operator_name varchar(30)         not null,
-    email         varchar(200) unique not null,
-    phone_number  int                 not null check (phone_number between 210000000 and 999999999),
+    code             uuid primary key             default gen_random_uuid(),
+    operator_name    varchar(30)         not null,
+    email            varchar(200) unique not null,
+    phone_number     int                 not null check (phone_number between 210000000 and 999999999),
     -- pre-store
-    store_name    varchar(30)         not null,
-    store_address varchar(30)                  default null,
+    store_name       varchar(30)         not null,
+    store_address    varchar(30)                  default null,
     -- pre-company
-    company_name  varchar(30)         not null,
+    company_name     varchar(30)         not null,
+    company_logo_url TEXT                not null,
     -- pre city
-    city_name     varchar(30),
-    created_at    timestamp           not null default now(),
-    document      Text unique         not null,
-    is_approved   boolean                      default false
+    city_name        varchar(30),
+    created_at       timestamp           not null default now(),
+    document         Text unique         not null,
+    is_approved      boolean                      default false
 );
