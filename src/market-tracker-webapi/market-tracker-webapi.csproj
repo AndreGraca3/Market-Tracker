@@ -16,4 +16,11 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Application\Http\Models\Schemas\" />
+      <Folder Include="Application\Service\Operations\Account\Auth\" />
+      <Folder Include="Application\Service\Operations\Account\Users\" />
+      <Folder Include="Application\Service\Operations\Market\Inventory\" />
+    </ItemGroup>
+
 </Project>
