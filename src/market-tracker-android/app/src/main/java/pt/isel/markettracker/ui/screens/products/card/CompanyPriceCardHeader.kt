@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.dummy.dummyProducts
+import pt.isel.markettracker.dummy.dummyStoreOffers
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
@@ -29,7 +30,7 @@ fun CompanyPriceCardHeader(productOffer: ProductOffer) {
                 style = MarketTrackerTypography.bodyMedium
             )
 
-            PriceLabel(productOffer.storeOffer.priceData)
+            PriceLabel(productOffer.storeOffer.price)
         }
 
         CompanyHeader(productOffer.storeOffer.store.company.logoUrl)
@@ -42,8 +43,7 @@ fun CompanyPriceCardHeaderPreview() {
     CompanyPriceCardHeader(
         ProductOffer(
             product = dummyProducts.first(),
-            storeOffer = dummyCompanyPrices.first().storeOffers.first(),
-            true
+            storeOffer = dummyStoreOffers.first()
         )
     )
 }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,8 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
-import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.dummy.dummyProducts
+import pt.isel.markettracker.dummy.dummyStoreOffers
 import pt.isel.markettracker.ui.components.LoadableImage
 import pt.isel.markettracker.ui.components.buttons.AddToListButton
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
@@ -76,8 +75,7 @@ fun ProductCardPreview() {
         ProductCard(
             ProductOffer(
                 dummyProducts.first(),
-                dummyCompanyPrices.first().storeOffers.first(),
-                true
+                dummyStoreOffers.first()
             ),
             onProductClick = {}
         )

@@ -3,6 +3,7 @@ package pt.isel.markettracker.http.service.operations.product
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
+import pt.isel.markettracker.domain.PaginatedResult
 import pt.isel.markettracker.domain.model.account.ClientItem
 import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
@@ -105,7 +106,7 @@ class ProductService(
         productId: String,
         page: Int,
         itemsPerPage: Int?
-    ): List<ProductReview> {
+    ): PaginatedResult<ProductReview> {
         delay(5000)
 
         val review = ProductReview(
@@ -120,7 +121,7 @@ class ProductService(
             LocalDateTime.now()
         )
 
-        return List(10) { review }
+        return PaginatedResult(List(10) { review }, 1, 10, 100, 10)
     }
 
     override suspend fun submitProductReview(

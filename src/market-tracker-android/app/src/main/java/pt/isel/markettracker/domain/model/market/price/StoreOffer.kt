@@ -6,14 +6,21 @@ import java.time.LocalDateTime
 
 data class StoreOffer(
     val store: Store,
-    val priceData: Price,
+    val price: Price,
     val isAvailable: Boolean,
     val lastChecked: LocalDateTime
-)
+) {
+    fun toStoreOfferItem() = StoreOfferItem(
+        store.toStoreInfo(),
+        price,
+        isAvailable,
+        lastChecked
+    )
+}
 
 data class StoreOfferItem(
     val store: StoreInfo,
-    val priceData: Price,
+    val price: Price,
     val isAvailable: Boolean,
     val lastChecked: LocalDateTime
 )

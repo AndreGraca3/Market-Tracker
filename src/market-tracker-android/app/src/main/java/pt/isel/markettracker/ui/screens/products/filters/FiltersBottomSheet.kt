@@ -76,7 +76,7 @@ fun FiltersBottomSheet(
                 ) {
                     CheckboxFacetRow(
                         facet = it,
-                        title = it.item.name,
+                        title = it.name,
                         enabled = !isLoading,
                         onClick = { brand ->
                             onFiltersChange(filters.toggleBrandSelection(brand))
@@ -93,7 +93,7 @@ fun FiltersBottomSheet(
                 ) {
                     CheckboxFacetRow(
                         facet = it,
-                        title = it.item.name,
+                        title = it.name,
                         enabled = !isLoading,
                         onClick = { company ->
                             onFiltersChange(filters.toggleCompanySelection(company))
@@ -110,7 +110,7 @@ fun FiltersBottomSheet(
                 ) {
                     FacetRow(
                         facet = it,
-                        title = it.item.name,
+                        title = it.name,
                         enabled = !isLoading,
                         onClick = { category ->
                             onFiltersChange(filters.toggleCategorySelection(category))

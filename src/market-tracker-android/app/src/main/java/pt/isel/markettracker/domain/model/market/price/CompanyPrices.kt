@@ -1,8 +1,8 @@
 package pt.isel.markettracker.domain.model.market.price
 
-import pt.isel.markettracker.domain.model.market.Company
-
 data class CompanyPrices(
-    val company: Company,
+    val id: Int,
+    val name: String,
+    val logoUrl: String,
     val storeOffers: List<StoreOfferItem>
 )

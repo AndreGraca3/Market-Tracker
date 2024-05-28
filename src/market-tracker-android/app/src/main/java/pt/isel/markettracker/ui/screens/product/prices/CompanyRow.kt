@@ -57,7 +57,7 @@ fun CompanyRow(companyPrices: CompanyPrices) {
                 contentAlignment = Alignment.CenterStart
             ) {
                 SubcomposeAsyncImage(
-                    model = companyPrices.company.logoUrl,
+                    model = companyPrices.logoUrl,
                     loading = {
                         CircularProgressIndicator()
                     },
@@ -83,7 +83,7 @@ fun CompanyRow(companyPrices: CompanyPrices) {
         }
 
         CompanyPriceBox(
-            price = selectedStoreOffer.priceData,
+            price = selectedStoreOffer.price,
             lastChecked = selectedStoreOffer.lastChecked
         )
     }

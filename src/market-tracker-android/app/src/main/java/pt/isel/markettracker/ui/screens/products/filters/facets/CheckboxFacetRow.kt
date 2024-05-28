@@ -25,12 +25,12 @@ fun <T> CheckboxFacetRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { if (enabled) onClick(facet.item) },
+            .clickable { if (enabled) onClick(facet.id) },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Checkbox(checked = facet.isSelected, enabled = enabled, onCheckedChange = {
-            onClick(facet.item)
+            onClick(facet.id)
         })
 
         Text(

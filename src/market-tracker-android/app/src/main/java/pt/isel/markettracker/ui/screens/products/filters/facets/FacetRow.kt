@@ -21,7 +21,7 @@ fun <T> FacetRow(facet: FacetItem<T>, title: String, enabled: Boolean, onClick: 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { if(enabled) onClick(facet.item) }
+            .clickable { if(enabled) onClick(facet.id) }
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
