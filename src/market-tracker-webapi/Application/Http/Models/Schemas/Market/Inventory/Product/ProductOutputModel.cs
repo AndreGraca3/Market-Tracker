@@ -1,7 +1,6 @@
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Category;
-using Microsoft.OpenApi.Extensions;
 
 namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
 
@@ -13,6 +12,7 @@ public record ProductOutputModel(
     string ImageUrl,
     int Quantity,
     string Unit,
+    double Rating,
     Brand Brand,
     CategoryOutputModel Category
 );
@@ -29,6 +29,7 @@ public static class ProductInfoOutputModelMapper
             product.ImageUrl,
             product.Quantity,
             product.Unit.GetUnitName(),
+            product.Rating,
             product.Brand,
             product.Category.ToOutputModel()
         );

@@ -4,8 +4,8 @@ using Company = Domain.Schemas.Market.Retail.Shop.Company;
 
 public record CompanyOutputModel(
     int Id,
-    string CompanyName,
-    string CompanyLogoUrl,
+    string Name,
+    string LogoUrl,
     DateTime CreatedAt
 );
 
