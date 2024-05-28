@@ -37,8 +37,8 @@ import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 fun CompanyRow(companyPrices: CompanyPrices) {
     var showCompanyStores by rememberSaveable { mutableStateOf(false) }
 
-    var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.storeOffers.first().store.id) }
-    val selectedStoreOffer = companyPrices.storeOffers.first { it.store.id == selectedStoreId }
+    var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.stores.first().store.id) }
+    val selectedStoreOffer = companyPrices.stores.first { it.store.id == selectedStoreId }
 
     Row(
         modifier = Modifier
@@ -89,7 +89,7 @@ fun CompanyRow(companyPrices: CompanyPrices) {
     }
     StoresBottomSheet(
         showStores = showCompanyStores,
-        storesPrices = companyPrices.storeOffers,
+        storesPrices = companyPrices.stores,
         onStoreSelect = { selectedStoreId = it },
         onDismissRequest = { showCompanyStores = false }
     )

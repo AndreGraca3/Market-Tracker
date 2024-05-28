@@ -8,6 +8,7 @@ import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
+import pt.isel.markettracker.domain.model.market.price.ProductPrices
 
 interface IProductService {
     suspend fun getProducts(
@@ -19,7 +20,7 @@ interface IProductService {
 
     suspend fun getProductById(productId: String): Product
 
-    suspend fun getProductPrices(productId: String): List<CompanyPrices>
+    suspend fun getProductPrices(productId: String): ProductPrices
 
     suspend fun getProductStats(productId: String): ProductStats
 

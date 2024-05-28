@@ -3,7 +3,6 @@ package pt.isel.markettracker.http.service
 import android.util.Log
 import com.example.markettracker.BuildConfig
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
@@ -27,7 +26,7 @@ abstract class MarketTrackerService {
     abstract val httpClient: OkHttpClient
     abstract val gson: Gson
 
-    protected suspend fun <T> requestHandler(
+    protected suspend inline fun <reified T> requestHandler(
         path: String,
         method: HttpMethod,
         input: Any? = null
@@ -59,10 +58,9 @@ abstract class MarketTrackerService {
                             return
                         }
                     } else {
-                        val type = object : TypeToken<T>() {}.type
-                        val res = gson.fromJson<T>(
+                        val res = gson.fromJson(
                             body?.string(),
-                            type
+                            T::class.java
                         )
                         it.resumeWith(Result.success(res))
                     }
@@ -72,7 +70,7 @@ abstract class MarketTrackerService {
         }
     }
 
-    private fun Request.Builder.buildRequest(
+    protected fun Request.Builder.buildRequest(
         url: URL,
         method: HttpMethod,
         input: Any? = null

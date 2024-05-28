@@ -43,12 +43,12 @@ fun ProductsScreenView(
     Scaffold(
         topBar = {
             ProductsTopBar(
-                onSearch = {
-                    fetchProducts(query, true)
-                },
                 searchQuery = query.searchTerm.orEmpty(),
                 onSearchQueryChange = {
                     onQueryChange(query.copy(searchTerm = it))
+                },
+                onSearch = {
+                    fetchProducts(query, true)
                 },
                 onBarcodeScanRequest = onBarcodeScanRequest
             )

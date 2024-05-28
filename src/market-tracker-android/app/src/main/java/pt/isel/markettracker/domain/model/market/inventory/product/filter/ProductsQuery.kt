@@ -1,8 +1,5 @@
 package pt.isel.markettracker.domain.model.market.inventory.product.filter
 
-import pt.isel.markettracker.domain.model.market.Company
-import pt.isel.markettracker.domain.model.market.inventory.Brand
-import pt.isel.markettracker.domain.model.market.inventory.Category
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductsFacetsCounters
 import pt.isel.markettracker.ui.screens.products.ProductsSortOption
 

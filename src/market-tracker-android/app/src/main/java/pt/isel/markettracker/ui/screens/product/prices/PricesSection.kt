@@ -21,12 +21,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
-import pt.isel.markettracker.domain.model.market.price.CompanyPrices
+import pt.isel.markettracker.domain.model.market.price.ProductPrices
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.utils.shimmerEffect
 
 @Composable
-fun PricesSection(prices: List<CompanyPrices>?) {
+fun PricesSection(productPrices: ProductPrices?) {
     Column(
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
@@ -52,14 +52,16 @@ fun PricesSection(prices: List<CompanyPrices>?) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            prices?.let {
-                if (prices.isEmpty()) {
+            val companiesPricing = productPrices?.companies
+
+            companiesPricing?.let {
+                if (companiesPricing.isEmpty()) {
                     Text(
                         text = stringResource(R.string.no_prices_found),
                         style = MarketTrackerTypography.bodyMedium,
                         color = Color.Red
                     )
-                } else prices.forEach {
+                } else companiesPricing.forEach {
                     CompanyRow(companyPrices = it)
                     HorizontalDivider()
                 }

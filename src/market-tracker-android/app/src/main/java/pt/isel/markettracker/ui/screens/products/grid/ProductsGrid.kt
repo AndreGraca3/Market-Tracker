@@ -1,7 +1,9 @@
 package pt.isel.markettracker.ui.screens.products.grid
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
@@ -31,6 +33,20 @@ fun ProductsGrid(
     productsOffers: List<ProductOffer>,
     onProductClick: (String) -> Unit
 ) {
+    if (productsOffers.isEmpty()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.products_not_found),
+                contentDescription = "No products found"
+            )
+            Text(
+                text = stringResource(id = R.string.products_not_found)
+            )
+        }
+    }
+
     LazyVerticalGrid(
         state = lazyGridState,
         columns = GridCells.Fixed(ProductsScreenViewModel.MAX_GRID_COLUMNS),
@@ -38,14 +54,6 @@ fun ProductsGrid(
         horizontalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterHorizontally),
         contentPadding = PaddingValues(16.dp)
     ) {
-        if (productsOffers.isEmpty()) {
-            item {
-                Text(
-                    text = stringResource(id = R.string.products_not_found),
-                    color = Color.Red
-                )
-            }
-        }
         items(productsOffers.size) { index ->
             ProductCard(
                 productOffer = productsOffers[index],

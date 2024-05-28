@@ -13,8 +13,8 @@ import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStatsCounts
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
+import pt.isel.markettracker.domain.model.market.price.ProductPrices
 import pt.isel.markettracker.dummy.dummyCompanyPrices
-import pt.isel.markettracker.dummy.dummyProducts
 import pt.isel.markettracker.http.service.MarketTrackerService
 import java.time.LocalDateTime
 
@@ -25,10 +25,18 @@ private fun buildProductsPath(
     sortOption: String?
 ) = "/products?page=$page" +
         itemsPerPage?.let { "&itemsPerPage=$it" }.orEmpty() +
-        searchQuery?.let { "&name=$it" }.orEmpty() //+
-        //sortOption?.let { "&sortBy=$it" }.orEmpty()
+        searchQuery?.let { "&name=$it" }.orEmpty() +
+        sortOption?.let { "&sortBy=$it" }.orEmpty()
 
 private fun buildProductByIdPath(id: String) = "/products/$id"
+
+private fun buildProductPricesByIdPath(id: String) = "/products/$id/prices"
+
+private fun buildProductReviewsByIdPath(id: String, page: Int, itemsPerPage: Int?) =
+    "/products/$id/reviews?page=$page" +
+            itemsPerPage?.let { "&itemsPerPage=$it" }.orEmpty()
+
+private fun buildProductStatsByIdPath(id: String) = "/products/$id/stats"
 
 class ProductService(
     override val httpClient: OkHttpClient,
@@ -52,24 +60,23 @@ class ProductService(
     }
 
     override suspend fun getProductById(productId: String): Product {
-        /*return requestHandler(
-            path = buildProductByIdPath(id),
+        return requestHandler(
+            path = buildProductByIdPath(productId),
             method = HttpMethod.GET
-        )*/
-        return dummyProducts.first()
+        )
     }
 
-    override suspend fun getProductPrices(productId: String): List<CompanyPrices> {
-        delay(1500)
-        return dummyCompanyPrices
+    override suspend fun getProductPrices(productId: String): ProductPrices {
+        return requestHandler(
+            path = buildProductPricesByIdPath(productId),
+            method = HttpMethod.GET
+        )
     }
 
     override suspend fun getProductStats(productId: String): ProductStats {
-        delay(1500)
-        return ProductStats(
-            productId,
-            ProductStatsCounts(1, 2, 3),
-            3.6,
+        return requestHandler(
+            path = buildProductStatsByIdPath(productId),
+            method = HttpMethod.GET
         )
     }
 
@@ -107,21 +114,10 @@ class ProductService(
         page: Int,
         itemsPerPage: Int?
     ): PaginatedResult<ProductReview> {
-        delay(5000)
-
-        val review = ProductReview(
-            "1",
-            3,
-            "Gostei bastante do produto, recomendo e penso comprar mais vezes mas o preço é um pouco alto.",
-            ClientItem(
-                "1",
-                "João",
-                "https://i.imgur.com/fL67hTu.jpeg"
-            ),
-            LocalDateTime.now()
+        return requestHandler(
+            path = buildProductReviewsByIdPath(productId, page, itemsPerPage),
+            method = HttpMethod.GET
         )
-
-        return PaginatedResult(List(10) { review }, 1, 10, 100, 10)
     }
 
     override suspend fun submitProductReview(

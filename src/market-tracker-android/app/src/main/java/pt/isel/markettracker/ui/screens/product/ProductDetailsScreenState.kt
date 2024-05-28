@@ -8,6 +8,7 @@ import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
+import pt.isel.markettracker.domain.model.market.price.ProductPrices
 
 sealed class ProductDetailsScreenState {
     data object Idle : ProductDetailsScreenState()
@@ -15,7 +16,7 @@ sealed class ProductDetailsScreenState {
     data class LoadedProduct(val product: Product) : ProductDetailsScreenState()
     data class LoadingProductDetails(
         val product: Product,
-        val prices: List<CompanyPrices>? = null,
+        val prices: ProductPrices? = null,
         val stats: ProductStats? = null,
         val preferences: ProductPreferences? = null,
         val alerts: List<PriceAlert>? = null,
@@ -24,7 +25,7 @@ sealed class ProductDetailsScreenState {
 
     abstract class Loaded(
         open val product: Product,
-        open val prices: List<CompanyPrices>,
+        open val prices: ProductPrices,
         open val stats: ProductStats,
         open val preferences: ProductPreferences,
         open val alerts: List<PriceAlert>,
@@ -33,7 +34,7 @@ sealed class ProductDetailsScreenState {
 
     data class LoadedDetails(
         override val product: Product,
-        override val prices: List<CompanyPrices>,
+        override val prices: ProductPrices,
         override val stats: ProductStats,
         override val preferences: ProductPreferences,
         override val alerts: List<PriceAlert>,
@@ -42,7 +43,7 @@ sealed class ProductDetailsScreenState {
 
     data class SubmittingPriceAlert(
         override val product: Product,
-        override val prices: List<CompanyPrices>,
+        override val prices: ProductPrices,
         override val stats: ProductStats,
         override val preferences: ProductPreferences,
         override val alerts: List<PriceAlert>,
@@ -51,7 +52,7 @@ sealed class ProductDetailsScreenState {
 
     data class SubmittingReview(
         override val product: Product,
-        override val prices: List<CompanyPrices>,
+        override val prices: ProductPrices,
         override val stats: ProductStats,
         override val preferences: ProductPreferences,
         override val alerts: List<PriceAlert>,
@@ -112,7 +113,7 @@ fun ProductDetailsScreenState.extractProduct(): Product? {
     }
 }
 
-fun ProductDetailsScreenState.extractPrices(): List<CompanyPrices>? {
+fun ProductDetailsScreenState.extractPrices(): ProductPrices? {
     return when (this) {
         is ProductDetailsScreenState.LoadingProductDetails -> prices
         is ProductDetailsScreenState.Loaded -> prices

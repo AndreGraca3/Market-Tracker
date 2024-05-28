@@ -9,7 +9,8 @@ data class Product(
     val name: String,
     val imageUrl: String,
     val quantity: Int,
-    val unit: String,
+    val unit: ProductUnit,
+    val rating: Double,
     val brand: Brand,
     val category: Category
 )
