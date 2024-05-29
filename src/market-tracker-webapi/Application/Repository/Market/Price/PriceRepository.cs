@@ -39,15 +39,10 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                       .Where(pe => pe.ProductId == product.Id && pe.StoreId == store.Id)
                       .Max(pe => pe.CreatedAt)
                   && availability.IsAvailable
-                  && (categoryIds == null || categoryIds.Contains(product.CategoryId))
-                  && (brandIds == null || brandIds.Contains(product.BrandId))
-                  && (minRating == null || product.Rating >= minRating)
-                  && (maxRating == null || product.Rating <= maxRating)
                   && (name == null || EF.Functions.ILike(product.Name, $"%{name}%") ||
                       EF.Functions.TrigramsWordSimilarity(product.Name, name) > SimilarityThreshold)
-                  && (companyIds == null || companyIds.Contains(company.Id))
-                  && (storeIds == null || storeIds.Contains(store.Id))
-                  && (cityIds == null || cityIds.Contains(city.Id))
+                  && (minRating == null || product.Rating >= minRating)
+                  && (maxRating == null || product.Rating <= maxRating)
                   && (minPrice == null ||
                       price.Price - (promotion == null ? 0 : price.Price * (promotion.Percentage / 100)) >= minPrice)
                   && (maxPrice == null ||
@@ -66,6 +61,10 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             };
 
         var categoryFacets = await query
+            .Where(p => (brandIds == null || brandIds.Contains(p.Product.BrandId)) &&
+                        (companyIds == null || companyIds.Contains(p.Company.Id)) &&
+                        (storeIds == null || storeIds.Contains(p.Store.Id)) &&
+                        (cityIds == null || cityIds.Contains(p.City.Id)))
             .GroupBy(p => p.Product.CategoryId)
             .Select(grouping => new FacetCounter
             {
@@ -75,6 +74,10 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             }).ToListAsync();
 
         var brandFacets = await query
+            .Where(p => (categoryIds == null || categoryIds.Contains(p.Product.CategoryId)) &&
+                        (companyIds == null || companyIds.Contains(p.Company.Id)) &&
+                        (storeIds == null || storeIds.Contains(p.Store.Id)) &&
+                        (cityIds == null || cityIds.Contains(p.City.Id)))
             .GroupBy(p => p.Product.BrandId)
             .Select(grouping => new FacetCounter
             {
@@ -84,6 +87,10 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             }).OrderByDescending(facet => facet.Count).Take(maxValuesPerFacet).ToListAsync();
 
         var companyFacets = await query
+            .Where(p => (categoryIds == null || categoryIds.Contains(p.Product.CategoryId)) &&
+                        (brandIds == null || brandIds.Contains(p.Product.BrandId)) &&
+                        (storeIds == null || storeIds.Contains(p.Store.Id)) &&
+                        (cityIds == null || cityIds.Contains(p.City.Id)))
             .GroupBy(p => p.Company.Id)
             .Select(grouping => new FacetCounter
             {
@@ -92,22 +99,31 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 Count = grouping.GroupBy(g => g.Product.Id).Count()
             }).ToListAsync();
 
+        var facetedQuery = query
+            .Where(p =>
+                (categoryIds == null || categoryIds.Contains(p.Product.CategoryId))
+                && (brandIds == null || brandIds.Contains(p.Product.BrandId))
+                && (companyIds == null || companyIds.Contains(p.Company.Id))
+                && (storeIds == null || storeIds.Contains(p.Store.Id))
+                && (cityIds == null || cityIds.Contains(p.City.Id))
+            );
+
         var orderedQuery = sortBy switch
         {
-            ProductsSortOption.Popularity => query.OrderBy(queryRes => queryRes.Product.Views),
-            ProductsSortOption.NameLowToHigh => query.OrderBy(queryRes => queryRes.Product.Name),
-            ProductsSortOption.NameHighToLow => query.OrderByDescending(queryRes => queryRes.Product.Name),
-            ProductsSortOption.RatingLowToHigh => query.OrderBy(queryRes => queryRes.Product.Rating),
-            ProductsSortOption.RatingHighToLow => query.OrderByDescending(queryRes => queryRes.Product.Rating),
-            ProductsSortOption.PriceLowToHigh => query.OrderBy(queryRes =>
+            ProductsSortOption.Popularity => facetedQuery.OrderBy(queryRes => queryRes.Product.Views),
+            ProductsSortOption.NameLowToHigh => facetedQuery.OrderBy(queryRes => queryRes.Product.Name),
+            ProductsSortOption.NameHighToLow => facetedQuery.OrderByDescending(queryRes => queryRes.Product.Name),
+            ProductsSortOption.RatingLowToHigh => facetedQuery.OrderBy(queryRes => queryRes.Product.Rating),
+            ProductsSortOption.RatingHighToLow => facetedQuery.OrderByDescending(queryRes => queryRes.Product.Rating),
+            ProductsSortOption.PriceLowToHigh => facetedQuery.OrderBy(queryRes =>
                 queryRes.Price.Price - (queryRes.Promotion == null
                     ? 0
                     : queryRes.Price.Price * (queryRes.Promotion.Percentage / 100))),
-            ProductsSortOption.PriceHighToLow => query.OrderByDescending(queryRes =>
+            ProductsSortOption.PriceHighToLow => facetedQuery.OrderByDescending(queryRes =>
                 queryRes.Price.Price - (queryRes.Promotion == null
                     ? 0
                     : queryRes.Price.Price * (queryRes.Promotion.Percentage / 100))),
-            _ => query
+            _ => facetedQuery
         };
 
         var bestOffers = orderedQuery
