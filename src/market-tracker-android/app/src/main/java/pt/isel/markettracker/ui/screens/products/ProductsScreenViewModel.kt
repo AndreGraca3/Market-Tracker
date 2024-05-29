@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.products
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -11,8 +10,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductsFacetsCounters
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
-import pt.isel.markettracker.domain.model.market.inventory.product.filter.replaceWithState
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.replaceFacets
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import javax.inject.Inject
@@ -31,18 +32,21 @@ class ProductsScreenViewModel @Inject constructor(
         get() = _stateFlow.asStateFlow()
 
     var query by mutableStateOf(ProductsQuery())
-
     private var currentPage by mutableIntStateOf(1)
 
-    fun fetchProducts(productsQuery: ProductsQuery, forceRefresh: Boolean) {
-        if (_stateFlow.value !is ProductsScreenState.Idle && !forceRefresh) return
+    fun fetchProducts(forceRefresh: Boolean) {
+        val state = _stateFlow.value
+        if (state !is ProductsScreenState.Idle && !forceRefresh) return
 
         currentPage = 1
         _stateFlow.value = ProductsScreenState.Loading
-        handleProductsFetch(productsQuery)
+
+        handleProductsFetch(onFetch = {
+            query = query.replaceFacets(it.facets)
+        })
     }
 
-    fun loadMoreProducts(productsQuery: ProductsQuery) {
+    fun loadMoreProducts() {
         val currentState = _stateFlow.value
         if (currentState is ProductsScreenState.LoadingMore ||
             currentState !is ProductsScreenState.Loaded ||
@@ -50,27 +54,31 @@ class ProductsScreenViewModel @Inject constructor(
         ) return
 
         _stateFlow.value = ProductsScreenState.LoadingMore(currentState.productsOffers)
-        handleProductsFetch(productsQuery)
+        handleProductsFetch()
     }
 
-    private fun handleProductsFetch(productsQuery: ProductsQuery) {
+    private fun handleProductsFetch(
+        onFetch: (PaginatedProductOffers) -> Unit = {}
+    ) {
         val oldProducts = _stateFlow.value.extractProductsOffers()
 
         viewModelScope.launch {
             val res = runCatchingAPIFailure {
                 productService.getProducts(
                     currentPage++,
-                    searchQuery = productsQuery.searchTerm,
-                    sortOption = productsQuery.sortOption.name
+                    query = query
                 )
             }
 
+            val currState = _stateFlow.value
+
             res.onSuccess {
                 val allProducts = oldProducts + it.items
-                _stateFlow.value = ProductsScreenState.IdleLoaded(allProducts, it.hasMore)
-                query =
-                    productsQuery.copy(filters = productsQuery.filters.replaceWithState(it.facets))
+                _stateFlow.value =
+                    ProductsScreenState.IdleLoaded(allProducts, it.hasMore)
+                onFetch(it)
             }
+
             res.onFailure { _stateFlow.value = ProductsScreenState.Failed(it) }
         }
     }

@@ -6,7 +6,7 @@ import pt.isel.markettracker.domain.model.market.inventory.product.Product
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
-import pt.isel.markettracker.domain.model.market.price.CompanyPrices
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.domain.model.market.price.ProductPrices
 
@@ -14,7 +14,7 @@ interface IProductService {
     suspend fun getProducts(
         page: Int,
         itemsPerPage: Int? = null,
-        searchQuery: String? = null,
+        query: ProductsQuery,
         sortOption: String? = null
     ): PaginatedProductOffers
 

@@ -15,10 +15,11 @@ fun ProductsScreen(
 
     ProductsScreenView(
         state = state,
-        query = productsScreenViewModel.query,
-        onQueryChange = { productsScreenViewModel.query = it },
+        query = state.query,
+        currentSearchTerm = productsScreenViewModel.currentSearchTerm,
+        onCurrentSearchTermChange = { productsScreenViewModel.currentSearchTerm = it },
         fetchProducts = { query, forceRefresh ->
-            productsScreenViewModel.fetchProducts(query, forceRefresh)
+            productsScreenViewModel.fetchProducts(state.query, forceRefresh)
         },
         loadMoreProducts = { productsScreenViewModel.loadMoreProducts(it) },
         onProductClick = onProductClick,

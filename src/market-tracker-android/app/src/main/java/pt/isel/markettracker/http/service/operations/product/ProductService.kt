@@ -11,22 +11,28 @@ import pt.isel.markettracker.domain.model.market.inventory.product.ProductPrefer
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStatsCounts
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.domain.model.market.price.ProductPrices
 import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.http.service.MarketTrackerService
 import java.time.LocalDateTime
-
 private fun buildProductsPath(
     page: Int,
     itemsPerPage: Int?,
     searchQuery: String?,
+    brandIds: List<Int>,
+    companyIds: List<Int>,
+    categoryIds: List<Int>,
     sortOption: String?
 ) = "/products?page=$page" +
         itemsPerPage?.let { "&itemsPerPage=$it" }.orEmpty() +
         searchQuery?.let { "&name=$it" }.orEmpty() +
-        sortOption?.let { "&sortBy=$it" }.orEmpty()
+        sortOption?.let { "&sortBy=$it" }.orEmpty() +
+        (if (brandIds.isNotEmpty()) brandIds.joinToString(separator = "&brandIds=", prefix = "&brandIds=") else "") +
+        (if (companyIds.isNotEmpty()) companyIds.joinToString(separator = "&companyIds=", prefix = "&companyIds=") else "") +
+        (if (categoryIds.isNotEmpty()) categoryIds.joinToString(separator = "&categoryIds=", prefix = "&categoryIds=") else "")
 
 private fun buildProductByIdPath(id: String) = "/products/$id"
 
@@ -38,6 +44,7 @@ private fun buildProductReviewsByIdPath(id: String, page: Int, itemsPerPage: Int
 
 private fun buildProductStatsByIdPath(id: String) = "/products/$id/stats"
 
+// Service provides operations related to products.
 class ProductService(
     override val httpClient: OkHttpClient,
     override val gson: Gson
@@ -45,14 +52,17 @@ class ProductService(
     override suspend fun getProducts(
         page: Int,
         itemsPerPage: Int?,
-        searchQuery: String?,
+        query: ProductsQuery,
         sortOption: String?
     ): PaginatedProductOffers {
         return requestHandler(
             path = buildProductsPath(
                 page = page,
                 itemsPerPage = itemsPerPage,
-                searchQuery = searchQuery,
+                searchQuery = query.searchTerm,
+                brandIds = query.filters.brands.mapNotNull { if (it.isSelected) it.id else null },
+                companyIds = query.filters.companies.mapNotNull { if (it.isSelected) it.id else null },
+                categoryIds = query.filters.categories.mapNotNull { if (it.isSelected) it.id else null },
                 sortOption = sortOption
             ),
             method = HttpMethod.GET

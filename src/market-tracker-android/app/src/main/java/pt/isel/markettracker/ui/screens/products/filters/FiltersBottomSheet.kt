@@ -48,25 +48,11 @@ fun FiltersBottomSheet(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
-                    .padding(bottom = 22.dp)
+                    .padding(bottom = 42.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
+                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)
             ) {
-                PriceFilter(
-                    minPrice = filters.minPrice,
-                    maxPrice = filters.maxPrice,
-                    enabled = !isLoading,
-                    onValueChangeFinished = { priceRange ->
-                        onFiltersChange(
-                            filters.copy(
-                                minPrice = priceRange.first,
-                                maxPrice = priceRange.last
-                            )
-                        )
-                    }
-                )
-
                 FacetSection(
                     facets = filters.brands,
                     title = stringResource(id = R.string.brands_title),

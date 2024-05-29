@@ -22,7 +22,8 @@ import pt.isel.markettracker.ui.screens.products.topbar.ProductsTopBar
 fun ProductsScreenView(
     state: ProductsScreenState,
     query: ProductsQuery,
-    onQueryChange: (ProductsQuery) -> Unit,
+    currentSearchTerm: String?,
+    onCurrentSearchTermChange: (String?) -> Unit,
     fetchProducts: (ProductsQuery, Boolean) -> Unit,
     loadMoreProducts: (ProductsQuery) -> Unit,
     onProductClick: (String) -> Unit,
@@ -43,10 +44,8 @@ fun ProductsScreenView(
     Scaffold(
         topBar = {
             ProductsTopBar(
-                searchQuery = query.searchTerm.orEmpty(),
-                onSearchQueryChange = {
-                    onQueryChange(query.copy(searchTerm = it))
-                },
+                searchTerm = currentSearchTerm.orEmpty(),
+                onSearchTermChange = onCurrentSearchTermChange,
                 onSearch = {
                     fetchProducts(query, true)
                 },
@@ -71,7 +70,6 @@ fun ProductsScreenView(
                 FilterOptionsRow(
                     query = query,
                     onQueryChange = {
-                        onQueryChange(it)
                         fetchProducts(it, true)
                     },
                     isLoading = state is ProductsScreenState.Loading

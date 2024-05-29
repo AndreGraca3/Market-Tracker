@@ -26,9 +26,7 @@ fun <T> FacetSection(
     itemContent: @Composable (FacetItem<T>) -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(14.dp, 18.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row {
             Text(
