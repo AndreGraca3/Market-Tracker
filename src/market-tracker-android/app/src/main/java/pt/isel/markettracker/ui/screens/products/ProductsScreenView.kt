@@ -22,9 +22,8 @@ import pt.isel.markettracker.ui.screens.products.topbar.ProductsTopBar
 fun ProductsScreenView(
     state: ProductsScreenState,
     query: ProductsQuery,
-    currentSearchTerm: String?,
-    onCurrentSearchTermChange: (String?) -> Unit,
-    fetchProducts: (ProductsQuery, Boolean) -> Unit,
+    onQueryChange: (ProductsQuery) -> Unit,
+    fetchProducts: (Boolean) -> Unit,
     loadMoreProducts: (ProductsQuery) -> Unit,
     onProductClick: (String) -> Unit,
     onBarcodeScanRequest: () -> Unit,
@@ -32,7 +31,7 @@ fun ProductsScreenView(
     var isRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        fetchProducts(query, false)
+        fetchProducts(false)
     }
 
     LaunchedEffect(state) {
@@ -44,10 +43,10 @@ fun ProductsScreenView(
     Scaffold(
         topBar = {
             ProductsTopBar(
-                searchTerm = currentSearchTerm.orEmpty(),
-                onSearchTermChange = onCurrentSearchTermChange,
+                searchTerm = query.searchTerm.orEmpty(),
+                onSearchTermChange = {onQueryChange(query.copy(searchTerm = it))},
                 onSearch = {
-                    fetchProducts(query, true)
+                    fetchProducts(true)
                 },
                 onBarcodeScanRequest = onBarcodeScanRequest
             )
@@ -57,7 +56,7 @@ fun ProductsScreenView(
             isRefreshing = isRefreshing,
             onRefresh = {
                 isRefreshing = true
-                fetchProducts(query, true)
+                fetchProducts(true)
             },
             modifier = Modifier
                 .padding(paddingValues)
@@ -70,7 +69,8 @@ fun ProductsScreenView(
                 FilterOptionsRow(
                     query = query,
                     onQueryChange = {
-                        fetchProducts(it, true)
+                        onQueryChange(it)
+                        fetchProducts(true)
                     },
                     isLoading = state is ProductsScreenState.Loading
                 )

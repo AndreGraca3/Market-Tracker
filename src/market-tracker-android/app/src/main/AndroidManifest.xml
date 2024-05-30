@@ -27,7 +27,8 @@
             android:name="pt.isel.markettracker.ui.screens.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.App.Starting">
+            android:theme="@style/Theme.App.Starting"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,7 +41,9 @@
             android:screenOrientation="portrait"
             tools:replace="screenOrientation" />
 
-        <activity android:name="pt.isel.markettracker.ui.screens.product.ProductDetailsActivity" />
+        <activity android:name="pt.isel.markettracker.ui.screens.product.ProductDetailsActivity"
+            android:screenOrientation="portrait"
+            />
         <activity android:name="pt.isel.markettracker.ui.screens.signup.SignUpActivity" />
     </application>
 

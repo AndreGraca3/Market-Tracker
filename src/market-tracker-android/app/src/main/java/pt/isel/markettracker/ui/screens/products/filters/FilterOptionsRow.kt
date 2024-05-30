@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,9 +43,13 @@ fun FilterOptionsRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth(0.9F)
-                .padding(vertical = 10.dp)
+                .padding(vertical = 6.dp)
         ) {
-            FilterButton(onFiltersRequest = { isFiltersOpen = true })
+            BadgedBox(badge = {
+                if (query.hasFiltersApplied) Badge()
+            }) {
+                FilterButton(onFiltersRequest = { isFiltersOpen = true })
+            }
 
             // sort dropdown
             Dropdown(

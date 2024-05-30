@@ -23,8 +23,6 @@ import pt.isel.markettracker.domain.model.market.inventory.product.filter.resetC
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.toggleBrandSelection
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.toggleCategorySelection
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.toggleCompanySelection
-import pt.isel.markettracker.ui.screens.products.filters.facets.CheckboxFacetRow
-import pt.isel.markettracker.ui.screens.products.filters.facets.FacetRow
 import pt.isel.markettracker.ui.screens.products.filters.facets.FacetSection
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,53 +54,38 @@ fun FiltersBottomSheet(
                 FacetSection(
                     facets = filters.brands,
                     title = stringResource(id = R.string.brands_title),
+                    enabled = !isLoading,
+                    onClick = { brand ->
+                        onFiltersChange(filters.toggleBrandSelection(brand))
+                    },
                     onFacetsReset = {
                         onFiltersChange(filters.resetBrands())
                     }
-                ) {
-                    CheckboxFacetRow(
-                        facet = it,
-                        title = it.name,
-                        enabled = !isLoading,
-                        onClick = { brand ->
-                            onFiltersChange(filters.toggleBrandSelection(brand))
-                        }
-                    )
-                }
+                )
 
                 FacetSection(
                     facets = filters.companies,
                     title = stringResource(id = R.string.companies_title),
+                    enabled = !isLoading,
+                    onClick = { company ->
+                        onFiltersChange(filters.toggleCompanySelection(company))
+                    },
                     onFacetsReset = {
                         onFiltersChange(filters.resetCompanies())
                     }
-                ) {
-                    CheckboxFacetRow(
-                        facet = it,
-                        title = it.name,
-                        enabled = !isLoading,
-                        onClick = { company ->
-                            onFiltersChange(filters.toggleCompanySelection(company))
-                        }
-                    )
-                }
+                )
 
                 FacetSection(
                     facets = filters.categories,
                     title = stringResource(id = R.string.categories_title),
+                    enabled = !isLoading,
+                    onClick = { category ->
+                        onFiltersChange(filters.toggleCategorySelection(category))
+                    },
                     onFacetsReset = {
                         onFiltersChange(filters.resetCategories())
                     }
-                ) {
-                    FacetRow(
-                        facet = it,
-                        title = it.name,
-                        enabled = !isLoading,
-                        onClick = { category ->
-                            onFiltersChange(filters.toggleCategorySelection(category))
-                        }
-                    )
-                }
+                )
             }
         }
     }

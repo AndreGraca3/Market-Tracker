@@ -52,8 +52,7 @@ class ProductService(
     override suspend fun getProducts(
         page: Int,
         itemsPerPage: Int?,
-        query: ProductsQuery,
-        sortOption: String?
+        query: ProductsQuery
     ): PaginatedProductOffers {
         return requestHandler(
             path = buildProductsPath(
@@ -63,7 +62,7 @@ class ProductService(
                 brandIds = query.filters.brands.mapNotNull { if (it.isSelected) it.id else null },
                 companyIds = query.filters.companies.mapNotNull { if (it.isSelected) it.id else null },
                 categoryIds = query.filters.categories.mapNotNull { if (it.isSelected) it.id else null },
-                sortOption = sortOption
+                sortOption = query.sortOption.name
             ),
             method = HttpMethod.GET
         )
@@ -91,25 +90,24 @@ class ProductService(
     }
 
     override suspend fun getProductPreferences(productId: String): ProductPreferences {
-        delay(1500)
         return ProductPreferences(
             false,
             ProductReview(
+                1,
                 "1",
                 3,
                 "Gostei bastante do produto, recomendo e penso comprar mais vezes mas o preço é um pouco alto.",
+                LocalDateTime.now(),
                 ClientItem(
                     "1",
                     "João",
                     "https://i.imgur.com/fL67hTu.jpeg"
-                ),
-                LocalDateTime.now()
+                )
             )
         )
     }
 
     override suspend fun getProductAlerts(productId: String): List<PriceAlert> {
-        delay(1500)
         return List(10) {
             PriceAlert(
                 "1",
@@ -135,17 +133,17 @@ class ProductService(
         rating: Int,
         review: String?
     ): ProductReview {
-        delay(1500)
         return ProductReview(
+            1,
             "1",
             rating,
             review,
+            LocalDateTime.now(),
             ClientItem(
                 "1",
                 "João",
                 null
-            ),
-            LocalDateTime.now()
+            )
         )
     }
 }

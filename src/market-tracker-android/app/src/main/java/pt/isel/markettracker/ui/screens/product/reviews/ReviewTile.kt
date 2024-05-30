@@ -93,9 +93,9 @@ fun ReviewTile(review: ProductReview) {
                 }
             }
 
-            review.text?.let {
+            review.comment?.let {
                 Text(
-                    text = review.text,
+                    text = review.comment,
                     style = MarketTrackerTypography.bodyMedium
                 )
             }
@@ -109,10 +109,11 @@ fun ReviewTilePreview() {
     MarkettrackerTheme {
         ReviewTile(
             ProductReview(
+                id = 1,
                 productId = "84312332",
                 client = ClientItem("username", "username", "avatar"),
                 rating = 5,
-                text = "This is a review",
+                comment = "This is a review",
                 createdAt = LocalDateTime.now()
             )
         )

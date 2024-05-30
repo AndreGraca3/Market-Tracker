@@ -3,6 +3,7 @@ package pt.isel.markettracker.http.service
 import android.util.Log
 import com.example.markettracker.BuildConfig
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
@@ -15,6 +16,7 @@ import okio.IOException
 import pt.isel.markettracker.http.problem.InternalServerErrorProblem
 import pt.isel.markettracker.http.problem.Problem
 import pt.isel.markettracker.http.service.result.APIException
+import java.lang.reflect.Type
 import java.net.URL
 import kotlin.coroutines.resumeWithException
 
@@ -47,10 +49,10 @@ abstract class MarketTrackerService {
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    val body = response.body
+                    val body = response.body?.string()
                     if (!response.isSuccessful) {
                         if (response.code < 500 && response.body?.contentType() == Problem.MEDIA_TYPE) {
-                            val problem = gson.fromJson(body?.string(), Problem::class.java)
+                            val problem = gson.fromJson(body, Problem::class.java)
                             Log.v("requestHandler", "Result of call to API: $problem")
                             it.resumeWithException(APIException(problem))
                         } else {
@@ -58,10 +60,8 @@ abstract class MarketTrackerService {
                             return
                         }
                     } else {
-                        val res = gson.fromJson(
-                            body?.string(),
-                            T::class.java
-                        )
+                        val type: Type = object : TypeToken<T>() {}.type
+                        val res: T = gson.fromJson(body, type)
                         it.resumeWith(Result.success(res))
                     }
                 }

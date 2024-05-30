@@ -37,8 +37,7 @@ fun StoresBottomSheet(
             ) {
                 storesPrices.forEach {
                     StoreTile(
-                        store = it.store,
-                        price = it.price,
+                        storeOffer = it,
                         onStoreSelected = {
                             onStoreSelect(it.store.id)
                             onDismissRequest()

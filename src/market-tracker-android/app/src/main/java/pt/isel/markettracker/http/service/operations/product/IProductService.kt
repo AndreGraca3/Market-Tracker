@@ -14,8 +14,7 @@ interface IProductService {
     suspend fun getProducts(
         page: Int,
         itemsPerPage: Int? = null,
-        query: ProductsQuery,
-        sortOption: String? = null
+        query: ProductsQuery
     ): PaginatedProductOffers
 
     suspend fun getProductById(productId: String): Product

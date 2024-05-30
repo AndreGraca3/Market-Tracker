@@ -1,10 +1,12 @@
 package pt.isel.markettracker.ui.screens.product.prices
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,11 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
+import com.example.markettracker.R
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.ui.screens.product.stores.StoresBottomSheet
@@ -74,7 +78,7 @@ fun CompanyRow(companyPrices: CompanyPrices) {
                         showCompanyStores = true
                     }
                     .padding(vertical = 4.dp),
-                style = MarketTrackerTypography.bodyMedium,
+                style = MarketTrackerTypography.bodySmall,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Gray,
                 maxLines = 1,
@@ -82,10 +86,18 @@ fun CompanyRow(companyPrices: CompanyPrices) {
             )
         }
 
-        CompanyPriceBox(
-            price = selectedStoreOffer.price,
-            lastChecked = selectedStoreOffer.lastChecked
-        )
+        if (selectedStoreOffer.isAvailable) {
+            CompanyPriceBox(
+                price = selectedStoreOffer.price,
+                lastChecked = selectedStoreOffer.lastChecked
+            )
+        } else {
+            Text(
+                text = stringResource(id = R.string.not_available),
+                style = MarketTrackerTypography.bodySmall,
+                color = Color.Red
+            )
+        }
     }
     StoresBottomSheet(
         showStores = showCompanyStores,

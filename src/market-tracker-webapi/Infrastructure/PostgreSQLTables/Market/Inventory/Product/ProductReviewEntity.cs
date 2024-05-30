@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory.Product;
 
 [Table("product_review", Schema = "MarketTracker")]
-[PrimaryKey(nameof(ClientId), nameof(ProductId))]
 public class ProductReviewEntity
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

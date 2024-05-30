@@ -5,7 +5,7 @@
     <string name="search_hint">Pesquise por produto ou marca</string>
     <string name="brands_title">Marcas</string>
     <string name="categories_title">Categorias</string>
-    <string name ="companies_title">Supermercados/Lojas</string>
+    <string name ="companies_title">Supermercados</string>
     <string name="products_loading">A carregar produtos...</string>
     <string name="products_not_found">Não foram encontrados produtos</string>
     <string name="product_not_found_title">Produto não encontrado</string>
@@ -21,6 +21,7 @@
     <string name="prices_section_title">Comparação de Preços</string>
     <string name="prices_outdated_warning">Os preços resgistados podem não estar atualizados em algumas lojas</string>
     <string name="no_prices_found">Ainda não existem preços para este produto</string>
+    <string name="not_available">Indisponível</string>
     <string name="verified_at">"Verificado há"</string>
     <string name="loading_error">Erro ao carregar</string>
     <string name="price_alert_title">Nós avisamos-te quando o preço diminuir</string>

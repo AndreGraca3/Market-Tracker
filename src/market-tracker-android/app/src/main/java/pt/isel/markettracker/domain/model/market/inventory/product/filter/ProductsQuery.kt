@@ -7,10 +7,17 @@ data class ProductsQuery(
     val searchTerm: String? = null,
     val filters: ProductsFilters = ProductsFilters(),
     val sortOption: ProductsSortOption = ProductsSortOption.Popularity
-)
+) {
+    val hasFiltersApplied: Boolean
+        get() = filters.brands.any { it.isSelected } ||
+                filters.companies.any { it.isSelected } ||
+                filters.categories.any { it.isSelected } ||
+                filters.minRating != null ||
+                filters.maxRating != null
+}
 
 fun ProductsQuery.replaceFacets(facets: ProductsFacetsCounters) =
-    copy(filters = filters.replace(facets))
+    copy(filters = filters.replaceWithState(facets))
 
 data class ProductsFilters(
     val brands: List<FacetItem<Int>> = emptyList(),
@@ -21,41 +28,44 @@ data class ProductsFilters(
 )
 
 fun ProductsFilters.toggleBrandSelection(brandId: Int) =
-    copy(brands = brands.toggleSelection(brandId).sortedByDescending { it.isSelected })
+    copy(brands = brands.toggleSelection(brandId))
 
 fun ProductsFilters.resetBrands() = copy(brands = brands.resetSelections())
 
 fun ProductsFilters.toggleCompanySelection(companyId: Int) =
-    copy(companies = companies.toggleSelection(companyId).sortedByDescending { it.isSelected })
+    copy(companies = companies.toggleSelection(companyId))
 
 fun ProductsFilters.resetCompanies() = copy(companies = companies.resetSelections())
 
 fun ProductsFilters.toggleCategorySelection(categoryId: Int) =
-    copy(categories = categories.toggleSelection(categoryId).sortedByDescending { it.isSelected })
+    copy(categories = categories.toggleSelection(categoryId))
 
 fun ProductsFilters.resetCategories() = copy(categories = categories.resetSelections())
 
-fun ProductsFilters.replace(facets: ProductsFacetsCounters) =
+fun ProductsFilters.replaceWithState(facets: ProductsFacetsCounters) =
     copy(
         brands = facets.brands.map {
             FacetItem(
                 it.id,
                 it.name,
-                it.count
+                it.count,
+                brands.isSelected(it.id)
             )
-        },
+        }.sortedByDescending { it.isSelected },
         companies = facets.companies.map {
             FacetItem(
                 it.id,
                 it.name,
-                it.count
+                it.count,
+                companies.isSelected(it.id)
             )
-        },
+        }.sortedByDescending { it.isSelected },
         categories = facets.categories.map {
             FacetItem(
                 it.id,
                 it.name,
-                it.count
+                it.count,
+                categories.isSelected(it.id)
             )
-        }
+        }.sortedByDescending { it.isSelected }
     )

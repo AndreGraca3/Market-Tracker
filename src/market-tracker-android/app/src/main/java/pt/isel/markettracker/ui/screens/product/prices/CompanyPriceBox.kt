@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.AddAlert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults.rememberPlainTooltipPositionProvider
@@ -38,15 +39,19 @@ import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CompanyPriceBox(price: Price, lastChecked: LocalDateTime) {
+fun CompanyPriceBox(
+    price: Price,
+    lastChecked: LocalDateTime,
+    modifier: Modifier = Modifier
+) {
     val positionProvider = rememberPlainTooltipPositionProvider()
     val tooltipState = rememberTooltipState()
     val scope = rememberCoroutineScope()
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.padding(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier
     ) {
         IconButton(
             onClick = {}, modifier = Modifier
@@ -73,7 +78,15 @@ fun CompanyPriceBox(price: Price, lastChecked: LocalDateTime) {
                 TooltipBox(
                     positionProvider = positionProvider,
                     tooltip = {
-                        Text("${stringResource(id = R.string.reject)} ${timeSince(lastChecked)}")
+                        RichTooltip {
+                            Text(
+                                "${stringResource(id = R.string.verified_at)} ${
+                                    timeSince(
+                                        lastChecked
+                                    )
+                                }"
+                            )
+                        }
                     },
                     state = tooltipState
                 ) {
@@ -88,7 +101,7 @@ fun CompanyPriceBox(price: Price, lastChecked: LocalDateTime) {
                             )
                         }
                     ) {
-                        PriceLabel(price)
+                        PriceLabel(price, true)
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package pt.isel.markettracker.ui.screens.products.grid
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.example.markettracker.R
 import pt.isel.markettracker.ui.components.common.LoadingIcon
@@ -70,9 +72,9 @@ fun ProductsGridView(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     item {
-                        Text(
-                            text = stringResource(id = R.string.product_loading_error),
-                            color = Color.Red
+                        Image(
+                            painter = painterResource(id = R.drawable.server_error),
+                            contentDescription = "No products"
                         )
                     }
                 }

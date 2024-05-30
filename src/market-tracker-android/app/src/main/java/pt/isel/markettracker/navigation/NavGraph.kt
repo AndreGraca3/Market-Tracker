@@ -61,9 +61,7 @@ fun NavGraph(
         NavHost(
             navController = navController,
             startDestination = Destination.HOME.route,
-            modifier = Modifier.padding(paddingValues),
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            modifier = Modifier.padding(paddingValues)
         ) {
             composable(Destination.HOME.route) {
                 ProductsScreen(onProductClick, onBarcodeScanRequest)

@@ -48,7 +48,6 @@ class ProductDetailsScreenViewModel @Inject constructor(
 
         fetchProductStats(productId)
         fetchProductPreferences(productId)
-        fetchProductReviews(productId)
         fetchProductPrices(productId)
         fetchProductAlerts(productId)
     }
@@ -103,17 +102,32 @@ class ProductDetailsScreenViewModel @Inject constructor(
 
     fun fetchProductReviews(productId: String) {
         val screenState = _stateFlow.value
-        if (screenState !is ProductDetailsScreenState.LoadingProductDetails ||
-            screenState.reviews != null
+        if (screenState is ProductDetailsScreenState.LoadingReviews ||
+            screenState !is ProductDetailsScreenState.LoadedDetails ||
+            (screenState.paginatedReviews != null && !screenState.paginatedReviews.hasMore)
         ) return
 
-        loadDetailAndSetScreenStateIfReady(apiCall = {
-            productService.getProductReviews(
-                productId,
-                currentReviewsPage++
-            )
-        }) {
-            copy(reviews = it)
+        _stateFlow.value = screenState.toLoadingReviews()
+
+        viewModelScope.launch {
+            val res = runCatchingAPIFailure {
+                productService.getProductReviews(
+                    productId,
+                    currentReviewsPage++
+                )
+            }
+
+            res.onSuccess {
+                val paginatedReviews = (screenState.paginatedReviews?.items?.plus(it.items)) ?: it.items
+                _stateFlow.value = ProductDetailsScreenState.LoadedDetails(
+                    product = screenState.product,
+                    prices = screenState.prices,
+                    stats = screenState.stats,
+                    preferences = screenState.preferences,
+                    alerts = screenState.alerts,
+                    paginatedReviews = it.copy(items = paginatedReviews)
+                )
+            }
         }
     }
 
@@ -126,18 +140,22 @@ class ProductDetailsScreenViewModel @Inject constructor(
         Log.v("Reviews", "actually submitting user rating")
 
         viewModelScope.launch {
-            val res = runCatchingAPIFailure { productService.submitProductReview(productId, rating, text) }
+            val res = runCatchingAPIFailure {
+                productService.submitProductReview(
+                    productId,
+                    rating,
+                    text
+                )
+            }
 
             res.onSuccess {
                 Log.v("Reviews", "submitted user rating")
-                _stateFlow.value = ProductDetailsScreenState.LoadedDetails(
-                    product = screenState.product,
-                    prices = screenState.prices,
-                    stats = screenState.stats,
-                    preferences = screenState.preferences.copy(review = it),
-                    alerts = screenState.alerts,
-                    reviews = screenState.reviews.copy(items = screenState.reviews.items + it)
-                )
+                _stateFlow.value =
+                    screenState.copy(
+                        paginatedReviews = screenState.paginatedReviews?.copy(
+                            items = screenState.paginatedReviews.items + it
+                        )
+                    )
             }.onFailure {
                 _stateFlow.value = ProductDetailsScreenState.Failed(it)
             }

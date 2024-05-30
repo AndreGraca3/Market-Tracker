@@ -38,7 +38,7 @@ fun RatingDialog(
     onDismissRequest: () -> Unit
 ) {
     var rating by remember { mutableIntStateOf(review?.rating ?: 0) }
-    var text by remember { mutableStateOf(review?.text ?: "") }
+    var text by remember { mutableStateOf(review?.comment ?: "") }
 
     if (dialogOpen) {
         Dialog(onDismissRequest = onDismissRequest) {

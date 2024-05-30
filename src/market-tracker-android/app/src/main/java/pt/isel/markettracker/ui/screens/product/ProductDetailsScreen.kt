@@ -59,7 +59,7 @@ fun ProductDetailsScreen(
         ProductImage(product?.imageUrl)
 
         Column(
-            modifier = Modifier.padding(24.dp, 18.dp),
+            modifier = Modifier.padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
             ProductSpecs(product)

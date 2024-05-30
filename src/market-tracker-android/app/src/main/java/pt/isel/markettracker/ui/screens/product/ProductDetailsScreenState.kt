@@ -1,12 +1,10 @@
 package pt.isel.markettracker.ui.screens.product
 
-import android.util.Log
 import pt.isel.markettracker.domain.PaginatedResult
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
-import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.domain.model.market.price.ProductPrices
 
@@ -20,7 +18,6 @@ sealed class ProductDetailsScreenState {
         val stats: ProductStats? = null,
         val preferences: ProductPreferences? = null,
         val alerts: List<PriceAlert>? = null,
-        val reviews: PaginatedResult<ProductReview>? = null
     ) : ProductDetailsScreenState()
 
     abstract class Loaded(
@@ -29,7 +26,7 @@ sealed class ProductDetailsScreenState {
         open val stats: ProductStats,
         open val preferences: ProductPreferences,
         open val alerts: List<PriceAlert>,
-        open val reviews: PaginatedResult<ProductReview>
+        open val paginatedReviews: PaginatedResult<ProductReview>?
     ) : ProductDetailsScreenState()
 
     data class LoadedDetails(
@@ -38,8 +35,17 @@ sealed class ProductDetailsScreenState {
         override val stats: ProductStats,
         override val preferences: ProductPreferences,
         override val alerts: List<PriceAlert>,
-        override val reviews: PaginatedResult<ProductReview>
-    ) : Loaded(product, prices, stats, preferences, alerts, reviews)
+        override val paginatedReviews: PaginatedResult<ProductReview>?
+    ) : Loaded(product, prices, stats, preferences, alerts, paginatedReviews)
+
+    data class LoadingReviews(
+        override val product: Product,
+        override val prices: ProductPrices,
+        override val stats: ProductStats,
+        override val preferences: ProductPreferences,
+        override val alerts: List<PriceAlert>,
+        override val paginatedReviews: PaginatedResult<ProductReview>?
+    ) : Loaded(product, prices, stats, preferences, alerts, paginatedReviews)
 
     data class SubmittingPriceAlert(
         override val product: Product,
@@ -47,8 +53,8 @@ sealed class ProductDetailsScreenState {
         override val stats: ProductStats,
         override val preferences: ProductPreferences,
         override val alerts: List<PriceAlert>,
-        override val reviews: PaginatedResult<ProductReview>
-    ) : Loaded(product, prices, stats, preferences, alerts, reviews)
+        override val paginatedReviews: PaginatedResult<ProductReview>?
+    ) : Loaded(product, prices, stats, preferences, alerts, paginatedReviews)
 
     data class SubmittingReview(
         override val product: Product,
@@ -56,8 +62,8 @@ sealed class ProductDetailsScreenState {
         override val stats: ProductStats,
         override val preferences: ProductPreferences,
         override val alerts: List<PriceAlert>,
-        override val reviews: PaginatedResult<ProductReview>
-    ) : Loaded(product, prices, stats, preferences, alerts, reviews)
+        override val paginatedReviews: PaginatedResult<ProductReview>?
+    ) : Loaded(product, prices, stats, preferences, alerts, paginatedReviews)
 
     data class FailedToLoadProduct(val error: Throwable) : ProductDetailsScreenState()
     data class Failed(val error: Throwable) : ProductDetailsScreenState()
@@ -65,10 +71,10 @@ sealed class ProductDetailsScreenState {
 
 /**
  * Transforms a [ProductDetailsScreenState.LoadingProductDetails] into a [ProductDetailsScreenState.LoadedDetails]
- * if all the required data is finally available.
+ * if all the required data is finally available. Reviews are not available yet.
  */
 fun ProductDetailsScreenState.LoadingProductDetails.toLoadedDetailsIfReady(): ProductDetailsScreenState {
-    return if (this.prices == null || this.stats == null || this.preferences == null || this.alerts == null || this.reviews == null) {
+    return if (this.prices == null || this.stats == null || this.preferences == null || this.alerts == null) {
         this
     } else {
         ProductDetailsScreenState.LoadedDetails(
@@ -77,9 +83,20 @@ fun ProductDetailsScreenState.LoadingProductDetails.toLoadedDetailsIfReady(): Pr
             stats = stats,
             preferences = preferences,
             alerts = alerts,
-            reviews = reviews
+            paginatedReviews = null
         )
     }
+}
+
+fun ProductDetailsScreenState.LoadedDetails.toLoadingReviews(): ProductDetailsScreenState {
+    return ProductDetailsScreenState.LoadingReviews(
+        product = product,
+        prices = prices,
+        stats = stats,
+        preferences = preferences,
+        alerts = alerts,
+        paginatedReviews = paginatedReviews
+    )
 }
 
 fun ProductDetailsScreenState.LoadedDetails.toSubmittingPriceAlert(): ProductDetailsScreenState {
@@ -89,7 +106,7 @@ fun ProductDetailsScreenState.LoadedDetails.toSubmittingPriceAlert(): ProductDet
         stats = stats,
         preferences = preferences,
         alerts = alerts,
-        reviews = reviews
+        paginatedReviews = paginatedReviews
     )
 }
 
@@ -100,7 +117,7 @@ fun ProductDetailsScreenState.LoadedDetails.toSubmittingReview(): ProductDetails
         stats = stats,
         preferences = preferences,
         alerts = alerts,
-        reviews = reviews
+        paginatedReviews = paginatedReviews
     )
 }
 
@@ -147,16 +164,14 @@ fun ProductDetailsScreenState.extractAlerts(): List<PriceAlert>? {
 
 fun ProductDetailsScreenState.extractReviews(): List<ProductReview>? {
     return when (this) {
-        is ProductDetailsScreenState.LoadingProductDetails -> reviews?.items
-        is ProductDetailsScreenState.Loaded -> reviews.items
+        is ProductDetailsScreenState.Loaded -> paginatedReviews?.items
         else -> null
     }
 }
 
 fun ProductDetailsScreenState.hasMoreReviews(): Boolean {
     return when (this) {
-        is ProductDetailsScreenState.LoadingProductDetails -> reviews?.hasMore ?: false
-        is ProductDetailsScreenState.Loaded -> reviews.hasMore
+        is ProductDetailsScreenState.Loaded -> paginatedReviews?.hasMore ?: false
         else -> false
     }
 }

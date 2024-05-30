@@ -14,9 +14,9 @@ fun timeSince(date: LocalDateTime): String {
     val days = duration.toDays()
 
     return when {
-        seconds < 60 -> "$seconds segundos"
-        minutes < 60 -> "$minutes minutos"
-        hours < 24 -> "$hours horas"
-        else -> "$days dias"
+        seconds < 60 -> "$seconds ${if (seconds == 1L) "segundo" else "segundos"}"
+        minutes < 60 -> "$minutes ${if (minutes == 1L) "minuto" else "minutos"}"
+        hours < 24 -> "$hours ${if (hours == 1L) "hora" else "horas"}"
+        else -> "$days ${if (days == 1L) "dia" else "dias"}"
     }
 }

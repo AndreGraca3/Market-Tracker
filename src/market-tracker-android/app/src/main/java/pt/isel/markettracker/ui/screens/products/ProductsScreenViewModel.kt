@@ -70,8 +70,6 @@ class ProductsScreenViewModel @Inject constructor(
                 )
             }
 
-            val currState = _stateFlow.value
-
             res.onSuccess {
                 val allProducts = oldProducts + it.items
                 _stateFlow.value =
