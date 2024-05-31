@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.BottomSheetDefaults
@@ -33,6 +34,7 @@ fun ReviewsBottomSheet(
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scrollState = rememberLazyListState()
 
     if (reviewsOpen) {
         ModalBottomSheet(
@@ -62,7 +64,7 @@ fun ReviewsBottomSheet(
             }
         ) {
             reviews?.let {
-                ReviewsList(reviews = it, hasMore = hasMore, loadMoreReviews = loadMoreReviews)
+                ReviewsList(scrollState = scrollState, reviews = it, hasMore = hasMore, loadMoreReviews = loadMoreReviews)
             } ?: LoadingReviewsIndicator(loadMoreReviews)
         }
     }

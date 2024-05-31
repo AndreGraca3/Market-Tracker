@@ -107,6 +107,8 @@ class ProductDetailsScreenViewModel @Inject constructor(
             (screenState.paginatedReviews != null && !screenState.paginatedReviews.hasMore)
         ) return
 
+        Log.v("Reviews", "fetching product reviews")
+
         _stateFlow.value = screenState.toLoadingReviews()
 
         viewModelScope.launch {

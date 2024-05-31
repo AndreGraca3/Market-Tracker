@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,8 +38,8 @@ fun RatingDialog(
     onReviewRequest: (Int, String) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    var rating by remember { mutableIntStateOf(review?.rating ?: 0) }
-    var text by remember { mutableStateOf(review?.comment ?: "") }
+    var rating by rememberSaveable { mutableIntStateOf(review?.rating ?: 0) }
+    var text by rememberSaveable { mutableStateOf(review?.comment ?: "") }
 
     if (dialogOpen) {
         Dialog(onDismissRequest = onDismissRequest) {

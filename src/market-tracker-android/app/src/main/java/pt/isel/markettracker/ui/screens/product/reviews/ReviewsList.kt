@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.product.reviews
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -25,8 +25,7 @@ import com.example.markettracker.R
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 
 @Composable
-fun ReviewsList(reviews: List<ProductReview>, hasMore: Boolean, loadMoreReviews: () -> Unit) {
-    val scrollState = rememberLazyListState()
+fun ReviewsList(scrollState: LazyListState, reviews: List<ProductReview>, hasMore: Boolean, loadMoreReviews: () -> Unit) {
     val isItemReachEndScroll by remember {
         derivedStateOf {
             scrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ==
