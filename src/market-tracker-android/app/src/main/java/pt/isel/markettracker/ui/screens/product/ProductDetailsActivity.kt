@@ -39,7 +39,6 @@ class ProductDetailsActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             vm.stateFlow.collect { state ->
-                Log.v("ProductDetailsActivity", "State: $state")
                 if (state is ProductDetailsScreenState.Idle) vm.fetchProductById(productId)
                 if (state is ProductDetailsScreenState.LoadedProduct) {
                     vm.fetchProductDetails(productId)

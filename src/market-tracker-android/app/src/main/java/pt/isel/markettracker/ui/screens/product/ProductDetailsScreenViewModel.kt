@@ -102,12 +102,9 @@ class ProductDetailsScreenViewModel @Inject constructor(
 
     fun fetchProductReviews(productId: String) {
         val screenState = _stateFlow.value
-        if (screenState is ProductDetailsScreenState.LoadingReviews ||
-            screenState !is ProductDetailsScreenState.LoadedDetails ||
+        if (screenState !is ProductDetailsScreenState.LoadedDetails ||
             (screenState.paginatedReviews != null && !screenState.paginatedReviews.hasMore)
         ) return
-
-        Log.v("Reviews", "fetching product reviews")
 
         _stateFlow.value = screenState.toLoadingReviews()
 

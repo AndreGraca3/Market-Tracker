@@ -1,5 +1,6 @@
 package pt.isel.markettracker.ui.screens.product.reviews
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -84,6 +85,8 @@ fun ReviewsBottomSheet(
 @Composable
 fun LoadingReviewsIndicator(loadMoreReviews: () -> Unit) {
     LaunchedEffect(Unit) {
+        // Load first batch of reviews
+        // doesn't run twice because this composable is removed from composition after
         loadMoreReviews()
     }
     CircularProgressIndicator()
