@@ -7,9 +7,9 @@ public class ListEntryCreationError : IListEntryError
         public int? Quantity { get; } = quantity;
     }
     
-    public class ProductAlreadyInList(int listId, string productId) : ListEntryCreationError
+    public class ProductAlreadyInList(string listId, string productId) : ListEntryCreationError
     {
-        public int ListId { get; } = listId;
+        public string ListId { get; } = listId;
         public string ProductId { get; } = productId;
     }
 }
