@@ -2,6 +2,7 @@ package pt.isel.markettracker.ui.screens
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -12,6 +13,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -51,20 +53,40 @@ fun NavGraph(
         selectedIndex = destination.route?.toDestination()?.ordinal ?: 0
     }
 
+    fun changeDestination(destination: String) {
+        navController.navigate(destination) {
+            popUpTo(navController.graph.startDestinationId) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
     Scaffold(
+        modifier = Modifier.pointerInput(selectedIndex) {
+            detectHorizontalDragGestures { change, dragAmount ->
+                change.consume()
+                // choosing direction I want to slide
+                selectedIndex = if (dragAmount < 0) selectedIndex.inc() else selectedIndex.dec()
+
+                // making sure It doesn't go out of borders
+                selectedIndex =
+                    if (selectedIndex in 0 until Destination.entries.size) selectedIndex
+                    else if (selectedIndex < 0) 0
+                    else Destination.entries.indices.last
+
+                val newDestination = Destination.entries[selectedIndex].route
+                changeDestination(newDestination)
+            }
+        },
         contentColor = Color.Black,
         bottomBar = {
             NavBar(
                 Destination.entries,
                 selectedIndex = selectedIndex,
                 onItemClick = { route ->
-                    navController.navigate(route) {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    changeDestination(route)
                 }
             )
         }

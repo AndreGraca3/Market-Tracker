@@ -60,11 +60,11 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     onListClick = {
-                        navigateTo<ListProductDetailsActivity>(
-                            this,
-                            ListInfoActivity.LIST_ID_EXTRA,
-                            ListIdExtra(it)
-                        )
+                        //navigateTo<ListProductDetailsActivity>(
+                        //    this,
+                        //    ListInfoActivity.LIST_ID_EXTRA,
+                        //    ListIdExtra(it)
+                        //)
                     },
                     onSignUpRequested = {
                         navigateTo<SignUpActivity>(this)

@@ -38,17 +38,17 @@ class ListProductDetailsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
-            vm.listProduct.collect { state ->
-                if (state is Idle) vm.fetchListProductById(productId)
-                if(state is Loaded) {
-                    vm.fetchListProductStats(productId)
-                }
-            }
+            //vm.listProduct.collect { state ->
+            //    if (state is Idle) vm.fetchListProductById(productId)
+            //    if(state is Loaded) {
+            //        vm.fetchListProductStats(productId)
+            //    }
+            //}
         }
 
         setContent {
             MarkettrackerTheme {
-                ListProductDetailsScreen(onBackRequest = { finish() }, vm)
+                //ListProductDetailsScreen(onBackRequest = { finish() }, vm)
             }
         }
     }
