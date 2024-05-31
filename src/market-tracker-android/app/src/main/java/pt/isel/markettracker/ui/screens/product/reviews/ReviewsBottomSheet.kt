@@ -3,6 +3,7 @@ package pt.isel.markettracker.ui.screens.product.reviews
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -63,9 +64,19 @@ fun ReviewsBottomSheet(
                 }
             }
         ) {
-            reviews?.let {
-                ReviewsList(scrollState = scrollState, reviews = it, hasMore = hasMore, loadMoreReviews = loadMoreReviews)
-            } ?: LoadingReviewsIndicator(loadMoreReviews)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                reviews?.let {
+                    ReviewsList(
+                        scrollState = scrollState,
+                        reviews = it,
+                        hasMore = hasMore,
+                        loadMoreReviews = loadMoreReviews
+                    )
+                } ?: LoadingReviewsIndicator(loadMoreReviews)
+            }
         }
     }
 }

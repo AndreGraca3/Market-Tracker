@@ -27,6 +27,7 @@ import pt.isel.markettracker.domain.model.account.ClientItem
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
+import pt.isel.markettracker.ui.theme.Primary400
 import pt.isel.markettracker.utils.timeSince
 import java.time.LocalDateTime
 
@@ -88,7 +89,8 @@ fun ReviewTile(review: ProductReview) {
                 repeat(review.rating) {
                     Icon(
                         imageVector = Icons.Default.Star,
-                        contentDescription = "Star Icon"
+                        contentDescription = "Star Icon",
+                        tint = Primary400
                     )
                 }
             }

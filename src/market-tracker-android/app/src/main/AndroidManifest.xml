@@ -42,7 +42,8 @@
             tools:replace="screenOrientation" />
 
         <activity android:name="pt.isel.markettracker.ui.screens.product.ProductDetailsActivity"
-            />
+            android:screenOrientation="portrait" />
+
         <activity android:name="pt.isel.markettracker.ui.screens.signup.SignUpActivity" />
     </application>
 

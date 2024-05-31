@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
-import com.talhafaki.composablesweettoast.util.SweetToastUtil
 import pt.isel.markettracker.ui.screens.product.components.ProductNotFoundDialog
 import pt.isel.markettracker.ui.screens.product.components.ProductTopBar
 import pt.isel.markettracker.ui.screens.product.prices.PricesSection
@@ -35,7 +34,6 @@ fun ProductDetailsScreen(
 
     var isReviewsSectionOpen by rememberSaveable { mutableStateOf(false) }
     var isRatingDialogOpen by rememberSaveable { mutableStateOf(false) }
-    var isPriceAlertDialogOpen by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -73,7 +71,7 @@ fun ProductDetailsScreen(
                 }
             )
 
-            PricesSection(screenState.extractPrices())
+            PricesSection(screenState.extractPrices(), screenState.extractAlerts())
         }
 
         if (product != null) {
@@ -95,19 +93,5 @@ fun ProductDetailsScreen(
                 onDismissRequest = { isRatingDialogOpen = false }
             )
         }
-
-        /*screenState.OnAlertsLoaded { alerts ->
-            if (isPriceAlertOpen) {
-                PriceAlertDialog(
-                    price = it.extractValue().priceAlert?.priceThreshold ?: 0,
-                    onAlertSet = { isPriceAlertOpen = false },
-                    onDismissRequest = { isPriceAlertOpen = false }
-                )
-            }
-        }*/ // TODO: Implement alerts on individual stores
-    }
-
-    if (screenState is ProductDetailsScreenState.Failed) {
-        SweetToastUtil.SweetError(message = stringResource(id = R.string.loading_error))
     }
 }

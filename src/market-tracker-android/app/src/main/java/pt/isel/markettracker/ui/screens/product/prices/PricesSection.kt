@@ -21,12 +21,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
+import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.domain.model.market.price.ProductPrices
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.utils.shimmerEffect
 
 @Composable
-fun PricesSection(productPrices: ProductPrices?) {
+fun PricesSection(productPrices: ProductPrices?, alerts: List<PriceAlert>?) {
     Column(
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
