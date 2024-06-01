@@ -25,9 +25,9 @@ import pt.isel.markettracker.ui.theme.Primary400
 
 @Composable
 fun ProductsTopBar(
-    searchQuery: String,
-    onSearchQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
+    searchTerm: String,
+    onSearchTermChange: (String?) -> Unit,
+    onSearch: () -> Unit,
     onBarcodeScanRequest: () -> Unit
 ) {
     var isSearching by rememberSaveable { mutableStateOf(false) }
@@ -66,10 +66,10 @@ fun ProductsTopBar(
             onActiveChange = { isSearching = it },
             onSearch = {
                 isSearching = false
-                onSearch(it)
+                onSearch()
             },
-            searchQuery = searchQuery,
-            onQueryChange = onSearchQueryChange,
+            searchQuery = searchTerm,
+            onSearchQueryChange = onSearchTermChange,
             onBarcodeScanRequest = onBarcodeScanRequest,
             modifier = Modifier.weight(1f)
         )
@@ -80,8 +80,8 @@ fun ProductsTopBar(
 @Composable
 fun ProductsTopBarPreview() {
     ProductsTopBar(
-        searchQuery = "",
-        onSearchQueryChange = {},
+        searchTerm = "",
+        onSearchTermChange = {},
         onSearch = {},
         onBarcodeScanRequest = {}
     )

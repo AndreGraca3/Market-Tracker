@@ -10,12 +10,12 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
 {
     public async Task<PaginatedResult<ProductReview>> GetReviewsByProductIdAsync(string productId, int skip, int take)
     {
-        var query = from productReview in dataContext.ProductReview
-            join client in dataContext.Client on productReview.ClientId equals client.UserId
-            where productReview.ProductId == productId
+        var query = from pr in dataContext.ProductReview
+            join client in dataContext.Client on pr.ClientId equals client.UserId
+            where pr.ProductId == productId
             select new
             {
-                ProductReviewEntity = productReview,
+                ProductReviewEntity = pr,
                 ClientEntity = client
             };
 

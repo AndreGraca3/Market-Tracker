@@ -1,13 +1,11 @@
 package pt.isel.markettracker.domain.model.market.inventory.product
 
-import pt.isel.markettracker.domain.model.market.Company
-import pt.isel.markettracker.domain.model.market.inventory.Brand
-import pt.isel.markettracker.domain.model.market.inventory.Category
-import pt.isel.markettracker.domain.model.market.price.StorePrice
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.FacetItem
+import pt.isel.markettracker.domain.model.market.price.StoreOffer
 
 data class ProductOffer(
     val product: Product,
-    val storePrice: StorePrice
+    val storeOffer: StoreOffer
 )
 
 data class PaginatedProductOffers(
@@ -16,17 +14,14 @@ data class PaginatedProductOffers(
     val currentPage: Int,
     val itemsPerPage: Int,
     val totalItems: Int,
-    val totalPages: Int,
-    val hasMore: Boolean = currentPage < totalPages
-)
+    val totalPages: Int
+) {
+    val hasMore: Boolean
+        get() = currentPage < totalPages
+}
 
 data class ProductsFacetsCounters(
-    val brands: List<FacetCounter<Brand>>,
-    val companies: List<FacetCounter<Company>>,
-    val categories: List<FacetCounter<Category>>
-)
-
-data class FacetCounter<T>(
-    val item: T,
-    val count: Int
+    val brands: List<FacetItem<Int>>,
+    val companies: List<FacetItem<Int>>,
+    val categories: List<FacetItem<Int>>
 )

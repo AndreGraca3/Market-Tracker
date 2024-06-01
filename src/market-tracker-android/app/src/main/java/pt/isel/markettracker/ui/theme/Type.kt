@@ -22,7 +22,7 @@ val MarketTrackerTypography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 18.sp,
         color = Color.Black,
-        lineHeight = 26.sp,
+        lineHeight = 28.sp,
         letterSpacing = 0.5.sp
     ),
     bodyMedium = TextStyle(

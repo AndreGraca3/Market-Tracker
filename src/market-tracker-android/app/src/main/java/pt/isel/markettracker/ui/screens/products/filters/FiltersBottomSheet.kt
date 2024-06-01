@@ -23,8 +23,6 @@ import pt.isel.markettracker.domain.model.market.inventory.product.filter.resetC
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.toggleBrandSelection
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.toggleCategorySelection
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.toggleCompanySelection
-import pt.isel.markettracker.ui.screens.products.filters.facets.CheckboxFacetRow
-import pt.isel.markettracker.ui.screens.products.filters.facets.FacetRow
 import pt.isel.markettracker.ui.screens.products.filters.facets.FacetSection
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,75 +46,46 @@ fun FiltersBottomSheet(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
-                    .padding(bottom = 22.dp)
+                    .padding(bottom = 42.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
+                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)
             ) {
-                PriceFilter(
-                    minPrice = filters.minPrice,
-                    maxPrice = filters.maxPrice,
+                FacetSection(
+                    facets = filters.brands,
+                    title = stringResource(id = R.string.brands_title),
                     enabled = !isLoading,
-                    onValueChangeFinished = { priceRange ->
-                        onFiltersChange(
-                            filters.copy(
-                                minPrice = priceRange.first,
-                                maxPrice = priceRange.last
-                            )
-                        )
+                    onClick = { brand ->
+                        onFiltersChange(filters.toggleBrandSelection(brand))
+                    },
+                    onFacetsReset = {
+                        onFiltersChange(filters.resetBrands())
                     }
                 )
 
                 FacetSection(
-                    facets = filters.brands,
-                    title = stringResource(id = R.string.brands_title),
-                    onFacetsReset = {
-                        onFiltersChange(filters.resetBrands())
-                    }
-                ) {
-                    CheckboxFacetRow(
-                        facet = it,
-                        title = it.item.name,
-                        enabled = !isLoading,
-                        onClick = { brand ->
-                            onFiltersChange(filters.toggleBrandSelection(brand))
-                        }
-                    )
-                }
-
-                FacetSection(
                     facets = filters.companies,
                     title = stringResource(id = R.string.companies_title),
+                    enabled = !isLoading,
+                    onClick = { company ->
+                        onFiltersChange(filters.toggleCompanySelection(company))
+                    },
                     onFacetsReset = {
                         onFiltersChange(filters.resetCompanies())
                     }
-                ) {
-                    CheckboxFacetRow(
-                        facet = it,
-                        title = it.item.name,
-                        enabled = !isLoading,
-                        onClick = { company ->
-                            onFiltersChange(filters.toggleCompanySelection(company))
-                        }
-                    )
-                }
+                )
 
                 FacetSection(
                     facets = filters.categories,
                     title = stringResource(id = R.string.categories_title),
+                    enabled = !isLoading,
+                    onClick = { category ->
+                        onFiltersChange(filters.toggleCategorySelection(category))
+                    },
                     onFacetsReset = {
                         onFiltersChange(filters.resetCategories())
                     }
-                ) {
-                    FacetRow(
-                        facet = it,
-                        title = it.item.name,
-                        enabled = !isLoading,
-                        onClick = { category ->
-                            onFiltersChange(filters.toggleCategorySelection(category))
-                        }
-                    )
-                }
+                )
             }
         }
     }

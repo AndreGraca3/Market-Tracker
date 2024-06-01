@@ -9,12 +9,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.ui.components.common.PullToRefreshLazyColumn
-import pt.isel.markettracker.ui.screens.ProductsScreenState
 import pt.isel.markettracker.ui.screens.products.filters.FilterOptionsRow
 import pt.isel.markettracker.ui.screens.products.grid.ProductsGridView
 import pt.isel.markettracker.ui.screens.products.topbar.ProductsTopBar
@@ -24,15 +24,15 @@ fun ProductsScreenView(
     state: ProductsScreenState,
     query: ProductsQuery,
     onQueryChange: (ProductsQuery) -> Unit,
-    fetchProducts: (ProductsQuery, Boolean) -> Unit,
+    fetchProducts: (Boolean) -> Unit,
     loadMoreProducts: (ProductsQuery) -> Unit,
     onProductClick: (String) -> Unit,
     onBarcodeScanRequest: () -> Unit,
 ) {
-    var isRefreshing by remember { mutableStateOf(false) }
+    var isRefreshing by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        fetchProducts(query, false)
+        fetchProducts(false)
     }
 
     LaunchedEffect(state) {
@@ -44,12 +44,10 @@ fun ProductsScreenView(
     Scaffold(
         topBar = {
             ProductsTopBar(
+                searchTerm = query.searchTerm.orEmpty(),
+                onSearchTermChange = {onQueryChange(query.copy(searchTerm = it))},
                 onSearch = {
-                    fetchProducts(query, true)
-                },
-                searchQuery = query.searchTerm.orEmpty(),
-                onSearchQueryChange = {
-                    onQueryChange(query.copy(searchTerm = it))
+                    fetchProducts(true)
                 },
                 onBarcodeScanRequest = onBarcodeScanRequest
             )
@@ -59,7 +57,7 @@ fun ProductsScreenView(
             isRefreshing = isRefreshing,
             onRefresh = {
                 isRefreshing = true
-                fetchProducts(query, true)
+                fetchProducts(true)
             },
             modifier = Modifier
                 .padding(paddingValues)
@@ -73,7 +71,7 @@ fun ProductsScreenView(
                     query = query,
                     onQueryChange = {
                         onQueryChange(it)
-                        fetchProducts(it, true)
+                        fetchProducts(true)
                     },
                     isLoading = state is ProductsScreenState.Loading
                 )

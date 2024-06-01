@@ -5,18 +5,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.ui.components.dropdowns.Dropdown
-import pt.isel.markettracker.ui.screens.ProductsSortOption
+import pt.isel.markettracker.ui.screens.products.ProductsSortOption
 
 @Composable
 fun FilterOptionsRow(
@@ -28,7 +31,7 @@ fun FilterOptionsRow(
         ProductsSortOption.entries.map { it.title }
     }
 
-    var isFiltersOpen by remember { mutableStateOf(false) }
+    var isFiltersOpen by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -41,9 +44,13 @@ fun FilterOptionsRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth(0.9F)
-                .padding(vertical = 10.dp)
+                .padding(vertical = 6.dp)
         ) {
-            FilterButton(onFiltersRequest = { isFiltersOpen = true })
+            BadgedBox(badge = {
+                if (query.hasFiltersApplied) Badge()
+            }) {
+                FilterButton(onFiltersRequest = { isFiltersOpen = true })
+            }
 
             // sort dropdown
             Dropdown(

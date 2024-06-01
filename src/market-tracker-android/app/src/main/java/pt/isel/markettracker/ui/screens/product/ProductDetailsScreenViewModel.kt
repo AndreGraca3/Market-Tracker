@@ -1,22 +1,17 @@
 package pt.isel.markettracker.ui.screens.product
 
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import pt.isel.markettracker.domain.IOState
-import pt.isel.markettracker.domain.Idle
-import pt.isel.markettracker.domain.fail
-import pt.isel.markettracker.domain.idle
-import pt.isel.markettracker.domain.loaded
-import pt.isel.markettracker.domain.loading
-import pt.isel.markettracker.domain.model.market.inventory.product.Product
-import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
-import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
-import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
-import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.http.service.operations.product.IProductService
+import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,79 +19,163 @@ class ProductDetailsScreenViewModel @Inject constructor(
     private val productService: IProductService
 ) : ViewModel() {
 
-    private val productFlow = MutableStateFlow<IOState<Product>>(idle())
-    val product
-        get() = productFlow
+    private val _stateFlow: MutableStateFlow<ProductDetailsScreenState> =
+        MutableStateFlow(ProductDetailsScreenState.Idle)
+    val stateFlow
+        get() = _stateFlow.asStateFlow()
 
-    fun fetchProductById(id: String) {
-        if (productFlow.value !is Idle) return
-        productFlow.value = loading()
+    fun fetchProductById(productId: String) {
+        if (_stateFlow.value !is ProductDetailsScreenState.Idle) return
+        _stateFlow.value = ProductDetailsScreenState.LoadingProduct
 
         viewModelScope.launch {
-            val res = kotlin.runCatching { productService.getProductById(id) }
-            productFlow.value = when (res.isSuccess) {
-                true -> loaded(res)
-                false -> fail(res.exceptionOrNull()!!)
+            val res = runCatchingAPIFailure { productService.getProductById(productId) }
+
+            res.onSuccess {
+                _stateFlow.value = ProductDetailsScreenState.LoadedProduct(it)
+            }
+
+            res.onFailure {
+                _stateFlow.value = ProductDetailsScreenState.FailedToLoadProduct(it)
             }
         }
     }
 
-    private val pricesFlow = MutableStateFlow<IOState<List<CompanyPrices>>>(idle())
-    val prices
-        get() = pricesFlow
+    fun fetchProductDetails(productId: String) {
+        val screenState = _stateFlow.value
+        if (screenState !is ProductDetailsScreenState.LoadedProduct) return
+        _stateFlow.value = ProductDetailsScreenState.LoadingProductDetails(screenState.product)
 
-    fun fetchProductPrices(id: String) {
-        if (pricesFlow.value !is Idle) return
-        pricesFlow.value = loading()
+        fetchProductStats(productId)
+        fetchProductPreferences(productId)
+        fetchProductPrices(productId)
+        fetchProductAlerts(productId)
+    }
+
+    fun fetchProductPrices(productId: String) {
+        val screenState = _stateFlow.value
+        if (screenState !is ProductDetailsScreenState.LoadingProductDetails ||
+            screenState.prices != null
+        ) return
+
+        loadDetailAndSetScreenStateIfReady(apiCall = { productService.getProductPrices(productId) }) {
+            copy(prices = it)
+        }
+    }
+
+    fun fetchProductStats(productId: String) {
+        val screenState = _stateFlow.value
+        if (screenState !is ProductDetailsScreenState.LoadingProductDetails ||
+            screenState.stats != null
+        ) return
+
+        loadDetailAndSetScreenStateIfReady(apiCall = { productService.getProductStats(productId) }) {
+            copy(stats = it)
+        }
+    }
+
+    fun fetchProductPreferences(productId: String) {
+        val screenState = _stateFlow.value
+        if (screenState !is ProductDetailsScreenState.LoadingProductDetails ||
+            screenState.preferences != null
+        ) return
+
+        loadDetailAndSetScreenStateIfReady(apiCall = {
+            productService.getProductPreferences(productId)
+        }) {
+            copy(preferences = it)
+        }
+    }
+
+    fun fetchProductAlerts(productId: String) {
+        val screenState = _stateFlow.value
+        if (screenState !is ProductDetailsScreenState.LoadingProductDetails ||
+            screenState.alerts != null
+        ) return
+
+        loadDetailAndSetScreenStateIfReady(apiCall = { productService.getProductAlerts(productId) }) {
+            copy(alerts = it)
+        }
+    }
+
+    private var currentReviewsPage by mutableIntStateOf(1)
+
+    fun fetchProductReviews(productId: String) {
+        val screenState = _stateFlow.value
+        if (screenState !is ProductDetailsScreenState.LoadedDetails ||
+            (screenState.paginatedReviews != null && !screenState.paginatedReviews.hasMore)
+        ) return
+
+        _stateFlow.value = screenState.toLoadingReviews()
 
         viewModelScope.launch {
-            val res = kotlin.runCatching { productService.getProductPrices(id) }
-            pricesFlow.value = when (res.isSuccess) {
-                true -> loaded(res)
-                false -> fail(res.exceptionOrNull()!!)
+            val res = runCatchingAPIFailure {
+                productService.getProductReviews(
+                    productId,
+                    currentReviewsPage++
+                )
+            }
+
+            res.onSuccess {
+                val paginatedReviews = (screenState.paginatedReviews?.items?.plus(it.items)) ?: it.items
+                _stateFlow.value = ProductDetailsScreenState.LoadedDetails(
+                    product = screenState.product,
+                    prices = screenState.prices,
+                    stats = screenState.stats,
+                    preferences = screenState.preferences,
+                    alerts = screenState.alerts,
+                    paginatedReviews = it.copy(items = paginatedReviews)
+                )
             }
         }
     }
 
-    private val statsFlow = MutableStateFlow<IOState<ProductStats>>(idle())
-    val stats
-        get() = statsFlow
+    fun submitUserRating(productId: String, rating: Int, text: String) {
+        Log.v("Reviews", "submitting user rating")
+        val screenState = _stateFlow.value
+        if (screenState !is ProductDetailsScreenState.LoadedDetails) return
+        _stateFlow.value = screenState.toSubmittingReview()
 
-    fun fetchProductStats(id: String) {
-        if (statsFlow.value !is Idle) return
-        statsFlow.value = loading()
+        Log.v("Reviews", "actually submitting user rating")
 
         viewModelScope.launch {
-            val res = kotlin.runCatching { productService.getProductStats(id) }
-            statsFlow.value = when (res.isSuccess) {
-                true -> loaded(res)
-                false -> fail(res.exceptionOrNull()!!)
+            val res = runCatchingAPIFailure {
+                productService.submitProductReview(
+                    productId,
+                    rating,
+                    text
+                )
+            }
+
+            res.onSuccess {
+                Log.v("Reviews", "submitted user rating")
+                _stateFlow.value =
+                    screenState.copy(
+                        paginatedReviews = screenState.paginatedReviews?.copy(
+                            items = screenState.paginatedReviews.items + it
+                        )
+                    )
+            }.onFailure {
+                _stateFlow.value = ProductDetailsScreenState.Failed(it)
             }
         }
     }
 
-    private val preferencesFlow = MutableStateFlow<IOState<ProductPreferences>>(idle())
-    val preferences
-        get() = preferencesFlow
-
-    fun fetchProductPreferences(id: String) {
-        if (preferencesFlow.value !is Idle) return
-        preferencesFlow.value = loading()
-
+    private inline fun <T> loadDetailAndSetScreenStateIfReady(
+        crossinline apiCall: suspend () -> T,
+        crossinline updateState: ProductDetailsScreenState.LoadingProductDetails.(T) -> ProductDetailsScreenState.LoadingProductDetails
+    ) {
         viewModelScope.launch {
-            val res = kotlin.runCatching { productService.getProductPreferences(id) }
-            preferencesFlow.value = when (res.isSuccess) {
-                true -> loaded(res)
-                false -> fail(res.exceptionOrNull()!!)
+            val res = runCatchingAPIFailure { apiCall() }
+
+            res.onSuccess {
+                val currState = _stateFlow.value
+                if (currState !is ProductDetailsScreenState.LoadingProductDetails) return@onSuccess
+
+                _stateFlow.value = currState.updateState(it).toLoadedDetailsIfReady()
+            }.onFailure {
+                _stateFlow.value = ProductDetailsScreenState.Failed(it)
             }
         }
-    }
-
-    private val reviewsFlow = MutableStateFlow<IOState<List<ProductReview>>>(idle())
-    val reviews
-        get() = reviewsFlow
-
-    fun fetchProductReviews(id: String) {
-        // TODO: Implement this function
     }
 }

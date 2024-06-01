@@ -21,16 +21,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
-import pt.isel.markettracker.domain.Fail
-import pt.isel.markettracker.domain.IOState
-import pt.isel.markettracker.domain.Loaded
-import pt.isel.markettracker.domain.extractValue
-import pt.isel.markettracker.domain.model.market.price.CompanyPrices
+import pt.isel.markettracker.domain.model.market.price.PriceAlert
+import pt.isel.markettracker.domain.model.market.price.ProductPrices
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.utils.shimmerEffect
 
 @Composable
-fun PricesSection(pricesState: IOState<List<CompanyPrices>>) {
+fun PricesSection(productPrices: ProductPrices?, alerts: List<PriceAlert>?) {
     Column(
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
@@ -54,43 +51,29 @@ fun PricesSection(pricesState: IOState<List<CompanyPrices>>) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
-            when (pricesState) {
-                is Loaded -> {
-                    val companiesPrices = pricesState.extractValue()
-                    if (companiesPrices.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.no_prices_found),
-                            style = MarketTrackerTypography.bodyMedium,
-                            color = Color.Red
-                        )
-                    } else companiesPrices.forEach {
-                        CompanyRow(companyPrices = it)
-                        HorizontalDivider()
-                    }
-                }
+            val companiesPricing = productPrices?.companies
 
-                is Fail -> {
+            companiesPricing?.let {
+                if (companiesPricing.isEmpty()) {
                     Text(
-                        text = pricesState.exception.message
-                            ?: stringResource(id = R.string.prices_loading_error),
-                        style = MarketTrackerTypography.bodyMedium
+                        text = stringResource(R.string.no_prices_found),
+                        style = MarketTrackerTypography.bodyMedium,
+                        color = Color.Red
                     )
+                } else companiesPricing.forEach {
+                    CompanyRow(companyPrices = it)
+                    HorizontalDivider()
                 }
-
-                else -> {
-                    (1..3).forEach {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .shimmerEffect()
-                        )
-                    }
-                }
+            } ?: repeat(3) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .shimmerEffect()
+                )
             }
         }
     }
