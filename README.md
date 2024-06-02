@@ -1,6 +1,10 @@
 # Market Tracker 🚀
 
+![mt_banner](https://github.com/AndreGraca3/Market-Tracker/assets/16958881/63899fd2-ec6b-4c6e-b4c9-2f6bfdbfc4b9)
+
 Market Tracker is a service designed to help users track the variation of prices across different stores.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/AndreGraca3/Market-Tracker/blob/main/LICENSE)
 
 ## Features 🌟
 
