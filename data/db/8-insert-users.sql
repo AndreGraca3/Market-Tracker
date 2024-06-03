@@ -10,8 +10,8 @@ VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'password'),
        ('c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'password');
 
 INSERT INTO client (id, username, avatar_url)
-VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'user1', 'http://example.com/avatar1.png'),
-       ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'user2', 'http://example.com/avatar2.png'),
+VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'user1', 'https://i.imgur.com/fL67hTu.jpeg'),
+       ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'user2', 'https://i.imgur.com/2KYA4rG.jpeg'),
        ('c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'user3', 'http://example.com/avatar3.png');
 
 -- OPERATORS

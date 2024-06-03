@@ -5,11 +5,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,21 +31,26 @@ fun FilterOptionsRow(
         ProductsSortOption.entries.map { it.title }
     }
 
-    var isFiltersOpen by remember { mutableStateOf(false) }
+    var isFiltersOpen by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 2.dp),
+            .padding(12.dp, 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .padding(vertical = 8.dp)
+                .fillMaxWidth(0.9F)
+                .padding(vertical = 6.dp)
         ) {
-            FilterButton(onFiltersRequest = { isFiltersOpen = true })
+            BadgedBox(badge = {
+                if (query.hasFiltersApplied) Badge()
+            }) {
+                FilterButton(onFiltersRequest = { isFiltersOpen = true })
+            }
 
             // sort dropdown
             Dropdown(
@@ -53,7 +61,7 @@ fun FilterOptionsRow(
                         query.copy(sortOption = ProductsSortOption.fromTitle(it))
                     )
                 },
-                modifier = Modifier.weight(1F)
+                modifier = Modifier.fillMaxWidth(0.8F)
             )
         }
         HorizontalDivider(modifier = Modifier.fillMaxWidth())

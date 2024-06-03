@@ -1,12 +1,12 @@
 package pt.isel.markettracker.domain.model.market.inventory.product.filter
 
-data class FacetItem<T>(val item: T, val count: Int, val isSelected: Boolean)
+data class FacetItem<T>(val id: T, val name: String, val count: Int, val isSelected: Boolean = false)
 
-fun <T> List<FacetItem<T>>.isSelected(item: T) = any { it.item == item && it.isSelected }
+fun <T> List<FacetItem<T>>.isSelected(id: T) = any { it.id == id && it.isSelected }
 
-fun <T> List<FacetItem<T>>.toggleSelection(item: T) =
+fun <T> List<FacetItem<T>>.toggleSelection(id: T) =
     map { facetItem ->
-        if (facetItem.item == item) {
+        if (facetItem.id == id) {
             facetItem.copy(isSelected = !facetItem.isSelected)
         } else {
             facetItem

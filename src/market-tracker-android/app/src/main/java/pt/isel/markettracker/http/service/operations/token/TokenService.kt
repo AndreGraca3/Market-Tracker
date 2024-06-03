@@ -6,7 +6,7 @@ import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.domain.model.account.Token
 import pt.isel.markettracker.dummy.dummyTokens
-import pt.isel.markettracker.dummy.dummyUsers
+import pt.isel.markettracker.dummy.dummyClients
 import pt.isel.markettracker.http.models.token.TokenCreationInputModel
 import pt.isel.markettracker.http.models.token.TokenOutputModel
 import pt.isel.markettracker.http.service.MarketTrackerService
@@ -31,7 +31,7 @@ class TokenService(
         //)
         Log.v("TokenService", "createToken")
         val user =
-            dummyUsers.find { it.email == input.email && it.password == input.password }
+            dummyClients.find { it.email == input.email && it.password == input.password }
         Log.v("TokenService", user.toString())
         if (user != null) {
             val newToken = "token"

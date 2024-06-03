@@ -2,12 +2,18 @@ package pt.isel.markettracker.domain.model.account
 
 import java.time.LocalDateTime
 
-data class User(
+data class Client(
     val id: String,
     val username: String,
     val name: String,
     val email: String,
     val password: String,
-    var avatar: String? = null,
+    var avatar: String?,
     val createdAt: LocalDateTime,
+)
+
+data class ClientItem(
+    val id: String,
+    val username: String,
+    val avatar: String?
 )

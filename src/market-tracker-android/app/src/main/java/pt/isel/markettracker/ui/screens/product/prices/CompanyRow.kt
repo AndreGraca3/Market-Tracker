@@ -1,10 +1,12 @@
 package pt.isel.markettracker.ui.screens.product.prices
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,13 +25,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
-import pt.isel.markettracker.dummy.dummyCompanyPrices
+import com.example.markettracker.R
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
+import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.ui.screens.product.stores.StoresBottomSheet
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
@@ -37,8 +41,8 @@ import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 fun CompanyRow(companyPrices: CompanyPrices) {
     var showCompanyStores by rememberSaveable { mutableStateOf(false) }
 
-    var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.storePrices.first().store.id) }
-    val selectedStorePrice = companyPrices.storePrices.first { it.store.id == selectedStoreId }
+    var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.stores.first().store.id) }
+    val selectedStoreOffer = companyPrices.stores.first { it.store.id == selectedStoreId }
 
     Row(
         modifier = Modifier
@@ -48,8 +52,7 @@ fun CompanyRow(companyPrices: CompanyPrices) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth(0.7F),
+            modifier = Modifier.weight(1F),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Box(
@@ -58,7 +61,7 @@ fun CompanyRow(companyPrices: CompanyPrices) {
                 contentAlignment = Alignment.CenterStart
             ) {
                 SubcomposeAsyncImage(
-                    model = companyPrices.company.logoUrl,
+                    model = companyPrices.logoUrl,
                     loading = {
                         CircularProgressIndicator()
                     },
@@ -68,14 +71,14 @@ fun CompanyRow(companyPrices: CompanyPrices) {
             }
 
             Text(
-                text = selectedStorePrice.store.name,
+                text = selectedStoreOffer.store.name,
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
                     .clickable {
                         showCompanyStores = true
                     }
                     .padding(vertical = 4.dp),
-                style = MarketTrackerTypography.bodyMedium,
+                style = MarketTrackerTypography.bodySmall,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Gray,
                 maxLines = 1,
@@ -83,11 +86,22 @@ fun CompanyRow(companyPrices: CompanyPrices) {
             )
         }
 
-        CompanyPriceBox(price = selectedStorePrice.priceData.finalPrice)
+        if (selectedStoreOffer.isAvailable) {
+            CompanyPriceBox(
+                price = selectedStoreOffer.price,
+                lastChecked = selectedStoreOffer.lastChecked
+            )
+        } else {
+            Text(
+                text = stringResource(id = R.string.not_available),
+                style = MarketTrackerTypography.bodySmall,
+                color = Color.Red
+            )
+        }
     }
     StoresBottomSheet(
         showStores = showCompanyStores,
-        storesPrices = companyPrices.storePrices,
+        storesPrices = companyPrices.stores,
         onStoreSelect = { selectedStoreId = it },
         onDismissRequest = { showCompanyStores = false }
     )

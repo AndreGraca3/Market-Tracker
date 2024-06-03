@@ -10,8 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import pt.isel.markettracker.domain.Idle
-import pt.isel.markettracker.domain.Loaded
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 
 @AndroidEntryPoint
@@ -40,12 +38,10 @@ class ProductDetailsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
-            vm.product.collect { state ->
-                if (state is Idle) vm.fetchProductById(productId)
-                if(state is Loaded) {
-                    vm.fetchProductStats(productId)
-                    vm.fetchProductPrices(productId)
-                    vm.fetchProductPreferences(productId)
+            vm.stateFlow.collect { state ->
+                if (state is ProductDetailsScreenState.Idle) vm.fetchProductById(productId)
+                if (state is ProductDetailsScreenState.LoadedProduct) {
+                    vm.fetchProductDetails(productId)
                 }
             }
         }

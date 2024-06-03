@@ -16,6 +16,7 @@ import okio.IOException
 import pt.isel.markettracker.http.problem.InternalServerErrorProblem
 import pt.isel.markettracker.http.problem.Problem
 import pt.isel.markettracker.http.service.result.APIException
+import java.lang.reflect.Type
 import java.net.URL
 import kotlin.coroutines.resumeWithException
 
@@ -27,7 +28,7 @@ abstract class MarketTrackerService {
     abstract val httpClient: OkHttpClient
     abstract val gson: Gson
 
-    protected suspend fun <T> requestHandler(
+    protected suspend inline fun <reified T> requestHandler(
         path: String,
         method: HttpMethod,
         input: Any? = null
@@ -48,10 +49,10 @@ abstract class MarketTrackerService {
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    val body = response.body
+                    val body = response.body?.string()
                     if (!response.isSuccessful) {
                         if (response.code < 500 && response.body?.contentType() == Problem.MEDIA_TYPE) {
-                            val problem = gson.fromJson(body?.string(), Problem::class.java)
+                            val problem = gson.fromJson(body, Problem::class.java)
                             Log.v("requestHandler", "Result of call to API: $problem")
                             it.resumeWithException(APIException(problem))
                         } else {
@@ -59,11 +60,8 @@ abstract class MarketTrackerService {
                             return
                         }
                     } else {
-                        val type = object : TypeToken<T>() {}.type
-                        val res = gson.fromJson<T>(
-                            body?.string(),
-                            type
-                        )
+                        val type: Type = object : TypeToken<T>() {}.type
+                        val res: T = gson.fromJson(body, type)
                         it.resumeWith(Result.success(res))
                     }
                 }
@@ -72,7 +70,7 @@ abstract class MarketTrackerService {
         }
     }
 
-    private fun Request.Builder.buildRequest(
+    protected fun Request.Builder.buildRequest(
         url: URL,
         method: HttpMethod,
         input: Any? = null

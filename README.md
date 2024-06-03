@@ -1,6 +1,10 @@
 # Market Tracker 🚀
 
+![mt_banner](https://github.com/AndreGraca3/Market-Tracker/assets/16958881/63899fd2-ec6b-4c6e-b4c9-2f6bfdbfc4b9)
+
 Market Tracker is a service designed to help users track the variation of prices across different stores.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/AndreGraca3/Market-Tracker/blob/main/LICENSE)
 
 ## Features 🌟
 
@@ -50,24 +54,30 @@ This service was developed by a team of students at ISEL (Instituto Superior de 
 3. Install the required dependencies:
 
    ```bash
-   cd src/MarketTracker.WebApi
+   cd src/market-tracker.webapi
    dotnet restore
-   cd ../MarketTracker.WebApp
+   cd ../market-tracker-webapp
+   npm install
+   cd ../market-tracker-scripts
    npm install
    ```
 
 ### Configuration ⚙️
 
 1. Backend Configuration:
-   TBD
+   - Create a firebase project and download the credentials json file. After that put in the root of the API module.
 
 2. Frontend Configuration:
 
-   - Rename the `.env.example` to `.env` in the `Market-Tracker.WebApp` directory with the following content:
+   - Rename the `.env.example` to `.env` in the `market-tracker-webapp` directory with the following content:
 
      ```env
      TBD
      ```
+     
+3. Scripts Configuration:
+
+   - Rename the `.env.example` to `.env` in the `market-tracker-scripts` directory and add the each Operator's API tokens to the .env and change other relevant values.
 
 ### Running the App 🏃‍♂️
 
@@ -83,4 +93,11 @@ This service was developed by a team of students at ISEL (Instituto Superior de 
    ```bash
    cd src/market-tracker-webapp
    npm run dev
+   ```
+
+3. Start the web scraping scripts:
+
+   ```bash
+   cd src/market-tracker-scripts
+   npx ts-node src/index.ts
    ```

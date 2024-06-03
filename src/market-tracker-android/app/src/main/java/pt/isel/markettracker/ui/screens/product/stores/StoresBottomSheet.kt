@@ -12,13 +12,13 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import pt.isel.markettracker.domain.model.market.price.StorePrice
+import pt.isel.markettracker.domain.model.market.price.StoreOfferItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoresBottomSheet(
     showStores: Boolean,
-    storesPrices: List<StorePrice>,
+    storesPrices: List<StoreOfferItem>,
     onStoreSelect: (Int) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -37,10 +37,7 @@ fun StoresBottomSheet(
             ) {
                 storesPrices.forEach {
                     StoreTile(
-                        storeName = it.store.name,
-                        storeAddress = it.store.address,
-                        storeCity = it.store.city?.name,
-                        storePrice = it.priceData.finalPrice,
+                        storeOffer = it,
                         onStoreSelected = {
                             onStoreSelect(it.store.id)
                             onDismissRequest()

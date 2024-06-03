@@ -37,8 +37,8 @@ fun EmbeddedSearchBar(
     searchQuery: String,
     active: Boolean,
     onActiveChange: (Boolean) -> Unit,
-    onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
+    onSearchQueryChange: (String?) -> Unit,
+    onSearch: () -> Unit,
     modifier: Modifier = Modifier,
     onBarcodeScanRequest: () -> Unit
 ) {
@@ -48,7 +48,7 @@ fun EmbeddedSearchBar(
         modifier = modifier,
         colors = SearchBarDefaults.colors(Grey),
         query = searchQuery,
-        onQueryChange = onQueryChange,
+        onQueryChange = onSearchQueryChange,
         placeholder = {
             Text(
                 text = stringResource(id = R.string.search_hint),
@@ -56,7 +56,7 @@ fun EmbeddedSearchBar(
             )
         },
         onSearch = {
-            onSearch(it)
+            onSearch()
             previousQueries.add(it)
         },
         active = active,
@@ -79,11 +79,10 @@ fun EmbeddedSearchBar(
                         modifier = Modifier
                             .clip(CircleShape),
                         onClick = {
-                            onQueryChange("")
-                            if (active) {
-                                onActiveChange(false)
+                            onSearchQueryChange(null)
+                            if (!active) {
+                                onSearch()
                             }
-                            onSearch(searchQuery)
                         }
                     ) {
                         Icon(
@@ -111,8 +110,8 @@ fun EmbeddedSearchBar(
             SearchHistoryItem(
                 searchQuery = it,
                 onHistoryItemClick = {
-                    onQueryChange(it)
-                    onSearch(it)
+                    onSearchQueryChange(it)
+                    onSearch()
                 }
             )
         }
@@ -126,7 +125,7 @@ fun EmbedSearchBarPreview() {
         active = false,
         onActiveChange = { },
         searchQuery = "",
-        onQueryChange = { },
+        onSearchQueryChange = { },
         onSearch = { },
         onBarcodeScanRequest = { }
     )

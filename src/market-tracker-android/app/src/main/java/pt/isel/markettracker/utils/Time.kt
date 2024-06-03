@@ -1,24 +1,22 @@
 package pt.isel.markettracker.utils
 
-import java.text.SimpleDateFormat
+import java.time.Duration
+import java.time.LocalDateTime
 import java.util.Date
-import java.util.Locale
 
-fun timeSince(timestamp: String): String {
-    val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS", Locale.getDefault())
-    val date = format.parse(timestamp)
-    val now = Date()
+fun timeSince(date: LocalDateTime): String {
+    val now = LocalDateTime.now()
+    val duration = Duration.between(date, now)
 
-    val diff = now.time - date.time
-    val seconds = diff / 1000
-    val minutes = seconds / 60
-    val hours = minutes / 60
-    val days = hours / 24
+    val seconds = duration.seconds
+    val minutes = duration.toMinutes()
+    val hours = duration.toHours()
+    val days = duration.toDays()
 
     return when {
-        days > 0 -> "$days dias"
-        hours > 0 -> "$hours horas"
-        minutes > 0 -> "$minutes minutos"
-        else -> "$seconds segundos"
+        seconds < 60 -> "$seconds ${if (seconds == 1L) "segundo" else "segundos"}"
+        minutes < 60 -> "$minutes ${if (minutes == 1L) "minuto" else "minutos"}"
+        hours < 24 -> "$hours ${if (hours == 1L) "hora" else "horas"}"
+        else -> "$days ${if (days == 1L) "dia" else "dias"}"
     }
 }

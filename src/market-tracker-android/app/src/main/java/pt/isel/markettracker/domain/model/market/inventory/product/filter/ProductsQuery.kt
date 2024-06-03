@@ -1,8 +1,5 @@
 package pt.isel.markettracker.domain.model.market.inventory.product.filter
 
-import pt.isel.markettracker.domain.model.market.Company
-import pt.isel.markettracker.domain.model.market.inventory.Brand
-import pt.isel.markettracker.domain.model.market.inventory.Category
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductsFacetsCounters
 import pt.isel.markettracker.ui.screens.products.ProductsSortOption
 
@@ -10,30 +7,38 @@ data class ProductsQuery(
     val searchTerm: String? = null,
     val filters: ProductsFilters = ProductsFilters(),
     val sortOption: ProductsSortOption = ProductsSortOption.Popularity
-)
+) {
+    val hasFiltersApplied: Boolean
+        get() = filters.brands.any { it.isSelected } ||
+                filters.companies.any { it.isSelected } ||
+                filters.categories.any { it.isSelected } ||
+                filters.minRating != null ||
+                filters.maxRating != null
+}
+
+fun ProductsQuery.replaceFacets(facets: ProductsFacetsCounters) =
+    copy(filters = filters.replaceWithState(facets))
 
 data class ProductsFilters(
-    val brands: List<FacetItem<Brand>> = emptyList(),
-    val companies: List<FacetItem<Company>> = emptyList(),
-    val categories: List<FacetItem<Category>> = emptyList(),
+    val brands: List<FacetItem<Int>> = emptyList(),
+    val companies: List<FacetItem<Int>> = emptyList(),
+    val categories: List<FacetItem<Int>> = emptyList(),
     val minRating: String? = null,
-    val maxRating: String? = null,
-    val minPrice: Int = 0,
-    val maxPrice: Int = Int.MAX_VALUE
+    val maxRating: String? = null
 )
 
-fun ProductsFilters.toggleBrandSelection(brand: Brand) =
-    copy(brands = brands.toggleSelection(brand))
+fun ProductsFilters.toggleBrandSelection(brandId: Int) =
+    copy(brands = brands.toggleSelection(brandId))
 
 fun ProductsFilters.resetBrands() = copy(brands = brands.resetSelections())
 
-fun ProductsFilters.toggleCompanySelection(company: Company) =
-    copy(companies = companies.toggleSelection(company))
+fun ProductsFilters.toggleCompanySelection(companyId: Int) =
+    copy(companies = companies.toggleSelection(companyId))
 
 fun ProductsFilters.resetCompanies() = copy(companies = companies.resetSelections())
 
-fun ProductsFilters.toggleCategorySelection(category: Category) =
-    copy(categories = categories.toggleSelection(category))
+fun ProductsFilters.toggleCategorySelection(categoryId: Int) =
+    copy(categories = categories.toggleSelection(categoryId))
 
 fun ProductsFilters.resetCategories() = copy(categories = categories.resetSelections())
 
@@ -41,23 +46,26 @@ fun ProductsFilters.replaceWithState(facets: ProductsFacetsCounters) =
     copy(
         brands = facets.brands.map {
             FacetItem(
-                it.item,
+                it.id,
+                it.name,
                 it.count,
-                brands.isSelected(it.item)
+                brands.isSelected(it.id)
             )
         }.sortedByDescending { it.isSelected },
         companies = facets.companies.map {
             FacetItem(
-                it.item,
+                it.id,
+                it.name,
                 it.count,
-                companies.isSelected(it.item)
+                companies.isSelected(it.id)
             )
         }.sortedByDescending { it.isSelected },
         categories = facets.categories.map {
             FacetItem(
-                it.item,
+                it.id,
+                it.name,
                 it.count,
-                categories.isSelected(it.item)
+                categories.isSelected(it.id)
             )
         }.sortedByDescending { it.isSelected }
     )
