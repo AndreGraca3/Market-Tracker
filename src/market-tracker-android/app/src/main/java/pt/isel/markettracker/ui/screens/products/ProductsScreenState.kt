@@ -1,10 +1,6 @@
-package pt.isel.markettracker.ui.screens
+package pt.isel.markettracker.ui.screens.products
 
-import pt.isel.markettracker.domain.model.market.Company
-import pt.isel.markettracker.domain.model.market.inventory.Brand
-import pt.isel.markettracker.domain.model.market.inventory.Category
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
-import pt.isel.markettracker.domain.model.market.inventory.product.ProductsFacetsCounters
 
 sealed class ProductsScreenState {
     data object Idle : ProductsScreenState()

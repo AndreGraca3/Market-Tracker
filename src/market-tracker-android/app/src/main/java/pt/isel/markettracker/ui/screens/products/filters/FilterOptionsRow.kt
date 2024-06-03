@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.ui.components.dropdowns.Dropdown
-import pt.isel.markettracker.ui.screens.ProductsSortOption
+import pt.isel.markettracker.ui.screens.products.ProductsSortOption
 
 @Composable
 fun FilterOptionsRow(
@@ -33,15 +33,14 @@ fun FilterOptionsRow(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp, 2.dp),
+            .padding(horizontal = 8.dp, vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .fillMaxWidth(0.9F)
-                .padding(vertical = 10.dp)
+                .padding(vertical = 8.dp)
         ) {
             FilterButton(onFiltersRequest = { isFiltersOpen = true })
 
@@ -54,7 +53,7 @@ fun FilterOptionsRow(
                         query.copy(sortOption = ProductsSortOption.fromTitle(it))
                     )
                 },
-                modifier = Modifier.fillMaxWidth(0.8F)
+                modifier = Modifier.weight(1F)
             )
         }
         HorizontalDivider(modifier = Modifier.fillMaxWidth())

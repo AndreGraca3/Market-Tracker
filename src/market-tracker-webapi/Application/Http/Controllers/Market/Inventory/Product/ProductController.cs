@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Inventory.Product;
 
 [ApiController]
+[Produces(Uris.JsonMediaType, Uris.JsonProblemMediaType)]
 public class ProductController(IProductService productService, IProductPriceService productPriceService)
     : ControllerBase
 {
@@ -69,7 +70,7 @@ public class ProductController(IProductService productService, IProductPriceServ
             productInput.Unit,
             productInput.BrandName,
             productInput.CategoryId!.Value,
-            productInput.Price!.Value,
+            productInput.BasePrice!.Value,
             productInput.PromotionPercentage
         );
 

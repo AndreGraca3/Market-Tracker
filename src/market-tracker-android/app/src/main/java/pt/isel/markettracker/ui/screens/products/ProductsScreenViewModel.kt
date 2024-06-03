@@ -13,8 +13,6 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.replaceWithState
 import pt.isel.markettracker.http.service.operations.product.IProductService
-import pt.isel.markettracker.ui.screens.ProductsScreenState
-import pt.isel.markettracker.ui.screens.extractProductsOffers
 import javax.inject.Inject
 
 @HiltViewModel

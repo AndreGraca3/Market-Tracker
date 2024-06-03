@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Inventory.Product;
 
 [ApiController]
+[Produces(Uris.JsonMediaType, Uris.JsonProblemMediaType)]
 public class ProductFeedbackController(IProductFeedbackService productFeedbackService) : ControllerBase
 {
     [HttpGet(Uris.Products.ReviewsByProductId)]

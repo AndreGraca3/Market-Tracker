@@ -70,7 +70,7 @@ public class ProductService(
         ProductUnit unit,
         string brandName,
         int categoryId,
-        int price,
+        int basePrice,
         int? promotionPercentage
     )
     {
@@ -115,12 +115,12 @@ public class ProductService(
                 ? null
                 : await priceRepository.GetStoreOfferAsync(productId, store.Id.Value, DateTime.Now);
 
-            var newPrice = price.ApplyPercentage(promotionPercentage);
+            var newPrice = basePrice.ApplyPercentage(promotionPercentage);
             var priceChanged = oldStoreOffer?.PriceData.FinalPrice != newPrice;
 
             if (priceChanged)
             {
-                await priceRepository.AddPriceAsync(productId, store.Id.Value, price, promotionPercentage);
+                await priceRepository.AddPriceAsync(productId, store.Id.Value, basePrice, promotionPercentage);
 
                 // Notify clients with price alerts
                 var eligiblePriceAlerts =
