@@ -1,16 +1,13 @@
-package pt.isel.markettracker.ui.screens.list.listProductItem
+package pt.isel.markettracker.ui.screens.list.productsList
 
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import pt.isel.markettracker.domain.Idle
-import pt.isel.markettracker.domain.Loaded
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 
 @AndroidEntryPoint
@@ -23,7 +20,7 @@ class ListProductDetailsActivity : ComponentActivity() {
         val extra = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
             intent.getParcelableExtra(
                 LIST_PRODUCT_ID_EXTRA,
-                ListProductIdExtra::class.java
+                ListIdExtra::class.java
             )
         else
             intent.getParcelableExtra(LIST_PRODUCT_ID_EXTRA)
@@ -31,8 +28,6 @@ class ListProductDetailsActivity : ComponentActivity() {
         checkNotNull(extra) { "No list product id extra found in intent" }
         extra.id
     }
-
-    private val vm by viewModels<ListProductDetailsScreenViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,11 +43,11 @@ class ListProductDetailsActivity : ComponentActivity() {
 
         setContent {
             MarkettrackerTheme {
-                //ListProductDetailsScreen(onBackRequest = { finish() }, vm)
+                ListProductDetailsScreen(onBackRequest = { finish() })
             }
         }
     }
 }
 
 @Parcelize
-data class ListProductIdExtra(val id: String) : Parcelable
+data class ListIdExtra(val id: Int) : Parcelable

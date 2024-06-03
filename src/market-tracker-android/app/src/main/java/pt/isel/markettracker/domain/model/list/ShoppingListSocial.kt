@@ -1,9 +1,9 @@
-package pt.isel.markettracker.domain.model.market.list
+package pt.isel.markettracker.domain.model.list
 
 import java.time.LocalDateTime
 import java.util.UUID
 
-data class ListInfo(
+data class ShoppingListSocial(
     val id: Int,
     val listName: String,
     val archivedAt: LocalDateTime?,

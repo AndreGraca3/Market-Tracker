@@ -63,7 +63,7 @@ fun ProductCard(product: Product, onProductClick: (String) -> Unit) {
                     modifier = Modifier.fillMaxSize()
                 )
             }
-            ProductCardSpecs(product = product)
+            ProductCardSpecs(product = product, modifier = Modifier.fillMaxWidth())
             CompanyPriceCardHeader(
                 dummyCompanyPrices.minOf { companyPrices -> companyPrices.storePrices.minOf { it.priceData.finalPrice } },
                 dummyStores.first().company.logoUrl

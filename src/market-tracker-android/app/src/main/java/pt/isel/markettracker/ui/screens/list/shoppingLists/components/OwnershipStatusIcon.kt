@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list.listOfProducts.components
+package pt.isel.markettracker.ui.screens.list.shoppingLists.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding

@@ -23,8 +23,8 @@ import pt.isel.markettracker.navigation.NavBar
 import pt.isel.markettracker.navigation.toDestination
 import pt.isel.markettracker.repository.auth.AuthEvent
 import pt.isel.markettracker.repository.auth.IAuthRepository
-import pt.isel.markettracker.ui.screens.list.listOfProducts.ListScreen
-import pt.isel.markettracker.ui.screens.list.listOfProducts.ListScreenViewModel
+import pt.isel.markettracker.ui.screens.list.shoppingLists.ListScreen
+import pt.isel.markettracker.ui.screens.list.shoppingLists.ListScreenViewModel
 import pt.isel.markettracker.ui.screens.login.LoginScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.products.ProductsScreen

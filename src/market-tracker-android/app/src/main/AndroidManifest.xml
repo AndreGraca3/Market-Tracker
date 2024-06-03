@@ -42,6 +42,7 @@
 
         <activity android:name="pt.isel.markettracker.ui.screens.product.ProductDetailsActivity" />
         <activity android:name="pt.isel.markettracker.ui.screens.signup.SignUpActivity" />
+        <activity android:name="pt.isel.markettracker.ui.screens.list.productsList.ListProductDetailsActivity" />
     </application>
 
 </manifest>

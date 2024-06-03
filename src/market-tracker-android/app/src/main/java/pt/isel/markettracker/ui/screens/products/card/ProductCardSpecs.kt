@@ -15,10 +15,13 @@ import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.ui.theme.Primary600
 
 @Composable
-fun ProductCardSpecs(product: Product) {
+fun ProductCardSpecs(
+    product: Product,
+    modifier: Modifier
+) {
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(

@@ -20,5 +20,6 @@
     <string name="prices_loading_error">Erro ao carregar preços</string>
     <string name="price_alert_title">Nós avisamos-te quando o preço diminuir</string>
     <string name="set_alert">Definir alerta</string>
+    <string name="lists_loading">A carregar listas...</string>
     <string name="GOOGLE_CLIENT_ID">317635904868-mgmlu2g27gt43tb00c7i5kfevprerrsn.apps.googleusercontent.com</string>
 </resources>
