@@ -12,12 +12,16 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.domain.model.market.inventory.ProductUnit
+import pt.isel.markettracker.http.service.operations.auth.AuthService
+import pt.isel.markettracker.http.service.operations.auth.IAuthService
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.operations.product.ProductService
-import pt.isel.markettracker.http.service.operations.token.ITokenService
-import pt.isel.markettracker.http.service.operations.token.TokenService
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.operations.user.UserService
 import pt.isel.markettracker.repository.auth.AuthRepository
@@ -39,17 +43,39 @@ class AppModule {
         return appContext.dataStore
     }
 
-    @Singleton
     @Provides
-    fun provideAuthRepository(): IAuthRepository {
-        return AuthRepository()
+    @Singleton
+    fun provideAuthRepository(dataStore: DataStore<Preferences>): IAuthRepository {
+        return AuthRepository(dataStore)
     }
 
     @Provides
     @Singleton
-    fun provideHttpClient(): OkHttpClient {
+    fun provideHttpClient(authRepository: IAuthRepository): OkHttpClient {
         return OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
             .callTimeout(10, TimeUnit.SECONDS)
+            .cookieJar(object : CookieJar {
+                override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+                    val token = cookies.find { it.name == "Authorization" }?.value
+                    runBlocking {
+                        authRepository.setToken(token)
+                    }
+                }
+
+                override fun loadForRequest(url: HttpUrl): List<Cookie> {
+                    return runBlocking {
+                        val token = authRepository.getToken()
+                        if (token != null) listOf(
+                            Cookie.Builder()
+                                .name("Authorization")
+                                .value(token)
+                                .domain("markettracker.com")
+                                .build()
+                        ) else emptyList()
+                    }
+                }
+            })
             .build()
     }
 
@@ -57,12 +83,16 @@ class AppModule {
     @Singleton
     fun provideGson(): Gson {
         return GsonBuilder()
-            .registerTypeAdapter(LocalDateTime::class.java, JsonDeserializer { json, _, _ ->
-                LocalDateTime.parse(json.asString)
-            })
-            .registerTypeAdapter(ProductUnit::class.java, JsonDeserializer { json, _, _ ->
-                ProductUnit.fromTitle(json.asString)
-            })
+            .registerTypeAdapter(
+                LocalDateTime::class.java,
+                JsonDeserializer { json, _, _ ->
+                    LocalDateTime.parse(json.asString)
+                })
+            .registerTypeAdapter(
+                ProductUnit::class.java,
+                JsonDeserializer { json, _, _ ->
+                    ProductUnit.fromTitle(json.asString)
+                })
             .create()
     }
 
@@ -80,7 +110,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideTokenService(httpClient: OkHttpClient, gson: Gson): ITokenService {
-        return TokenService(httpClient, gson)
+    fun provideTokenService(httpClient: OkHttpClient, gson: Gson): IAuthService {
+        return AuthService(httpClient, gson)
     }
 }

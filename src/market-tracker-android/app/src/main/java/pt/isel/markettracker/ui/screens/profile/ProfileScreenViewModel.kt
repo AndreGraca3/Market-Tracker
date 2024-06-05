@@ -16,11 +16,11 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.Fail
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.Idle
-import pt.isel.markettracker.domain.idle
+import pt.isel.markettracker.domain.Loading
 import pt.isel.markettracker.domain.loadSuccess
-import pt.isel.markettracker.domain.loading
 import pt.isel.markettracker.domain.model.account.Client
-import pt.isel.markettracker.http.service.operations.token.ITokenService
+import pt.isel.markettracker.http.models.user.UserUpdateInputModel
+import pt.isel.markettracker.http.service.operations.auth.IAuthService
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import pt.isel.markettracker.repository.auth.IAuthRepository
@@ -31,11 +31,11 @@ class ProfileScreenViewModel @AssistedInject constructor(
     @Assisted private val contentResolver: ContentResolver,
     private val userService: IUserService,
     private val authRepository: IAuthRepository,
-    private val tokenService: ITokenService
+    private val authService: IAuthService
 ) : ViewModel() {
 
     private val clientFetchingFlow: MutableStateFlow<IOState<Client>> =
-        MutableStateFlow(idle())
+        MutableStateFlow(Idle)
 
     val userPhase
         get() = clientFetchingFlow.asStateFlow()
@@ -44,41 +44,45 @@ class ProfileScreenViewModel @AssistedInject constructor(
 
     fun fetchUser() {
         if (clientFetchingFlow.value !is Idle) return
-        clientFetchingFlow.value = loading()
+        clientFetchingFlow.value = Loading()
         viewModelScope.launch {
-            val result = runCatchingAPIFailure {
-                userService.getUser("1")
+            val res = runCatchingAPIFailure {
+                userService.getAuthenticatedUser()
             }
-            if (result.isSuccess) {
+
+            res.onSuccess {
                 avatarPath?.let { uri -> convertImageToBase64(contentResolver, uri) }
-                clientFetchingFlow.value = loadSuccess(result.getOrNull()!!)
-                return@launch
+                clientFetchingFlow.value = loadSuccess(it)
             }
-            clientFetchingFlow.value = Fail(result.exceptionOrNull()!!)
+
+            res.onFailure {
+                clientFetchingFlow.value = Fail(it)
+            }
         }
     }
 
-    fun resetToIdle() {
-        //remove token from preferences
-        authRepository.logout()
+    fun logout() {
         viewModelScope.launch {
-            val user = userService.getUser("1")
-            tokenService.deleteToken(user.id)
+            authService.signOut()
         }
-        clientFetchingFlow.value = idle()
+        clientFetchingFlow.value = Idle
     }
 
-    fun deleteAccount() {
+    fun deleteAccount(id: String) {
         viewModelScope.launch {
-            tokenService.deleteToken("1")
-            userService.deleteUser("1")
+            //authRepository.setUserPreferences(token = null)
+            authService.signOut()
+            userService.deleteUser(id)
         }
-        clientFetchingFlow.value = idle()
+        clientFetchingFlow.value = Idle
     }
 
-    fun updateUser() {
+    fun updateUser(uri: Uri) {
         viewModelScope.launch {
-            userService.updateUserAvatar("1", avatarPath.toString())
+            userService.updateUser(
+                "1",
+                UserUpdateInputModel()
+            )
         }
     }
 }

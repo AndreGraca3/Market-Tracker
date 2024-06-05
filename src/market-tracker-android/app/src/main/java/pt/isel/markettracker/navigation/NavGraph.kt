@@ -1,7 +1,5 @@
 package pt.isel.markettracker.navigation
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -96,7 +94,9 @@ fun NavGraph(
             composable(Destination.PROFILE.route) {
                 when (authState) {
                     is AuthEvent.Login -> {
-                        ProfileScreen(profileScreenViewModel)
+                        ProfileScreen(
+                            profileScreenViewModel = profileScreenViewModel
+                        )
                     }
 
                     else -> {

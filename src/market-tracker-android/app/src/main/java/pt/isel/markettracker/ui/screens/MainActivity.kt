@@ -52,7 +52,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             MarkettrackerTheme {
                 NavGraph(
-                    profileScreenViewModel = profileScreenViewModel,
                     onProductClick = {
                         navigateTo<ProductDetailsActivity>(
                             this,
@@ -66,7 +65,8 @@ class MainActivity : ComponentActivity() {
                     onBarcodeScanRequest = {
                         barCodeLauncher.launch(barcodeScannerOptions)
                     },
-                    authRepository = authRepository
+                    authRepository = authRepository,
+                    profileScreenViewModel = profileScreenViewModel
                 )
             }
         }

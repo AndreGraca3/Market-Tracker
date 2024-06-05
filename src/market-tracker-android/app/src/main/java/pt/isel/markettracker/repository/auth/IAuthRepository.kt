@@ -10,7 +10,7 @@ interface IAuthRepository {
 
     fun isUserLoggedIn(): Boolean
 
-    fun login()
+    suspend fun getToken(): String?
 
-    fun logout()
+    suspend fun setToken(token: String?)
 }
