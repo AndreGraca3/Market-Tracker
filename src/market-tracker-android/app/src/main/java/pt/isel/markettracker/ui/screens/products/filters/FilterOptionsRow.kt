@@ -1,6 +1,7 @@
 package pt.isel.markettracker.ui.screens.products.filters
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,20 +37,25 @@ fun FilterOptionsRow(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp, 2.dp),
+            .padding(horizontal = 10.dp, vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .fillMaxWidth(0.9F)
+                .fillMaxWidth()
                 .padding(vertical = 6.dp)
         ) {
-            BadgedBox(badge = {
-                if (query.hasFiltersApplied) Badge()
-            }) {
-                FilterButton(onFiltersRequest = { isFiltersOpen = true })
+            Box(
+                modifier = Modifier.weight(0.5F),
+                contentAlignment = Alignment.Center
+            ) {
+                BadgedBox(badge = {
+                    if (query.hasFiltersApplied) Badge()
+                }) {
+                    FilterButton(onFiltersRequest = { isFiltersOpen = true })
+                }
             }
 
             // sort dropdown
@@ -61,7 +67,7 @@ fun FilterOptionsRow(
                         query.copy(sortOption = ProductsSortOption.fromTitle(it))
                     )
                 },
-                modifier = Modifier.fillMaxWidth(0.8F)
+                modifier = Modifier.weight(0.7F)
             )
         }
         HorizontalDivider(modifier = Modifier.fillMaxWidth())

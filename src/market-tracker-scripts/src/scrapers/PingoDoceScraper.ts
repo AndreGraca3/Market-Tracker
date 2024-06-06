@@ -5,6 +5,20 @@ import axios from "axios";
 import { parseString } from "xml2js";
 import config from "../config";
 
+type PingoDoceApiProductData = {
+  ean: string;
+  categoryId: number;
+  name: string;
+  brandName: string;
+  basePrice: number;
+  promotionPercentage?: number;
+};
+
+type PingoDoceHtmlProductData = {
+  unitString: string;
+  imageUrl: string;
+};
+
 class PingoDoceScraper extends Scraper {
   constructor(browser: Browser) {
     super(
@@ -26,7 +40,7 @@ class PingoDoceScraper extends Scraper {
       throw new Error(`Invalid unit input: ${text}`);
     }
 
-    const quantity = parseFloat(match[1].replace(",", ".")); // Handle comma as decimal point
+    const quantity = parseInt(match[1].replace(",", ".")) || 1;
     const unitString = match[2].toLowerCase();
 
     let unit: ProductUnit;
@@ -76,91 +90,110 @@ class PingoDoceScraper extends Scraper {
     return productName.replace(brandName, "").trim();
   }
 
-  async scrapeProduct(url: string): Promise<Product> {
+  async scrapeProductPage(page: Page, url: string): Promise<Product> {
     if (!url.includes("pingo-doce/product")) {
       throw new Error(`Invalid url for ${this.constructor.name}: ${url}`);
     }
 
-    const page = await this.browser.newPage();
+    const apiPromise = new Promise<PingoDoceApiProductData>(
+      (resolve, reject) => {
+        page.on("response", async (response) => {
+          const url = response.url();
+          if (
+            !url.startsWith("https://mercadao.pt/api/catalogues") ||
+            !url.includes("product")
+          )
+            return;
 
-    const productPromise = new Promise<Product>((resolve, reject) => {
-      const tid = setTimeout(
-        () => reject(`Timeout after ${config.PAGE_TIMEOUT}ms`),
-        config.PAGE_TIMEOUT
-      );
-      page.on("response", async (response) => {
-        const url = response.url();
-        if (
-          !url.startsWith("https://mercadao.pt/api/catalogues") ||
-          !url.includes("product")
-        )
-          return;
+          if (response.status() != 200) {
+            reject("Product not found");
+            return;
+          }
 
-        const responseBody = await response.json();
+          const responseBody = await response.json();
 
-        if (responseBody.onlineStatus != "AVAILABLE")
-          reject("Product not available");
+          if (responseBody.onlineStatus != "AVAILABLE") {
+            reject("Product not available");
+            return;
+          }
 
-        resolve({
-          id: responseBody.eans[0],
-          name: this.mapName(responseBody.firstName, responseBody.brand.name),
-          imageUrl: "no-image",
-          quantity: 1,
-          unit: ProductUnit.Units,
-          brandName: responseBody.brand.name,
-          categoryId: this.mapCategory(
+          const categoryId = this.mapCategory(
             responseBody.ancestorsCategoriesArray[0]
-          ),
-          basePrice: Math.floor(responseBody.regularPrice * 100),
-          promotionPercentage:
-            responseBody.promotion.type == "PERCENTAGE"
-              ? Math.round(responseBody.promotion.amount)
-              : undefined,
+          );
+          if (!categoryId) {
+            reject("Category not found");
+            return;
+          }
+
+          resolve({
+            ean: responseBody.eans[0],
+            name: this.mapName(responseBody.firstName, responseBody.brand.name),
+            brandName: responseBody.brand.name,
+            categoryId,
+            basePrice: Math.floor(responseBody.regularPrice * 100),
+            promotionPercentage:
+              responseBody.promotion.type == "PERCENTAGE"
+                ? Math.round(responseBody.promotion.amount)
+                : undefined,
+          });
         });
-
-        clearTimeout(tid);
-      });
-    });
-
-    await page.goto(url);
-    const productDetails = await productPromise;
-
-    const IMAGE_URL_SELECTOR = ".media-product img.ng-star-inserted";
-    const UNIT_SELECTOR = "pdo-product-price-per-unit span";
-
-    await Promise.all([
-      page.waitForSelector(IMAGE_URL_SELECTOR),
-      page.waitForSelector(UNIT_SELECTOR),
-    ]);
-
-    const [imageUrl, unitString] = await page.evaluate(
-      (SELECTORS) => {
-        const imageUrl = document
-          .querySelector(SELECTORS.IMAGE_URL_SELECTOR)
-          ?.getAttribute("src");
-
-        const unitString = document
-          .querySelector(SELECTORS.UNIT_SELECTOR)
-          ?.textContent.trim();
-
-        return [imageUrl, unitString];
-      },
-      {
-        IMAGE_URL_SELECTOR,
-        UNIT_SELECTOR,
       }
     );
 
-    const [unit, quantity] = this.mapUnit(unitString);
+    const [apiProductData, pageProductData] = await Promise.all([
+      apiPromise,
+      this.scrapeProductHtml(page, url),
+    ]);
 
-    await page.close();
+    const [unit, quantity] = this.mapUnit(pageProductData.unitString);
 
     return {
-      ...productDetails,
+      id: apiProductData.ean,
+      name: apiProductData.name,
+      brandName: apiProductData.brandName,
+      categoryId: apiProductData.categoryId,
+      basePrice: apiProductData.basePrice,
+      promotionPercentage: apiProductData.promotionPercentage,
       unit,
       quantity,
-      imageUrl,
+      imageUrl: pageProductData.imageUrl,
     };
+  }
+
+  async scrapeProductHtml(
+    page: Page,
+    url: string
+  ): Promise<PingoDoceHtmlProductData> {
+    await page.goto(url);
+
+    const UNIT_SELECTOR = "pdo-product-price-per-unit span";
+    const IMAGE_SELECTOR = ".media-product img.ng-star-inserted";
+
+    await Promise.all([
+      page.waitForSelector(UNIT_SELECTOR, { timeout: config.PAGE_TIMEOUT }),
+      page.waitForSelector(IMAGE_SELECTOR, { timeout: config.PAGE_TIMEOUT }),
+    ]);
+
+    return await page.evaluate(
+      (SELECTORS) => {
+        const unitString = document
+          .querySelector(SELECTORS.UNIT_SELECTOR)
+          .textContent.trim();
+
+        const imageUrl = document
+          .querySelector(SELECTORS.IMAGE_SELECTOR)
+          .getAttribute("src");
+
+        return {
+          unitString,
+          imageUrl,
+        };
+      },
+      {
+        UNIT_SELECTOR,
+        IMAGE_SELECTOR,
+      }
+    );
   }
 
   /**

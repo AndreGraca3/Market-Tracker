@@ -27,7 +27,7 @@ fun ProductsScreenView(
     fetchProducts: (Boolean) -> Unit,
     loadMoreProducts: (ProductsQuery) -> Unit,
     onProductClick: (String) -> Unit,
-    onBarcodeScanRequest: () -> Unit,
+    onBarcodeScanRequest: () -> Unit
 ) {
     var isRefreshing by rememberSaveable { mutableStateOf(false) }
 

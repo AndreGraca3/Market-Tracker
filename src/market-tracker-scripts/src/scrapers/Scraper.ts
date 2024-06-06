@@ -1,4 +1,4 @@
-import { Browser } from "puppeteer";
+import { Browser, Page } from "puppeteer";
 import { Product, ProductUnit } from "../domain/Product";
 import * as fs from "fs";
 import { delay } from "../utils";
@@ -29,12 +29,26 @@ abstract class Scraper {
   productUrls: string[] = [];
 
   /**
-   * Opens a page and returns and returns the product. Closes the page after scraping.
-   * @param url - The URL of the product page
-   * @throws error if the page cannot be opened or the product could be scraped.
-   * Note that web scraping is instable and may fail for various reasons.
+   *  Opens a page and returns and returns the product. Closes the page after scraping.
+   * @param url  URL of the product to scrape
+   * @returns  the scraped product
    */
-  abstract scrapeProduct(url: string): Promise<Product>;
+  async scrapeProduct(url: string): Promise<Product> {
+    const page = await this.browser.newPage();
+
+    try {
+      return await this.scrapeProductPage(page, url);
+    } finally {
+      await page.close();
+    }
+  }
+
+  /**
+   *  Scrapes a product from a page
+   * @param page  The page to scrape the product from
+   * @param url  URL of the product to scrape
+   */
+  abstract scrapeProductPage(page: Page, url: string): Promise<Product>;
 
   /**
    * Fetches all the XML sitemaps and extracts all the product URLs
@@ -53,39 +67,64 @@ abstract class Scraper {
    * @param categoryName - The name of the category
    */
   mapCategory(categoryName: string): number {
-    const categoryId = this.categoryMapper[categoryName];
-    if (!categoryId) {
-      throw new Error(`Category not mapped: ${categoryName}`);
-    }
-    return categoryId;
+    return this.categoryMapper[categoryName];
+  }
+
+  /**
+   *  Scrapes a product within a given timeout
+   * @param url  URL of the product to scrape
+   * @param timeout  timeout in milliseconds
+   * @returns
+   */
+  async scrapeProductWithTimeout(
+    url: string,
+    timeout: number
+  ): Promise<Product> {
+    return new Promise(async (resolve, reject) => {
+      setTimeout(() => {
+        reject(`Timeout scraping product, after ${timeout}ms`);
+      }, timeout);
+      try {
+        const product = await this.scrapeProduct(url);
+        resolve(product);
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   /**
    *  Scrapes all products from the sitemapUrls and calls onProductScraped after each product is scraped
    * @param onProductScraped  callback function to be called after each product is scraped
    * @param maxProducts  maximum number of products to scrape
+   * @param startFrom  index of the product in the XML sitemap to start scraping from
    * @returns  list of all products scraped
    */
   async scrapeProducts(
     onProductScraped: (product: Product) => Promise<void>,
+    startFrom: number = 0,
     maxProducts?: number
-  ): Promise<Product[]> {
+  ) {
     for (const url of this.sitemapUrls) {
       const xmlUrls = await this.fetchXmlUris(url);
       this.productUrls.push(...xmlUrls);
     }
 
-    const products: Product[] = [];
+    fs.writeFileSync(
+      this.csvFilePath,
+      "id,name,imageUrl,quantity,unit,brandName,categoryId,basePrice,promotionPercentage,url\n"
+    );
+
     var failed = 0;
 
-    for (const url of this.productUrls) {
+    for (let i = startFrom; i < this.productUrls.length; i++) {
+      const url = this.productUrls[i];
       try {
         const product = await this.scrapeProduct(url);
-        products.push(product);
         console.log(`Scraped ${product.name} in ${this.constructor.name}`);
         await onProductScraped(product);
 
-        if (maxProducts && products.length >= maxProducts) {
+        if (maxProducts && i - startFrom >= maxProducts) {
           break;
         }
 
@@ -101,9 +140,10 @@ abstract class Scraper {
     }
 
     console.log(
-      `Scraped a total of ${products.length} products in ${this.constructor.name}`
+      `Scraped a total of ${this.productUrls.length - failed} products in ${
+        this.constructor.name
+      }`
     );
-    return products;
   }
 }
 

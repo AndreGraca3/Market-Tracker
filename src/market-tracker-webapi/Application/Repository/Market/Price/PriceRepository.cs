@@ -14,7 +14,7 @@ using Price = Domain.Schemas.Market.Retail.Sales.Pricing.Price;
 
 public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepository
 {
-    private const double SimilarityThreshold = 0.1;
+    private const double SimilarityThreshold = 0.5;
 
     public async Task<PaginatedProductOffers> GetBestAvailableProductsOffersAsync(int skip, int take,
         int maxValuesPerFacet, ProductsSortOption? sortBy = null, string? name = null, IList<int>? categoryIds = null,
@@ -97,7 +97,9 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 Id = grouping.Key,
                 Name = grouping.First().Company.Name,
                 Count = grouping.GroupBy(g => g.Product.Id).Count()
-            }).ToListAsync();
+            })
+            .OrderByDescending(facet => facet.Count)
+            .ToListAsync();
 
         var facetedQuery = query
             .Where(p =>
@@ -110,7 +112,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
 
         var orderedQuery = sortBy switch
         {
-            ProductsSortOption.Popularity => facetedQuery.OrderBy(queryRes => queryRes.Product.Views),
+            ProductsSortOption.Popularity => facetedQuery.OrderByDescending(queryRes => queryRes.Product.Views),
             ProductsSortOption.NameLowToHigh => facetedQuery.OrderBy(queryRes => queryRes.Product.Name),
             ProductsSortOption.NameHighToLow => facetedQuery.OrderByDescending(queryRes => queryRes.Product.Name),
             ProductsSortOption.RatingLowToHigh => facetedQuery.OrderBy(queryRes => queryRes.Product.Rating),
@@ -148,28 +150,10 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             .ToList()
             .Select(group => group.MinBy(g => g.StoreOffer!.PriceData.FinalPrice)!);
 
-        bestOffers = sortBy switch
-        {
-            ProductsSortOption.Popularity => bestOffers.OrderBy(queryRes => queryRes.Product.Views).ToList(),
-            ProductsSortOption.NameLowToHigh => bestOffers.OrderBy(queryRes => queryRes.Product.Name).ToList(),
-            ProductsSortOption.NameHighToLow =>
-                bestOffers.OrderByDescending(queryRes => queryRes.Product.Name).ToList(),
-            ProductsSortOption.RatingLowToHigh => bestOffers.OrderBy(queryRes => queryRes.Product.Rating).ToList(),
-            ProductsSortOption.RatingHighToLow => bestOffers.OrderByDescending(queryRes => queryRes.Product.Rating)
-                .ToList(),
-            ProductsSortOption.PriceLowToHigh => bestOffers
-                .OrderBy(queryRes => queryRes.StoreOffer!.PriceData.FinalPrice)
-                .ToList(),
-            ProductsSortOption.PriceHighToLow => bestOffers
-                .OrderByDescending(queryRes => queryRes.StoreOffer!.PriceData.FinalPrice)
-                .ToList(),
-            _ => bestOffers
-        };
-
         var productsFacetsCounters = new ProductsFacetsCounters(brandFacets, categoryFacets, companyFacets);
 
         var paginatedProducts = new PaginatedResult<ProductOffer>(bestOffers,
-            query.GroupBy(g => g.Product.Id).Count(), skip, take);
+            orderedQuery.GroupBy(g => g.Product.Id).Count(), skip, take);
 
         return new PaginatedProductOffers(paginatedProducts, productsFacetsCounters);
     }

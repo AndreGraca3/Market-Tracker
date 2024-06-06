@@ -26,7 +26,7 @@ import pt.isel.markettracker.ui.theme.Primary700
 @Composable
 fun NavBar(navBarItems: List<Destination>, selectedIndex: Int, onItemClick: (String) -> Unit) {
     AnimatedNavigationBar(
-        modifier = Modifier.height(64.dp),
+        modifier = Modifier.height(60.dp),
         selectedIndex = selectedIndex,
         ballAnimation = Straight(
             tween(500)

@@ -28,7 +28,7 @@ class ContinenteScraper extends Scraper {
       throw new Error(`Invalid unit input: ${input}`);
     }
 
-    const quantity = parseFloat(match[1]);
+    const quantity = parseInt(match[1]) || 1;
     const unitString = match[2].toLowerCase();
 
     let unit: ProductUnit;
@@ -68,12 +68,11 @@ class ContinenteScraper extends Scraper {
     return [unit, quantity];
   }
 
-  async scrapeProduct(url: string): Promise<Product> {
+  async scrapeProductPage(page: Page, url: string): Promise<Product> {
     if (!url.includes("continente.pt/produto")) {
       throw new Error(`Invalid url for ${this.constructor.name}: ${url}`);
     }
 
-    const page = await this.browser.newPage();
     await page.goto(url);
     await page.exposeFunction("mapUnit", this.mapUnit.bind(this));
     await page.exposeFunction("mapCategory", this.mapCategory.bind(this));
@@ -128,6 +127,9 @@ class ContinenteScraper extends Scraper {
           .querySelector(SELECTORS.CATEGORY_SELECTOR)
           .getAttribute("title");
         const categoryId = await (window as any).mapCategory(categoryName);
+        if (!categoryId) {
+          throw new Error(`Category not found: ${categoryName}`);
+        }
 
         const imageElem = document.querySelector(SELECTORS.IMAGE_URL_SELECTOR);
         const imageUrl =
@@ -175,7 +177,6 @@ class ContinenteScraper extends Scraper {
       }
     );
 
-    await page.close();
     return product;
   }
 

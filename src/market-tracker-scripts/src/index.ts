@@ -3,6 +3,7 @@ import ContinenteScraper from "./scrapers/ContinenteScraper";
 import { insertProduct } from "./http/service";
 import PingoDoceScraper from "./scrapers/PingoDoceScraper";
 import config from "./config";
+import AuchanScraper from "./scrapers/AuchanScraper";
 
 async function main() {
   console.log("Starting scraper...");
@@ -14,6 +15,7 @@ async function main() {
   });
   const continenteScraper = new ContinenteScraper(browser);
   const pingoDoceScraper = new PingoDoceScraper(browser);
+  const auchanScraper = new AuchanScraper(browser);
 
   /*
   // individual product scraping
@@ -27,8 +29,14 @@ async function main() {
   );
   insertProduct(pingoDoceProduct, config.PINGO_DOCE_API_TOKEN);
 
+  const auchanProduct = await auchanScraper.scrapeProduct(
+    "https://www.auchan.pt/Produtos/Alimentar/Peixaria/Peixe-Fresco/Peixe-Espada-Preto-Inteiro/p/0000000000000"
+  );
+  insertProduct(auchanProduct, config.AUCHAN_API_TOKEN);
+
   await browser.close();
-  return;*/
+  return;
+*/
 
   // full scraping
   await Promise.all([
@@ -37,6 +45,9 @@ async function main() {
     ),
     pingoDoceScraper.scrapeProducts((p) =>
       insertProduct(p, config.PINGO_DOCE_API_TOKEN)
+    ),
+    auchanScraper.scrapeProducts((p) =>
+      insertProduct(p, config.AUCHAN_API_TOKEN)
     ),
   ]);
 
