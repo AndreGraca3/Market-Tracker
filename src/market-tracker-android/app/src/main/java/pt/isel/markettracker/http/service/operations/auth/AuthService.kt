@@ -5,7 +5,6 @@ import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.http.models.token.GoogleTokenCreationInputModel
 import pt.isel.markettracker.http.models.token.TokenCreationInputModel
-import pt.isel.markettracker.http.models.token.TokenOutputModel
 import pt.isel.markettracker.http.service.MarketTrackerService
 
 private const val googleSignInPath = "/google-sign-in"

@@ -1,10 +1,10 @@
 package pt.isel.markettracker.ui.screens.profile
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun ProfileScreen(
@@ -12,8 +12,9 @@ fun ProfileScreen(
 ) {
     val user by profileScreenViewModel.userPhase.collectAsState()
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         profileScreenViewModel.fetchUser()
+        Log.v("User", "Vai ser executado o fetchUser")
     }
 
     ProfileScreenView(

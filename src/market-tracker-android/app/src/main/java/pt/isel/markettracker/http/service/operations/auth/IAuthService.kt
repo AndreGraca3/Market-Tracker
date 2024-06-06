@@ -2,7 +2,6 @@ package pt.isel.markettracker.http.service.operations.auth
 
 import pt.isel.markettracker.http.models.token.GoogleTokenCreationInputModel
 import pt.isel.markettracker.http.models.token.TokenCreationInputModel
-import pt.isel.markettracker.http.models.token.TokenOutputModel
 
 interface IAuthService {
     suspend fun googleSignIn(input: GoogleTokenCreationInputModel)

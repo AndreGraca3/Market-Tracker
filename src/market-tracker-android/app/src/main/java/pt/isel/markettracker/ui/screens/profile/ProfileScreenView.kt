@@ -1,6 +1,7 @@
 package pt.isel.markettracker.ui.screens.profile
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -33,7 +35,6 @@ fun ProfileScreenView(
     onLogoutRequested: () -> Unit,
     onUpdateUserRequested: (Uri) -> Unit,
 ) {
-
     val launcher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent(),

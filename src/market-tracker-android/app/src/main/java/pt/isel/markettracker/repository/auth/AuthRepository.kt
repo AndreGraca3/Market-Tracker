@@ -1,5 +1,6 @@
 package pt.isel.markettracker.repository.auth
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -7,8 +8,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import pt.isel.markettracker.domain.model.CollectionOutputModel
-import pt.isel.markettracker.domain.model.PriceAlertOutputModel
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
@@ -35,12 +34,14 @@ class AuthRepository @Inject constructor(
 
     override suspend fun setToken(token: String?) {
         dataStore.edit { preferences ->
-            if (token != null) {
+            if (!token.isNullOrEmpty()) {
                 preferences[tokenKey] = token
                 _authState.value = AuthEvent.Login
+                Log.v("User", "Token state is login")
             } else {
                 preferences.remove(tokenKey)
                 _authState.value = AuthEvent.Logout
+                Log.v("User", "Token state is logout")
             }
         }
     }

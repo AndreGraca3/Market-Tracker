@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.profile
 
-import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.model.account.Client
 
 sealed class ProfileScreenState {
