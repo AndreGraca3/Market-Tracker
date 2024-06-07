@@ -102,7 +102,7 @@ class AuchanScraper extends Scraper {
 
         const productData = responseBody.Results[0];
 
-        if (productData.Attributes.AVAILABILITY.Values[0].Value !== "True") {
+        if (productData.Attributes.AVAILABILITY?.Values?.[0]?.Value !== "True") {
           reject("Product not available");
           return;
         }
@@ -154,7 +154,7 @@ class AuchanScraper extends Scraper {
     const PROMOTION_SELECTOR = ".auc-pdp__promo .auc-promo--discount--red";
 
     if (await page.$(NOT_AVAILABLE_SELECTOR)) {
-      throw new Error("Product not available");
+      throw new Error("Product not found");
     }
 
     await Promise.all([

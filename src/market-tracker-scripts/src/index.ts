@@ -8,7 +8,7 @@ import AuchanScraper from "./scrapers/AuchanScraper";
 async function main() {
   console.log("Starting scraper...");
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     args: [
       "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
     ],
@@ -40,14 +40,17 @@ async function main() {
 
   // full scraping
   await Promise.all([
-    continenteScraper.scrapeProducts((p) =>
-      insertProduct(p, config.CONTINENTE_API_TOKEN)
+    continenteScraper.scrapeProducts(
+      (p) => insertProduct(p, config.CONTINENTE_API_TOKEN),
+      300
     ),
-    pingoDoceScraper.scrapeProducts((p) =>
-      insertProduct(p, config.PINGO_DOCE_API_TOKEN)
+    pingoDoceScraper.scrapeProducts(
+      (p) => insertProduct(p, config.PINGO_DOCE_API_TOKEN),
+      300
     ),
-    auchanScraper.scrapeProducts((p) =>
-      insertProduct(p, config.AUCHAN_API_TOKEN)
+    auchanScraper.scrapeProducts(
+      (p) => insertProduct(p, config.AUCHAN_API_TOKEN),
+      300
     ),
   ]);
 

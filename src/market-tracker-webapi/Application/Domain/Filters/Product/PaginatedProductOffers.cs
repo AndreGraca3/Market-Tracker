@@ -2,8 +2,6 @@ using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 
 namespace market_tracker_webapi.Application.Domain.Filters.Product;
 
-
-
 public class PaginatedProductOffers(
     PaginatedResult<ProductOffer> paginatedResult,
     ProductsFacetsCounters facetsCounters)

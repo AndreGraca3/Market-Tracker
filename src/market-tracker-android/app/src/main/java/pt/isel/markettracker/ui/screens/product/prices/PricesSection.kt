@@ -29,7 +29,7 @@ import pt.isel.markettracker.utils.shimmerEffect
 @Composable
 fun PricesSection(productPrices: ProductPrices?, alerts: List<PriceAlert>?) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+        verticalArrangement = Arrangement.spacedBy(21.dp)
     ) {
         Text(
             text = stringResource(id = R.string.prices_section_title),

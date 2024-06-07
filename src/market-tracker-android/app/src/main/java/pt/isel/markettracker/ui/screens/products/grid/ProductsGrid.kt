@@ -71,8 +71,8 @@ fun ProductsGrid(
                 productOffer = productsOffers[index],
                 onProductClick = onProductClick,
                 modifier = Modifier
-                    .width(160.dp)
-                    .height(320.dp)
+                    .width(170.dp)
+                    .height(360.dp)
             )
         }
         item(

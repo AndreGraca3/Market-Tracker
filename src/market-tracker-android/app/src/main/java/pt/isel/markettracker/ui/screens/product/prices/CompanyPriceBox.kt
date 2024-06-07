@@ -73,7 +73,7 @@ fun CompanyPriceBox(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 TooltipBox(
                     positionProvider = positionProvider,
@@ -81,9 +81,7 @@ fun CompanyPriceBox(
                         RichTooltip {
                             Text(
                                 "${stringResource(id = R.string.verified_at)} ${
-                                    timeSince(
-                                        lastChecked
-                                    )
+                                    timeSince(lastChecked)
                                 }"
                             )
                         }

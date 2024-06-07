@@ -2,7 +2,6 @@ package pt.isel.markettracker.navigation
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -26,7 +25,7 @@ import pt.isel.markettracker.ui.theme.Primary700
 @Composable
 fun NavBar(navBarItems: List<Destination>, selectedIndex: Int, onItemClick: (String) -> Unit) {
     AnimatedNavigationBar(
-        modifier = Modifier.height(60.dp),
+        modifier = Modifier.height(54.dp),
         selectedIndex = selectedIndex,
         ballAnimation = Straight(
             tween(500)

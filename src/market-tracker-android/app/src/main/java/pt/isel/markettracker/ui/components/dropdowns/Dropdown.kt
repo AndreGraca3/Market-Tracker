@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dropdown(
+    enabled: Boolean,
     options: List<String>,
     selected: String,
     onSelectedChange: (String) -> Unit,
@@ -27,7 +28,11 @@ fun Dropdown(
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
 
-    ExposedDropdownMenuBox(expanded = isExpanded, onExpandedChange = { isExpanded = it }, modifier = modifier) {
+    ExposedDropdownMenuBox(
+        expanded = if (enabled) isExpanded else false,
+        onExpandedChange = { isExpanded = it },
+        modifier = modifier
+    ) {
         OutlinedTextField(
             modifier = Modifier.menuAnchor(),
             value = selected,
@@ -45,7 +50,9 @@ fun Dropdown(
             }
         )
 
-        ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
+        ExposedDropdownMenu(
+            expanded = if (enabled) isExpanded else false,
+            onDismissRequest = { isExpanded = false }) {
             options.forEach {
                 DropdownMenuItem(text = {
                     Text(it)

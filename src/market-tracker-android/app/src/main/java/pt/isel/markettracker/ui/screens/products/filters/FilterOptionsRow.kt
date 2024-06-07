@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,11 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsSortOption
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.resetAll
 import pt.isel.markettracker.ui.components.dropdowns.Dropdown
-import pt.isel.markettracker.ui.screens.products.ProductsSortOption
 
 @Composable
 fun FilterOptionsRow(
+    enabled: Boolean,
     query: ProductsQuery,
     onQueryChange: (ProductsQuery) -> Unit,
     isLoading: Boolean
@@ -51,15 +51,17 @@ fun FilterOptionsRow(
                 modifier = Modifier.weight(0.5F),
                 contentAlignment = Alignment.Center
             ) {
-                BadgedBox(badge = {
-                    if (query.hasFiltersApplied) Badge()
-                }) {
-                    FilterButton(onFiltersRequest = { isFiltersOpen = true })
+                FilterButton(
+                    enabled = enabled,
+                    hasFilters = query.hasFiltersApplied,
+                    onFiltersRequest = { isFiltersOpen = true }) {
+                    onQueryChange(query.copy(filters = query.filters.resetAll()))
                 }
             }
 
             // sort dropdown
             Dropdown(
+                enabled = enabled,
                 options = sortOptions,
                 selected = query.sortOption.title,
                 onSelectedChange = {

@@ -128,7 +128,7 @@ abstract class Scraper {
           break;
         }
 
-        const csvLine = Object.values(product).join(",") + "," + url;
+        const csvLine = `${product.id},${product.name},${product.imageUrl},${product.quantity},${product.unit},${product.brandName},${product.categoryId},${product.basePrice},${product.promotionPercentage},${url}`;
         fs.appendFileSync(this.csvFilePath, `${csvLine}\n`);
       } catch (error) {
         console.error(`Failed to scrape ${url} in ${this.constructor.name}`);

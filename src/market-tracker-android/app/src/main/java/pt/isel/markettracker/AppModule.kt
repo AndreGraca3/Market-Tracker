@@ -13,7 +13,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import pt.isel.markettracker.domain.model.market.inventory.ProductUnit
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductUnit
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.operations.product.ProductService
 import pt.isel.markettracker.http.service.operations.token.ITokenService

@@ -8,16 +8,24 @@ using Product = Domain.Schemas.Market.Inventory.Product.Product;
 
 public interface IProductRepository
 {
+    /**
+     * Get available products. If any of the filters is null, it will not be applied.
+     * If no sort option is provided, Relevance will be used.
+     */
     Task<PaginatedResult<Product>> GetAvailableProductsAsync(
-        int skip,
-        int take,
-        ProductsSortOption? sortBy = null,
-        string? name = null,
-        IList<int>? categoryIds = null,
-        IList<int>? brandIds = null,
-        int? minRating = null,
-        int? maxRating = null
+        int skip, int take, ProductsSortOption? sortBy = null, string? name = null, IList<int>? categoryIds = null,
+        IList<int>? brandIds = null, int? minPrice = null, int? maxPrice = null, int? minRating = null,
+        int? maxRating = null, IList<int>? companyIds = null, IList<int>? storeIds = null, IList<int>? cityIds = null
     );
+
+    /**
+     * Get the facets with counts for the available products.
+     * If any of the filters is null, it will not be applied.
+     */
+    Task<ProductsFacetsCounters> GetProductsFacetsCountersAsync(
+        int maxValuesPerFacet, string? name = null, int? minPrice = null, int? maxPrice = null, int? minRating = null,
+        int? maxRating = null, IList<int>? categoryIds = null, IList<int>? brandIds = null,
+        IList<int>? companyIds = null);
 
     Task<Product?> GetProductByIdAsync(string productId);
 
@@ -30,7 +38,7 @@ public interface IProductRepository
         int brandId,
         int categoryId
     );
-    
+
     public Task SetProductAvailabilityAsync(
         string productId,
         int storeId,
