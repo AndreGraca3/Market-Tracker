@@ -11,7 +11,7 @@ using Product = Domain.Schemas.Market.Inventory.Product.Product;
 
 public class ProductRepository(MarketTrackerDataContext dataContext) : IProductRepository
 {
-    private const double SimilarityThreshold = 0.3;
+    private const double SimilarityThreshold = 0.2;
 
     public async Task<PaginatedResult<Product>> GetAvailableProductsAsync(
         int skip, int take, ProductsSortOption? sortBy = null, string? name = null, IList<int>? categoryIds = null,

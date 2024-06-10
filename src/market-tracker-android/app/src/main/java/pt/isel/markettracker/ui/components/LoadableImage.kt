@@ -19,22 +19,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
-import coil.compose.rememberAsyncImagePainter
 import pt.isel.markettracker.ui.components.common.LoadingIcon
 
 @Composable
 fun LoadableImage(
-    model: String,
+    url: String,
     contentDescription: String,
     modifier: Modifier = Modifier
 ) {
-    var isLoading by rememberSaveable(model) { mutableStateOf(true) }
+    var isLoading by rememberSaveable(url) { mutableStateOf(true) }
     var painter by remember { mutableStateOf<Painter?>(null) }
 
     SubcomposeAsyncImage(
-        model = model,
+        model = url,
         contentDescription = contentDescription,
         loading = { LoadingIcon() },
         success = {

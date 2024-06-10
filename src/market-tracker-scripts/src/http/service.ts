@@ -12,4 +12,14 @@ async function insertProduct(product: Product, apiToken: string) {
   });
 }
 
-export { insertProduct };
+async function getToken(email: string, password: string) {
+  const response = await axios.post(config.BACKEND_BASE_URL + "/auth/sign-in", {
+    email,
+    password,
+  });
+
+  if (response.status == 401) throw new Error("Invalid credentials");
+  return response.headers["set-cookie"].find((cookie: string) => cookie.includes("Authorization")).split("=")[1];
+}
+
+export { insertProduct, getToken };

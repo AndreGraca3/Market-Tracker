@@ -1,12 +1,12 @@
 import { Browser, Page } from "puppeteer";
-import Scraper from "./Scraper";
+import WebScraper from "./WebScraper";
 import { Product, ProductUnit } from "../domain/Product";
 import axios from "axios";
 import { parseString } from "xml2js";
 import { revertPercentage } from "../utils";
 import config from "../config";
 
-class ContinenteScraper extends Scraper {
+class ContinenteScraper extends WebScraper {
   constructor(browser: Browser) {
     super(
       browser,
@@ -20,7 +20,7 @@ class ContinenteScraper extends Scraper {
     );
   }
 
-  mapUnit(input: string): [ProductUnit, number] {
+  parseUnitString(input: string): [ProductUnit, number] {
     const regex = /(\d*\.?\d+)\s*(\w+)/;
     const match = input.match(regex);
 
@@ -74,7 +74,7 @@ class ContinenteScraper extends Scraper {
     }
 
     await page.goto(url);
-    await page.exposeFunction("mapUnit", this.mapUnit.bind(this));
+    await page.exposeFunction("mapUnit", this.parseUnitString.bind(this));
     await page.exposeFunction("mapCategory", this.mapCategory.bind(this));
     await page.exposeFunction("revertPercentage", revertPercentage);
 
@@ -180,7 +180,7 @@ class ContinenteScraper extends Scraper {
     return product;
   }
 
-  async fetchXmlUris(url: string): Promise<string[]> {
+  async fetchProductUris(url: string): Promise<string[]> {
     try {
       const response = await axios.get(url);
       const xmlData = response.data;
@@ -198,8 +198,10 @@ class ContinenteScraper extends Scraper {
         });
       });
     } catch (error) {
-      console.error("Error fetching XML sitemaps:", error);
-      throw new Error("Failed to fetch XML sitemaps");
+      console.error(
+        `Error fetching XML sitemaps for ${this.constructor.name}`,
+        error
+      );
     }
   }
 }

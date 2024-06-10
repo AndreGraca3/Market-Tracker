@@ -61,7 +61,7 @@ fun ProductCard(
                     .fillMaxHeight(.4F)
             ) {
                 LoadableImage(
-                    model = productOffer.product.imageUrl,
+                    url = productOffer.product.imageUrl,
                     contentDescription = productOffer.product.name,
                     modifier = Modifier.fillMaxSize()
                 )

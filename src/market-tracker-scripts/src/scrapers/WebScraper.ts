@@ -5,10 +5,10 @@ import { delay } from "../utils";
 import config from "../config";
 
 /**
- * Abstract class that defines the structure of a scraper.
+ * Abstract class that defines the structure of a web scraper.
  * Whoever extends this class must implement the abstract methods according to the website they are scraping.
  */
-abstract class Scraper {
+abstract class WebScraper {
   constructor(
     browser: any,
     sitemapUrls: string[],
@@ -54,13 +54,13 @@ abstract class Scraper {
    * Fetches all the XML sitemaps and extracts all the product URLs
    * @param url - The URL of the XML sitemap
    */
-  abstract fetchXmlUris(url: string): Promise<string[]>;
+  abstract fetchProductUris(url: string): Promise<string[]>;
 
   /**
    * Maps a string to a ProductUnit and a number
    * @param input - The string to be mapped
    */
-  abstract mapUnit(input: string): [ProductUnit, number];
+  abstract parseUnitString(input: string): [ProductUnit, number];
 
   /**
    * Maps a category name to a category id
@@ -101,12 +101,12 @@ abstract class Scraper {
    * @returns  list of all products scraped
    */
   async scrapeProducts(
-    onProductScraped: (product: Product) => Promise<void>,
+    onProductScraped: (product: Product) => Promise<void> = async () => {},
     startFrom: number = 0,
     maxProducts?: number
   ) {
     for (const url of this.sitemapUrls) {
-      const xmlUrls = await this.fetchXmlUris(url);
+      const xmlUrls = await this.fetchProductUris(url);
       this.productUrls.push(...xmlUrls);
     }
 
@@ -135,16 +135,18 @@ abstract class Scraper {
         console.error(error);
         failed++;
       } finally {
-        await delay(config.DELAY_BETWEEN_PAGES);
+        // delay between pages between DELAY_BETWEEN_PAGES and 2*DELAY_BETWEEN_PAGES
+        await delay(
+          config.DELAY_BETWEEN_PAGES +
+            Math.floor(Math.random() * config.DELAY_BETWEEN_PAGES)
+        );
       }
     }
 
     console.log(
-      `Scraped a total of ${this.productUrls.length - failed} products in ${
-        this.constructor.name
-      }`
+      `Scraped a total of ${this.productUrls.length} products with ${failed} failures in ${this.constructor.name}`
     );
   }
 }
 
-export default Scraper;
+export default WebScraper;

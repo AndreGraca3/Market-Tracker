@@ -1,5 +1,5 @@
 import { Browser, Page } from "puppeteer";
-import Scraper from "./Scraper";
+import WebScraper from "./WebScraper";
 import { Product, ProductUnit } from "../domain/Product";
 import axios from "axios";
 import { parseString } from "xml2js";
@@ -19,7 +19,7 @@ type PingoDoceHtmlProductData = {
   imageUrl: string;
 };
 
-class PingoDoceScraper extends Scraper {
+class PingoDoceScraper extends WebScraper {
   constructor(browser: Browser) {
     super(
       browser,
@@ -29,7 +29,7 @@ class PingoDoceScraper extends Scraper {
     );
   }
 
-  mapUnit(input: string): [ProductUnit, number] {
+  parseUnitString(input: string): [ProductUnit, number] {
     const splitText = input.split("|");
     const text = splitText[0].trim();
 
@@ -112,7 +112,7 @@ class PingoDoceScraper extends Scraper {
 
           const responseBody = await response.json();
 
-          if (responseBody.onlineStatus != "AVAILABLE") {
+          if (responseBody?.onlineStatus != "AVAILABLE") {
             reject("Product not available");
             return;
           }
@@ -145,7 +145,7 @@ class PingoDoceScraper extends Scraper {
       this.scrapeProductHtml(page, url),
     ]);
 
-    const [unit, quantity] = this.mapUnit(pageProductData.unitString);
+    const [unit, quantity] = this.parseUnitString(pageProductData.unitString);
 
     return {
       id: apiProductData.ean,
@@ -200,7 +200,7 @@ class PingoDoceScraper extends Scraper {
    * Fetches all the XML sitemaps and extracts all the product URLs
    * @param url - The URL of the XML sitemap
    */
-  async fetchXmlUris(url: string): Promise<string[]> {
+  async fetchProductUris(url: string): Promise<string[]> {
     try {
       const response = await axios.get(url);
       const xmlData = response.data;
@@ -220,8 +220,10 @@ class PingoDoceScraper extends Scraper {
         });
       });
     } catch (error) {
-      console.error("Error fetching XML sitemaps:", error);
-      throw new Error("Failed to fetch XML sitemaps");
+      console.error(
+        `Error fetching XML sitemaps for ${this.constructor.name}`,
+        error
+      );
     }
   }
 }

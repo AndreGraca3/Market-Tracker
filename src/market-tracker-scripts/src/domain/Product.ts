@@ -11,10 +11,10 @@ export type Product = {
 };
 
 export enum ProductUnit {
-  "Units",
-  "Kilograms",
-  "Grams",
-  "Liters",
-  "Centiliters",
-  "Milliliters",
+  "Units", // 0
+  "Kilograms", // 1
+  "Grams", // 2
+  "Liters", // 3
+  "Centiliters", // 4
+  "Milliliters", // 5
 }

@@ -1,5 +1,5 @@
 import { Browser, Page } from "puppeteer";
-import Scraper from "./Scraper";
+import WebScraper from "./WebScraper";
 import { Product, ProductUnit } from "../domain/Product";
 import axios from "axios";
 import { parseString } from "xml2js";
@@ -13,12 +13,12 @@ type AuchanApiProductData = {
 };
 
 type AuchanHtmlProductData = {
-  categoryId: number;
+  categories: string[];
   basePrice: number;
   promotionPercentage?: number;
 };
 
-class AuchanScraper extends Scraper {
+class AuchanScraper extends WebScraper {
   constructor(browser: Browser) {
     super(
       browser,
@@ -31,7 +31,7 @@ class AuchanScraper extends Scraper {
     );
   }
 
-  mapUnit(input: string): [ProductUnit, number] {
+  parseUnitString(input: string): [ProductUnit, number] {
     const unitString = input.toLocaleLowerCase().split(" ").pop();
     const quantity = parseInt(unitString.slice(0, -1)) || 1;
     let unit: ProductUnit;
@@ -102,7 +102,9 @@ class AuchanScraper extends Scraper {
 
         const productData = responseBody.Results[0];
 
-        if (productData.Attributes.AVAILABILITY?.Values?.[0]?.Value !== "True") {
+        if (
+          productData.Attributes.AVAILABILITY?.Values?.[0]?.Value !== "True"
+        ) {
           reject("Product not available");
           return;
         }
@@ -121,7 +123,16 @@ class AuchanScraper extends Scraper {
       this.scrapeProductHtml(page, url),
     ]);
 
-    const [unit, quantity] = this.mapUnit(apiProductData.rawProductName);
+    const [unit, quantity] = this.parseUnitString(
+      apiProductData.rawProductName
+    );
+
+    const categoryId = pageProductData.categories
+      .map((category) => this.mapCategory(category))
+      .find((id) => id !== undefined);
+    if (categoryId === undefined) {
+      throw new Error("Category not valid");
+    }
 
     return {
       id: apiProductData.ean,
@@ -132,7 +143,7 @@ class AuchanScraper extends Scraper {
       brandName:
         apiProductData.rawBrandName.charAt(0) +
         apiProductData.rawBrandName.slice(1).toLowerCase(),
-      categoryId: pageProductData.categoryId,
+      categoryId,
       unit,
       quantity,
       basePrice: pageProductData.basePrice,
@@ -146,7 +157,6 @@ class AuchanScraper extends Scraper {
     url: string
   ): Promise<AuchanHtmlProductData> {
     await page.goto(url);
-    await page.exposeFunction("mapCategory", this.mapCategory.bind(this));
 
     const NOT_AVAILABLE_SELECTOR = ".auc-404error__content__paragraph";
     const CATEGORY_SELECTOR = ".breadcrumb-item";
@@ -170,13 +180,6 @@ class AuchanScraper extends Scraper {
           document.querySelectorAll(SELECTORS.CATEGORY_SELECTOR)
         ).map((el) => el.textContent.trim());
 
-        const mappedCategories = await Promise.all(
-          categories.map(async (category) => {
-            return (window as any).mapCategory(category);
-          })
-        );
-        const categoryId = mappedCategories.find((id) => id !== undefined);
-
         const price = document
           .querySelector(SELECTORS.PRICE_SELECTOR)
           .textContent.trim()
@@ -188,7 +191,7 @@ class AuchanScraper extends Scraper {
           .replace(/\D/g, "");
 
         return {
-          categoryId,
+          categories,
           basePrice: parseInt(price),
           promotionPercentage: promotionPercentage
             ? parseInt(promotionPercentage)
@@ -207,7 +210,7 @@ class AuchanScraper extends Scraper {
    * Fetches all the XML sitemaps and extracts all the product URLs
    * @param url - The URL of the XML sitemap
    */
-  async fetchXmlUris(url: string): Promise<string[]> {
+  async fetchProductUris(url: string): Promise<string[]> {
     try {
       const response = await axios.get(url);
       const xmlData = response.data;
@@ -227,8 +230,10 @@ class AuchanScraper extends Scraper {
         });
       });
     } catch (error) {
-      console.error("Error fetching XML sitemaps:", error);
-      throw new Error("Failed to fetch XML sitemaps");
+      console.error(
+        `Error fetching XML sitemaps for ${this.constructor.name}`,
+        error
+      );
     }
   }
 }
