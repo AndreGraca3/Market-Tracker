@@ -5,16 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -24,6 +19,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -31,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
+import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.dummy.dummyProducts
 import pt.isel.markettracker.dummy.dummyStoreOffers
@@ -66,11 +66,13 @@ fun ProductsGrid(
         horizontalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterHorizontally),
         contentPadding = PaddingValues(12.dp)
     ) {
-        items(productsOffers.size) { index ->
+        items(productsOffers.size, key = { productsOffers[it].product.id }) { index ->
             ProductCard(
                 productOffer = productsOffers[index],
                 onProductClick = onProductClick,
-                modifier = Modifier.width(160.dp).height(320.dp)
+                modifier = Modifier
+                    .width(170.dp)
+                    .height(360.dp)
             )
         }
         item(
@@ -94,6 +96,22 @@ fun ProductsGrid(
             }
         }
     }
+
+    val scope = rememberCoroutineScope()
+    val showButton by remember {
+        derivedStateOf {
+            lazyGridState.firstVisibleItemIndex > 0
+        }
+    }
+
+    ScrollToTopButton(
+        visible = showButton,
+        onClick = {
+            scope.launch {
+                lazyGridState.animateScrollToItem(0)
+            }
+        }
+    )
 }
 
 @Preview

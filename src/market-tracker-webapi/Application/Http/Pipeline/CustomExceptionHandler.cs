@@ -42,6 +42,8 @@ public class CustomExceptionHandler : IExceptionHandler
                 IGoogleTokenError googleTokenError => GoogleProblem.FromServiceError(googleTokenError),
                 _ => new ServerProblem.InternalServerError()
             };
+            
+            Console.WriteLine(problem);
 
             httpContext.Response.StatusCode = problem.Status;
 

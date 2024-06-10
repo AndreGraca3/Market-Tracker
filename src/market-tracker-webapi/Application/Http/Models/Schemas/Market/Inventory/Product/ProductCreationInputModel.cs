@@ -11,7 +11,7 @@ public record ProductCreationInputModel(
     [Required] string ImageUrl,
     [Required] string BrandName,
     [Required] int? CategoryId,
-    [Required] int? Price,
+    [Required] int? BasePrice,
     [Range(1, 100, ErrorMessage = "Promotion percentage must be between 1 and 100.")]
     int? PromotionPercentage,
     [Required]

@@ -6,6 +6,7 @@ public enum ProductUnit
     Kilograms,
     Grams,
     Liters,
+    Centiliters,
     Milliliters
 }
 
@@ -19,6 +20,7 @@ public static class ProductUnitExtensions
             ProductUnit.Kilograms => "kilogramas",
             ProductUnit.Grams => "gramas",
             ProductUnit.Liters => "litros",
+            ProductUnit.Centiliters => "centilitros",
             ProductUnit.Milliliters => "millilitros",
             _ => throw new ArgumentOutOfRangeException(nameof(unit), unit, null)
         };
@@ -32,6 +34,7 @@ public static class ProductUnitExtensions
             ProductUnit.Kilograms => "kg",
             ProductUnit.Grams => "gr",
             ProductUnit.Liters => "L",
+            ProductUnit.Centiliters => "cl",
             ProductUnit.Milliliters => "ml",
             _ => throw new ArgumentOutOfRangeException(nameof(unit), unit, null)
         };
@@ -45,6 +48,7 @@ public static class ProductUnitExtensions
             "kilogramas" => ProductUnit.Kilograms,
             "gramas" => ProductUnit.Grams,
             "litros" => ProductUnit.Liters,
+            "centilitros" => ProductUnit.Centiliters,
             "millilitros" => ProductUnit.Milliliters,
             _ => throw new ArgumentException($"Invalid argument: {name}")
         };

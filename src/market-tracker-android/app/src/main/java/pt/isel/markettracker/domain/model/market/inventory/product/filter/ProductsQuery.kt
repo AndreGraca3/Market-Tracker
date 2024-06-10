@@ -1,12 +1,11 @@
 package pt.isel.markettracker.domain.model.market.inventory.product.filter
 
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductsFacetsCounters
-import pt.isel.markettracker.ui.screens.products.ProductsSortOption
 
 data class ProductsQuery(
     val searchTerm: String? = null,
     val filters: ProductsFilters = ProductsFilters(),
-    val sortOption: ProductsSortOption = ProductsSortOption.Popularity
+    val sortOption: ProductsSortOption
 ) {
     val hasFiltersApplied: Boolean
         get() = filters.brands.any { it.isSelected } ||
@@ -29,6 +28,14 @@ data class ProductsFilters(
 
 fun ProductsFilters.toggleBrandSelection(brandId: Int) =
     copy(brands = brands.toggleSelection(brandId))
+
+fun ProductsFilters.resetAll() = copy(
+    brands = brands.resetSelections(),
+    companies = companies.resetSelections(),
+    categories = categories.resetSelections(),
+    minRating = null,
+    maxRating = null
+)
 
 fun ProductsFilters.resetBrands() = copy(brands = brands.resetSelections())
 
@@ -69,3 +76,18 @@ fun ProductsFilters.replaceWithState(facets: ProductsFacetsCounters) =
             )
         }.sortedByDescending { it.isSelected }
     )
+
+enum class ProductsSortOption(val title: String) {
+    Relevance("Relevância"),
+    Popularity("Popularidade"),
+    NameLowToHigh("Nome (A-Z)"),
+    NameHighToLow("Nome (Z-A)"),
+    RatingLowToHigh("Menor Avaliação"),
+    RatingHighToLow("Maior Avaliação"),
+    PriceLowToHigh("Menor Preço"),
+    PriceHighToLow("Maior Preço");
+
+    companion object {
+        fun fromTitle(title: String) = entries.first { it.title == title }
+    }
+}

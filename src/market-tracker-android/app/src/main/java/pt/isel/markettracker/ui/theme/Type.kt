@@ -60,9 +60,9 @@ val MarketTrackerTypography = Typography(
     titleSmall = TextStyle(
         fontFamily = mainFont,
         fontWeight = FontWeight.Normal,
-        fontSize = 10.sp,
+        fontSize = 14.sp,
         color = Color.Black,
-        lineHeight = 20.sp,
+        lineHeight = 24.sp,
         letterSpacing = 0.sp
     ),
     labelSmall = TextStyle(

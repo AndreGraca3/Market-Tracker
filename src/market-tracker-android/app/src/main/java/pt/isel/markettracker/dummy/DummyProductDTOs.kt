@@ -2,8 +2,8 @@ package pt.isel.markettracker.dummy
 
 import pt.isel.markettracker.domain.model.market.inventory.Brand
 import pt.isel.markettracker.domain.model.market.inventory.Category
-import pt.isel.markettracker.domain.model.market.inventory.ProductUnit
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductUnit
 
 val dummyCategories = listOf(
     Category(1, "Mercearia"),

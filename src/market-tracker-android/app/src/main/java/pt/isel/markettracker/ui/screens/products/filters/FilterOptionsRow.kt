@@ -1,12 +1,11 @@
 package pt.isel.markettracker.ui.screens.products.filters
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,11 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsSortOption
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.resetAll
 import pt.isel.markettracker.ui.components.dropdowns.Dropdown
-import pt.isel.markettracker.ui.screens.products.ProductsSortOption
 
 @Composable
 fun FilterOptionsRow(
+    enabled: Boolean,
     query: ProductsQuery,
     onQueryChange: (ProductsQuery) -> Unit,
     isLoading: Boolean
@@ -36,24 +37,31 @@ fun FilterOptionsRow(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp, 2.dp),
+            .padding(horizontal = 10.dp, vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .fillMaxWidth(0.9F)
+                .fillMaxWidth()
                 .padding(vertical = 6.dp)
         ) {
-            BadgedBox(badge = {
-                if (query.hasFiltersApplied) Badge()
-            }) {
-                FilterButton(onFiltersRequest = { isFiltersOpen = true })
+            Box(
+                modifier = Modifier.weight(0.5F),
+                contentAlignment = Alignment.Center
+            ) {
+                FilterButton(
+                    enabled = enabled,
+                    hasFilters = query.hasFiltersApplied,
+                    onFiltersRequest = { isFiltersOpen = true }) {
+                    onQueryChange(query.copy(filters = query.filters.resetAll()))
+                }
             }
 
             // sort dropdown
             Dropdown(
+                enabled = enabled,
                 options = sortOptions,
                 selected = query.sortOption.title,
                 onSelectedChange = {
@@ -61,7 +69,7 @@ fun FilterOptionsRow(
                         query.copy(sortOption = ProductsSortOption.fromTitle(it))
                     )
                 },
-                modifier = Modifier.fillMaxWidth(0.8F)
+                modifier = Modifier.weight(0.7F)
             )
         }
         HorizontalDivider(modifier = Modifier.fillMaxWidth())

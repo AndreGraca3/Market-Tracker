@@ -1,3 +1,4 @@
+using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Repository.Account.Users.Client;
@@ -37,20 +38,38 @@ public class ProductService(
         IList<int>? brandIds, IList<int>? companyIds, int? minPrice, int? maxPrice, int? minRating, int? maxRating)
     {
         return await transactionManager.ExecuteAsync(async () =>
-            await priceRepository.GetBestAvailableProductsOffersAsync(
-                skip,
-                take,
+        {
+            var availableProducts = await productRepository.GetAvailableProductsAsync(skip, take,
+                sortBy, searchName, categoryIds, brandIds, minPrice, maxPrice, minRating, maxRating, companyIds);
+
+            var facets = await productRepository.GetProductsFacetsCountersAsync(
                 maxValuesPerFacet,
-                sortBy,
                 searchName,
-                categoryIds,
-                brandIds,
                 minPrice,
                 maxPrice,
                 minRating,
                 maxRating,
+                categoryIds,
+                brandIds,
                 companyIds
-            ));
+            );
+
+            var bestOffers = new List<ProductOffer>();
+            
+            foreach (var product in availableProducts.Items)
+            {
+                var cheapestOffer = await priceRepository.GetCheapestStoreOfferAvailableByProductIdAsync(product.Id.Value, companyIds);
+                if (cheapestOffer is not null)
+                {
+                    bestOffers.Add(new ProductOffer(product, cheapestOffer));
+                }
+            }
+
+            return new PaginatedProductOffers(
+                new PaginatedResult<ProductOffer>(bestOffers, availableProducts.TotalItems, skip, take),
+                facets
+            );
+        });
     }
 
     public async Task<Product> GetProductByIdAsync(string productId)
@@ -70,7 +89,7 @@ public class ProductService(
         ProductUnit unit,
         string brandName,
         int categoryId,
-        int price,
+        int basePrice,
         int? promotionPercentage
     )
     {
@@ -115,12 +134,12 @@ public class ProductService(
                 ? null
                 : await priceRepository.GetStoreOfferAsync(productId, store.Id.Value, DateTime.Now);
 
-            var newPrice = price.ApplyPercentage(promotionPercentage);
+            var newPrice = basePrice.ApplyPercentage(promotionPercentage);
             var priceChanged = oldStoreOffer?.PriceData.FinalPrice != newPrice;
 
             if (priceChanged)
             {
-                await priceRepository.AddPriceAsync(productId, store.Id.Value, price, promotionPercentage);
+                await priceRepository.AddPriceAsync(productId, store.Id.Value, basePrice, promotionPercentage);
 
                 // Notify clients with price alerts
                 var eligiblePriceAlerts =

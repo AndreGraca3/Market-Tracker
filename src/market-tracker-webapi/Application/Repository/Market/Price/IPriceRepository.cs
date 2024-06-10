@@ -1,4 +1,3 @@
-using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales.Pricing;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
@@ -9,26 +8,6 @@ using Price = Domain.Schemas.Market.Retail.Sales.Pricing.Price;
 
 public interface IPriceRepository
 {
-    /**
-     *  Get the best offers products available in the market applying filters at current time.
-     */
-    public Task<PaginatedProductOffers> GetBestAvailableProductsOffersAsync(
-        int skip,
-        int take,
-        int maxValuesPerFacet,
-        ProductsSortOption? sortBy = null,
-        string? name = null,
-        IList<int>? categoryIds = null,
-        IList<int>? brandIds = null,
-        int? minPrice = null,
-        int? maxPrice = null,
-        int? minRating = null,
-        int? maxRating = null,
-        IList<int>? companyIds = null,
-        IList<int>? storeIds = null,
-        IList<int>? cityIds = null
-    );
-
     /**
      * Get the cheapest store offer available for a product at current time.
      */

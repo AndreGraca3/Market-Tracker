@@ -34,7 +34,7 @@ public interface IProductService
         ProductUnit unit,
         string brandName,
         int categoryId,
-        int price,
+        int basePrice,
         int? promotionPercentage
     );
 

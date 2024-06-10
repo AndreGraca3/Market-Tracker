@@ -4,6 +4,9 @@ namespace market_tracker_webapi.Application.Http;
 
 public static class Uris
 {
+    public const string JsonMediaType = "application/json";
+    public const string JsonProblemMediaType = "application/problem+json";
+    
     public const string ApiBase = "/api";
 
     public static class Users
