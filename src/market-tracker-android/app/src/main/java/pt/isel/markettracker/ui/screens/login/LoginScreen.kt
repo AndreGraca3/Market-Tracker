@@ -8,7 +8,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun LoginScreen(
     onSignUpRequested: () -> Unit,
-    loginScreenViewModel: LoginScreenViewModel = hiltViewModel()
+    onForgotPasswordClick: () -> Unit,
+    loginScreenViewModel: LoginScreenViewModel = hiltViewModel(),
 ) {
     val loginState by loginScreenViewModel.loginPhase.collectAsState()
 
@@ -16,6 +17,7 @@ fun LoginScreen(
         state = loginState,
         onSignUpRequested = onSignUpRequested,
         onLoginRequested = loginScreenViewModel::login,
-        onGoogleSignInRequested = loginScreenViewModel::handleGoogleSignInTask
+        onGoogleSignInRequested = loginScreenViewModel::handleGoogleSignInTask,
+        onForgotPasswordClick = onForgotPasswordClick
     )
 }

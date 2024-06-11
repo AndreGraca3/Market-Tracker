@@ -1,5 +1,8 @@
 package pt.isel.markettracker.navigation
 
+import android.app.SearchManager
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -12,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -23,11 +27,13 @@ import pt.isel.markettracker.ui.screens.products.ProductsScreen
 import pt.isel.markettracker.ui.screens.profile.ProfileScreen
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 
+
 @Composable
 fun NavGraph(
     onProductClick: (String) -> Unit,
     onBarcodeScanRequest: () -> Unit,
     onSignUpRequested: () -> Unit,
+    onForgotPasswordRequested: () -> Unit,
     authRepository: IAuthRepository,
     profileScreenViewModel: ProfileScreenViewModel
 ) {
@@ -101,7 +107,8 @@ fun NavGraph(
 
                     else -> {
                         LoginScreen(
-                            onSignUpRequested = onSignUpRequested
+                            onSignUpRequested = onSignUpRequested,
+                            onForgotPasswordClick = onForgotPasswordRequested
                         )
                     }
                 }

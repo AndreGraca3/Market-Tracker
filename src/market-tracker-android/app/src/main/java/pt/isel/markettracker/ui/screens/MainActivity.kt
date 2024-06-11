@@ -1,5 +1,7 @@
 package pt.isel.markettracker.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -61,6 +63,7 @@ class MainActivity : ComponentActivity() {
                     onSignUpRequested = {
                         navigateTo<SignUpActivity>(this)
                     },
+                    onForgotPasswordRequested = { onForgotPassword() },
                     onBarcodeScanRequest = {
                         barCodeLauncher.launch(barcodeScannerOptions)
                     },
@@ -77,5 +80,10 @@ class MainActivity : ComponentActivity() {
             .setPrompt("Escaneie o código de barras do produto")
             .setBeepEnabled(false)
             .setOrientationLocked(false)
+    }
+
+    private fun onForgotPassword() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
+        startActivity(intent)
     }
 }

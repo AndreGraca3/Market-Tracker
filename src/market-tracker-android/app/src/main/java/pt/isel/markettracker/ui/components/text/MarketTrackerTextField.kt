@@ -22,10 +22,14 @@ fun MarketTrackerTextField(
     placeholder: @Composable (() -> Unit)? = null,
     label: @Composable (() -> Unit)? = null,
 ) {
+    val maxChars = 10
+
     OutlinedTextField(
         value = value,
         enabled = enabled,
-        onValueChange = onValueChange,
+        onValueChange = {
+            if (it.length <= maxChars) onValueChange(it)
+        },
         label = label,
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
