@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace market_tracker_webapi.Application.Http.Controllers.Account.Users;
 
 [ApiController]
-[Produces(Uris.JsonMediaType, Uris.JsonProblemMediaType)]
+[Produces(Uris.JsonMediaType, Problems.Problem.MediaType)]
 public class ClientController(IClientService clientService, IClientDeviceService clientDeviceService) : ControllerBase
 {
     [HttpGet(Uris.Clients.Base)]
