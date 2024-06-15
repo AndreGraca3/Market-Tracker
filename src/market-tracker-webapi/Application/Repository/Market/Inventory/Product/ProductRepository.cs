@@ -11,58 +11,103 @@ using Product = Domain.Schemas.Market.Inventory.Product.Product;
 
 public class ProductRepository(MarketTrackerDataContext dataContext) : IProductRepository
 {
-    private const double SimilarityThreshold = 0.2;
+    private const double SimilarityThreshold = 0.9;
 
-    public async Task<PaginatedResult<Product>> GetAvailableProductsAsync(
-        int skip, int take, ProductsSortOption? sortBy = null, string? name = null, IList<int>? categoryIds = null,
+    public async Task<PaginatedFacetedProducts> GetAvailableProductsAsync(int skip, int take, int maxValuesPerFacet,
+        ProductsSortOption? sortBy = null, string? name = null, IList<int>? categoryIds = null,
         IList<int>? brandIds = null, int? minPrice = null, int? maxPrice = null, int? minRating = null,
-        int? maxRating = null, IList<int>? companyIds = null, IList<int>? storeIds = null, IList<int>? cityIds = null
-    )
+        int? maxRating = null, IList<int>? companyIds = null, IList<int>? storeIds = null, IList<int>? cityIds = null)
     {
-        var query = (from product in dataContext.Product
-                join price in dataContext.PriceEntry on product.Id equals price.ProductId
-                join brand in dataContext.Brand on product.BrandId equals brand.Id
-                join category in dataContext.Category on product.CategoryId equals category.Id
-                join store in dataContext.Store on price.StoreId equals store.Id
-                join availability in dataContext.ProductAvailability on store.Id equals availability.StoreId
-                where availability.ProductId == product.Id
-                join company in dataContext.Company on store.CompanyId equals company.Id
-                join city in dataContext.City on store.CityId equals city.Id into cityGroup
-                from city in cityGroup.DefaultIfEmpty()
-                join promotion in dataContext.Promotion on price.Id equals promotion.PriceEntryId into promotionGroup
-                from promotion in promotionGroup.DefaultIfEmpty()
-                where price.CreatedAt == dataContext.PriceEntry
-                          .Where(pe => pe.ProductId == product.Id && pe.StoreId == store.Id)
-                          .Max(pe => pe.CreatedAt)
-                      && availability.IsAvailable
-                      && (name == null || EF.Functions.ILike(product.Name, $"%{name}%") ||
-                          EF.Functions.TrigramsWordSimilarity(product.Name, name) > SimilarityThreshold)
-                      && (categoryIds == null || categoryIds.Contains(product.CategoryId))
-                      && (brandIds == null || brandIds.Contains(product.BrandId))
-                      && (companyIds == null || companyIds.Contains(company.Id))
-                      && (storeIds == null || storeIds.Contains(store.Id))
-                      && (cityIds == null || cityIds.Contains(city.Id))
-                      && (minRating == null || product.Rating >= minRating)
-                      && (maxRating == null || product.Rating <= maxRating)
-                      && (minPrice == null ||
-                          price.Price - (promotion == null ? 0 : price.Price * (promotion.Percentage / 100)) >=
-                          minPrice)
-                      && (maxPrice == null ||
-                          price.Price - (promotion == null ? 0 : price.Price * (promotion.Percentage / 100)) <=
-                          maxPrice)
-                select new
-                {
-                    Product = product,
-                    Brand = brand,
-                    Category = category,
-                    Store = store,
-                    Company = company,
-                    City = city,
-                    Price = price,
-                    Promotion = promotion,
-                    Availability = availability
-                })
-            .GroupBy(g => g.Product.Id);
+        var baseQuery = from product in dataContext.Product
+            join availability in dataContext.ProductAvailability on product.Id equals availability.ProductId
+            join store in dataContext.Store on availability.StoreId equals store.Id
+            where availability.IsAvailable
+            join price in dataContext.PriceEntry on product.Id equals price.ProductId
+            where price.StoreId == store.Id &&
+                  price.CreatedAt == dataContext.PriceEntry
+                      .Where(pe => pe.ProductId == product.Id && pe.StoreId == store.Id)
+                      .Max(pe => pe.CreatedAt)
+            join brand in dataContext.Brand on product.BrandId equals brand.Id
+            join category in dataContext.Category on product.CategoryId equals category.Id
+            join company in dataContext.Company on store.CompanyId equals company.Id
+            join city in dataContext.City on store.CityId equals city.Id into cityGroup
+            from city in cityGroup.DefaultIfEmpty()
+            join promotion in dataContext.Promotion on price.Id equals promotion.PriceEntryId into promotionGroup
+            from promotion in promotionGroup.DefaultIfEmpty()
+            where (name == null || EF.Functions.ILike(product.Name, $"%{name}%") ||
+                   EF.Functions.TrigramsSimilarityDistance(product.Name, name) < SimilarityThreshold)
+                  && (categoryIds == null || categoryIds.Contains(product.CategoryId))
+                  && (brandIds == null || brandIds.Contains(product.BrandId))
+                  && (companyIds == null || companyIds.Contains(company.Id))
+                  && (storeIds == null || storeIds.Contains(store.Id))
+                  && (cityIds == null || cityIds.Contains(city.Id))
+                  && (minRating == null || product.Rating >= minRating)
+                  && (maxRating == null || product.Rating <= maxRating)
+                  && (minPrice == null ||
+                      price.Price - (promotion == null ? 0 : price.Price * (promotion.Percentage / 100)) >=
+                      minPrice)
+                  && (maxPrice == null ||
+                      price.Price - (promotion == null ? 0 : price.Price * (promotion.Percentage / 100)) <=
+                      maxPrice)
+            select new
+            {
+                Product = product,
+                Brand = brand,
+                Category = category,
+                Store = store,
+                Company = company,
+                City = city,
+                Price = price,
+                Promotion = promotion,
+                Availability = availability
+            };
+
+        // Facets
+        var categoryFacets = await baseQuery
+            .Where(p =>
+                (brandIds == null || brandIds.Contains(p.Product.BrandId)) &&
+                (companyIds == null || companyIds.Contains(p.Company.Id))
+            )
+            .GroupBy(p => p.Product.CategoryId)
+            .Select(grouping => new FacetCounter
+            {
+                Id = grouping.Key,
+                Name = grouping.First().Category.Name,
+                Count = grouping.GroupBy(g => g.Product.Id).Count()
+            })
+            .OrderByDescending(facet => facet.Count).ToListAsync();
+
+        var brandFacets = await baseQuery
+            .Where(p =>
+                (categoryIds == null || categoryIds.Contains(p.Product.CategoryId)) &&
+                (companyIds == null || companyIds.Contains(p.Company.Id))
+            )
+            .GroupBy(p => p.Product.BrandId)
+            .Select(grouping => new FacetCounter
+            {
+                Id = grouping.Key,
+                Name = grouping.First().Brand.Name,
+                Count = grouping.GroupBy(g => g.Product.Id).Count()
+            }).OrderByDescending(facet => facet.Count).Take(maxValuesPerFacet).ToListAsync();
+
+        var companyFacets = await baseQuery
+            .Where(p =>
+                (categoryIds == null || categoryIds.Contains(p.Product.CategoryId)) &&
+                (brandIds == null || brandIds.Contains(p.Product.BrandId))
+            )
+            .GroupBy(p => p.Company.Id)
+            .Select(grouping => new FacetCounter
+            {
+                Id = grouping.Key,
+                Name = grouping.First().Company.Name,
+                Count = grouping.GroupBy(g => g.Product.Id).Count()
+            })
+            .OrderByDescending(facet => facet.Count)
+            .ToListAsync();
+
+        var facets = new ProductsFacetsCounters(brandFacets, categoryFacets, companyFacets);
+
+        var query = baseQuery.GroupBy(p => p.Product.Id);
 
         var orderedQuery = sortBy switch
         {
@@ -79,104 +124,22 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                 queryRes.First().Price.Price - (queryRes.First().Promotion == null
                     ? 0
                     : queryRes.First().Price.Price * (queryRes.First().Promotion.Percentage / 100))),
-            _ => query.OrderByDescending(queryRes =>
-                name == null ? 1 : EF.Functions.TrigramsWordSimilarity(queryRes.First().Product.Name, name))
+            _ => query.OrderBy(queryRes =>
+                    name == null ? 1 : EF.Functions.TrigramsSimilarityDistance(queryRes.First().Product.Name, name))
+                .ThenBy(queryRes => queryRes.First().Product.Name)
         };
 
         var products = await orderedQuery
             .Skip(skip)
             .Take(take)
-            .Select(g => g.First().Product.ToProduct(g.First().Brand.ToBrand(), g.First().Category.ToCategory()))
+            .Select(g =>
+                g.First().Product.ToProduct(g.First().Brand.ToBrand(), g.First().Category.ToCategory()))
             .ToListAsync();
 
-        return new PaginatedResult<Product>(products, query.Count(), skip, take);
-    }
-
-    public async Task<ProductsFacetsCounters> GetProductsFacetsCountersAsync(
-        int maxValuesPerFacet, string? name = null, int? minPrice = null, int? maxPrice = null, int? minRating = null,
-        int? maxRating = null, IList<int>? categoryIds = null, IList<int>? brandIds = null,
-        IList<int>? companyIds = null)
-    {
-        var query = from product in dataContext.Product
-            join price in dataContext.PriceEntry on product.Id equals price.ProductId
-            join brand in dataContext.Brand on product.BrandId equals brand.Id
-            join category in dataContext.Category on product.CategoryId equals category.Id
-            join store in dataContext.Store on price.StoreId equals store.Id
-            join availability in dataContext.ProductAvailability on store.Id equals availability.StoreId
-            where availability.ProductId == product.Id
-            join company in dataContext.Company on store.CompanyId equals company.Id
-            join city in dataContext.City on store.CityId equals city.Id into cityGroup
-            from city in cityGroup.DefaultIfEmpty()
-            join promotion in dataContext.Promotion on price.Id equals promotion.PriceEntryId into promotionGroup
-            from promotion in promotionGroup.DefaultIfEmpty()
-            where price.CreatedAt == dataContext.PriceEntry
-                      .Where(pe => pe.ProductId == product.Id && pe.StoreId == store.Id)
-                      .Max(pe => pe.CreatedAt)
-                  && availability.IsAvailable
-                  && (name == null || EF.Functions.ILike(product.Name, $"%{name}%") ||
-                      EF.Functions.TrigramsWordSimilarity(product.Name, name) > SimilarityThreshold)
-                  && (minRating == null || product.Rating >= minRating)
-                  && (maxRating == null || product.Rating <= maxRating)
-                  && (minPrice == null ||
-                      price.Price - (promotion == null ? 0 : price.Price * (promotion.Percentage / 100)) >= minPrice)
-                  && (maxPrice == null ||
-                      price.Price - (promotion == null ? 0 : price.Price * (promotion.Percentage / 100)) <= maxPrice)
-            select new
-            {
-                Product = product,
-                Brand = brand,
-                Category = category,
-                Store = store,
-                Company = company,
-                City = city,
-                Price = price,
-                Promotion = promotion,
-                Availability = availability
-            };
-
-        var categoryFacets = await query
-            .Where(p =>
-                (brandIds == null || brandIds.Contains(p.Product.BrandId)) &&
-                (companyIds == null || companyIds.Contains(p.Company.Id))
-            )
-            .GroupBy(p => p.Product.CategoryId)
-            .Select(grouping => new FacetCounter
-            {
-                Id = grouping.Key,
-                Name = grouping.First().Category.Name,
-                Count = grouping.GroupBy(g => g.Product.Id).Count()
-            })
-            .OrderByDescending(facet => facet.Count).ToListAsync();
-
-        var brandFacets = await query
-            .Where(p =>
-                (categoryIds == null || categoryIds.Contains(p.Product.CategoryId)) &&
-                (companyIds == null || companyIds.Contains(p.Company.Id))
-            )
-            .GroupBy(p => p.Product.BrandId)
-            .Select(grouping => new FacetCounter
-            {
-                Id = grouping.Key,
-                Name = grouping.First().Brand.Name,
-                Count = grouping.GroupBy(g => g.Product.Id).Count()
-            }).OrderByDescending(facet => facet.Count).Take(maxValuesPerFacet).ToListAsync();
-
-        var companyFacets = await query
-            .Where(p =>
-                (categoryIds == null || categoryIds.Contains(p.Product.CategoryId)) &&
-                (brandIds == null || brandIds.Contains(p.Product.BrandId))
-            )
-            .GroupBy(p => p.Company.Id)
-            .Select(grouping => new FacetCounter
-            {
-                Id = grouping.Key,
-                Name = grouping.First().Company.Name,
-                Count = grouping.GroupBy(g => g.Product.Id).Count()
-            })
-            .OrderByDescending(facet => facet.Count)
-            .ToListAsync();
-
-        return new ProductsFacetsCounters(brandFacets, categoryFacets, companyFacets);
+        return new PaginatedFacetedProducts(
+            new PaginatedResult<Product>(products, query.Count(), skip, take),
+            facets
+        );
     }
 
     public async Task<Product?> GetProductByIdAsync(string productId)

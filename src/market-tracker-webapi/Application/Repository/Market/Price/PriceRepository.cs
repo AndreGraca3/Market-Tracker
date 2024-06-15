@@ -46,21 +46,18 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
                 Availability = availability
             };
 
-        if (!query.Any())
-        {
-            return null;
-        }
+        var list = await query.Select(g =>
+            new StoreOffer(
+                g.Store.ToStore(g.City == null ? null : g.City.ToCity(), g.Company.ToCompany()),
+                new Price(
+                    g.PriceEntry.Price,
+                    g.Promotion == null ? null : g.Promotion.ToPromotion(),
+                    g.PriceEntry.CreatedAt),
+                g.Availability.ToStoreAvailability()
+            )
+        ).ToListAsync();
 
-        return (await query.Select(g =>
-                new StoreOffer(
-                    g.Store.ToStore(g.City == null ? null : g.City.ToCity(), g.Company.ToCompany()),
-                    new Price(
-                        g.PriceEntry.Price,
-                        g.Promotion == null ? null : g.Promotion.ToPromotion(),
-                        g.PriceEntry.CreatedAt),
-                    g.Availability.ToStoreAvailability()
-                )
-            ).ToListAsync())
+        return list
             .MinBy(storeOffer => storeOffer.PriceData.FinalPrice);
     }
 

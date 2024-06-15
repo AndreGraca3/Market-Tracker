@@ -14,23 +14,6 @@ public class CompanyServiceTest
 
     private readonly CompanyService _companyService;
 
-    private readonly List<Company> _companies =
-    [
-        new Company(
-            1,
-            "Company 1",
-            "company1_logo",
-            new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-        ),
-
-        new Company(
-            2,
-            "Company 2",
-            "company2_logo",
-            new DateTime(2024, 1, 2, 0, 0, 0, DateTimeKind.Unspecified)
-        )
-    ];
-
     public CompanyServiceTest()
     {
         _companyRepositoryMock = new Mock<ICompanyRepository>();
@@ -44,13 +27,13 @@ public class CompanyServiceTest
     public async Task GetCompaniesAsync_ReturnsCompaniesCollectionOutputModel()
     {
         // Arrange
-        _companyRepositoryMock.Setup(x => x.GetCompaniesAsync()).ReturnsAsync(_companies);
+        _companyRepositoryMock.Setup(x => x.GetCompaniesAsync()).ReturnsAsync(MockedData.DummyCompanies);
 
         // Act
         var result = await _companyService.GetCompaniesAsync();
 
         // Assert
-        result.Should().BeEquivalentTo(_companies);
+        result.Should().BeEquivalentTo(MockedData.DummyCompanies);
     }
 
     [Fact]
@@ -59,13 +42,13 @@ public class CompanyServiceTest
         // Arrange
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(_companies[0]);
+            .ReturnsAsync(MockedData.DummyCompanies[0]);
 
         // Act
         var result = await _companyService.GetCompanyByIdAsync(1);
 
         // Assert
-        result.Should().BeEquivalentTo(_companies[0]);
+        result.Should().BeEquivalentTo(MockedData.DummyCompanies[0]);
     }
 
     [Fact]
@@ -92,13 +75,13 @@ public class CompanyServiceTest
         // Arrange
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
-            .ReturnsAsync(_companies[0]);
+            .ReturnsAsync(MockedData.DummyCompanies[0]);
 
         // Act
         var result = await _companyService.GetCompanyByNameAsync("Company 1");
 
         // Assert
-        result.Should().BeEquivalentTo(_companies[0]);
+        result.Should().BeEquivalentTo(MockedData.DummyCompanies[0]);
     }
 
     [Fact]
@@ -145,17 +128,17 @@ public class CompanyServiceTest
         // Arrange
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
-            .ReturnsAsync(_companies[0]);
+            .ReturnsAsync(MockedData.DummyCompanies[0]);
 
         // Act
         var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
-            await _companyService.AddCompanyAsync(_companies[0].Name, _companies[0].LogoUrl));
+            await _companyService.AddCompanyAsync(MockedData.DummyCompanies[0].Name, MockedData.DummyCompanies[0].LogoUrl));
 
         // Assert
         result
             .ServiceError
             .Should()
-            .BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(_companies[0].Name));
+            .BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(MockedData.DummyCompanies[0].Name));
     }
 
     [Fact]
@@ -164,13 +147,13 @@ public class CompanyServiceTest
         // Arrange
         _companyRepositoryMock
             .Setup(x => x.DeleteCompanyAsync(It.IsAny<int>()))
-            .ReturnsAsync(_companies[0]);
+            .ReturnsAsync(MockedData.DummyCompanies[0]);
 
         // Act
-        var result = await _companyService.DeleteCompanyAsync(_companies[0].Id.Value);
+        var result = await _companyService.DeleteCompanyAsync(MockedData.DummyCompanies[0].Id.Value);
 
         // Assert
-        result.Should().BeEquivalentTo(_companies[0].Id);
+        result.Should().BeEquivalentTo(MockedData.DummyCompanies[0].Id);
     }
 
     [Fact]
@@ -183,12 +166,12 @@ public class CompanyServiceTest
 
         // Act
         var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
-            await _companyService.DeleteCompanyAsync(_companies[0].Id.Value));
+            await _companyService.DeleteCompanyAsync(MockedData.DummyCompanies[0].Id.Value));
 
         // Assert
         result.ServiceError
             .Should()
-            .BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(_companies[0].Id.Value));
+            .BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(MockedData.DummyCompanies[0].Id.Value));
     }
 
     [Fact]
@@ -196,10 +179,10 @@ public class CompanyServiceTest
     {
         // Arrange
         Company newCompany = new Company(
-            _companies[0].Id.Value,
+            MockedData.DummyCompanies[0].Id.Value,
             "new_company_name",
-            _companies[0].LogoUrl,
-            _companies[0].CreatedAt
+            MockedData.DummyCompanies[0].LogoUrl,
+            MockedData.DummyCompanies[0].CreatedAt
         );
         
         _companyRepositoryMock
@@ -211,7 +194,7 @@ public class CompanyServiceTest
             .ReturnsAsync(newCompany);
 
         // Act
-        var result = await _companyService.UpdateCompanyAsync(_companies[0].Id.Value, newCompany.Name);
+        var result = await _companyService.UpdateCompanyAsync(MockedData.DummyCompanies[0].Id.Value, newCompany.Name);
 
         // Assert
         result.Should().BeEquivalentTo(newCompany);
@@ -224,11 +207,11 @@ public class CompanyServiceTest
         var newCompanyName = "new_company_name";
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
-            .ReturnsAsync(_companies[0]);
+            .ReturnsAsync(MockedData.DummyCompanies[0]);
 
         // Act
         var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
-            await _companyService.UpdateCompanyAsync(_companies[0].Id.Value, newCompanyName));
+            await _companyService.UpdateCompanyAsync(MockedData.DummyCompanies[0].Id.Value, newCompanyName));
 
         // Assert
         result
@@ -250,11 +233,11 @@ public class CompanyServiceTest
 
         // Act
         var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () => 
-            await _companyService.UpdateCompanyAsync(_companies[0].Id.Value, "new_company_name"));
+            await _companyService.UpdateCompanyAsync(MockedData.DummyCompanies[0].Id.Value, "new_company_name"));
 
         // Assert
         result.ServiceError
             .Should()
-            .BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(_companies[0].Id.Value));
+            .BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(MockedData.DummyCompanies[0].Id.Value));
     }
 }

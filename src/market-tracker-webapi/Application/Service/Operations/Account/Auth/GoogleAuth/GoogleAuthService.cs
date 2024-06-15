@@ -38,17 +38,21 @@ public class GoogleAuthService(
                 GoogleJsonWebSignature.Payload payload =
                     await GoogleJsonWebSignature.ValidateAsync(tokenValue, validationSettings);
 
-                var userId = (await userRepository.GetUserByEmailAsync(payload.Email))?.Id.Value ??
-                             (await userRepository
-                                 .CreateUserAsync(
-                                     payload.Name,
-                                     payload.Email,
-                                     Role.Client.ToString()
-                                 )).Value;
+                var userId = (await userRepository.GetUserByEmailAsync(payload.Email))?.Id.Value;
 
-                await clientRepository.CreateClientAsync(userId, payload.Email.Split("@").First(), payload.Picture);
+                if (userId is null)
+                {
+                    userId = (await userRepository.CreateUserAsync(
+                        payload.Name,
+                        payload.Email,
+                        Role.Client.ToString()
+                    )).Value;
 
-                return await tokenRepository.CreateTokenAsync(userId);
+                    await clientRepository.CreateClientAsync(userId.Value, payload.Email.Split("@").First(),
+                        payload.Picture);
+                }
+
+                return await tokenRepository.CreateTokenAsync(userId.Value);
             }
             catch (InvalidJwtException)
             {

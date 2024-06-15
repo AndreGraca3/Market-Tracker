@@ -15,7 +15,7 @@ public class ListService(
     IClientRepository clientRepository,
     ITransactionManager transactionManager) : IListService
 {
-    private const int MaxListNumber = 10;
+    public static readonly int MaxListNumber = 10;
 
     public async Task<IEnumerable<ShoppingList>> GetListsAsync(Guid clientId,
         bool? isOwner, string? listName, DateTime? createdAfter, bool? isArchived)
@@ -38,9 +38,12 @@ public class ListService(
 
             var listClients = (await listRepository.GetClientMembersByListIdAsync(listId)).ToList();
             if (!list.BelongsTo(clientId))
-                throw new MarketTrackerServiceException(new ListFetchingError.ClientDoesNotBelongToList(clientId, listId));
+                throw new MarketTrackerServiceException(
+                    new ListFetchingError.ClientDoesNotBelongToList(clientId, listId));
 
-            var listOwner = (await clientRepository.GetClientByIdAsync(list.OwnerId.Value))!;
+            var listOwner = await clientRepository.GetClientByIdAsync(list.OwnerId.Value) ??
+                            throw new MarketTrackerServiceException(
+                                new UserFetchingError.UserByIdNotFound(list.OwnerId.Value));
 
             return new ShoppingListResult(
                 list.Id.Value,
@@ -65,12 +68,12 @@ public class ListService(
                 throw new MarketTrackerServiceException(
                     new ListCreationError.MaxListNumberReached(clientId, MaxListNumber));
 
-            var id = (await listRepository.AddListAsync(listName, clientId));
-            return id;
+            return await listRepository.AddListAsync(listName, clientId);
         });
     }
 
-    public async Task<ShoppingListItem> UpdateListAsync(string listId, Guid clientId, string? listName, bool? isArchived)
+    public async Task<ShoppingListItem> UpdateListAsync(string listId, Guid clientId, string? listName,
+        bool? isArchived)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
@@ -84,7 +87,8 @@ public class ListService(
             if (list.ArchivedAt != null)
                 throw new MarketTrackerServiceException(new ListUpdateError.ListIsArchived(listId));
 
-            if (listName is not null && !(await listRepository.GetListsFromClientAsync(clientId, true, listName)).IsNullOrEmpty())
+            if (listName is not null &&
+                !(await listRepository.GetListsFromClientAsync(clientId, true, listName)).IsNullOrEmpty())
                 throw new MarketTrackerServiceException(
                     new ListCreationError.ListNameAlreadyExists(clientId, listName));
 

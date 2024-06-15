@@ -20,16 +20,6 @@ public class StoreServiceTest
 
     private readonly StoreService _storeService;
 
-    private List<Store> _stores =
-    [
-        new Store(1, "Store 1", "Address 1", new City(1, "city1"),
-            new Company(1, "company1", "company1", DateTime.Now), Guid.NewGuid()),
-
-
-        new Store(2, "Store 2", "Address 2", new City(2, "city2"),
-            new Company(2, "company2", "company2", DateTime.Now), Guid.NewGuid())
-    ];
-
     public StoreServiceTest()
     {
         _storeRepositoryMock = new Mock<IStoreRepository>();
@@ -50,26 +40,26 @@ public class StoreServiceTest
         // Arrange
         _storeRepositoryMock
             .Setup(x => x.GetStoresAsync(null, null, null))
-            .ReturnsAsync(_stores);
+            .ReturnsAsync(MockedData.DummyStores);
 
         // Act
         var result = await _storeService.GetStoresAsync();
 
         // Assert
-        result.Should().BeEquivalentTo(_stores);
+        result.Should().BeEquivalentTo(MockedData.DummyStores);
     }
 
     [Fact]
     public async Task GetStoreByIdAsync_WhenStoreExists_ShouldReturnStore()
     {
         // Arrange
-        _storeRepositoryMock.Setup(x => x.GetStoreByIdAsync(1)).ReturnsAsync(_stores[0]);
+        _storeRepositoryMock.Setup(x => x.GetStoreByIdAsync(1)).ReturnsAsync(MockedData.DummyStores[0]);
 
         // Act
         var result = await _storeService.GetStoreByIdAsync(1);
 
         // Assert
-        result.Should().BeEquivalentTo(_stores[0]);
+        result.Should().BeEquivalentTo(MockedData.DummyStores[0]);
     }
 
     [Fact]
@@ -110,17 +100,17 @@ public class StoreServiceTest
         // Arrange
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByIdAsync(1))
-            .ReturnsAsync(_stores[0].Company);
+            .ReturnsAsync(MockedData.DummyStores[0].Company);
 
         _storeRepositoryMock
             .Setup(x => x.GetStoresAsync(1, null, null))
-            .ReturnsAsync(_stores);
+            .ReturnsAsync(MockedData.DummyStores);
 
         // Act
         var result = await _storeService.GetStoresAsync(1);
 
         // Assert
-        result.Should().BeEquivalentTo(_stores);
+        result.Should().BeEquivalentTo(MockedData.DummyStores);
     }
 
     [Fact]
@@ -142,8 +132,8 @@ public class StoreServiceTest
     {
         // Arrange
         _storeRepositoryMock
-            .Setup(x => x.GetStoreByIdAsync(_stores[0].Id.Value))
-            .ReturnsAsync(_stores[0]);
+            .Setup(x => x.GetStoreByIdAsync(MockedData.DummyStores[0].Id.Value))
+            .ReturnsAsync(MockedData.DummyStores[0]);
 
         _cityRepositoryMock.Setup(x => x.GetCityByIdAsync(1)).ReturnsAsync((City?)null);
 
@@ -160,12 +150,12 @@ public class StoreServiceTest
     {
         // Arrange
         _storeRepositoryMock
-            .Setup(x => x.GetStoreByIdAsync(_stores[0].Id.Value))
-            .ReturnsAsync(_stores[0]);
+            .Setup(x => x.GetStoreByIdAsync(MockedData.DummyStores[0].Id.Value))
+            .ReturnsAsync(MockedData.DummyStores[0]);
 
         _cityRepositoryMock
-            .Setup(x => x.GetCityByIdAsync(_stores[0].City!.Id.Value))
-            .ReturnsAsync(_stores[0].City);
+            .Setup(x => x.GetCityByIdAsync(MockedData.DummyStores[0].City!.Id.Value))
+            .ReturnsAsync(MockedData.DummyStores[0].City);
 
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByIdAsync(1))
@@ -187,16 +177,16 @@ public class StoreServiceTest
             new Company(1, "company1", "company1", DateTime.Now), Guid.NewGuid());
 
         _storeRepositoryMock
-            .Setup(x => x.GetStoreByIdAsync(_stores[0].Id.Value))
-            .ReturnsAsync(_stores[0]);
+            .Setup(x => x.GetStoreByIdAsync(MockedData.DummyStores[0].Id.Value))
+            .ReturnsAsync(MockedData.DummyStores[0]);
 
         _cityRepositoryMock
-            .Setup(x => x.GetCityByIdAsync(_stores[0].City!.Id.Value))
-            .ReturnsAsync(_stores[0].City);
+            .Setup(x => x.GetCityByIdAsync(MockedData.DummyStores[0].City!.Id.Value))
+            .ReturnsAsync(MockedData.DummyStores[0].City);
 
         _companyRepositoryMock
-            .Setup(x => x.GetCompanyByIdAsync(_stores[0].Company.Id.Value))
-            .ReturnsAsync(_stores[0].Company);
+            .Setup(x => x.GetCompanyByIdAsync(MockedData.DummyStores[0].Company.Id.Value))
+            .ReturnsAsync(MockedData.DummyStores[0].Company);
 
         _storeRepositoryMock
             .Setup(x => x.UpdateStoreAsync(1, "Address 1", 1, 1))
@@ -233,18 +223,18 @@ public class StoreServiceTest
     {
         // Arrange
         _storeRepositoryMock
-            .Setup(x => x.GetStoreByIdAsync(_stores[0].Id.Value))
-            .ReturnsAsync(_stores[0]);
+            .Setup(x => x.GetStoreByIdAsync(MockedData.DummyStores[0].Id.Value))
+            .ReturnsAsync(MockedData.DummyStores[0]);
 
         _storeRepositoryMock
-            .Setup(x => x.DeleteStoreAsync(_stores[0].Id.Value))
-            .ReturnsAsync(new StoreItem(_stores[0].Id, _stores[0].Name, _stores[0].Address,
-                _stores[0].City?.Id.Value, _stores[0].Company.Id.Value, _stores[0].OperatorId));
+            .Setup(x => x.DeleteStoreAsync(MockedData.DummyStores[0].Id.Value))
+            .ReturnsAsync(new StoreItem(MockedData.DummyStores[0].Id, MockedData.DummyStores[0].Name, MockedData.DummyStores[0].Address,
+                MockedData.DummyStores[0].City?.Id.Value, MockedData.DummyStores[0].Company.Id.Value, MockedData.DummyStores[0].OperatorId));
 
         // Act
-        var result = await _storeService.DeleteStoreAsync(_stores[0].Id.Value);
+        var result = await _storeService.DeleteStoreAsync(MockedData.DummyStores[0].Id.Value);
 
         // Assert
-        result.Should().BeEquivalentTo(new StoreId(_stores[0].Id.Value));
+        result.Should().BeEquivalentTo(new StoreId(MockedData.DummyStores[0].Id.Value));
     }
 }
