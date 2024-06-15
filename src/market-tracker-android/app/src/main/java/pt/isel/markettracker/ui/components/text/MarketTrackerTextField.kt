@@ -1,5 +1,6 @@
 package pt.isel.markettracker.ui.components.text
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
@@ -28,7 +29,7 @@ fun MarketTrackerTextField(
         value = value,
         enabled = enabled,
         onValueChange = {
-            if (it.length <= maxChars) onValueChange(it)
+            onValueChange(it)
         },
         label = label,
         leadingIcon = leadingIcon,
@@ -39,5 +40,6 @@ fun MarketTrackerTextField(
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
         modifier = modifier
+            .size(270.dp, 60.dp)
     )
 }

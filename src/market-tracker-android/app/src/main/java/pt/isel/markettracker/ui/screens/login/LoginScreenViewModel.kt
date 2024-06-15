@@ -26,8 +26,7 @@ private const val TAG = "GoogleAuth"
 
 @HiltViewModel
 class LoginScreenViewModel @Inject constructor(
-    private val authService: IAuthService,
-    private val authRepository: IAuthRepository
+    private val authService: IAuthService
 ) : ViewModel() {
 
     companion object {
@@ -84,7 +83,6 @@ class LoginScreenViewModel @Inject constructor(
 
                 res.onSuccess {
                     loginPhaseFlow.value = LoginScreenState.Loaded
-                    // store the token in the repo...
                 }
 
                 res.onFailure {
@@ -102,6 +100,5 @@ class LoginScreenViewModel @Inject constructor(
 
     fun logout() {
         loginPhaseFlow.value = LoginScreenState.Idle
-        // remove token from repository...
     }
 }

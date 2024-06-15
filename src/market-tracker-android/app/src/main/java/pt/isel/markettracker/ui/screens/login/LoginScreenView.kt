@@ -53,6 +53,7 @@ fun LoginScreenView(
     onLoginRequested: (String, String) -> Unit,
     onGoogleSignInRequested: (Task<GoogleSignInAccount>) -> Unit,
     onForgotPasswordClick: () -> Unit,
+    onSuggestionRequested: () -> Unit,
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -66,13 +67,22 @@ fun LoginScreenView(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                HeaderLogo()
-                Text(
-                    "Login 📝",
-                    color = Color.White,
-                    fontFamily = mainFont,
-                    fontSize = 30.sp
-                )
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    HeaderLogo(
+                        modifier = Modifier
+                            .align(alignment = Alignment.CenterStart)
+                    )
+                    Text(
+                        "Login 📝",
+                        color = Color.White,
+                        fontFamily = mainFont,
+                        fontSize = 30.sp,
+                        modifier = Modifier
+                            .align(alignment = Alignment.Center)
+                    )
+                }
             }
         }
     ) { paddingValues ->
@@ -101,6 +111,14 @@ fun LoginScreenView(
                         vertical = 24.dp
                     )
                 ) {
+                    Text(
+                        text = "Ao iniciar sessão implica concordância com os termos e condições",
+                        fontFamily = mainFont,
+                        textAlign = TextAlign.Center,
+                        fontSize = 10.sp,
+                        maxLines = 1,
+                    )
+
                     MarketTrackerTextField(
                         value = email,
                         onValueChange = { email = it },
@@ -128,7 +146,7 @@ fun LoginScreenView(
 
                     Text(
                         text = "Esqueceu-se da sua palavra-passe?",
-                        textAlign = TextAlign.End,
+                        textAlign = TextAlign.Center,
                         fontSize = 10.sp,
                         maxLines = 1,
                         style = TextStyle(textDecoration = TextDecoration.Underline),
@@ -165,6 +183,12 @@ fun LoginScreenView(
                         onClick = onSignUpRequested,
                         image = R.drawable.mt_logo,
                         buttonText = "Criar conta Market Tracker"
+                    )
+
+                    ButtonWithImage(
+                        onClick = onSuggestionRequested,
+                        image = R.drawable.mail,
+                        buttonText = "Envia-nos a sua sugestão"
                     )
                 }
             }

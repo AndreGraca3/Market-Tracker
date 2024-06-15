@@ -1,6 +1,12 @@
 package pt.isel.markettracker.ui.screens.profile.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -9,17 +15,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import com.example.markettracker.R
 
 @Composable
 fun SettingsButton(
-    icon: ImageVector,
     onEditRequested: () -> Unit,
-    onDeleteRequested: () -> Unit,
+    onLogoutRequested: () -> Unit,
     modifier: Modifier
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -32,8 +38,9 @@ fun SettingsButton(
             modifier = modifier
         ) {
             Icon(
-                imageVector = icon,
-                contentDescription = "settings_icon"
+                painter = painterResource(R.drawable.more_vert),
+                contentDescription = "settings_icon",
+                tint = Color.White
             )
         }
 
@@ -41,14 +48,39 @@ fun SettingsButton(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = modifier
+                .background(color = Color.Red)
         ) {
             DropdownMenuItem(
-                text = { Text("Edit ✏️") },
+                text = {
+                    Text(
+                        text = "Edit",
+                        color = Color.White
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                },
                 onClick = onEditRequested
             )
             DropdownMenuItem(
-                text = { Text("Delete 🗑️") },
-                onClick = onDeleteRequested
+                text = {
+                    Text(
+                        text = "Logout",
+                        color = Color.White
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Logout,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                },
+                onClick = onLogoutRequested
             )
         }
     }

@@ -2,7 +2,6 @@ package pt.isel.markettracker
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -21,6 +20,8 @@ import okhttp3.OkHttpClient
 import pt.isel.markettracker.domain.model.market.inventory.ProductUnit
 import pt.isel.markettracker.http.service.operations.auth.AuthService
 import pt.isel.markettracker.http.service.operations.auth.IAuthService
+import pt.isel.markettracker.http.service.operations.list.IListService
+import pt.isel.markettracker.http.service.operations.list.ListService
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.operations.product.ProductService
 import pt.isel.markettracker.http.service.operations.user.IUserService
@@ -95,6 +96,12 @@ class AppModule {
                     ProductUnit.fromTitle(json.asString)
                 })
             .create()
+    }
+
+    @Provides
+    @Singleton
+    fun provideListService(httpClient: OkHttpClient, gson: Gson): IListService {
+        return ListService(httpClient, gson)
     }
 
     @Provides
