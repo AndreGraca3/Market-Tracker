@@ -1,7 +1,6 @@
 package pt.isel.markettracker.utils
 
 import android.content.ContentResolver
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
 import java.io.InputStream

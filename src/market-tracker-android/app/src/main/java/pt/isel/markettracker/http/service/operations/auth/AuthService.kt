@@ -1,7 +1,6 @@
 package pt.isel.markettracker.http.service.operations.auth
 
 import android.util.Log
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.http.models.token.GoogleTokenCreationInputModel
@@ -33,13 +32,13 @@ class AuthService(
             method = HttpMethod.POST,
             input = input
         )
-        FirebaseMessaging.getInstance().token.addOnCompleteListener {
-            if (!it.isSuccessful) {
-                return@addOnCompleteListener
-            }
-            val token = it.result
-            Log.v("TokenService", token) // TODO: upload token to server
-        }
+        //FirebaseMessaging.getInstance().token.addOnCompleteListener {
+        //    if (!it.isSuccessful) {
+        //        return@addOnCompleteListener
+        //    }
+        //    val token = it.result
+        //    Log.v("TokenService", token) // TODO: upload token to server
+        //}
     }
 
     override suspend fun signOut() {

@@ -102,8 +102,4 @@ class LoginScreenViewModel @Inject constructor(
             loginPhaseFlow.value = LoginScreenState.Fail(it)
         }
     }
-
-    fun logout() {
-        loginPhaseFlow.value = LoginScreenState.Idle
-    }
 }
