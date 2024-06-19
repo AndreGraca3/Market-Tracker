@@ -17,7 +17,7 @@ import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
-import pt.isel.markettracker.domain.model.market.inventory.ProductUnit
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductUnit
 import pt.isel.markettracker.http.service.operations.alert.AlertService
 import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.operations.auth.AuthService
