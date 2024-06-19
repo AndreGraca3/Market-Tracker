@@ -40,6 +40,7 @@ fun NavGraph(
     onProductClick: (String) -> Unit,
     onBarcodeScanRequest: () -> Unit,
     onSignUpRequested: () -> Unit,
+    onForgotPasswordRequested: () -> Unit,
     authRepository: IAuthRepository,
     profileScreenViewModel: ProfileScreenViewModel
 ) {
@@ -112,12 +113,15 @@ fun NavGraph(
             composable(Destination.PROFILE.route) {
                 when (authState) {
                     is AuthEvent.Login -> {
-                        ProfileScreen(profileScreenViewModel)
+                        ProfileScreen(
+                            profileScreenViewModel = profileScreenViewModel
+                        )
                     }
 
                     else -> {
                         LoginScreen(
-                            onSignUpRequested = onSignUpRequested
+                            onSignUpRequested = onSignUpRequested,
+                            onForgotPasswordClick = onForgotPasswordRequested
                         )
                     }
                 }

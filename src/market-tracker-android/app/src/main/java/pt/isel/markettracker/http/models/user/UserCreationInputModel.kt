@@ -4,5 +4,6 @@ data class UserCreationInputModel(
     val name: String,
     val username: String,
     val email: String,
-    val password: String
+    val password: String,
+    val avatar: String? = null
 )

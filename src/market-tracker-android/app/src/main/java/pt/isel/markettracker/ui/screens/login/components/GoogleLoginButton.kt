@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.login
+package pt.isel.markettracker.ui.screens.login.components
 
 import android.app.Activity
 import android.util.Log
@@ -11,6 +11,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import pt.isel.markettracker.ui.components.buttons.ButtonWithImage
+import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 
 @Composable
 fun GoogleLoginButton(

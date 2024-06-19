@@ -22,3 +22,7 @@ fun convertImageToBase64(contentResolver: ContentResolver, uri: Uri): String? {
         null
     }
 }
+
+fun convertBase64ToImage(base64String: String): Uri {
+   return Uri.parse(Base64.decode(base64String, Base64.DEFAULT).toString())
+}
