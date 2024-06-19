@@ -3,6 +3,9 @@ package pt.isel.markettracker.ui.screens.login
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,7 +22,6 @@ import pt.isel.markettracker.http.models.token.GoogleTokenCreationInputModel
 import pt.isel.markettracker.http.models.token.TokenCreationInputModel
 import pt.isel.markettracker.http.service.operations.auth.IAuthService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
-import pt.isel.markettracker.repository.auth.IAuthRepository
 import javax.inject.Inject
 
 private const val TAG = "GoogleAuth"
@@ -37,7 +39,7 @@ class LoginScreenViewModel @Inject constructor(
                 .requestEmail()
                 .build()
             val client = GoogleSignIn.getClient(ctx, options)
-            client.revokeAccess() // this is here so it asks all the time for consent
+            //client.revokeAccess() // this is here so it asks all the time for consent
             return client.signInIntent
         }
     }
@@ -48,7 +50,10 @@ class LoginScreenViewModel @Inject constructor(
     val loginPhase
         get() = loginPhaseFlow.asStateFlow()
 
-    fun login(email: String, password: String) {
+    var email by mutableStateOf("")
+    var password by mutableStateOf("")
+
+    fun login() {
         if (loginPhaseFlow.value is LoginScreenState.Loading || email.isEmpty() || password.isEmpty()) return
         loginPhaseFlow.value = LoginScreenState.Loading
 

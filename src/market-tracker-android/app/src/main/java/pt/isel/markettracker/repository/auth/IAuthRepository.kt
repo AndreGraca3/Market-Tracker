@@ -2,6 +2,7 @@ package pt.isel.markettracker.repository.auth
 
 import kotlinx.coroutines.flow.StateFlow
 import pt.isel.markettracker.domain.model.CollectionOutputModel
+import pt.isel.markettracker.domain.model.PriceAlertOutputModel
 import pt.isel.markettracker.http.models.list.ShoppingListOutputModel
 
 /**
@@ -17,4 +18,8 @@ interface IAuthRepository {
     suspend fun setToken(token: String?)
 
     suspend fun setLists(lists: CollectionOutputModel<ShoppingListOutputModel>)
+
+    suspend fun getLists(): CollectionOutputModel<ShoppingListOutputModel>
+
+    suspend fun setAlerts(alerts: CollectionOutputModel<PriceAlertOutputModel>)
 }

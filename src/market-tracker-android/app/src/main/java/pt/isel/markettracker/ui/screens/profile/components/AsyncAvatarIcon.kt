@@ -15,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import coil.compose.SubcomposeAsyncImage
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.markettracker.R
 
 const val AvatarTag = "ProfileScreenAvatarTag"
@@ -25,12 +27,16 @@ const val AvatarTag = "ProfileScreenAvatarTag"
 @Composable
 fun AsyncAvatarIcon(
     avatarIcon: Uri?,
+    isEditing: Boolean,
     onIconClick: () -> Unit,
 ) {
     Box {
-        SubcomposeAsyncImage(
+        AsyncImage(
             contentScale = ContentScale.Crop,
-            model = avatarIcon ?: R.drawable.user_icon,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(avatarIcon)
+                .placeholder(R.drawable.user_icon)
+                .build(),
             contentDescription = null,
             modifier = Modifier
                 .size(150.dp)
@@ -39,14 +45,16 @@ fun AsyncAvatarIcon(
                 .testTag(AvatarTag)
         )
 
-        IconButton(
-            onClick = onIconClick,
-            modifier = Modifier.align(alignment = Alignment.BottomEnd)
-        ) {
-            Icon(
-                imageVector = Icons.Default.CameraAlt,
-                contentDescription = "settings_icon"
-            )
+        if (isEditing) {
+            IconButton(
+                onClick = onIconClick,
+                modifier = Modifier.align(alignment = Alignment.BottomEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CameraAlt,
+                    contentDescription = "settings_icon"
+                )
+            }
         }
     }
 }

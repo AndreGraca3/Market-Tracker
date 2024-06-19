@@ -49,17 +49,17 @@ class UserService(
         )
     }
 
-    override suspend fun updateUser(id: String, input: UserUpdateInputModel): Client {
+    override suspend fun updateUser(input: UserUpdateInputModel): Client {
         return requestHandler(
-            path = buildUserByIdPath(id),
+            path = usersAllPath,
             method = HttpMethod.PUT,
             input = input
         )
     }
 
-    override suspend fun deleteUser(id: String) {
+    override suspend fun deleteUser() {
         return requestHandler(
-            path = buildUserByIdPath(id),
+            path = usersAllPath,
             method = HttpMethod.DELETE
         )
     }

@@ -16,6 +16,10 @@ fun LoginScreen(
 
     LoginScreenView(
         state = loginState,
+        email = loginScreenViewModel.email,
+        password = loginScreenViewModel.password,
+        onEmailChangeRequested = { loginScreenViewModel.email = it },
+        onPasswordChangeRequested = { loginScreenViewModel.password = it },
         onSignUpRequested = onSignUpRequested,
         onLoginRequested = loginScreenViewModel::login,
         onGoogleSignInRequested = loginScreenViewModel::handleGoogleSignInTask,

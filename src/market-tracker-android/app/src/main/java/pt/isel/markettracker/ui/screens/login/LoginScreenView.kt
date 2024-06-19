@@ -17,10 +17,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,14 +45,16 @@ const val LoginPasswordInputTag = "LoginPasswordInputTag"
 @Composable
 fun LoginScreenView(
     state: LoginScreenState,
+    email: String,
+    password: String,
+    onEmailChangeRequested: (String) -> Unit,
+    onPasswordChangeRequested: (String) -> Unit,
     onSignUpRequested: () -> Unit,
-    onLoginRequested: (String, String) -> Unit,
+    onLoginRequested: () -> Unit,
     onGoogleSignInRequested: (Task<GoogleSignInAccount>) -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSuggestionRequested: () -> Unit,
 ) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
     Scaffold(
         topBar = {
             Row(
@@ -121,7 +119,7 @@ fun LoginScreenView(
 
                     MarketTrackerTextField(
                         value = email,
-                        onValueChange = { email = it },
+                        onValueChange = onEmailChangeRequested,
                         leadingIcon = {
                             Icon(
                                 Icons.Default.Email,
@@ -141,7 +139,7 @@ fun LoginScreenView(
                 ) {
                     PasswordTextField(
                         value = password,
-                        onValueChange = { password = it },
+                        onValueChange = onPasswordChangeRequested,
                     )
 
                     Text(
@@ -157,7 +155,7 @@ fun LoginScreenView(
                     )
 
                     Button(
-                        onClick = { onLoginRequested(email, password) },
+                        onClick = onLoginRequested,
                         enabled = state !is LoginScreenState.Loading
                     ) {
                         Text(text = "Login", fontFamily = mainFont)

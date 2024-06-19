@@ -16,9 +16,9 @@ interface IUserService {
 
     suspend fun createUser(input: UserCreationInputModel): StringIdOutputModel
 
-    suspend fun updateUser(id: String, input: UserUpdateInputModel): Client
+    suspend fun updateUser( input: UserUpdateInputModel): Client
 
-    suspend fun deleteUser(id: String)
+    suspend fun deleteUser()
 
     //suspend fun registerPushNotification()
 

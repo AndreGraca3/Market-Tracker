@@ -18,6 +18,8 @@ import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.domain.model.market.inventory.ProductUnit
+import pt.isel.markettracker.http.service.operations.alert.AlertService
+import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.operations.auth.AuthService
 import pt.isel.markettracker.http.service.operations.auth.IAuthService
 import pt.isel.markettracker.http.service.operations.list.IListService
@@ -120,5 +122,11 @@ class AppModule {
     @Singleton
     fun provideTokenService(httpClient: OkHttpClient, gson: Gson): IAuthService {
         return AuthService(httpClient, gson)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlertService(httpClient: OkHttpClient, gson: Gson): IAlertService {
+        return AlertService(httpClient, gson)
     }
 }
