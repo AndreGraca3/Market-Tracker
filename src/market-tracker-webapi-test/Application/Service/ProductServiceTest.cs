@@ -16,6 +16,7 @@ using market_tracker_webapi.Application.Repository.Market.Store;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Category;
 using market_tracker_webapi.Application.Service.Errors.Product;
+using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.External;
 using market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
 using market_tracker_webapi.Application.Service.Results;
@@ -383,6 +384,64 @@ public class ProductServiceTest
             .Should()
             .BeEquivalentTo(MockedData.DummyProducts[0]);
     }
+    
+    [Fact]
+    public async Task UpdateProductAsync_ShouldReturnProductByIdNotFound()
+    {
+        // Arrange
+        _productRepositoryMock
+            .Setup(repo => repo.GetProductByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync((Product?)null);
+
+        // Act
+        var ex = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _productService.UpdateProductAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<ProductUnit>(),
+                It.IsAny<string>(),
+                It.IsAny<int>()
+            ));
+
+        // Assert
+        ex
+            .ServiceError
+            .Should()
+            .BeEquivalentTo(new ProductFetchingError.ProductByIdNotFound(It.IsAny<string>()));
+    }
+    
+    [Fact]
+    public async Task UpdateProductAsync_ShouldReturnCategoryByIdNotFound()
+    {
+        // Arrange
+        _productRepositoryMock
+            .Setup(repo => repo.GetProductByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyProducts[0]);
+
+        _categoryRepositoryMock
+            .Setup(repo => repo.GetCategoryByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync((Category?)null);
+
+        // Act
+        var ex = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _productService.UpdateProductAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<ProductUnit>(),
+                It.IsAny<string>(),
+                It.IsAny<int>()
+            ));
+
+        // Assert
+        ex
+            .ServiceError
+            .Should()
+            .BeEquivalentTo(new CategoryFetchingError.CategoryByIdNotFound(It.IsAny<int>()));
+    }
 
     [Fact]
     public async Task RemoveProductAsync_ShouldReturnProductId()
@@ -445,5 +504,53 @@ public class ProductServiceTest
         productResult
             .Should()
             .BeEquivalentTo(MockedData.DummyProducts[0].Id);
+    }
+    
+    [Fact]
+    public async Task SetProductAvailabilityStatusAsync_ShouldReturnProductByIdNotFound()
+    {
+        // Arrange
+        _productRepositoryMock
+            .Setup(repo => repo.GetProductByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync((Product?)null);
+        
+        _storeRepositoryMock
+            .Setup(repo => repo.GetStoreByOperatorIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(MockedData.DummyStores[0]);
+
+        // Act
+        var ex = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _productService.SetProductAvailabilityAsync(
+                It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<bool>()));
+
+        // Assert
+        ex
+            .ServiceError
+            .Should()
+            .BeEquivalentTo(new ProductFetchingError.ProductByIdNotFound(It.IsAny<string>()));
+    }
+    
+    [Fact]
+    public async Task SetProductAvailabilityStatusAsync_ShouldReturnStoreByOperatorIdNotFound()
+    {
+        // Arrange
+        _productRepositoryMock
+            .Setup(repo => repo.GetProductByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyProducts[0]);
+        
+        _storeRepositoryMock
+            .Setup(repo => repo.GetStoreByOperatorIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((Store?)null);
+
+        // Act
+        var ex = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _productService.SetProductAvailabilityAsync(
+                It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<bool>()));
+
+        // Assert
+        ex
+            .ServiceError
+            .Should()
+            .BeEquivalentTo(new StoreFetchingError.StoreByOperatorIdNotFound(It.IsAny<Guid>()));
     }
 }

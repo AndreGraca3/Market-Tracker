@@ -32,10 +32,10 @@ public class ClientController(IClientService clientService, IClientDeviceService
 
     [HttpGet(Uris.Clients.Me)]
     [Authorized([Role.Client])]
-    public async Task<ActionResult<ClientOutputModel>> GetAuthenticatedClientAsync()
+    public async Task<ActionResult<AuthClientOutputModel>> GetAuthenticatedClientAsync()
     {
         var authUser = (HttpContext.Items[AuthenticationDetails.KeyUser] as AuthenticatedUser)!;
-        return (await clientService.GetClientByIdAsync(authUser.User.Id.Value)).ToOutputModel();
+        return (await clientService.GetClientByIdAsync(authUser.User.Id.Value)).ToAuthOutputModel();
     }
 
     [HttpPost(Uris.Clients.Base)]
@@ -53,20 +53,23 @@ public class ClientController(IClientService clientService, IClientDeviceService
         return Created(Uris.Users.BuildUserByIdUri(userId.Value), userId);
     }
 
-    [HttpPut(Uris.Clients.ClientById)]
+    [HttpPut(Uris.Clients.Base)]
+    [Authorized([Role.Client])]
     public async Task<ActionResult<ClientOutputModel>> UpdateUserAsync(
-        Guid id,
-        [FromBody] ClientUpdateInputModel clientInput
-    )
+        [FromBody] ClientUpdateInputModel clientInput)
     {
-        return (await clientService.UpdateClientAsync(id, clientInput.Name, clientInput.Username, clientInput.Avatar))
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        return (await clientService.UpdateClientAsync(authUser.User.Id.Value, clientInput.Name, clientInput.Username,
+                clientInput.Avatar))
             .ToOutputModel();
     }
 
-    [HttpDelete(Uris.Clients.ClientById)]
-    public async Task<ActionResult> DeleteClientAsync(Guid id)
+    [HttpDelete(Uris.Clients.Base)]
+    [Authorized([Role.Client])]
+    public async Task<ActionResult> DeleteClientAsync()
     {
-        await clientService.DeleteClientAsync(id);
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        await clientService.DeleteClientAsync(authUser.User.Id.Value);
         return NoContent();
     }
 

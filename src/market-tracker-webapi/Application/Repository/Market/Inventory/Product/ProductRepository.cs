@@ -126,7 +126,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                     : queryRes.First().Price.Price * (queryRes.First().Promotion.Percentage / 100))),
             _ => query.OrderBy(queryRes =>
                     name == null ? 1 : EF.Functions.TrigramsSimilarityDistance(queryRes.First().Product.Name, name))
-                .ThenBy(queryRes => queryRes.First().Product.Name)
+                .ThenBy(queryRes => queryRes.First().Product.Id)
         };
 
         var products = await orderedQuery

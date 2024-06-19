@@ -1,6 +1,8 @@
 package pt.isel.markettracker.ui.screens.products.grid
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,7 +74,7 @@ fun ProductsGrid(
                 onProductClick = onProductClick,
                 modifier = Modifier
                     .width(170.dp)
-                    .height(360.dp)
+                    .height(370.dp)
             )
         }
         item(

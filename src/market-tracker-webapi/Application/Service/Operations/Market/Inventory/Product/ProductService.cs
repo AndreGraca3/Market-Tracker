@@ -211,15 +211,10 @@ public class ProductService(
                   ?? await brandRepository.AddBrandAsync(brandName)
                 : product.Brand;
 
-            if (categoryId is not null)
-            {
-                if (await categoryRepository.GetCategoryByIdAsync(categoryId.Value) is null)
-                {
-                    throw new MarketTrackerServiceException(
-                        new CategoryFetchingError.CategoryByIdNotFound(categoryId.Value)
-                    );
-                }
-            }
+            if (categoryId is not null && await categoryRepository.GetCategoryByIdAsync(categoryId.Value) is null)
+                throw new MarketTrackerServiceException(
+                    new CategoryFetchingError.CategoryByIdNotFound(categoryId.Value)
+                );
 
             return (await productRepository.UpdateProductAsync(
                 productId,

@@ -34,6 +34,11 @@ public class UserRepository(
     {
         return (await dataContext.User.FirstOrDefaultAsync(user => user.Email == email))?.ToUser();
     }
+    
+    public async Task<User?> GetUserByUsernameAsync(string username)
+    {
+        return (await dataContext.User.FirstOrDefaultAsync(user => user.Name == username))?.ToUser();
+    }
 
     public async Task<UserId> CreateUserAsync(string name, string email, string role)
     {

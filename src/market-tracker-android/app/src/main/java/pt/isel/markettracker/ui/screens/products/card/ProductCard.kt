@@ -27,6 +27,7 @@ import pt.isel.markettracker.dummy.dummyProducts
 import pt.isel.markettracker.dummy.dummyStoreOffers
 import pt.isel.markettracker.ui.components.LoadableImage
 import pt.isel.markettracker.ui.components.buttons.AddToListButton
+import pt.isel.markettracker.ui.components.icons.RatingStarsRow
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import pt.isel.markettracker.ui.theme.Primary900
@@ -51,14 +52,14 @@ fun ProductCard(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(12.dp, 8.dp)
         ) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(.4F)
+                    .fillMaxHeight(.3F)
             ) {
                 LoadableImage(
                     url = productOffer.product.imageUrl,
@@ -84,13 +85,20 @@ fun ProductCard(
                 }
             }
             ProductCardSpecs(product = productOffer.product)
+
+            RatingStarsRow(rating = productOffer.product.rating)
+
             Column(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.fillMaxSize(),
             ) {
                 CompanyPriceCardHeader(productOffer, modifier = Modifier.weight(1F))
-                AddToListButton(onClick = {}, modifier = Modifier.fillMaxWidth().weight(0.5F))
+                AddToListButton(
+                    onClick = {}, modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(0.5F)
+                )
             }
         }
     }

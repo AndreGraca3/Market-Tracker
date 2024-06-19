@@ -23,13 +23,7 @@ fun HeaderLogo(modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .size(52.dp)
             .background(Color.White, CircleShape)
-            /*.border(
-                width = 2.dp,
-                color = Primary700,
-                shape = CircleShape
-            )*/
     ) {
         Image(
             painter = painterResource(id = R.drawable.mt_logo), contentDescription = "",

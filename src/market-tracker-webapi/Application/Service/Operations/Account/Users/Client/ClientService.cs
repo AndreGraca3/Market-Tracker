@@ -72,6 +72,13 @@ public class ClientService(
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
+            if (name is not null && await userRepository.GetUserByUsernameAsync(name) is not null)
+            {
+                throw new MarketTrackerServiceException(
+                    new UserCreationError.InvalidUsername(name)
+                );
+            }
+
             var user = await userRepository.UpdateUserAsync(id, name);
 
             var client = await clientRepository.UpdateClientAsync(
@@ -92,6 +99,13 @@ public class ClientService(
 
     public async Task<UserId> DeleteClientAsync(Guid id)
     {
-        return await transactionManager.ExecuteAsync(async () => (await userRepository.DeleteUserAsync(id))!.Id);
+        return await transactionManager.ExecuteAsync(async () =>
+        {
+            var deletedUser = await userRepository.DeleteUserAsync(id) ?? throw new MarketTrackerServiceException(
+                new UserFetchingError.UserByIdNotFound(id)
+            );
+
+            return deletedUser.Id;
+        });
     }
 }
