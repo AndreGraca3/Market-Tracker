@@ -7,5 +7,5 @@ sealed class LoginScreenState {
 
     data class Fail(val error: Throwable) : LoginScreenState()
 
-    data class Success(val value: Any) : LoginScreenState()
+    data object Loaded : LoginScreenState()
 }

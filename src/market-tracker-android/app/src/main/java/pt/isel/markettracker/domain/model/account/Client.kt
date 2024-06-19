@@ -4,11 +4,10 @@ import java.time.LocalDateTime
 
 data class Client(
     val id: String,
-    val username: String,
     val name: String,
+    val username: String,
     val email: String,
-    val password: String,
-    var avatar: String?,
+    val avatar: String?,
     val createdAt: LocalDateTime,
 )
 

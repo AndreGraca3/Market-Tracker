@@ -2,6 +2,7 @@ package pt.isel.markettracker.ui.screens.profile
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,72 +14,140 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import pt.isel.markettracker.domain.Fail
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.Idle
-import pt.isel.markettracker.domain.idle
+import pt.isel.markettracker.domain.Loading
 import pt.isel.markettracker.domain.loadSuccess
-import pt.isel.markettracker.domain.loading
 import pt.isel.markettracker.domain.model.account.Client
-import pt.isel.markettracker.http.service.operations.token.ITokenService
+import pt.isel.markettracker.http.models.user.UserUpdateInputModel
+import pt.isel.markettracker.http.service.operations.alert.IAlertService
+import pt.isel.markettracker.http.service.operations.auth.IAuthService
+import pt.isel.markettracker.http.service.operations.list.IListService
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import pt.isel.markettracker.repository.auth.IAuthRepository
-import pt.isel.markettracker.utils.convertImageToBase64
 
 @HiltViewModel(assistedFactory = ProfileScreenViewModelFactory::class)
 class ProfileScreenViewModel @AssistedInject constructor(
     @Assisted private val contentResolver: ContentResolver,
     private val userService: IUserService,
-    private val authRepository: IAuthRepository,
-    private val tokenService: ITokenService
+    private val authService: IAuthService,
+    private val listService: IListService,
+    private val alertService: IAlertService,
+    private val authRepository: IAuthRepository
 ) : ViewModel() {
 
     private val clientFetchingFlow: MutableStateFlow<IOState<Client>> =
-        MutableStateFlow(idle())
+        MutableStateFlow(Idle)
 
     val userPhase
         get() = clientFetchingFlow.asStateFlow()
+
+    var name by mutableStateOf("")
+    var username by mutableStateOf("")
+    var email by mutableStateOf("")
 
     var avatarPath by mutableStateOf<Uri?>(null)
 
     fun fetchUser() {
         if (clientFetchingFlow.value !is Idle) return
-        clientFetchingFlow.value = loading()
+        clientFetchingFlow.value = Loading()
         viewModelScope.launch {
-            val result = runCatchingAPIFailure {
-                userService.getUser("1")
+            val res = runCatchingAPIFailure {
+                userService.getAuthenticatedUser()
             }
-            if (result.isSuccess) {
-                avatarPath?.let { uri -> convertImageToBase64(contentResolver, uri) }
-                clientFetchingFlow.value = loadSuccess(result.getOrNull()!!)
-                return@launch
+
+            res.onSuccess { client ->
+                viewModelScope.launch {
+                    val listsRes = runCatchingAPIFailure {
+                        listService.getLists(isOwner = true)
+                    }
+
+                    listsRes.onSuccess {
+                        runBlocking {
+                            authRepository.setLists(it)
+                        }
+
+                        viewModelScope.launch {
+                            val alertsRes = runCatchingAPIFailure {
+                                alertService.getAlerts()
+                            }
+
+                            alertsRes.onSuccess {
+                                runBlocking {
+                                    authRepository.setAlerts(it)
+                                }
+
+                                name = "Diogo Santos"
+                                username = client.username
+                                email = client.email
+                                avatarPath = Uri.parse(client.avatar)
+                                clientFetchingFlow.value = loadSuccess(client)
+                                Log.v("Avatar", "On fetch AvatarPath : $avatarPath")
+                                Log.v("Avatar", "On fetch Avatar from db : ${client.avatar}")
+                            }
+
+                            alertsRes.onFailure {
+                                clientFetchingFlow.value = Fail(it)
+                            }
+                        }
+                    }
+
+                    listsRes.onFailure {
+                        clientFetchingFlow.value = Fail(it)
+                    }
+                }
             }
-            clientFetchingFlow.value = Fail(result.exceptionOrNull()!!)
+            res.onFailure {
+                clientFetchingFlow.value = Fail(it)
+            }
         }
     }
 
-    fun resetToIdle() {
-        //remove token from preferences
-        authRepository.logout()
+    fun logout() {
+        clientFetchingFlow.value = Loading()
         viewModelScope.launch {
-            val user = userService.getUser("1")
-            tokenService.deleteToken(user.id)
+            authService.signOut()
+            avatarPath = null
+            clientFetchingFlow.value = Idle
         }
-        clientFetchingFlow.value = idle()
+    }
+
+    fun updateUser() {
+        if (clientFetchingFlow.value is Loading || name.isBlank() || username.isBlank() || email.isBlank()) return
+        clientFetchingFlow.value = Loading()
+
+        viewModelScope.launch {
+            val res = runCatchingAPIFailure {
+                userService.updateUser(
+                    UserUpdateInputModel(
+                        name = name,
+                        username = username,
+                        avatar = avatarPath.toString()
+                    )
+                )
+            }
+
+            res.onSuccess {
+                Log.v("Avatar", "On Update AvatarPath : $avatarPath")
+                Log.v("Avatar", "On Update Avatar from db : ${it.avatar}")
+                avatarPath = Uri.parse(it.avatar)
+                clientFetchingFlow.value = loadSuccess(it)
+            }
+
+            res.onFailure {
+                clientFetchingFlow.value = Fail(it)
+            }
+        }
     }
 
     fun deleteAccount() {
         viewModelScope.launch {
-            tokenService.deleteToken("1")
-            userService.deleteUser("1")
+            authService.signOut()
+            userService.deleteUser()
         }
-        clientFetchingFlow.value = idle()
-    }
-
-    fun updateUser() {
-        viewModelScope.launch {
-            userService.updateUserAvatar("1", avatarPath.toString())
-        }
+        clientFetchingFlow.value = Idle
     }
 }
