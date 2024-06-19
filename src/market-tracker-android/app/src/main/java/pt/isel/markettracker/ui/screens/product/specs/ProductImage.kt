@@ -30,7 +30,7 @@ fun ProductImage(imageUrl: String?) {
     ) {
         if (imageUrl != null) {
             LoadableImage(
-                model = imageUrl,
+                url = imageUrl,
                 contentDescription = "Product Image",
                 modifier = Modifier
                     .fillMaxSize()

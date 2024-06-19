@@ -13,6 +13,7 @@ using market_tracker_webapi.Application.Service.Errors.Store;
 using market_tracker_webapi.Application.Service.Errors.Token;
 using market_tracker_webapi.Application.Service.Errors.User;
 using Microsoft.AspNetCore.Diagnostics;
+using Newtonsoft.Json;
 
 namespace market_tracker_webapi.Application.Http.Pipeline;
 
@@ -24,6 +25,8 @@ public class CustomExceptionHandler : IExceptionHandler
         CancellationToken cancellationToken
     )
     {
+        httpContext.Response.ContentType = Problem.MediaType;
+
         if (exception is MarketTrackerServiceException serviceException)
         {
             Problem problem = serviceException.ServiceError switch
@@ -34,7 +37,8 @@ public class CustomExceptionHandler : IExceptionHandler
                 ICompanyError companyError => CompanyProblem.FromServiceError(companyError),
                 IListError listError => ListProblem.FromServiceError(listError),
                 IListEntryError listEntryError => ListEntryProblem.FromServiceError(listEntryError),
-                IPreRegistrationError preRegistrationError => PreRegistrationProblem.FromServiceError(preRegistrationError),
+                IPreRegistrationError preRegistrationError => PreRegistrationProblem.FromServiceError(
+                    preRegistrationError),
                 IProductError productError => ProductProblem.FromServiceError(productError),
                 IStoreError storeError => StoreProblem.FromServiceError(storeError),
                 IUserError userError => UserProblem.FromServiceError(userError),
@@ -45,16 +49,15 @@ public class CustomExceptionHandler : IExceptionHandler
 
             httpContext.Response.StatusCode = problem.Status;
 
-            await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken);
+            await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(problem), cancellationToken);
 
             return true;
         }
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
-        await httpContext.Response.WriteAsJsonAsync(
-            new ServerProblem.InternalServerError(exception.Message)
-        );
+        await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(new ServerProblem.InternalServerError()),
+            cancellationToken);
 
         return true;
     }

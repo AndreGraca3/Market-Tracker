@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +14,7 @@ public abstract class Problem(
 {
     public const string MediaType = "application/problem+json";
 
+    public Guid Id { get; } = Guid.NewGuid();
     public string Type { get; } = "https://markettracker.pt/probs/" + subtype;
     public string Title { get; } = title;
     public int Status { get; } = status;
@@ -22,6 +24,8 @@ public abstract class Problem(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public object? Data { get; } = data;
 
+    public override String ToString() => JsonSerializer.Serialize(this);
+    
     public ActionResult ToActionResult()
     {
         return new ObjectResult(this) { StatusCode = Status, ContentTypes = { MediaType } };

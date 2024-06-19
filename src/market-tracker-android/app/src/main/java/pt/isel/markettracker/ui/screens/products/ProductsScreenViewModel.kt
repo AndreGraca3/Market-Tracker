@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
-import pt.isel.markettracker.domain.model.market.inventory.product.ProductsFacetsCounters
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsSortOption
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.replaceFacets
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
@@ -31,7 +31,7 @@ class ProductsScreenViewModel @Inject constructor(
     val stateFlow
         get() = _stateFlow.asStateFlow()
 
-    var query by mutableStateOf(ProductsQuery())
+    var query by mutableStateOf(ProductsQuery(sortOption = ProductsSortOption.Relevance))
     private var currentPage by mutableIntStateOf(1)
 
     fun fetchProducts(forceRefresh: Boolean) {

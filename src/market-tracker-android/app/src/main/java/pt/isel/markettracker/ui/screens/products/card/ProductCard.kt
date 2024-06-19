@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.products.card
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,7 +61,7 @@ fun ProductCard(
                     .fillMaxHeight(.4F)
             ) {
                 LoadableImage(
-                    model = productOffer.product.imageUrl,
+                    url = productOffer.product.imageUrl,
                     contentDescription = productOffer.product.name,
                     modifier = Modifier.fillMaxSize()
                 )

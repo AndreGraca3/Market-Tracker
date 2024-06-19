@@ -36,17 +36,3 @@ fun ProductsScreenState.extractHasMore() =
         is ProductsScreenState.Loaded -> hasMore
         else -> false
     }
-
-enum class ProductsSortOption(val title: String) {
-    Popularity("Popularidade"),
-    NameLowToHigh("Nome (A-Z)"),
-    NameHighToLow("Nome (Z-A)"),
-    RatingLowToHigh("Menor Avaliação"),
-    RatingHighToLow("Maior Avaliação"),
-    PriceLowToHigh("Menor Preço"),
-    PriceHighToLow("Maior Preço");
-
-    companion object {
-        fun fromTitle(title: String) = entries.first { it.title == title }
-    }
-}

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace market_tracker_webapi.Application.Http.Controllers.Account;
 
 [ApiController]
+[Produces(Uris.JsonMediaType, Problems.Problem.MediaType)]
 public class AuthController(IGoogleAuthService googleAuthService, ITokenService tokenService) : ControllerBase
 {
     [HttpPost(Uris.Auth.GoogleAuth)]

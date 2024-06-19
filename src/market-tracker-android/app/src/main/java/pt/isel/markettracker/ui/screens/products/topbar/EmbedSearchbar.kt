@@ -56,8 +56,8 @@ fun EmbeddedSearchBar(
             )
         },
         onSearch = {
+            previousQueries.add(0, searchQuery)
             onSearch()
-            previousQueries.add(it)
         },
         active = active,
         onActiveChange = onActiveChange,
@@ -110,6 +110,8 @@ fun EmbeddedSearchBar(
             SearchHistoryItem(
                 searchQuery = it,
                 onHistoryItemClick = {
+                    previousQueries.remove(it)
+                    previousQueries.add(0, it)
                     onSearchQueryChange(it)
                     onSearch()
                 }

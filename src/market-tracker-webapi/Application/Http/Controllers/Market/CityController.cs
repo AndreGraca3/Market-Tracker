@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace market_tracker_webapi.Application.Http.Controllers.Market;
 
 [ApiController]
+[Produces(Uris.JsonMediaType, Problems.Problem.MediaType)]
 public class CityController(ICityService cityService) : ControllerBase
 {
     [HttpGet(Uris.Cities.Base)]

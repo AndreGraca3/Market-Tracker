@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -27,7 +26,7 @@ fun ProductsScreenView(
     fetchProducts: (Boolean) -> Unit,
     loadMoreProducts: (ProductsQuery) -> Unit,
     onProductClick: (String) -> Unit,
-    onBarcodeScanRequest: () -> Unit,
+    onBarcodeScanRequest: () -> Unit
 ) {
     var isRefreshing by rememberSaveable { mutableStateOf(false) }
 
@@ -68,6 +67,7 @@ fun ProductsScreenView(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 FilterOptionsRow(
+                    enabled = state is ProductsScreenState.Loaded,
                     query = query,
                     onQueryChange = {
                         onQueryChange(it)
