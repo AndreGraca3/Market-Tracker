@@ -49,7 +49,7 @@ public interface IProductService
         string? name,
         string? imageUrl,
         int? quantity,
-        string? unit,
+        ProductUnit? unit,
         string? brandName,
         int? categoryId
     );

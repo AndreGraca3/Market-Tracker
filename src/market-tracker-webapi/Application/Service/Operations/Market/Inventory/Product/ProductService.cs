@@ -39,26 +39,15 @@ public class ProductService(
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var availableProducts = await productRepository.GetAvailableProductsAsync(skip, take,
+            var availableProducts = await productRepository.GetAvailableProductsAsync(skip, take, maxValuesPerFacet,
                 sortBy, searchName, categoryIds, brandIds, minPrice, maxPrice, minRating, maxRating, companyIds);
 
-            var facets = await productRepository.GetProductsFacetsCountersAsync(
-                maxValuesPerFacet,
-                searchName,
-                minPrice,
-                maxPrice,
-                minRating,
-                maxRating,
-                categoryIds,
-                brandIds,
-                companyIds
-            );
-
             var bestOffers = new List<ProductOffer>();
-            
-            foreach (var product in availableProducts.Items)
+
+            foreach (var product in availableProducts.PaginatedProducts.Items)
             {
-                var cheapestOffer = await priceRepository.GetCheapestStoreOfferAvailableByProductIdAsync(product.Id.Value, companyIds);
+                var cheapestOffer =
+                    await priceRepository.GetCheapestStoreOfferAvailableByProductIdAsync(product.Id.Value, companyIds);
                 if (cheapestOffer is not null)
                 {
                     bestOffers.Add(new ProductOffer(product, cheapestOffer));
@@ -66,8 +55,9 @@ public class ProductService(
             }
 
             return new PaginatedProductOffers(
-                new PaginatedResult<ProductOffer>(bestOffers, availableProducts.TotalItems, skip, take),
-                facets
+                new PaginatedResult<ProductOffer>(bestOffers, availableProducts.PaginatedProducts.TotalItems, skip,
+                    take),
+                availableProducts.FacetsCounters
             );
         });
     }
@@ -201,7 +191,7 @@ public class ProductService(
         string? name,
         string? imageUrl,
         int? quantity,
-        string? unit,
+        ProductUnit? unit,
         string? brandName,
         int? categoryId
     )
@@ -221,22 +211,17 @@ public class ProductService(
                   ?? await brandRepository.AddBrandAsync(brandName)
                 : product.Brand;
 
-            if (categoryId is not null)
-            {
-                if (await categoryRepository.GetCategoryByIdAsync(categoryId.Value) is null)
-                {
-                    throw new MarketTrackerServiceException(
-                        new CategoryFetchingError.CategoryByIdNotFound(categoryId.Value)
-                    );
-                }
-            }
+            if (categoryId is not null && await categoryRepository.GetCategoryByIdAsync(categoryId.Value) is null)
+                throw new MarketTrackerServiceException(
+                    new CategoryFetchingError.CategoryByIdNotFound(categoryId.Value)
+                );
 
             return (await productRepository.UpdateProductAsync(
                 productId,
                 name,
                 imageUrl,
                 quantity,
-                unit,
+                unit?.GetUnitName(),
                 brand.Id,
                 categoryId
             ))!;

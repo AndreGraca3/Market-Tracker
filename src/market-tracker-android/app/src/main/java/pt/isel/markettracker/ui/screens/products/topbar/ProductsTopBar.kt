@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +41,7 @@ fun ProductsTopBar(
         modifier = Modifier
             .fillMaxWidth()
             .background(background)
-            .padding(10.dp),
+            .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
@@ -59,7 +60,7 @@ fun ProductsTopBar(
                 )
             )
         ) {
-            HeaderLogo()
+            HeaderLogo(modifier = Modifier.size(48.dp))
         }
         EmbeddedSearchBar(
             active = isSearching,

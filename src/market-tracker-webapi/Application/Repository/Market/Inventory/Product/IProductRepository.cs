@@ -1,5 +1,4 @@
-﻿using market_tracker_webapi.Application.Domain.Filters;
-using market_tracker_webapi.Application.Domain.Filters.Product;
+﻿using market_tracker_webapi.Application.Domain.Filters.Product;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 
 namespace market_tracker_webapi.Application.Repository.Market.Inventory.Product;
@@ -12,20 +11,10 @@ public interface IProductRepository
      * Get available products. If any of the filters is null, it will not be applied.
      * If no sort option is provided, Relevance will be used.
      */
-    Task<PaginatedResult<Product>> GetAvailableProductsAsync(
-        int skip, int take, ProductsSortOption? sortBy = null, string? name = null, IList<int>? categoryIds = null,
+    Task<PaginatedFacetedProducts> GetAvailableProductsAsync(int skip, int take, int maxValuesPerFacet, ProductsSortOption? sortBy = null,
+        string? name = null, IList<int>? categoryIds = null,
         IList<int>? brandIds = null, int? minPrice = null, int? maxPrice = null, int? minRating = null,
-        int? maxRating = null, IList<int>? companyIds = null, IList<int>? storeIds = null, IList<int>? cityIds = null
-    );
-
-    /**
-     * Get the facets with counts for the available products.
-     * If any of the filters is null, it will not be applied.
-     */
-    Task<ProductsFacetsCounters> GetProductsFacetsCountersAsync(
-        int maxValuesPerFacet, string? name = null, int? minPrice = null, int? maxPrice = null, int? minRating = null,
-        int? maxRating = null, IList<int>? categoryIds = null, IList<int>? brandIds = null,
-        IList<int>? companyIds = null);
+        int? maxRating = null, IList<int>? companyIds = null, IList<int>? storeIds = null, IList<int>? cityIds = null);
 
     Task<Product?> GetProductByIdAsync(string productId);
 

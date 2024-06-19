@@ -42,7 +42,7 @@ public class ListEntryService(
                 throw new MarketTrackerServiceException(
                     new ListFetchingError.ClientDoesNotBelongToList(clientId, list.Id.Value));
 
-            var listEntries = (await listEntryRepository.GetListEntriesAsync(listId)).ToList();
+            var listEntries = await listEntryRepository.GetListEntriesAsync(listId);
 
             ShoppingListEntriesResult? entriesResult;
 
@@ -191,12 +191,11 @@ public class ListEntryService(
                 throw new MarketTrackerServiceException(
                     new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
-            var listEntry = await listEntryRepository.GetListEntryByIdAsync(entryId);
+            var listEntry = await listEntryRepository.DeleteListEntryByIdAsync(entryId);
             if (listEntry is null)
                 throw new MarketTrackerServiceException(
                     new ListEntryFetchingError.ListEntryByIdNotFound(entryId));
 
-            await listEntryRepository.DeleteListEntryByIdAsync(entryId);
             return listEntry.Id;
         });
     }

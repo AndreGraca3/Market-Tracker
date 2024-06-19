@@ -2,6 +2,8 @@ using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 
 namespace market_tracker_webapi.Application.Domain.Filters.Product;
 
+using Product = Schemas.Market.Inventory.Product.Product;
+
 public class PaginatedProductOffers(
     PaginatedResult<ProductOffer> paginatedResult,
     ProductsFacetsCounters facetsCounters)
@@ -13,6 +15,11 @@ public class PaginatedProductOffers(
     public int TotalItems { get; } = paginatedResult.TotalItems;
     public int TotalPages { get; } = paginatedResult.TotalPages;
 }
+
+public record PaginatedFacetedProducts(
+    PaginatedResult<Product> PaginatedProducts,
+    ProductsFacetsCounters FacetsCounters
+);
 
 public class ProductsFacetsCounters(
     IEnumerable<FacetCounter> brandFacets,

@@ -21,7 +21,7 @@ public static class Uris
         public const string Base = $"{ApiBase}/auth";
         public const string Login = $"{Base}/sign-in";
         public const string Logout = $"{Base}/sign-out";
-        public const string GoogleAuth = $"{ApiBase}/google-sign-in";
+        public const string GoogleAuth = $"{Base}/google-sign-in";
     }
 
     public static class Clients
@@ -53,9 +53,6 @@ public static class Uris
         public const string ProductPreferencesById = $"{ProductById}/me";
 
         public static string BuildProductByIdUri(string id) => ProductById.ExpandUri(id);
-
-        public static string BuildReviewsByProductIdUri(string id) =>
-            ReviewsByProductId.ExpandUri(id);
     }
 
     public static class Alerts

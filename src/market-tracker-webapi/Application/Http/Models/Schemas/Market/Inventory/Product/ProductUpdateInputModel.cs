@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 
 namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
 
@@ -12,7 +13,7 @@ public record ProductUpdateInputModel(
         "^(unidades|kilogramas|gramas|litros|mililitros)$",
         ErrorMessage = "Wrong unit provided. Must be 'unidades', 'kilogramas', 'gramas', 'litros' or 'mililitros'."
     )]
-    string? Unit,
+    ProductUnit? Unit,
     string? BrandName,
     int? CategoryId
 );
