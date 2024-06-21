@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,15 +24,14 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import pt.isel.markettracker.domain.model.account.ClientItem
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
+import pt.isel.markettracker.ui.components.icons.RatingStarsRow
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
-import pt.isel.markettracker.ui.theme.Primary400
 import pt.isel.markettracker.utils.timeSince
 import java.time.LocalDateTime
 
 @Composable
 fun ReviewTile(review: ProductReview) {
-
     val avatarSize = 28.dp
 
     Row(
@@ -85,15 +83,7 @@ fun ReviewTile(review: ProductReview) {
                 )
             }
 
-            Row {
-                repeat(review.rating) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Star Icon",
-                        tint = Primary400
-                    )
-                }
-            }
+            RatingStarsRow(rating = review.rating.toDouble())
 
             review.comment?.let {
                 Text(

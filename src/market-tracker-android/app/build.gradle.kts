@@ -31,10 +31,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "API_URL", "\"https://digomarkettracker.serveo.net/api\"")
+            buildConfigField("String", "API_URL", "\"https://markettracker.serveo.net/api\"")
         }
         debug {
-            buildConfigField("String", "API_URL", "\"https://digomarkettracker.serveo.net/api\"")
+            buildConfigField("String", "API_URL", "\"https://markettracker.serveo.net/api\"")
         }
     }
     compileOptions {

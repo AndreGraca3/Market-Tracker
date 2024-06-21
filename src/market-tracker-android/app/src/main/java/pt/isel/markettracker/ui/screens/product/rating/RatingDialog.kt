@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -30,6 +29,7 @@ import com.example.markettracker.R
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.ui.components.icons.RatingStarsRow
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
+import pt.isel.markettracker.ui.theme.Primary400
 
 @Composable
 fun RatingDialog(
@@ -38,10 +38,10 @@ fun RatingDialog(
     onReviewRequest: (Int, String) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    var rating by rememberSaveable { mutableIntStateOf(review?.rating ?: 0) }
-    var text by rememberSaveable { mutableStateOf(review?.comment ?: "") }
-
     if (dialogOpen) {
+        var rating by rememberSaveable { mutableIntStateOf(review?.rating ?: 0) }
+        var text by rememberSaveable { mutableStateOf(review?.comment ?: "") }
+
         Dialog(onDismissRequest = onDismissRequest) {
             Card(
                 modifier = Modifier
@@ -82,7 +82,10 @@ fun RatingDialog(
                             }
                         },
                         placeholder = {
-                            Text(stringResource(id = R.string.describe_product))
+                            Text(
+                                stringResource(id = R.string.describe_product),
+                                color = Color.Gray
+                            )
                         }
                     )
 
@@ -98,7 +101,8 @@ fun RatingDialog(
                         )
                         ActionButton(
                             onClick = { onReviewRequest(rating, text) },
-                            text = stringResource(id = R.string.accept)
+                            text = stringResource(id = R.string.accept),
+                            enabled = rating > 0 && (rating != review?.rating || text != review.comment),
                         )
                     }
                 }
@@ -108,10 +112,11 @@ fun RatingDialog(
 }
 
 @Composable
-private fun ActionButton(onClick: () -> Unit, text: String) {
+private fun ActionButton(onClick: () -> Unit, text: String, enabled: Boolean = true) {
     Button(
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+        enabled = enabled,
+        colors = ButtonDefaults.buttonColors(containerColor = Primary400)
     ) {
         Text(text)
     }

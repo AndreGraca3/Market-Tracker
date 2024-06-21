@@ -12,11 +12,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import pt.isel.markettracker.domain.model.list.ShoppingList
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
-import pt.isel.markettracker.domain.model.market.inventory.product.filter.resetAll
 import pt.isel.markettracker.ui.components.common.PullToRefreshLazyColumn
 import pt.isel.markettracker.ui.screens.products.filters.FilterOptionsRow
 import pt.isel.markettracker.ui.screens.products.grid.ProductsGridView
+import pt.isel.markettracker.ui.screens.products.list.ListsBottomSheet
 import pt.isel.markettracker.ui.screens.products.topbar.ProductsTopBar
 
 @Composable
@@ -27,7 +29,12 @@ fun ProductsScreenView(
     fetchProducts: (Boolean) -> Unit,
     loadMoreProducts: (ProductsQuery) -> Unit,
     onProductClick: (String) -> Unit,
-    onBarcodeScanRequest: () -> Unit
+    shoppingLists: List<ShoppingList>,
+    addToListState: AddToListState,
+    onAddToListClick: (ProductOffer) -> Unit,
+    onListSelectedClick: (String) -> Unit,
+    onAddToListDismissRequest: () -> Unit,
+    onBarcodeScanRequest: () -> Unit,
 ) {
     var isRefreshing by rememberSaveable { mutableStateOf(false) }
 
@@ -79,7 +86,16 @@ fun ProductsScreenView(
                     state = state,
                     loadMoreProducts = { loadMoreProducts(query) },
                     onProductClick = onProductClick,
+                    onAddToListClick = onAddToListClick
                 )
+
+                if (addToListState is AddToListState.SelectingList) {
+                    ListsBottomSheet(
+                        shoppingLists = shoppingLists ,
+                        onListSelectedClick = onListSelectedClick,
+                        onDismissRequest = onAddToListDismissRequest
+                    )
+                }
             }
         }
     }

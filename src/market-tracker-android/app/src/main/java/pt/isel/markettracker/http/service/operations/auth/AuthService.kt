@@ -21,7 +21,7 @@ class AuthService(
         return requestHandler(
             path = googleSignInPath,
             method = HttpMethod.POST,
-            input = input
+            body = input
         )
     }
 
@@ -30,7 +30,7 @@ class AuthService(
         requestHandler<Unit>(
             path = marketTrackerSignInPath,
             method = HttpMethod.POST,
-            input = input
+            body = input
         )
         //FirebaseMessaging.getInstance().token.addOnCompleteListener {
         //    if (!it.isSuccessful) {

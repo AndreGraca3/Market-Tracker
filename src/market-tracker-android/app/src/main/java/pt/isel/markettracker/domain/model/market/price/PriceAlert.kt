@@ -1,3 +1,11 @@
 package pt.isel.markettracker.domain.model.market.price
 
-data class PriceAlert(val productId: String, val storeId: Int, val priceThreshold: Int)
+import java.time.LocalDateTime
+
+data class PriceAlert(
+    val id: String,
+    val productId: String,
+    val storeId: Int,
+    val priceThreshold: Int,
+    val createdAt: LocalDateTime
+)

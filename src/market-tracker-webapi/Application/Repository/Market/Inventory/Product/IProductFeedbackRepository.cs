@@ -15,20 +15,12 @@ public interface IProductFeedbackRepository
     );
 
     Task<ProductReview?> UpdateReviewAsync(
-        Guid clientId,
-        string productId,
+        int reviewId,
         int rating,
         string? comment
     );
 
-    Task<ProductReview> UpsertReviewAsync(
-        Guid clientId,
-        string productId,
-        int rating,
-        string? comment
-    );
-    
-    Task<ProductReview?> RemoveReviewAsync(Guid clientId, string productId);
+    Task<ProductReview?> RemoveReviewAsync(int reviewId);
 
     Task<bool> UpdateProductFavouriteAsync(Guid clientId, string productId, bool isFavourite);
 

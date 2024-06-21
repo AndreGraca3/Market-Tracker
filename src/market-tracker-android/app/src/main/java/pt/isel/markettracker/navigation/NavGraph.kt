@@ -32,6 +32,7 @@ import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.ui.screens.list.ListScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreen
 import pt.isel.markettracker.ui.screens.products.ProductsScreen
+import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreen
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 
@@ -42,7 +43,8 @@ fun NavGraph(
     onSignUpRequested: () -> Unit,
     onForgotPasswordRequested: () -> Unit,
     authRepository: IAuthRepository,
-    profileScreenViewModel: ProfileScreenViewModel
+    profileScreenViewModel: ProfileScreenViewModel,
+    productsScreenViewModel: ProductsScreenViewModel
 ) {
     val navController = rememberNavController()
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -103,7 +105,9 @@ fun NavGraph(
             modifier = Modifier.padding(paddingValues)
         ) {
             composable(Destination.HOME.route) {
-                ProductsScreen(onProductClick, onBarcodeScanRequest)
+                ProductsScreen(onProductClick, onBarcodeScanRequest, {
+                    changeDestination(Destination.PROFILE.route)
+                }, authRepository, productsScreenViewModel)
             }
 
             composable(Destination.LIST.route) {

@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.product.reviews
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -67,7 +66,7 @@ fun ReviewsBottomSheet(
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                contentAlignment = if (reviews == null) Alignment.Center else Alignment.TopCenter
             ) {
                 reviews?.let {
                     ReviewsList(

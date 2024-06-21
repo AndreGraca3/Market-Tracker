@@ -9,7 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.HeartBroken
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +25,7 @@ import pt.isel.markettracker.ui.theme.Grey
 fun ProductTopBar(
     onBackRequest: () -> Unit,
     productPreferences: ProductPreferences?,
-    onFavoriteRequest: () -> Unit
+    onFavoriteRequest: ((Boolean) -> Unit)?
 ) {
     Surface(color = Color.White) {
         Row(
@@ -46,14 +46,18 @@ fun ProductTopBar(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            productPreferences?.let {
-                IconButton(onClick = onFavoriteRequest, modifier = Modifier.padding(8.dp)) {
-                    Icon(
-                        imageVector = if (it.isFavorite) Icons.Default.HeartBroken else Icons.Default.Favorite,
-                        contentDescription = "Favorite",
-                    )
-                }
-            } ?: CircularProgressIndicator()
+            if (onFavoriteRequest != null) {
+                productPreferences?.let {
+                    IconButton(onClick = {
+                        onFavoriteRequest(!it.isFavourite)
+                    }, modifier = Modifier.padding(8.dp)) {
+                        Icon(
+                            imageVector = if (it.isFavourite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorite",
+                        )
+                    }
+                } ?: CircularProgressIndicator()
+            }
         }
     }
 }
