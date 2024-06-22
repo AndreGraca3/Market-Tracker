@@ -122,7 +122,7 @@ public class ProductService(
 
             var oldStoreOffer = oldProduct is null
                 ? null
-                : await priceRepository.GetStoreOfferAsync(productId, store.Id.Value, DateTime.Now);
+                : await priceRepository.GetStoreOfferAsync(productId, store.Id.Value, DateTime.UtcNow);
 
             var newPrice = basePrice.ApplyPercentage(promotionPercentage);
             var priceChanged = oldStoreOffer?.PriceData.FinalPrice != newPrice;

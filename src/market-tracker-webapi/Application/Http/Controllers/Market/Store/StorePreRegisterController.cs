@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Store;
 
 [ApiController]
-[Produces(Uris.JsonMediaType, Problems.Problem.MediaType)]
 public class StorePreRegisterController(IPreRegistrationService preRegistrationService) : ControllerBase
 {
     [HttpGet(Uris.Stores.StoresPending)]

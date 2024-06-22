@@ -39,7 +39,7 @@ public class PriceAlertRepository(MarketTrackerDataContext dataContext) : IPrice
             ProductId = productId,
             StoreId = storeId,
             PriceThreshold = priceThreshold,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
         await dataContext.PriceAlert.AddAsync(priceAlertEntity);
         await dataContext.SaveChangesAsync();

@@ -60,8 +60,8 @@ public class ListEntryServiceTest
         _listEntryRepositoryMock.Setup(x => x.GetListEntriesAsync(It.IsAny<string>(), null))
             .ReturnsAsync(MockedData.DummyListEntries);
 
-        var dummyOffer = new StoreOffer(MockedData.DummyStores[0], new Price(pricePerProduct, null, DateTime.Now),
-            new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, true, DateTime.Now));
+        var dummyOffer = new StoreOffer(MockedData.DummyStores[0], new Price(pricePerProduct, null, DateTime.UtcNow),
+            new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, true, DateTime.UtcNow));
 
         _priceRepositoryMock.Setup(x =>
                 x.GetStoreOfferAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>()))
@@ -91,8 +91,8 @@ public class ListEntryServiceTest
         _listEntryRepositoryMock.Setup(x => x.GetListEntriesAsync(It.IsAny<string>(), null))
             .ReturnsAsync(MockedData.DummyListEntries);
 
-        var cheapestOffer = new StoreOffer(MockedData.DummyStores[0], new Price(10, null, DateTime.Now),
-            new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, true, DateTime.Now));
+        var cheapestOffer = new StoreOffer(MockedData.DummyStores[0], new Price(10, null, DateTime.UtcNow),
+            new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, true, DateTime.UtcNow));
 
         _priceRepositoryMock.Setup(x =>
                 x.GetCheapestStoreOfferAvailableByProductIdAsync(It.IsAny<string>(), null, null, null))
@@ -324,7 +324,7 @@ public class ListEntryServiceTest
             .ReturnsAsync(MockedData.DummyStores[0]);
 
         _priceRepositoryMock.Setup(x => x.GetStoreAvailabilityStatusAsync(It.IsAny<string>(), It.IsAny<int>()))
-            .ReturnsAsync(new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, false, DateTime.Now));
+            .ReturnsAsync(new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, false, DateTime.UtcNow));
 
         // Act
         var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
@@ -443,7 +443,7 @@ public class ListEntryServiceTest
             .ReturnsAsync(MockedData.DummyStores[0]);
 
         _priceRepositoryMock.Setup(x => x.GetStoreAvailabilityStatusAsync(It.IsAny<string>(), It.IsAny<int>()))
-            .ReturnsAsync(new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, false, DateTime.Now));
+            .ReturnsAsync(new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, false, DateTime.UtcNow));
 
         // Act
         var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>

@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace market_tracker_webapi.Application.Http.Controllers.Account.Users;
 
 [ApiController]
-[Produces(Uris.JsonMediaType, Problems.Problem.MediaType)]
 public class OperatorController(IOperatorService operatorService) : ControllerBase
 {
     [HttpGet(Uris.Operator.Base)]

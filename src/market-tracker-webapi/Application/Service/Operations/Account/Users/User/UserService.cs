@@ -42,7 +42,7 @@ public class UserService(
     {
         var token = await tokenRepository.GetTokenByTokenValueAsync(tokenValue);
 
-        if (token is null || token.ExpiresAt <= DateTime.Now)
+        if (token is null || token.ExpiresAt <= DateTime.UtcNow)
         {
             return null;
         }

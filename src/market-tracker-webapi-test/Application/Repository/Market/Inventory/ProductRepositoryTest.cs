@@ -52,7 +52,7 @@
 //             ProductId = _dummyProducts[0].Id,
 //             Rating = 5,
 //             Text = "Great product",
-//             CreatedAt = DateTime.Now - TimeSpan.FromDays(3)
+//             CreatedAt = DateTime.UtcNow - TimeSpan.FromDays(3)
 //         },
 //         new ProductReviewEntity
 //         {
@@ -60,7 +60,7 @@
 //             ProductId = _dummyProducts[0].Id,
 //             Rating = 4,
 //             Text = "Good product",
-//             CreatedAt = DateTime.Now - TimeSpan.FromDays(2)
+//             CreatedAt = DateTime.UtcNow - TimeSpan.FromDays(2)
 //         },
 //         new ProductReviewEntity
 //         {
@@ -68,7 +68,7 @@
 //             ProductId = _dummyProducts[0].Id,
 //             Rating = 2,
 //             Text = "Bad product",
-//             CreatedAt = DateTime.Now - TimeSpan.FromDays(1)
+//             CreatedAt = DateTime.UtcNow - TimeSpan.FromDays(1)
 //         },
 //         new ProductReviewEntity
 //         {
@@ -76,7 +76,7 @@
 //             ProductId = _dummyProducts[1].Id,
 //             Rating = 3,
 //             Text = "Ok product",
-//             CreatedAt = DateTime.Now
+//             CreatedAt = DateTime.UtcNow
 //         }
 //     ];
 //

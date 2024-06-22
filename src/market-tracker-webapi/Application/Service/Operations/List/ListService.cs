@@ -92,7 +92,7 @@ public class ListService(
                 throw new MarketTrackerServiceException(
                     new ListCreationError.ListNameAlreadyExists(clientId, listName));
 
-            DateTime? archivedAt = isArchived.HasValue && isArchived.Value ? DateTime.Now : null;
+            DateTime? archivedAt = isArchived.HasValue && isArchived.Value ? DateTime.UtcNow : null;
 
             return (await listRepository.UpdateListAsync(listId, archivedAt, listName))!;
         });

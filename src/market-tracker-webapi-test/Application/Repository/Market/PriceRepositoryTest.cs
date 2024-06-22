@@ -85,28 +85,28 @@ namespace market_tracker_webapi_test.Application.Repository;
             ProductId = "1",
             StoreId = 1,
             Price = 135,
-            CreatedAt = DateTime.Now - TimeSpan.FromDays(1)   
+            CreatedAt = DateTime.UtcNow - TimeSpan.FromDays(1)   
         },
         new PriceEntryEntity
         {
             ProductId = "1",
             StoreId = 1,
             Price = 1,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         },
         new PriceEntryEntity
         {
             ProductId = "2",
             StoreId = 2,
             Price = 53,
-            CreatedAt = DateTime.Now - TimeSpan.FromDays(1)
+            CreatedAt = DateTime.UtcNow - TimeSpan.FromDays(1)
         },
         new PriceEntryEntity
         {
             ProductId = "2",
             StoreId = 2,
             Price = 2,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         }
     ];
     

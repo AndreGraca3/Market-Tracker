@@ -94,11 +94,11 @@ public class ProductServiceTest
 
         var offer = new StoreOffer(
             MockedData.DummyStores[0],
-            new Price(10, null, DateTime.Now),
+            new Price(10, null, DateTime.UtcNow),
             new StoreAvailability(MockedData.DummyStores[0].Id.Value,
                 It.IsAny<string>(),
                 true,
-                DateTime.Now
+                DateTime.UtcNow
             ));
 
         _priceRepositoryMock.Setup(repo => repo.GetCheapestStoreOfferAvailableByProductIdAsync(

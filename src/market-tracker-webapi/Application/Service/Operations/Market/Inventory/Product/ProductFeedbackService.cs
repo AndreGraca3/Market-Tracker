@@ -54,19 +54,18 @@ public class ProductFeedbackService(
             {
                 if (newReview.Value is not null)
                 {
-                    if(review is null)
+                    if (review is null)
                     {
-                        await productFeedbackRepository.AddReviewAsync(
+                        var newReviewId = await productFeedbackRepository.AddReviewAsync(
                             clientId,
                             productId,
                             newReview.Value.Rating,
                             newReview.Value.Comment
                         );
 
-                        review = (await productFeedbackRepository.GetProductPreferencesAsync(
-                            clientId,
-                            productId
-                        )).Review;
+                        review = await productFeedbackRepository.GetReviewByIdAsync(
+                            newReviewId.Value
+                        );
                     }
                     else
                     {

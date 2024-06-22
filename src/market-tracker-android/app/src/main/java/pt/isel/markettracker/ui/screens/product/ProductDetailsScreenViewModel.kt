@@ -160,12 +160,6 @@ class ProductDetailsScreenViewModel @Inject constructor(
                             items =
                             if (isNewReview) listOf(newReview) + screenState.paginatedReviews.items
                             else reviews
-                        ),
-                        stats = screenState.stats.copy(
-                            counts = screenState.stats.counts.copy(
-                                ratings = if (isNewReview) screenState.stats.counts.ratings + 1
-                                else screenState.stats.counts.ratings
-                            )
                         )
                     )
                 }
@@ -174,11 +168,7 @@ class ProductDetailsScreenViewModel @Inject constructor(
                     prefsState.preferences.copy(review = newReview)
                 )
             }.onFailure {
-                if (it.problem.status == 401) {
-                    _prefsStateFlow.value = ProductPreferencesState.Unauthenticated
-                } else {
-                    _prefsStateFlow.value = ProductPreferencesState.Failed(it)
-                }
+                _prefsStateFlow.value = ProductPreferencesState.Failed(it)
             }
         }
     }
@@ -191,18 +181,15 @@ class ProductDetailsScreenViewModel @Inject constructor(
         ) return
 
         // Optimistic update
-        _stateFlow.value = initialScreenState.copy(
+        val optimisticUpdateScreenState = initialScreenState.copy(
             paginatedReviews = initialScreenState.paginatedReviews?.copy(
                 items = initialScreenState.paginatedReviews.items.filterNot {
                     it.id == initialPrefsState.preferences.review?.id
                 }
-            ),
-            stats = initialScreenState.stats.copy(
-                counts = initialScreenState.stats.counts.copy(
-                    ratings = initialScreenState.stats.counts.ratings - 1
-                )
             )
         )
+        _stateFlow.value = optimisticUpdateScreenState
+
         _prefsStateFlow.value = initialPrefsState.copy(
             initialPrefsState.preferences.copy(review = null)
         )

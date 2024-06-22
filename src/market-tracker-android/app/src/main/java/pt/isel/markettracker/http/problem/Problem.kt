@@ -2,7 +2,7 @@ package pt.isel.markettracker.http.problem
 
 import okhttp3.MediaType.Companion.toMediaType
 
-sealed class Problem(
+open class Problem(
     subType: String,
     val title: String,
     val status: Int,

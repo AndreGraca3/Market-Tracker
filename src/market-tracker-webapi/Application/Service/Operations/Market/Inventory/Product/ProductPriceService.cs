@@ -25,7 +25,7 @@ public class ProductPriceService(IPriceRepository priceRepository) : IProductPri
             var storeOffer = await priceRepository.GetStoreOfferAsync(
                 productId,
                 storeAvailability.StoreId,
-                DateTime.Now
+                DateTime.UtcNow
             );
 
             if (storeOffer is null)

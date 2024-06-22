@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Inventory;
 
 [ApiController]
-[Produces(Uris.JsonMediaType, Problems.Problem.MediaType)]
 public class CategoryController(ICategoryService categoryService) : ControllerBase
 {
     [HttpGet(Uris.Categories.Base)]

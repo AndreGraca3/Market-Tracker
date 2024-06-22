@@ -72,49 +72,19 @@ fun RatingDialog(
                         rating = it
                     })
 
-                    OutlinedTextField(
-                        value = text,
-                        onValueChange = {
-                            if (it.length <= 255) text = it
-                        },
-                        minLines = 3,
-                        maxLines = 4,
-                        supportingText = {
+                    RatingTextField(text, onTextChange = { text = it })
+
+                    if (review != null) {
+                        Button(onClick = onDeleteRequest) {
                             Row {
-                                Text(
-                                    "${text.length}",
-                                    color = if (text.length == 255) Color.Red else Color.Black
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete review"
                                 )
-                                Text("/255")
+                                Text(stringResource(id = R.string.delete_review))
                             }
-                        },
-                        trailingIcon = {
-                            AnimatedVisibility(text.isNotEmpty()) {
-                                IconButton(onClick = { text = "" }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = "Clear text"
-                                    )
-                                }
-                            }
-                        },
-                        leadingIcon = {
-                            if (review != null) {
-                                IconButton(onClick = onDeleteRequest) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete review"
-                                    )
-                                }
-                            }
-                        },
-                        placeholder = {
-                            Text(
-                                stringResource(id = R.string.describe_product),
-                                color = Color.Gray
-                            )
                         }
-                    )
+                    }
 
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(
@@ -136,6 +106,45 @@ fun RatingDialog(
             }
         }
     }
+}
+
+@Composable
+private fun RatingTextField(text: String, onTextChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = text,
+        onValueChange = {
+            if (it.length <= 255) {
+                onTextChange(it)
+            }
+        },
+        minLines = 3,
+        maxLines = 4,
+        supportingText = {
+            Row {
+                Text(
+                    "${text.length}",
+                    color = if (text.length == 255) Color.Red else Color.Black
+                )
+                Text("/255")
+            }
+        },
+        trailingIcon = {
+            AnimatedVisibility(text.isNotEmpty()) {
+                IconButton(onClick = { onTextChange("") }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Clear text"
+                    )
+                }
+            }
+        },
+        placeholder = {
+            Text(
+                stringResource(id = R.string.describe_product),
+                color = Color.Gray
+            )
+        }
+    )
 }
 
 @Composable

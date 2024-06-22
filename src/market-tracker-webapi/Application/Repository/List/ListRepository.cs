@@ -88,7 +88,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
         {
             Name = listName,
             OwnerId = ownerId,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
 
         await context.List.AddAsync(listEntity);
