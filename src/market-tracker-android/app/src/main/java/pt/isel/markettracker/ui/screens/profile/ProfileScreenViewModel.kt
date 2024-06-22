@@ -14,7 +14,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import pt.isel.markettracker.domain.Fail
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.Idle
@@ -53,56 +52,46 @@ class ProfileScreenViewModel @AssistedInject constructor(
 
     fun fetchUser() {
         if (clientFetchingFlow.value !is Idle) return
+
         clientFetchingFlow.value = Loading()
+
         viewModelScope.launch {
-            val res = runCatchingAPIFailure {
-                userService.getAuthenticatedUser()
-            }
+            runCatchingAPIFailure { userService.getAuthenticatedUser() }
+                .onSuccess { client ->
+                    // TODO: this should be in a state...
+                    name = client.name
+                    username = client.username
+                    email = client.email
+                    avatarPath = Uri.parse(client.avatar)
+                    clientFetchingFlow.value = loadSuccess(client)
+                    Log.v("Avatar", "On fetch AvatarPath : $avatarPath")
+                    Log.v("Avatar", "On fetch Avatar from db : ${client.avatar}")
 
-            res.onSuccess { client ->
-                viewModelScope.launch {
-                    val listsRes = runCatchingAPIFailure {
-                        listService.getLists(isOwner = true)
-                    }
+                    this.launch {
+                        authRepository.setToken(authRepository.getToken())
 
-                    listsRes.onSuccess {
-                        runBlocking {
-                            authRepository.setLists(it)
-                        }
-
-                        viewModelScope.launch {
-                            val alertsRes = runCatchingAPIFailure {
-                                alertService.getAlerts()
-                            }
-
-                            alertsRes.onSuccess {
-                                runBlocking {
-                                    authRepository.setAlerts(it)
-                                }
-
-                                name = "Diogo Santos"
-                                username = client.username
-                                email = client.email
-                                avatarPath = Uri.parse(client.avatar)
-                                clientFetchingFlow.value = loadSuccess(client)
-                                Log.v("Avatar", "On fetch AvatarPath : $avatarPath")
-                                Log.v("Avatar", "On fetch Avatar from db : ${client.avatar}")
-                            }
-
-                            alertsRes.onFailure {
+                        runCatchingAPIFailure { listService.getLists() }
+                            .onSuccess {
+                                authRepository.setLists(it)
+                            }.onFailure {
                                 clientFetchingFlow.value = Fail(it)
                             }
+
+                        runCatchingAPIFailure { alertService.getAlerts() }
+                            .onSuccess { priceAlert ->
+                                authRepository.setAlerts(priceAlert)
+                            }.onFailure {
+                                clientFetchingFlow.value = Fail(it)
+                            }
+                    }
+                }.onFailure {
+                    if (it.problem.status == 401) {
+                        this.launch {
+                            authRepository.setToken(null)
                         }
                     }
-
-                    listsRes.onFailure {
-                        clientFetchingFlow.value = Fail(it)
-                    }
+                    clientFetchingFlow.value = Fail(it)
                 }
-            }
-            res.onFailure {
-                clientFetchingFlow.value = Fail(it)
-            }
         }
     }
 

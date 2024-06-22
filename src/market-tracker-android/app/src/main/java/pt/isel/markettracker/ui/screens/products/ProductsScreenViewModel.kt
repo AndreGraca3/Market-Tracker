@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsSortOption
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.replaceFacets
@@ -79,5 +80,48 @@ class ProductsScreenViewModel @Inject constructor(
 
             res.onFailure { _stateFlow.value = ProductsScreenState.Failed(it) }
         }
+    }
+
+    private val _addToListStateFlow: MutableStateFlow<AddToListState> =
+        MutableStateFlow(AddToListState.Idle)
+    val addToListStateFlow
+        get() = _addToListStateFlow.asStateFlow()
+
+    fun selectProductToAddToList(productOffer: ProductOffer) {
+        if (_addToListStateFlow.value !is AddToListState.Idle) return
+        _addToListStateFlow.value = AddToListState.SelectingList(productOffer)
+    }
+
+    fun addProductToList(listId: String) {
+        val state = _addToListStateFlow.value
+        if (state !is AddToListState.SelectingList) return
+
+        _addToListStateFlow.value = AddToListState.AddingToList(
+            state.productOffer,
+            listId
+        )
+
+        viewModelScope.launch {
+            val newState = _addToListStateFlow.value
+            if (newState !is AddToListState.AddingToList) return@launch
+
+            val res = runCatchingAPIFailure {
+                productService.addProductToList(
+                    listId,
+                    state.productOffer.product.id,
+                    state.productOffer.storeOffer.store.id
+                )
+            }
+
+            res.onSuccess {
+                _addToListStateFlow.value = newState.toSuccess()
+            }
+
+            res.onFailure { _addToListStateFlow.value = AddToListState.Failed(it) }
+        }
+    }
+
+    fun resetAddToListState() {
+        _addToListStateFlow.value = AddToListState.Idle
     }
 }

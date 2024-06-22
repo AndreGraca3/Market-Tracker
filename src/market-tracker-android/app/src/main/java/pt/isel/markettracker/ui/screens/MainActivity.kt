@@ -7,14 +7,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
+import kotlinx.coroutines.launch
 import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
+import pt.isel.markettracker.ui.screens.products.AddToListState
+import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModelFactory
 import pt.isel.markettracker.ui.screens.signup.SignUpActivity
@@ -33,6 +37,8 @@ class MainActivity : ComponentActivity() {
         }
     )
 
+    private val productsScreenViewModel by viewModels<ProductsScreenViewModel>()
+
     @Inject
     lateinit var authRepository: IAuthRepository
 
@@ -47,8 +53,16 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
         super.onCreate(savedInstanceState)
+        profileScreenViewModel.fetchUser()
+        installSplashScreen()
+
+
+        lifecycleScope.launch {
+            productsScreenViewModel.addToListStateFlow.collect {
+                if (it is AddToListState.Done) productsScreenViewModel.resetAddToListState()
+            }
+        }
 
         setContent {
             MarkettrackerTheme {
@@ -68,7 +82,8 @@ class MainActivity : ComponentActivity() {
                         barCodeLauncher.launch(barcodeScannerOptions)
                     },
                     authRepository = authRepository,
-                    profileScreenViewModel = profileScreenViewModel
+                    profileScreenViewModel = profileScreenViewModel,
+                    productsScreenViewModel = productsScreenViewModel
                 )
             }
         }
@@ -83,7 +98,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onForgotPassword() {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
+        val intent =
+            Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
         startActivity(intent)
     }
 }

@@ -80,9 +80,7 @@ fun EmbeddedSearchBar(
                             .clip(CircleShape),
                         onClick = {
                             onSearchQueryChange(null)
-                            if (!active) {
-                                onSearch()
-                            }
+                            if (!active) onActiveChange(true)
                         }
                     ) {
                         Icon(

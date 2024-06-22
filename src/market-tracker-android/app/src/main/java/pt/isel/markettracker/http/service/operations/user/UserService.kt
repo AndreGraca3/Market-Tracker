@@ -23,7 +23,7 @@ class UserService(
         return requestHandler(
             path = usersAllPath,
             method = HttpMethod.GET,
-            input = username
+            body = username
         )
     }
 
@@ -45,7 +45,7 @@ class UserService(
         return requestHandler(
             path = usersAllPath,
             method = HttpMethod.POST,
-            input = input
+            body = input
         )
     }
 
@@ -53,7 +53,7 @@ class UserService(
         return requestHandler(
             path = usersAllPath,
             method = HttpMethod.PUT,
-            input = input
+            body = input
         )
     }
 

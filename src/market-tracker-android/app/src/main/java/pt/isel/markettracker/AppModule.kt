@@ -61,22 +61,23 @@ class AppModule {
             .callTimeout(10, TimeUnit.SECONDS)
             .cookieJar(object : CookieJar {
                 override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-                    val token = cookies.find { it.name == "Authorization" }?.value
+                    val responseToken = cookies.find { it.name == "Authorization" }?.value
                     runBlocking {
-                        authRepository.setToken(token)
+                        authRepository.setToken(responseToken)
                     }
                 }
-
                 override fun loadForRequest(url: HttpUrl): List<Cookie> {
-                    return runBlocking {
-                        val token = authRepository.getToken()
-                        if (token != null) listOf(
+                    val token = runBlocking { authRepository.getToken() }
+                    return if (token != null) {
+                        listOf(
                             Cookie.Builder()
                                 .name("Authorization")
                                 .value(token)
                                 .domain("markettracker.com")
                                 .build()
-                        ) else emptyList()
+                        )
+                    } else {
+                        emptyList()
                     }
                 }
             })

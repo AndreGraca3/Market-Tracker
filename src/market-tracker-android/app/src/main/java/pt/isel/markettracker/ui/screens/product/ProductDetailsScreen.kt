@@ -16,11 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
+import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.ui.screens.product.components.ProductNotFoundDialog
 import pt.isel.markettracker.ui.screens.product.components.ProductTopBar
 import pt.isel.markettracker.ui.screens.product.prices.PricesSection
 import pt.isel.markettracker.ui.screens.product.rating.ProductRatingsColumn
 import pt.isel.markettracker.ui.screens.product.rating.RatingDialog
+import pt.isel.markettracker.ui.screens.product.rating.extractPreferences
 import pt.isel.markettracker.ui.screens.product.reviews.ReviewsBottomSheet
 import pt.isel.markettracker.ui.screens.product.specs.ProductImage
 import pt.isel.markettracker.ui.screens.product.specs.ProductSpecs
@@ -28,9 +30,11 @@ import pt.isel.markettracker.ui.screens.product.specs.ProductSpecs
 @Composable
 fun ProductDetailsScreen(
     onBackRequest: () -> Unit,
-    vm: ProductDetailsScreenViewModel
+    vm: ProductDetailsScreenViewModel,
+    authRepository: IAuthRepository
 ) {
     val screenState by vm.stateFlow.collectAsState()
+    val prefsState by vm.prefsStateFlow.collectAsState()
 
     var isReviewsSectionOpen by rememberSaveable { mutableStateOf(false) }
     var isRatingDialogOpen by rememberSaveable { mutableStateOf(false) }
@@ -42,8 +46,10 @@ fun ProductDetailsScreen(
     ) {
         ProductTopBar(
             onBackRequest = onBackRequest,
-            screenState.extractPreferences(),
-            onFavoriteRequest = {}
+            prefsState.extractPreferences(),
+            onFavoriteRequest = if (authRepository.isUserLoggedIn()) { isFavorite ->
+                vm.submitFavourite(isFavorite)
+            } else null
         )
 
         if (screenState is ProductDetailsScreenState.FailedToLoadProduct) {
@@ -63,15 +69,16 @@ fun ProductDetailsScreen(
             ProductSpecs(product)
 
             ProductRatingsColumn(
-                productPreferences = screenState.extractPreferences(),
+                productPreferences = prefsState.extractPreferences(),
                 productStats = screenState.extractStats(),
                 onCommunityReviewsRequest = { isReviewsSectionOpen = true },
+                isLoggedIn = authRepository.isUserLoggedIn(),
                 onUserRatingRequest = {
                     isRatingDialogOpen = true
                 }
             )
 
-            PricesSection(screenState.extractPrices(), screenState.extractAlerts())
+            PricesSection(screenState.extractPrices(), authRepository.getAlerts())
         }
 
         if (product != null) {
@@ -85,7 +92,7 @@ fun ProductDetailsScreen(
 
             RatingDialog(
                 dialogOpen = isRatingDialogOpen,
-                review = screenState.extractPreferences()?.review,
+                review = prefsState.extractPreferences()?.review,
                 onReviewRequest = { rating, text ->
                     vm.submitUserRating(product.id, rating, text)
                     isRatingDialogOpen = false

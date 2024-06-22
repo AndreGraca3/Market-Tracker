@@ -16,7 +16,7 @@ public interface IProductFeedbackService
     Task<ProductPreferences> UpsertProductPreferencesAsync(
         Guid clientId,
         string productId,
-        Optional<bool> isFavorite,
+        Optional<bool> newIsFavorite,
         Optional<ProductReviewInputModel?> review
     );
 

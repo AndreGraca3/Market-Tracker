@@ -1,7 +1,6 @@
 package pt.isel.markettracker.http.service.operations.list
 
-import pt.isel.markettracker.domain.model.CollectionOutputModel
-import pt.isel.markettracker.http.models.list.ShoppingListOutputModel
+import pt.isel.markettracker.domain.model.list.ShoppingList
 import java.time.LocalDateTime
 
 interface IListService {
@@ -11,5 +10,5 @@ interface IListService {
         createdAfter: LocalDateTime? = null,
         isArchived: Boolean? = null,
         isOwner: Boolean? = null
-    ): CollectionOutputModel<ShoppingListOutputModel>
+    ): List<ShoppingList>
 }

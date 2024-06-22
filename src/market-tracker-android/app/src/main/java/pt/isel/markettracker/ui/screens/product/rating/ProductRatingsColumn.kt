@@ -15,6 +15,7 @@ fun ProductRatingsColumn(
     productPreferences: ProductPreferences?,
     productStats: ProductStats?,
     onCommunityReviewsRequest: () -> Unit,
+    isLoggedIn: Boolean,
     onUserRatingRequest: () -> Unit
 ) {
     Column(
@@ -32,10 +33,7 @@ fun ProductRatingsColumn(
                 onCommunityReviewsRequest = onCommunityReviewsRequest
             )
 
-            UserRatingBox(
-                preferences = productPreferences,
-                onUserRatingRequest = onUserRatingRequest
-            )
+            if (isLoggedIn) UserRatingBox(productPreferences, onUserRatingRequest)
         }
     }
 }
