@@ -7,6 +7,8 @@ public interface IProductFeedbackRepository
 {
     Task<PaginatedResult<ProductReview>> GetReviewsByProductIdAsync(string productId, int skip, int take);
 
+    Task<ProductReview?> GetReviewByIdAsync(int reviewId);
+    
     Task<ReviewId> AddReviewAsync(
         Guid clientId,
         string productId,

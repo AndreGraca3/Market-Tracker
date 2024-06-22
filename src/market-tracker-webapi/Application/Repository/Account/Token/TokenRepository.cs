@@ -19,7 +19,7 @@ public class TokenRepository(
     {
         var tokenEntity = new TokenEntity
         {
-            ExpiresAt = DateTime.Now.AddDays(1),
+            ExpiresAt = DateTime.UtcNow.AddDays(1),
             UserId = userId
         };
         await dataContext.Token.AddAsync(tokenEntity);

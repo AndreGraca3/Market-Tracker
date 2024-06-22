@@ -7,7 +7,7 @@ import androidx.compose.runtime.getValue
 
 @Composable
 fun ProfileScreen(profileScreenViewModel: ProfileScreenViewModel) {
-    val user by profileScreenViewModel.userPhase.collectAsState()
+    val user by profileScreenViewModel.clientFetchingFlow.collectAsState()
 
     ProfileScreenView(
         userState = user,

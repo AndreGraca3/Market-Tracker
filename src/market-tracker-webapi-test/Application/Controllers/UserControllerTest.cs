@@ -22,19 +22,19 @@
                     new Guid("11111111-1111-1111-1111-111111111111"),
                     "DigoFAS",
                     "Diogo",
-                    DateTime.Now
+                    DateTime.UtcNow
                 ),
                 new(
                     new Guid("22222222-2222-2222-2222-222222222222"),
                     "Graca",
                     "andré",
-                    DateTime.Now
+                    DateTime.UtcNow
                 ),
                 new(
                     new Guid("33333333-3333-3333-3333-333333333333"),
                     "PSDigo",
                     "Diogo",
-                    DateTime.Now
+                    DateTime.UtcNow
                 )
             };
 
@@ -63,7 +63,7 @@
                 new Guid("11111111-1111-1111-1111-111111111111"),
                 "Diogo",
                 "Digo",
-                DateTime.Now
+                DateTime.UtcNow
             );
 
             // Service Arrange

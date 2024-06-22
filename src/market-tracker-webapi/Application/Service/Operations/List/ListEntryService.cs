@@ -68,7 +68,7 @@ public class ListEntryService(
                     {
                         var storeOffer = entry.Store is not null
                             ? await priceRepository.GetStoreOfferAsync(entry.Product.Id.Value, entry.Store.Id.Value,
-                                DateTime.Now)
+                                DateTime.UtcNow)
                             : null;
 
                         return new ListEntryOffer(

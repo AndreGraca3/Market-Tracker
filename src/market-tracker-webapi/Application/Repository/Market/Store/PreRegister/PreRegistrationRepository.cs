@@ -56,7 +56,7 @@ public class PreRegistrationRepository(
             CompanyLogoUrl = companyLogoUrl,
             CityName = cityName,
             Document = document,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
         await dataContext.PreRegister.AddAsync(newPreRegistration);
         await dataContext.SaveChangesAsync();

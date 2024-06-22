@@ -68,6 +68,7 @@ class AppModule {
                         authRepository.setToken(responseToken)
                     }
                 }
+
                 override fun loadForRequest(url: HttpUrl): List<Cookie> {
                     val token = runBlocking { authRepository.getToken() }
                     return if (token != null) {
@@ -90,6 +91,7 @@ class AppModule {
     @Singleton
     fun provideGson(): Gson {
         return GsonBuilder()
+            .serializeNulls()
             .registerTypeAdapter(
                 LocalDateTime::class.java,
                 JsonDeserializer { json, _, _ ->

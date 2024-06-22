@@ -25,7 +25,7 @@ namespace market_tracker_webapi_test.Application.Repository;
         {
             Id = 1,
             Name = "Company 1",
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
 
         // Act
@@ -75,13 +75,13 @@ namespace market_tracker_webapi_test.Application.Repository;
             {
                 Id = 1,
                 Name = "Company 1",
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             },
             new()
             {
                 Id = 2,
                 Name = "Company 2",
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             }
         };
 
@@ -126,7 +126,7 @@ namespace market_tracker_webapi_test.Application.Repository;
         {
             Id = 1,
             Name = "Company 1",
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
 
         // Act
@@ -192,7 +192,7 @@ namespace market_tracker_webapi_test.Application.Repository;
         {
             Id = 1,
             Name = "Company 2",
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
         // Act
         var companyData = await companyRepository.UpdateCompanyAsync(
@@ -222,7 +222,7 @@ namespace market_tracker_webapi_test.Application.Repository;
         {
             Id = 2,
             Name = "Company 2",
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
 
         // Act

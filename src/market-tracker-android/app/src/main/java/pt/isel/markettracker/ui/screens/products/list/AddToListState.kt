@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.products
+package pt.isel.markettracker.ui.screens.products.list
 
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 

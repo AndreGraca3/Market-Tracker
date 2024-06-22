@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Store;
 
 [ApiController]
-[Produces(Uris.JsonMediaType, Problems.Problem.MediaType)]
 public class StoreController(IStoreService storeService) : ControllerBase
 {
     [HttpGet(Uris.Stores.Base)]

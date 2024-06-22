@@ -139,12 +139,14 @@ class ProductService(
     }
 
     override suspend fun deleteProductReview(productId: String) {
+        data class ReviewDeletionRequest(
+            val review: ProductReview?
+        )
+
         return requestHandler(
             path = buildProductPreferencesByIdPath(productId),
             method = HttpMethod.PATCH,
-            body = mapOf(
-                "review" to null
-            )
+            body = ReviewDeletionRequest(null)
         )
     }
 

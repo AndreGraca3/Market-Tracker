@@ -3,6 +3,8 @@
     <string name="exit_title">Deseja mesmo sair da aplicação?</string>
     <string name="accept">Aceitar</string>
     <string name="reject">Rejeitar</string>
+    <string name="add_to_list">Adicionar a lista</string>
+    <string name="no_lists">Não existem listas</string>
     <string name="search_hint">Pesquise por produto ou marca</string>
     <string name="brands_title">Marcas</string>
     <string name="categories_title">Categorias</string>
@@ -18,6 +20,7 @@
     <string name="write_review">Escrever avaliação</string>
     <string name="edit_review">Editar avaliação</string>
     <string name="describe_product">Descreva a sua experiência (opcional)</string>
+    <string name="delete_review">Apagar avaliação</string>
     <string name="product_stats_loading_error">Erro ao carregar estatísticas do produto</string>
     <string name="prices_section_title">Comparação de Preços</string>
     <string name="prices_outdated_warning">Os preços resgistados podem não estar atualizados em algumas lojas</string>

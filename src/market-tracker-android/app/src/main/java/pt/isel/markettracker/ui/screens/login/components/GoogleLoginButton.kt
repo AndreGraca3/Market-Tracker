@@ -1,40 +1,35 @@
 package pt.isel.markettracker.ui.screens.login.components
 
 import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import com.example.markettracker.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import pt.isel.markettracker.ui.components.buttons.ButtonWithImage
-import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 
 @Composable
 fun GoogleLoginButton(
-    onGoogleLoginRequested: (Task<GoogleSignInAccount>) -> Unit
+    googleSignInHandler: (Task<GoogleSignInAccount>) -> Unit,
+    getGoogleLoginIntent: () -> Intent
 ) {
-    val context = LocalContext.current
     val startForResult =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == Activity.RESULT_OK) {
-                val intent = it.data
-                if (it.data != null) {
-                    val task = GoogleSignIn.getSignedInAccountFromIntent(intent)
-                    onGoogleLoginRequested(task)
-                }
+            val intent = it.data
+            if (it.resultCode == Activity.RESULT_OK && intent != null) {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(intent)
+                googleSignInHandler(task)
             } else {
                 Log.e("KueijoBom", "Result Code : ${it.resultCode}")
             }
         }
 
     ButtonWithImage(
-        onClick = {
-            startForResult.launch(LoginScreenViewModel.getGoogleLoginIntent(context))
-        },
+        onClick = { startForResult.launch(getGoogleLoginIntent()) },
         image = R.drawable.google,
         buttonText = "Entrar com o Google"
     )

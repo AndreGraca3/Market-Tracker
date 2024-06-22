@@ -1,16 +1,16 @@
 package pt.isel.markettracker.ui.screens.login
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun LoginScreen(
     onSignUpRequested: () -> Unit,
-    onForgotPasswordClick: () -> Unit,
+    getGoogleLoginIntent: () -> Intent,
     onSuggestionRequested: () -> Unit = {},
-    loginScreenViewModel: LoginScreenViewModel = hiltViewModel(),
+    loginScreenViewModel: LoginScreenViewModel,
 ) {
     val loginState by loginScreenViewModel.loginPhase.collectAsState()
 
@@ -22,8 +22,8 @@ fun LoginScreen(
         onPasswordChangeRequested = { loginScreenViewModel.password = it },
         onSignUpRequested = onSignUpRequested,
         onLoginRequested = loginScreenViewModel::login,
-        onGoogleSignInRequested = loginScreenViewModel::handleGoogleSignInTask,
-        onForgotPasswordClick = onForgotPasswordClick,
+        googleSignInHandler = loginScreenViewModel::handleGoogleSignInTask,
+        getGoogleLoginIntent = getGoogleLoginIntent,
         onSuggestionRequested = onSuggestionRequested
     )
 }

@@ -47,7 +47,7 @@ public class TokenService(
             if (token is not null)
             {
                 // still valid
-                if (token.ExpiresAt > DateTime.Now) return token;
+                if (token.ExpiresAt > DateTime.UtcNow) return token;
 
                 // expired, delete it
                 await tokenRepository.DeleteTokenAsync(token.Value);

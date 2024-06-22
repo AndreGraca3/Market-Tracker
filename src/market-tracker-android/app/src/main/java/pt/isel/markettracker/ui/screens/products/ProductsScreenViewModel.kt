@@ -17,6 +17,8 @@ import pt.isel.markettracker.domain.model.market.inventory.product.filter.Produc
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.replaceFacets
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
+import pt.isel.markettracker.ui.screens.products.list.AddToListState
+import pt.isel.markettracker.ui.screens.products.list.toSuccess
 import javax.inject.Inject
 
 @HiltViewModel

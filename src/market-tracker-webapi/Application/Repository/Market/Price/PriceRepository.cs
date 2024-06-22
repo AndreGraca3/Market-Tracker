@@ -186,7 +186,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             ProductId = productId,
             StoreId = storeId,
             Price = price,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
 
         await dataContext.PriceEntry.AddAsync(priceEntry);
@@ -199,7 +199,7 @@ public class PriceRepository(MarketTrackerDataContext dataContext) : IPriceRepos
             {
                 Percentage = promotionPercentage.Value,
                 PriceEntryId = priceEntry.Id,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             await dataContext.Promotion.AddAsync(promotion);
