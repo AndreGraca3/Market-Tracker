@@ -18,6 +18,7 @@ import pt.isel.markettracker.domain.model.market.inventory.product.filter.Produc
 import pt.isel.markettracker.ui.components.common.PullToRefreshLazyColumn
 import pt.isel.markettracker.ui.screens.products.filters.FilterOptionsRow
 import pt.isel.markettracker.ui.screens.products.grid.ProductsGridView
+import pt.isel.markettracker.ui.screens.products.list.AddToListState
 import pt.isel.markettracker.ui.screens.products.list.ListsBottomSheet
 import pt.isel.markettracker.ui.screens.products.topbar.ProductsTopBar
 

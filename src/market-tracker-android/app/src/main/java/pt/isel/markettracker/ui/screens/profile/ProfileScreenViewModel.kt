@@ -38,11 +38,10 @@ class ProfileScreenViewModel @AssistedInject constructor(
     private val authRepository: IAuthRepository
 ) : ViewModel() {
 
-    private val clientFetchingFlow: MutableStateFlow<IOState<Client>> =
+    private val _clientFetchingFlow: MutableStateFlow<IOState<Client>> =
         MutableStateFlow(Idle)
-
-    val userPhase
-        get() = clientFetchingFlow.asStateFlow()
+    val clientFetchingFlow
+        get() = _clientFetchingFlow.asStateFlow()
 
     var name by mutableStateOf("")
     var username by mutableStateOf("")
@@ -51,9 +50,9 @@ class ProfileScreenViewModel @AssistedInject constructor(
     var avatarPath by mutableStateOf<Uri?>(null)
 
     fun fetchUser() {
-        if (clientFetchingFlow.value !is Idle) return
+        if (_clientFetchingFlow.value !is Idle) return
 
-        clientFetchingFlow.value = Loading()
+        _clientFetchingFlow.value = Loading()
 
         viewModelScope.launch {
             runCatchingAPIFailure { userService.getAuthenticatedUser() }
@@ -63,7 +62,7 @@ class ProfileScreenViewModel @AssistedInject constructor(
                     username = client.username
                     email = client.email
                     avatarPath = Uri.parse(client.avatar)
-                    clientFetchingFlow.value = loadSuccess(client)
+                    _clientFetchingFlow.value = loadSuccess(client)
                     Log.v("Avatar", "On fetch AvatarPath : $avatarPath")
                     Log.v("Avatar", "On fetch Avatar from db : ${client.avatar}")
 
@@ -74,14 +73,14 @@ class ProfileScreenViewModel @AssistedInject constructor(
                             .onSuccess {
                                 authRepository.setLists(it)
                             }.onFailure {
-                                clientFetchingFlow.value = Fail(it)
+                                _clientFetchingFlow.value = Fail(it)
                             }
 
                         runCatchingAPIFailure { alertService.getAlerts() }
                             .onSuccess { priceAlert ->
                                 authRepository.setAlerts(priceAlert)
                             }.onFailure {
-                                clientFetchingFlow.value = Fail(it)
+                                _clientFetchingFlow.value = Fail(it)
                             }
                     }
                 }.onFailure {
@@ -90,23 +89,23 @@ class ProfileScreenViewModel @AssistedInject constructor(
                             authRepository.setToken(null)
                         }
                     }
-                    clientFetchingFlow.value = Fail(it)
+                    _clientFetchingFlow.value = Fail(it)
                 }
         }
     }
 
     fun logout() {
-        clientFetchingFlow.value = Loading()
+        _clientFetchingFlow.value = Loading()
         viewModelScope.launch {
             authService.signOut()
             avatarPath = null
-            clientFetchingFlow.value = Idle
+            _clientFetchingFlow.value = Idle
         }
     }
 
     fun updateUser() {
-        if (clientFetchingFlow.value is Loading || name.isBlank() || username.isBlank() || email.isBlank()) return
-        clientFetchingFlow.value = Loading()
+        if (_clientFetchingFlow.value is Loading || name.isBlank() || username.isBlank() || email.isBlank()) return
+        _clientFetchingFlow.value = Loading()
 
         viewModelScope.launch {
             val res = runCatchingAPIFailure {
@@ -123,11 +122,11 @@ class ProfileScreenViewModel @AssistedInject constructor(
                 Log.v("Avatar", "On Update AvatarPath : $avatarPath")
                 Log.v("Avatar", "On Update Avatar from db : ${it.avatar}")
                 avatarPath = Uri.parse(it.avatar)
-                clientFetchingFlow.value = loadSuccess(it)
+                _clientFetchingFlow.value = loadSuccess(it)
             }
 
             res.onFailure {
-                clientFetchingFlow.value = Fail(it)
+                _clientFetchingFlow.value = Fail(it)
             }
         }
     }
@@ -137,6 +136,6 @@ class ProfileScreenViewModel @AssistedInject constructor(
             authService.signOut()
             userService.deleteUser()
         }
-        clientFetchingFlow.value = Idle
+        _clientFetchingFlow.value = Idle
     }
 }

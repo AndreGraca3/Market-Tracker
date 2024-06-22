@@ -38,11 +38,11 @@ class AuthRepository @Inject constructor(private val dataStore: DataStore<Prefer
             if (!token.isNullOrEmpty()) {
                 preferences[tokenKey] = token
                 _authState.value = AuthEvent.Login
-                Log.v("User", "Token state is login")
+                Log.v("User", "Auth state is login")
             } else {
                 preferences.remove(tokenKey)
                 _authState.value = AuthEvent.Logout
-                Log.v("User", "Token state is logout")
+                Log.v("User", "Auth state is logout")
             }
         }
     }

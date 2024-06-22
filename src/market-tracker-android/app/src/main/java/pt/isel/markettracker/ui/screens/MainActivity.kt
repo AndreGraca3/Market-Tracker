@@ -1,13 +1,17 @@
 package pt.isel.markettracker.ui.screens
 
+import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import com.example.markettracker.R
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,10 +19,12 @@ import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.ui.screens.login.LoginScreenState
+import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
-import pt.isel.markettracker.ui.screens.products.AddToListState
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
+import pt.isel.markettracker.ui.screens.products.list.AddToListState
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModelFactory
 import pt.isel.markettracker.ui.screens.signup.SignUpActivity
@@ -38,6 +44,7 @@ class MainActivity : ComponentActivity() {
     )
 
     private val productsScreenViewModel by viewModels<ProductsScreenViewModel>()
+    private val loginScreenViewModel by viewModels<LoginScreenViewModel>()
 
     @Inject
     lateinit var authRepository: IAuthRepository
@@ -57,10 +64,16 @@ class MainActivity : ComponentActivity() {
         profileScreenViewModel.fetchUser()
         installSplashScreen()
 
-
         lifecycleScope.launch {
             productsScreenViewModel.addToListStateFlow.collect {
                 if (it is AddToListState.Done) productsScreenViewModel.resetAddToListState()
+            }
+        }
+
+        lifecycleScope.launch {
+            loginScreenViewModel.loginPhase.collect {
+                if (it is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
+                if (it is LoginScreenState.Loaded) profileScreenViewModel.fetchUser()
             }
         }
 
@@ -77,11 +90,12 @@ class MainActivity : ComponentActivity() {
                     onSignUpRequested = {
                         navigateTo<SignUpActivity>(this)
                     },
-                    onForgotPasswordRequested = { onForgotPassword() },
+                    getGoogleLoginIntent = { getGoogleLoginIntent(this) },
                     onBarcodeScanRequest = {
                         barCodeLauncher.launch(barcodeScannerOptions)
                     },
                     authRepository = authRepository,
+                    loginScreenViewModel = loginScreenViewModel,
                     profileScreenViewModel = profileScreenViewModel,
                     productsScreenViewModel = productsScreenViewModel
                 )
@@ -97,9 +111,14 @@ class MainActivity : ComponentActivity() {
             .setOrientationLocked(false)
     }
 
-    private fun onForgotPassword() {
-        val intent =
-            Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
-        startActivity(intent)
+    fun getGoogleLoginIntent(ctx: Context): Intent {
+        val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(ContextCompat.getString(ctx, R.string.GOOGLE_CLIENT_ID))
+            .requestProfile()
+            .requestEmail()
+            .build()
+        val client = GoogleSignIn.getClient(ctx, options)
+        //client.revokeAccess() // this is here so it asks all the time for consent
+        return client.signInIntent
     }
 }

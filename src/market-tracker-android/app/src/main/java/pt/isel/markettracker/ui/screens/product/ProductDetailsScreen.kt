@@ -97,6 +97,10 @@ fun ProductDetailsScreen(
                     vm.submitUserRating(product.id, rating, text)
                     isRatingDialogOpen = false
                 },
+                onDeleteRequest = {
+                    isRatingDialogOpen = false
+                    vm.deleteReview(product.id)
+                },
                 onDismissRequest = { isRatingDialogOpen = false }
             )
         }

@@ -34,7 +34,7 @@ android {
             buildConfigField("String", "API_URL", "\"https://markettracker.serveo.net/api\"")
         }
         debug {
-            buildConfigField("String", "API_URL", "\"https://markettracker.serveo.net/api\"")
+            buildConfigField("String", "API_URL", "\"http://192.168.1.238:2001/api\"")
         }
     }
     compileOptions {

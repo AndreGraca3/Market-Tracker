@@ -17,20 +17,20 @@ class AuthService(
     override val gson: Gson
 ) : IAuthService, MarketTrackerService() {
 
-    override suspend fun googleSignIn(input: GoogleTokenCreationInputModel) {
+    override suspend fun googleSignIn(idToken: String) {
         return requestHandler(
             path = googleSignInPath,
             method = HttpMethod.POST,
-            body = input
+            body = GoogleTokenCreationInputModel(idToken)
         )
     }
 
-    override suspend fun signIn(input: TokenCreationInputModel) {
+    override suspend fun signIn(email: String, password: String) {
         Log.v("TokenService", "createToken")
         requestHandler<Unit>(
             path = marketTrackerSignInPath,
             method = HttpMethod.POST,
-            body = input
+            body = TokenCreationInputModel(email, password)
         )
         //FirebaseMessaging.getInstance().token.addOnCompleteListener {
         //    if (!it.isSuccessful) {

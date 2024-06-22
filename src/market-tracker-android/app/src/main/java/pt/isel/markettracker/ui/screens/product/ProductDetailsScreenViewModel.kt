@@ -196,6 +196,11 @@ class ProductDetailsScreenViewModel @Inject constructor(
                 items = initialScreenState.paginatedReviews.items.filterNot {
                     it.id == initialPrefsState.preferences.review?.id
                 }
+            ),
+            stats = initialScreenState.stats.copy(
+                counts = initialScreenState.stats.counts.copy(
+                    ratings = initialScreenState.stats.counts.ratings - 1
+                )
             )
         )
         _prefsStateFlow.value = initialPrefsState.copy(
@@ -203,11 +208,9 @@ class ProductDetailsScreenViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            val res = runCatchingAPIFailure {
+            runCatchingAPIFailure {
                 productService.deleteProductReview(productId)
-            }
-
-            res.onFailure {
+            }.onFailure {
                 _stateFlow.value = initialScreenState
                 _prefsStateFlow.value = initialPrefsState
             }
