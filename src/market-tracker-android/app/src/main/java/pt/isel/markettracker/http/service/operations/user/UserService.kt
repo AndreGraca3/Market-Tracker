@@ -41,19 +41,35 @@ class UserService(
         )
     }
 
-    override suspend fun createUser(input: UserCreationInputModel): StringIdOutputModel {
-        return requestHandler(
+    override suspend fun createUser(
+        name: String,
+        username: String,
+        email: String,
+        password: String,
+        avatar: String?
+    ): String {
+        return requestHandler<StringIdOutputModel>(
             path = usersAllPath,
             method = HttpMethod.POST,
-            body = input
-        )
+            body = UserCreationInputModel(
+                name = name,
+                username = username,
+                email = email,
+                password = password,
+                avatar = avatar
+            )
+        ).id
     }
 
-    override suspend fun updateUser(input: UserUpdateInputModel): Client {
+    override suspend fun updateUser(name: String?, username: String?, avatar: String?): Client {
         return requestHandler(
             path = usersAllPath,
             method = HttpMethod.PUT,
-            body = input
+            body = UserUpdateInputModel(
+                name = name,
+                username = username,
+                avatar = avatar
+            )
         )
     }
 

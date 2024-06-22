@@ -20,7 +20,6 @@ import pt.isel.markettracker.domain.Idle
 import pt.isel.markettracker.domain.Loading
 import pt.isel.markettracker.domain.loadSuccess
 import pt.isel.markettracker.domain.model.account.Client
-import pt.isel.markettracker.http.models.user.UserUpdateInputModel
 import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.operations.auth.IAuthService
 import pt.isel.markettracker.http.service.operations.list.IListService
@@ -85,6 +84,7 @@ class ProfileScreenViewModel @AssistedInject constructor(
                             }
                     }
                 }.onFailure {
+                    // I think this is unnecessary, there is a handler to remove the token from repo
                     if (it.problem.status == 401) {
                         this.launch {
                             authRepository.setToken(null)
@@ -109,24 +109,18 @@ class ProfileScreenViewModel @AssistedInject constructor(
         clientFetchingFlow.value = Loading()
 
         viewModelScope.launch {
-            val res = runCatchingAPIFailure {
+            runCatchingAPIFailure {
                 userService.updateUser(
-                    UserUpdateInputModel(
-                        name = name,
-                        username = username,
-                        avatar = avatarPath.toString()
-                    )
+                    name = name,
+                    username = username,
+                    avatar = avatarPath.toString()
                 )
-            }
-
-            res.onSuccess {
+            }.onSuccess {
                 Log.v("Avatar", "On Update AvatarPath : $avatarPath")
                 Log.v("Avatar", "On Update Avatar from db : ${it.avatar}")
                 avatarPath = Uri.parse(it.avatar)
                 clientFetchingFlow.value = loadSuccess(it)
-            }
-
-            res.onFailure {
+            }.onFailure {
                 clientFetchingFlow.value = Fail(it)
             }
         }

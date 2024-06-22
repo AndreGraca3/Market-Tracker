@@ -18,8 +18,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import pt.isel.markettracker.http.models.token.GoogleTokenCreationInputModel
-import pt.isel.markettracker.http.models.token.TokenCreationInputModel
 import pt.isel.markettracker.http.service.operations.auth.IAuthService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import javax.inject.Inject
@@ -58,19 +56,11 @@ class LoginScreenViewModel @Inject constructor(
         loginPhaseFlow.value = LoginScreenState.Loading
 
         viewModelScope.launch {
-            val res = runCatchingAPIFailure {
-                authService.signIn(
-                    TokenCreationInputModel(
-                        email, password
-                    )
-                )
-            }
-
-            res.onSuccess {
+            runCatchingAPIFailure {
+                authService.signIn(email, password)
+            }.onSuccess {
                 loginPhaseFlow.value = LoginScreenState.Loaded
-            }
-
-            res.onFailure {
+            }.onFailure {
                 loginPhaseFlow.value = LoginScreenState.Fail(it)
             }
         }
@@ -79,18 +69,12 @@ class LoginScreenViewModel @Inject constructor(
     fun handleGoogleSignInTask(task: Task<GoogleSignInAccount>) {
         loginPhaseFlow.value = LoginScreenState.Loading
         task.addOnSuccessListener { googleSignInAccount ->
-            Log.d(TAG, "Result success: ${googleSignInAccount.idToken}")
-            Log.d(TAG, "Google sign in successful: ${googleSignInAccount.displayName}")
             viewModelScope.launch {
-                val res = runCatchingAPIFailure {
-                    authService.googleSignIn(GoogleTokenCreationInputModel(googleSignInAccount.idToken!!))
-                }
-
-                res.onSuccess {
+                runCatchingAPIFailure {
+                    authService.googleSignIn(googleSignInAccount.idToken!!)
+                }.onSuccess {
                     loginPhaseFlow.value = LoginScreenState.Loaded
-                }
-
-                res.onFailure {
+                }.onFailure {
                     loginPhaseFlow.value = LoginScreenState.Fail(it)
                 }
             }

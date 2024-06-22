@@ -12,6 +12,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -47,7 +48,7 @@ fun NavGraph(
     productsScreenViewModel: ProductsScreenViewModel
 ) {
     val navController = rememberNavController()
-    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(2) }
 
     var showExitDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -117,6 +118,9 @@ fun NavGraph(
             composable(Destination.PROFILE.route) {
                 when (authState) {
                     is AuthEvent.Login -> {
+                        LaunchedEffect(Unit) {
+                            profileScreenViewModel.fetchUser()
+                        }
                         ProfileScreen(
                             profileScreenViewModel = profileScreenViewModel
                         )
