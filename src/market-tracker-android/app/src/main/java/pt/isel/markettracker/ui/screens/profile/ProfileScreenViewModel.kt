@@ -130,6 +130,13 @@ class ProfileScreenViewModel @AssistedInject constructor(
         }
     }
 
+    fun registerDevice(token: String) {
+        viewModelScope.launch {
+            val deviceId = authRepository.getOrGenerateDeviceId()
+            runCatchingAPIFailure { userService.registerDevice(token, deviceId) }
+        }
+    }
+
     fun deleteAccount() {
         viewModelScope.launch {
             authService.signOut()

@@ -10,6 +10,8 @@ import pt.isel.markettracker.domain.model.market.price.PriceAlert
 interface IAuthRepository {
     val authState: StateFlow<AuthState>
 
+    suspend fun getOrGenerateDeviceId(): String
+
     suspend fun setToken(token: String?)
 
     suspend fun getToken(): String?

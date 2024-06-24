@@ -20,7 +20,5 @@ interface IUserService {
 
     suspend fun deleteUser()
 
-    //suspend fun registerPushNotification()
-
-    //suspend fun deregisterPushNotification()
+    suspend fun registerDevice(token: String, deviceId: String)
 }

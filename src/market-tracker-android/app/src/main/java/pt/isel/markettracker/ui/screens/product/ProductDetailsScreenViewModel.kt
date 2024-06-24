@@ -46,13 +46,13 @@ class ProductDetailsScreenViewModel @Inject constructor(
         }
     }
 
-    fun fetchProductDetails(productId: String) {
+    fun fetchProductDetails(productId: String, isAuthenticated: Boolean) {
         val screenState = _stateFlow.value
         if (screenState !is ProductDetailsScreenState.LoadedProduct) return
         _stateFlow.value = ProductDetailsScreenState.LoadingProductDetails(screenState.product)
 
         fetchProductStats(productId)
-        fetchProductPreferences(productId)
+        fetchProductPreferences(productId, isAuthenticated)
         fetchProductPrices(productId)
     }
 
@@ -114,9 +114,13 @@ class ProductDetailsScreenViewModel @Inject constructor(
     val prefsStateFlow
         get() = _prefsStateFlow.asStateFlow()
 
-    private fun fetchProductPreferences(productId: String) {
+    private fun fetchProductPreferences(productId: String, isAuthenticated: Boolean) {
         val prefsState = _prefsStateFlow.value
         if (prefsState !is ProductPreferencesState.Idle) return
+        if (!isAuthenticated) {
+            _prefsStateFlow.value = ProductPreferencesState.Unauthenticated
+            return
+        }
 
         _prefsStateFlow.value = ProductPreferencesState.Loading
 

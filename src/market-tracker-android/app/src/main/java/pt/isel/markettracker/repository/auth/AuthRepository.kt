@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import pt.isel.markettracker.domain.model.list.ShoppingList
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
+import java.util.UUID
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(private val dataStore: DataStore<Preferences>) :
@@ -18,10 +19,22 @@ class AuthRepository @Inject constructor(private val dataStore: DataStore<Prefer
     private val TAG = "AuthRepository"
 
     private val tokenKey = stringPreferencesKey("token")
+    private val deviceIdKey = stringPreferencesKey("device_id")
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     override val authState
         get() = _authState.asStateFlow()
+
+    override suspend fun getOrGenerateDeviceId(): String {
+        val preferences = dataStore.data.first()
+        return preferences[deviceIdKey] ?: run {
+            val deviceId = UUID.randomUUID().toString()
+            dataStore.edit { preferences ->
+                preferences[deviceIdKey] = deviceId
+            }
+            deviceId
+        }
+    }
 
     override suspend fun getToken(): String? {
         val preferences = dataStore.data.first()
