@@ -3,7 +3,6 @@ package pt.isel.markettracker.navigation
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.WavingHand
@@ -13,6 +12,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -20,7 +20,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
@@ -28,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.markettracker.R
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.screens.list.ListScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
@@ -71,22 +71,6 @@ fun NavGraph(
     }
 
     Scaffold(
-        modifier = Modifier.pointerInput(selectedIndex) {
-            detectHorizontalDragGestures { change, dragAmount ->
-                change.consume()
-                // choosing direction I want to slide
-                selectedIndex = if (dragAmount < 0) selectedIndex.inc() else selectedIndex.dec()
-
-                // making sure It doesn't go out of borders
-                selectedIndex =
-                    if (selectedIndex in 0 until Destination.entries.size) selectedIndex
-                    else if (selectedIndex < 0) 0
-                    else Destination.entries.indices.last
-
-                val newDestination = Destination.entries[selectedIndex].route
-                changeDestination(newDestination)
-            }
-        },
         contentColor = Color.Black,
         bottomBar = {
             NavBar(
@@ -114,8 +98,8 @@ fun NavGraph(
             }
 
             composable(Destination.PROFILE.route) {
-                val isUserLoggedIn = authRepository.isUserLoggedIn()
-                if (isUserLoggedIn) {
+                val authState by authRepository.authState.collectAsState()
+                if (authState.isLoggedIn()) {
                     ProfileScreen(profileScreenViewModel)
                 } else {
                     LoginScreen(

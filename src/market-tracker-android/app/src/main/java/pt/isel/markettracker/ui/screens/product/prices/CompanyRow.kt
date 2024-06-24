@@ -31,13 +31,22 @@ import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.example.markettracker.R
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
+import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.dummy.dummyCompanyPrices
+import pt.isel.markettracker.ui.screens.product.alert.PriceAlertDialog
 import pt.isel.markettracker.ui.screens.product.stores.StoresBottomSheet
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
-fun CompanyRow(companyPrices: CompanyPrices) {
+fun CompanyRow(
+    companyPrices: CompanyPrices,
+    showOptions: Boolean,
+    alerts: List<PriceAlert>,
+    onAlertSet: (Int, Int) -> Unit,
+    onAlertDelete: (String) -> Unit
+) {
     var showCompanyStores by rememberSaveable { mutableStateOf(false) }
+    var showAlertDialog by rememberSaveable { mutableStateOf(false) }
 
     var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.stores.first().store.id) }
     val selectedStoreOffer = companyPrices.stores.first { it.store.id == selectedStoreId }
@@ -85,9 +94,15 @@ fun CompanyRow(companyPrices: CompanyPrices) {
         }
 
         if (selectedStoreOffer.isAvailable) {
+            val alert = alerts.find { it.storeId == selectedStoreOffer.store.id }
             CompanyPriceBox(
                 price = selectedStoreOffer.price,
-                lastChecked = selectedStoreOffer.lastChecked
+                lastChecked = selectedStoreOffer.lastChecked,
+                showOptions = showOptions,
+                hasAlert = alert != null,
+                onAlertClick = {
+                    if (alert != null) onAlertDelete(alert.id) else showAlertDialog = true
+                }
             )
         } else {
             Text(
@@ -97,16 +112,28 @@ fun CompanyRow(companyPrices: CompanyPrices) {
             )
         }
     }
+
     StoresBottomSheet(
         showStores = showCompanyStores,
         storesPrices = companyPrices.stores,
         onStoreSelect = { selectedStoreId = it },
         onDismissRequest = { showCompanyStores = false }
     )
+
+    PriceAlertDialog(
+        showAlertDialog = showAlertDialog,
+        price = selectedStoreOffer.price.finalPrice,
+        onAlertSet = { priceThreshold ->
+            onAlertSet(selectedStoreOffer.store.id, priceThreshold)
+            showAlertDialog = false
+        },
+        onDismissRequest = { showAlertDialog = false }
+    )
+
 }
 
 @Preview
 @Composable
 fun PriceRowPreview() {
-    CompanyRow(dummyCompanyPrices.first())
+    CompanyRow(dummyCompanyPrices.first(), true, emptyList(), { _, _ -> }, { })
 }

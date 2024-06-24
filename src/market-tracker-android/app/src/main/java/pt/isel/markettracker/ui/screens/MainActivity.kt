@@ -61,6 +61,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        productsScreenViewModel.fetchProducts()
         profileScreenViewModel.fetchUser()
         installSplashScreen()
 
@@ -73,7 +74,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             loginScreenViewModel.loginPhase.collect {
                 if (it is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
-                if (it is LoginScreenState.Loaded) profileScreenViewModel.fetchUser()
+                if (it is LoginScreenState.Success) profileScreenViewModel.fetchUser()
             }
         }
 

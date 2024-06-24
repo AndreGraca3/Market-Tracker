@@ -9,14 +9,19 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import pt.isel.markettracker.domain.model.market.price.PriceAlert
+import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
+import pt.isel.markettracker.ui.screens.product.alert.PriceAlertState
 import pt.isel.markettracker.ui.screens.product.rating.ProductPreferencesState
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductDetailsScreenViewModel @Inject constructor(
-    private val productService: IProductService
+    private val productService: IProductService,
+    private val alertService: IAlertService
 ) : ViewModel() {
 
     private val _stateFlow: MutableStateFlow<ProductDetailsScreenState> =
@@ -225,6 +230,52 @@ class ProductDetailsScreenViewModel @Inject constructor(
                 _prefsStateFlow.value = currPrefsState
             }
         }
+    }
+
+    // Alert
+    private val _priceAlertStateFlow: MutableStateFlow<PriceAlertState> =
+        MutableStateFlow(PriceAlertState.Idle)
+    val priceAlertStateFlow
+        get() = _priceAlertStateFlow.asStateFlow()
+
+    fun createAlert(productId: String, storeId: Int, priceThreshold: Int) {
+        if (_priceAlertStateFlow.value is PriceAlertState.Loading) return
+        _priceAlertStateFlow.value = PriceAlertState.Loading
+
+        viewModelScope.launch {
+            runCatchingAPIFailure {
+                alertService.createAlert(productId, storeId, priceThreshold)
+            }.onSuccess {
+                _priceAlertStateFlow.value = PriceAlertState.Created(
+                    PriceAlert(
+                        id = it.id,
+                        productId = productId,
+                        storeId = storeId,
+                        priceThreshold = priceThreshold,
+                        createdAt = LocalDateTime.now()
+                    )
+                )
+            }.onFailure {
+                _priceAlertStateFlow.value = PriceAlertState.Error(it)
+            }
+        }
+    }
+
+    fun deleteAlert(alertId: String) {
+        if (_priceAlertStateFlow.value is PriceAlertState.Loading) return
+        _priceAlertStateFlow.value = PriceAlertState.Loading
+
+        viewModelScope.launch {
+            runCatchingAPIFailure { alertService.deleteAlert(alertId) }.onSuccess {
+                _priceAlertStateFlow.value = PriceAlertState.Deleted
+            }.onFailure {
+                _priceAlertStateFlow.value = PriceAlertState.Error(it)
+            }
+        }
+    }
+
+    fun resetPriceAlertState() {
+        _priceAlertStateFlow.value = PriceAlertState.Idle
     }
 
     private inline fun <T> loadDetailAndSetScreenStateIfReady(

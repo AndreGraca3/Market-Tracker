@@ -2,6 +2,7 @@ package pt.isel.markettracker.ui.screens.product
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -12,11 +13,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.markettracker.R
+import com.talhafaki.composablesweettoast.util.SweetToastUtil
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.extractAlerts
+import pt.isel.markettracker.repository.auth.isLoggedIn
+import pt.isel.markettracker.ui.screens.product.alert.PriceAlertState
 import pt.isel.markettracker.ui.screens.product.components.ProductNotFoundDialog
 import pt.isel.markettracker.ui.screens.product.components.ProductTopBar
 import pt.isel.markettracker.ui.screens.product.prices.PricesSection
@@ -35,6 +41,9 @@ fun ProductDetailsScreen(
 ) {
     val screenState by vm.stateFlow.collectAsState()
     val prefsState by vm.prefsStateFlow.collectAsState()
+    val priceAlertState by vm.priceAlertStateFlow.collectAsState()
+
+    val authState by authRepository.authState.collectAsState()
 
     var isReviewsSectionOpen by rememberSaveable { mutableStateOf(false) }
     var isRatingDialogOpen by rememberSaveable { mutableStateOf(false) }
@@ -47,7 +56,7 @@ fun ProductDetailsScreen(
         ProductTopBar(
             onBackRequest = onBackRequest,
             prefsState.extractPreferences(),
-            onFavoriteRequest = if (authRepository.isUserLoggedIn()) { isFavorite ->
+            onFavoriteRequest = if (authState.isLoggedIn()) { isFavorite ->
                 vm.submitFavourite(isFavorite)
             } else null
         )
@@ -72,13 +81,21 @@ fun ProductDetailsScreen(
                 productPreferences = prefsState.extractPreferences(),
                 productStats = screenState.extractStats(),
                 onCommunityReviewsRequest = { isReviewsSectionOpen = true },
-                isLoggedIn = authRepository.isUserLoggedIn(),
+                isLoggedIn = authState.isLoggedIn(),
                 onUserRatingRequest = {
                     isRatingDialogOpen = true
                 }
             )
 
-            PricesSection(screenState.extractPrices(), authRepository.getAlerts())
+            PricesSection(
+                productPrices = screenState.extractPrices(),
+                showOptions = authState.isLoggedIn(),
+                alerts = authState.extractAlerts(),
+                onAlertSet = { id, price ->
+                    if (product != null) vm.createAlert(product.id, id, price)
+                },
+                onAlertDelete = vm::deleteAlert
+            )
         }
 
         if (product != null) {
@@ -103,6 +120,34 @@ fun ProductDetailsScreen(
                 },
                 onDismissRequest = { isRatingDialogOpen = false }
             )
+        }
+
+        when (priceAlertState) {
+            is PriceAlertState.Created -> {
+                SweetToastUtil.SweetSuccess(
+                    message = stringResource(id = R.string.alert_set),
+                    contentAlignment = Alignment.TopCenter,
+                    padding = PaddingValues(top = 18.dp)
+                )
+            }
+
+            is PriceAlertState.Deleted -> {
+                SweetToastUtil.SweetSuccess(
+                    message = stringResource(id = R.string.alert_removed),
+                    contentAlignment = Alignment.TopCenter,
+                    padding = PaddingValues(top = 18.dp)
+                )
+            }
+
+            is PriceAlertState.Error -> {
+                SweetToastUtil.SweetError(
+                    message = stringResource(id = R.string.alert_error),
+                    contentAlignment = Alignment.TopCenter,
+                    padding = PaddingValues(top = 18.dp)
+                )
+            }
+
+            else -> {}
         }
     }
 }

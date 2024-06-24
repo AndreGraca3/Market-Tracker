@@ -38,7 +38,7 @@ class LoginScreenViewModel @Inject constructor(
             runCatchingAPIFailure {
                 authService.signIn(email, password)
             }.onSuccess {
-                loginPhaseFlow.value = LoginScreenState.Loaded
+                loginPhaseFlow.value = LoginScreenState.Success
             }.onFailure {
                 loginPhaseFlow.value = LoginScreenState.Fail(it)
             }
@@ -62,7 +62,7 @@ class LoginScreenViewModel @Inject constructor(
                 runCatchingAPIFailure {
                     authService.googleSignIn(idToken)
                 }.onSuccess {
-                    loginPhaseFlow.value = LoginScreenState.Loaded
+                    loginPhaseFlow.value = LoginScreenState.Success
                 }.onFailure {
                     loginPhaseFlow.value = LoginScreenState.Fail(it)
                 }

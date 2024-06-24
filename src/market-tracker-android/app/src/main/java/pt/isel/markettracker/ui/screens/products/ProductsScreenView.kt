@@ -27,7 +27,7 @@ fun ProductsScreenView(
     state: ProductsScreenState,
     query: ProductsQuery,
     onQueryChange: (ProductsQuery) -> Unit,
-    fetchProducts: (Boolean) -> Unit,
+    fetchProducts: () -> Unit,
     loadMoreProducts: (ProductsQuery) -> Unit,
     onProductClick: (String) -> Unit,
     shoppingLists: List<ShoppingList>,
@@ -38,10 +38,6 @@ fun ProductsScreenView(
     onBarcodeScanRequest: () -> Unit,
 ) {
     var isRefreshing by rememberSaveable { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        fetchProducts(false)
-    }
 
     LaunchedEffect(state) {
         if (state !is ProductsScreenState.Loading && isRefreshing) {
@@ -54,7 +50,7 @@ fun ProductsScreenView(
             ProductsTopBar(
                 searchTerm = query.searchTerm.orEmpty(),
                 onSearchTermChange = { onQueryChange(query.copy(searchTerm = it)) },
-                onSearch = { fetchProducts(true) },
+                onSearch = fetchProducts,
                 onBarcodeScanRequest = onBarcodeScanRequest
             )
         }
@@ -63,7 +59,7 @@ fun ProductsScreenView(
             isRefreshing = isRefreshing,
             onRefresh = {
                 isRefreshing = true
-                fetchProducts(true)
+                fetchProducts()
             },
             modifier = Modifier
                 .padding(paddingValues)
@@ -78,7 +74,7 @@ fun ProductsScreenView(
                     query = query,
                     onQueryChange = {
                         onQueryChange(it)
-                        fetchProducts(true)
+                        fetchProducts()
                     },
                     isLoading = state is ProductsScreenState.Loading
                 )
