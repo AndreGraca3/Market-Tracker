@@ -9,3 +9,7 @@ data class PriceAlert(
     val priceThreshold: Int,
     val createdAt: LocalDateTime
 )
+
+data class PriceAlertId(
+    val id: String
+)

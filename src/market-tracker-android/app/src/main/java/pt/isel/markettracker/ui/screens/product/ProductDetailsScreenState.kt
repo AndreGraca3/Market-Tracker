@@ -37,13 +37,6 @@ sealed class ProductDetailsScreenState {
         override val paginatedReviews: PaginatedResult<ProductReview>?
     ) : Loaded(product, prices, stats, paginatedReviews)
 
-    data class SubmittingPriceAlert(
-        override val product: Product,
-        override val prices: ProductPrices,
-        override val stats: ProductStats,
-        override val paginatedReviews: PaginatedResult<ProductReview>?
-    ) : Loaded(product, prices, stats, paginatedReviews)
-
     data class FailedToLoadProduct(val error: Throwable) : ProductDetailsScreenState()
     data class Failed(val error: Throwable) : ProductDetailsScreenState()
 }
@@ -67,15 +60,6 @@ fun ProductDetailsScreenState.LoadingProductDetails.toLoadedDetailsIfReady(): Pr
 
 fun ProductDetailsScreenState.LoadedDetails.toLoadingReviews(): ProductDetailsScreenState {
     return ProductDetailsScreenState.LoadingReviews(
-        product = product,
-        prices = prices,
-        stats = stats,
-        paginatedReviews = paginatedReviews
-    )
-}
-
-fun ProductDetailsScreenState.LoadedDetails.toSubmittingPriceAlert(): ProductDetailsScreenState {
-    return ProductDetailsScreenState.SubmittingPriceAlert(
         product = product,
         prices = prices,
         stats = stats,

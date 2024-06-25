@@ -37,10 +37,7 @@ class ProductsScreenViewModel @Inject constructor(
     var query by mutableStateOf(ProductsQuery(sortOption = ProductsSortOption.Relevance))
     private var currentPage by mutableIntStateOf(1)
 
-    fun fetchProducts(forceRefresh: Boolean) {
-        val state = _stateFlow.value
-        if (state !is ProductsScreenState.Idle && !forceRefresh) return
-
+    fun fetchProducts() {
         currentPage = 1
         _stateFlow.value = ProductsScreenState.Loading
 

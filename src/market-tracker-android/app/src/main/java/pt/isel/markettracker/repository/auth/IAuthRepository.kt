@@ -8,19 +8,13 @@ import pt.isel.markettracker.domain.model.market.price.PriceAlert
  * Used for global authentication state management
  */
 interface IAuthRepository {
-    val authState: StateFlow<AuthEvent>
+    val authState: StateFlow<AuthState>
 
-    fun isUserLoggedIn(): Boolean
-
-    suspend fun getToken(): String?
+    suspend fun getOrGenerateDeviceId(): String
 
     suspend fun setToken(token: String?)
 
-    fun setLists(lists: List<ShoppingList>)
+    suspend fun getToken(): String?
 
-    fun getLists(): List<ShoppingList>
-
-    fun setAlerts(alerts: List<PriceAlert>)
-
-    fun getAlerts(): List<PriceAlert>
+    fun setDetails(lists: List<ShoppingList>, alerts: List<PriceAlert>)
 }

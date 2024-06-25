@@ -10,9 +10,11 @@ import pt.isel.markettracker.http.models.user.UserCreationInputModel
 import pt.isel.markettracker.http.models.user.UserUpdateInputModel
 import pt.isel.markettracker.http.service.MarketTrackerService
 
-private const val usersAllPath = "/clients"
-private const val authenticatedUserPath = "$usersAllPath/me"
-private fun buildUserByIdPath(id: String) = "$usersAllPath/$id"
+private const val usersBasePath = "/clients"
+private const val authenticatedUserPath = "$usersBasePath/me"
+private fun buildUserByIdPath(id: String) = "$usersBasePath/$id"
+
+private const val registerDevicePath = "$authenticatedUserPath/register-push-notifications"
 
 class UserService(
     override val httpClient: OkHttpClient,
@@ -21,7 +23,7 @@ class UserService(
 
     override suspend fun getUsers(username: String?): PaginatedResult<ClientItem> {
         return requestHandler(
-            path = usersAllPath,
+            path = usersBasePath,
             method = HttpMethod.GET,
             body = username
         )
@@ -49,7 +51,7 @@ class UserService(
         avatar: String?
     ): String {
         return requestHandler<StringIdOutputModel>(
-            path = usersAllPath,
+            path = usersBasePath,
             method = HttpMethod.POST,
             body = UserCreationInputModel(
                 name = name,
@@ -63,7 +65,7 @@ class UserService(
 
     override suspend fun updateUser(name: String?, username: String?, avatar: String?): Client {
         return requestHandler(
-            path = usersAllPath,
+            path = usersBasePath,
             method = HttpMethod.PUT,
             body = UserUpdateInputModel(
                 name = name,
@@ -75,8 +77,16 @@ class UserService(
 
     override suspend fun deleteUser() {
         return requestHandler(
-            path = usersAllPath,
+            path = usersBasePath,
             method = HttpMethod.DELETE
+        )
+    }
+
+    override suspend fun registerDevice(token: String, deviceId: String) {
+        return requestHandler(
+            path = registerDevicePath,
+            method = HttpMethod.POST,
+            body = mapOf("firebaseToken" to token, "deviceId" to deviceId)
         )
     }
 }

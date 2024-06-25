@@ -10,6 +10,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 import javax.inject.Inject
 
@@ -45,7 +46,7 @@ class ProductDetailsActivity : ComponentActivity() {
             vm.stateFlow.collect { state ->
                 if (state is ProductDetailsScreenState.Idle) vm.fetchProductById(productId)
                 if (state is ProductDetailsScreenState.LoadedProduct) {
-                    vm.fetchProductDetails(productId)
+                    vm.fetchProductDetails(productId, authRepository.authState.value.isLoggedIn())
                 }
             }
         }

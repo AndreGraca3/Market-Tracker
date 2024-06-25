@@ -32,13 +32,6 @@ class AuthService(
             method = HttpMethod.POST,
             body = TokenCreationInputModel(email, password)
         )
-        //FirebaseMessaging.getInstance().token.addOnCompleteListener {
-        //    if (!it.isSuccessful) {
-        //        return@addOnCompleteListener
-        //    }
-        //    val token = it.result
-        //    Log.v("TokenService", token) // TODO: upload token to server
-        //}
     }
 
     override suspend fun signOut() {

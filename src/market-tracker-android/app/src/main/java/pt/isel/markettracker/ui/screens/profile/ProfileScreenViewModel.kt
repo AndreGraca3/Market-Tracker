@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -57,21 +58,20 @@ class ProfileScreenViewModel @AssistedInject constructor(
                     Log.v("Avatar", "On fetch Avatar from db : ${client.avatar}")
 
                     this.launch {
-                        authRepository.setToken(authRepository.getToken())
+                        // Fetch lists and alerts in parallel
+                        val listsDeferred =
+                            async { runCatchingAPIFailure { listService.getLists() } }
+                        val alertsDeferred =
+                            async { runCatchingAPIFailure { alertService.getAlerts() } }
+                        val lists = listsDeferred.await()
+                        val alerts = alertsDeferred.await()
 
-                        runCatchingAPIFailure { listService.getLists() }
-                            .onSuccess {
-                                authRepository.setLists(it)
-                            }.onFailure {
-                                _clientFetchingFlow.value = ProfileScreenState.Fail(it)
-                            }
-
-                        runCatchingAPIFailure { alertService.getAlerts() }
-                            .onSuccess { priceAlert ->
-                                authRepository.setAlerts(priceAlert)
-                            }.onFailure {
-                                _clientFetchingFlow.value = ProfileScreenState.Fail(it)
-                            }
+                        if (listsDeferred.await().isFailure || alertsDeferred.await().isFailure) {
+                            _clientFetchingFlow.value =
+                                Fail(Exception("Failed to fetch lists or alerts"))
+                        } else {
+                            authRepository.setDetails(lists.getOrThrow(), alerts.getOrThrow())
+                        }
                     }
                 }.onFailure {
                     // I think this is unnecessary, there is a handler to remove the token from repo
@@ -113,6 +113,13 @@ class ProfileScreenViewModel @AssistedInject constructor(
             }.onFailure {
                 _clientFetchingFlow.value = ProfileScreenState.Fail(it)
             }
+        }
+    }
+
+    fun registerDevice(token: String) {
+        viewModelScope.launch {
+            val deviceId = authRepository.getOrGenerateDeviceId()
+            runCatchingAPIFailure { userService.registerDevice(token, deviceId) }
         }
     }
 

@@ -10,22 +10,30 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import pt.isel.markettracker.domain.model.list.ShoppingList
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
+import java.util.UUID
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(private val dataStore: DataStore<Preferences>) :
     IAuthRepository {
 
-    private val tokenKey = stringPreferencesKey("token")
+    private val TAG = "AuthRepository"
 
-    private val _authState = MutableStateFlow<AuthEvent>(AuthEvent.Idle)
+    private val tokenKey = stringPreferencesKey("token")
+    private val deviceIdKey = stringPreferencesKey("device_id")
+
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     override val authState
         get() = _authState.asStateFlow()
 
-    private var lists: List<ShoppingList> = emptyList()
-    private var alerts: List<PriceAlert> = emptyList()
-
-    override fun isUserLoggedIn(): Boolean {
-        return _authState.value is AuthEvent.Login
+    override suspend fun getOrGenerateDeviceId(): String {
+        val preferences = dataStore.data.first()
+        return preferences[deviceIdKey] ?: run {
+            val deviceId = UUID.randomUUID().toString()
+            dataStore.edit { preferences ->
+                preferences[deviceIdKey] = deviceId
+            }
+            deviceId
+        }
     }
 
     override suspend fun getToken(): String? {
@@ -37,31 +45,38 @@ class AuthRepository @Inject constructor(private val dataStore: DataStore<Prefer
         dataStore.edit { preferences ->
             if (!token.isNullOrEmpty()) {
                 preferences[tokenKey] = token
-                _authState.value = AuthEvent.Login
-                Log.v("User", "Auth state is login")
+                Log.v(TAG, "Token is set")
             } else {
                 preferences.remove(tokenKey)
-                _authState.value = AuthEvent.Logout
-                Log.v("User", "Auth state is logout")
+                _authState.value = AuthState.Logout
+                Log.v(TAG, "AuthState is logout")
             }
         }
     }
 
-    override fun setLists(lists: List<ShoppingList>) {
-        this.lists = lists
+    override fun setDetails(lists: List<ShoppingList>, alerts: List<PriceAlert>) {
+        // if (_authState.value !is AuthState.Idle) return
+        _authState.value = AuthState.Loaded(lists, alerts)
+        Log.v(TAG, "AuthState is loaded")
     }
-
-    override fun getLists() = lists
-
-    override fun setAlerts(alerts: List<PriceAlert>) {
-        this.alerts = alerts
-    }
-
-    override fun getAlerts() = alerts
 }
 
-sealed class AuthEvent {
-    data object Idle : AuthEvent()
-    data object Login : AuthEvent()
-    data object Logout : AuthEvent()
+sealed class AuthState {
+    data object Idle : AuthState()
+    data class Loaded(val lists: List<ShoppingList>, val alerts: List<PriceAlert>) : AuthState()
+    data object Logout : AuthState()
 }
+
+fun AuthState.isLoggedIn() = this is AuthState.Loaded
+
+fun AuthState.extractLists(): List<ShoppingList> =
+    when (this) {
+        is AuthState.Loaded -> lists
+        else -> emptyList()
+    }
+
+fun AuthState.extractAlerts(): List<PriceAlert> =
+    when (this) {
+        is AuthState.Loaded -> alerts
+        else -> emptyList()
+    }

@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.extractLists
+import pt.isel.markettracker.repository.auth.isLoggedIn
 
 @Composable
 fun ProductsScreen(
@@ -15,20 +17,19 @@ fun ProductsScreen(
 ) {
     val screenState by productsScreenViewModel.stateFlow.collectAsState()
     val addToListState by productsScreenViewModel.addToListStateFlow.collectAsState()
+    val authState by authRepository.authState.collectAsState()
 
     ProductsScreenView(
         state = screenState,
         query = productsScreenViewModel.query,
         onQueryChange = { productsScreenViewModel.query = it },
-        fetchProducts = { forceRefresh ->
-            productsScreenViewModel.fetchProducts(forceRefresh)
-        },
+        fetchProducts = productsScreenViewModel::fetchProducts,
         loadMoreProducts = { productsScreenViewModel.loadMoreProducts() },
         onProductClick = onProductClick,
-        shoppingLists = authRepository.getLists(),
+        shoppingLists = authState.extractLists(),
         addToListState = addToListState,
         onAddToListClick = { productOffer ->
-            if (authRepository.isUserLoggedIn())
+            if (authState.isLoggedIn())
                 productsScreenViewModel.selectProductToAddToList(productOffer)
             else navigateToLogin()
         },

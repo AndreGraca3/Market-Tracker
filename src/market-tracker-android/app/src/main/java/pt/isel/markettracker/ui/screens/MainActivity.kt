@@ -62,8 +62,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        profileScreenViewModel.fetchUser()
         installSplashScreen()
+        productsScreenViewModel.fetchProducts()
+        profileScreenViewModel.fetchUser()
 
         lifecycleScope.launch {
             productsScreenViewModel.addToListStateFlow.collect {
@@ -72,10 +73,18 @@ class MainActivity : ComponentActivity() {
         }
 
         lifecycleScope.launch {
-            loginScreenViewModel.loginPhase.collect {
-                Log.v("User", "LoginScreenState is $it")
-                if (it is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
-                if (it is LoginScreenState.Loaded) profileScreenViewModel.fetchUser()
+            loginScreenViewModel.loginPhase.collect { loginState ->
+                Log.v("User", "LoginScreenState is $loginState")
+                if (loginState is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
+                if (loginState is LoginScreenState.Success) {
+                    /*FirebaseMessaging.getInstance().token.addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            val token = it.result
+                            profileScreenViewModel.registerDevice(token)
+                        }
+                    }*/ // leave this for me please Digo
+                    profileScreenViewModel.fetchUser()
+                }
             }
         }
 
