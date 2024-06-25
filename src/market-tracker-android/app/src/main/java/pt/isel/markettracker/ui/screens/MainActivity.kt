@@ -3,6 +3,7 @@ package pt.isel.markettracker.ui.screens
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -72,6 +73,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             loginScreenViewModel.loginPhase.collect {
+                Log.v("User", "LoginScreenState is $it")
                 if (it is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
                 if (it is LoginScreenState.Loaded) profileScreenViewModel.fetchUser()
             }
@@ -111,7 +113,7 @@ class MainActivity : ComponentActivity() {
             .setOrientationLocked(false)
     }
 
-    fun getGoogleLoginIntent(ctx: Context): Intent {
+    private fun getGoogleLoginIntent(ctx: Context): Intent {
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(ContextCompat.getString(ctx, R.string.GOOGLE_CLIENT_ID))
             .requestProfile()

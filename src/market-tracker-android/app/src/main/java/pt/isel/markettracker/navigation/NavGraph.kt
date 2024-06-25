@@ -13,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +28,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.markettracker.R
+import pt.isel.markettracker.repository.auth.AuthEvent
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.ui.screens.list.ListScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreen
@@ -114,8 +116,7 @@ fun NavGraph(
             }
 
             composable(Destination.PROFILE.route) {
-                val isUserLoggedIn = authRepository.isUserLoggedIn()
-                if (isUserLoggedIn) {
+                if (authRepository.authState.collectAsState().value == AuthEvent.Login) {
                     ProfileScreen(profileScreenViewModel)
                 } else {
                     LoginScreen(

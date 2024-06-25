@@ -14,21 +14,18 @@ fun ProfileScreen(profileScreenViewModel: ProfileScreenViewModel) {
         avatar = profileScreenViewModel.avatarPath,
         name = profileScreenViewModel.name,
         username = profileScreenViewModel.username,
-        email = profileScreenViewModel.email,
         onNameChangeRequested = {
             profileScreenViewModel.name = it
         },
         onUsernameChangeRequested = {
             profileScreenViewModel.username = it
         },
-        onEmailChangeRequested = {
-            profileScreenViewModel.email = it
-        },
         onLogoutRequested = profileScreenViewModel::logout,
         onUpdateAvatarPath = {
             profileScreenViewModel.avatarPath = it
             Log.v("Avatar", "onUpdateAvatarPath AvatarPath: ${profileScreenViewModel.avatarPath}")
         },
-        onUpdateUserRequested = profileScreenViewModel::updateUser
+        onUpdateUserRequested = profileScreenViewModel::updateUser,
+        onDeleteAccountRequested = profileScreenViewModel::deleteAccount
     )
 }

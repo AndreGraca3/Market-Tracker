@@ -14,13 +14,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import pt.isel.markettracker.domain.Fail
-import pt.isel.markettracker.domain.IOState
-import pt.isel.markettracker.domain.Idle
-import pt.isel.markettracker.domain.Loading
-import pt.isel.markettracker.domain.loadSuccess
-import pt.isel.markettracker.domain.model.account.Client
-import pt.isel.markettracker.http.models.user.UserUpdateInputModel
 import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.operations.auth.IAuthService
 import pt.isel.markettracker.http.service.operations.list.IListService
@@ -38,31 +31,28 @@ class ProfileScreenViewModel @AssistedInject constructor(
     private val authRepository: IAuthRepository
 ) : ViewModel() {
 
-    private val _clientFetchingFlow: MutableStateFlow<IOState<Client>> =
-        MutableStateFlow(Idle)
+    private val _clientFetchingFlow: MutableStateFlow<ProfileScreenState> =
+        MutableStateFlow(ProfileScreenState.Idle)
     val clientFetchingFlow
         get() = _clientFetchingFlow.asStateFlow()
 
     var name by mutableStateOf("")
     var username by mutableStateOf("")
-    var email by mutableStateOf("")
 
     var avatarPath by mutableStateOf<Uri?>(null)
 
     fun fetchUser() {
-        if (_clientFetchingFlow.value !is Idle) return
+        if (_clientFetchingFlow.value !is ProfileScreenState.Idle) return
 
-        _clientFetchingFlow.value = Loading()
+        _clientFetchingFlow.value = ProfileScreenState.Loading
 
         viewModelScope.launch {
             runCatchingAPIFailure { userService.getAuthenticatedUser() }
                 .onSuccess { client ->
-                    // TODO: this should be in a state...
                     name = client.name
                     username = client.username
-                    email = client.email
                     avatarPath = Uri.parse(client.avatar)
-                    _clientFetchingFlow.value = loadSuccess(client)
+                    _clientFetchingFlow.value = ProfileScreenState.Loaded(client)
                     Log.v("Avatar", "On fetch AvatarPath : $avatarPath")
                     Log.v("Avatar", "On fetch Avatar from db : ${client.avatar}")
 
@@ -73,40 +63,40 @@ class ProfileScreenViewModel @AssistedInject constructor(
                             .onSuccess {
                                 authRepository.setLists(it)
                             }.onFailure {
-                                _clientFetchingFlow.value = Fail(it)
+                                _clientFetchingFlow.value = ProfileScreenState.Fail(it)
                             }
 
                         runCatchingAPIFailure { alertService.getAlerts() }
                             .onSuccess { priceAlert ->
                                 authRepository.setAlerts(priceAlert)
                             }.onFailure {
-                                _clientFetchingFlow.value = Fail(it)
+                                _clientFetchingFlow.value = ProfileScreenState.Fail(it)
                             }
                     }
                 }.onFailure {
                     // I think this is unnecessary, there is a handler to remove the token from repo
-                    if (it.problem.status == 401) {
-                        this.launch {
-                            authRepository.setToken(null)
-                        }
-                    }
-                    _clientFetchingFlow.value = Fail(it)
+                    //if (it.problem.status == 401) {
+                    //    this.launch {
+                    //        authRepository.setToken(null)
+                    //    }
+                    //}
+                    _clientFetchingFlow.value = ProfileScreenState.Fail(it)
                 }
         }
     }
 
     fun logout() {
-        _clientFetchingFlow.value = Loading()
+        _clientFetchingFlow.value = ProfileScreenState.Loading
         viewModelScope.launch {
             authService.signOut()
             avatarPath = null
-            _clientFetchingFlow.value = Idle
+            _clientFetchingFlow.value = ProfileScreenState.Idle
         }
     }
 
     fun updateUser() {
-        if (_clientFetchingFlow.value is Loading || name.isBlank() || username.isBlank() || email.isBlank()) return
-        _clientFetchingFlow.value = Loading()
+        if (_clientFetchingFlow.value is ProfileScreenState.Loading || name.isBlank() || username.isBlank()) return
+        _clientFetchingFlow.value = ProfileScreenState.Loading
 
         viewModelScope.launch {
             runCatchingAPIFailure {
@@ -119,9 +109,9 @@ class ProfileScreenViewModel @AssistedInject constructor(
                 Log.v("Avatar", "On Update AvatarPath : $avatarPath")
                 Log.v("Avatar", "On Update Avatar from db : ${it.avatar}")
                 avatarPath = Uri.parse(it.avatar)
-                _clientFetchingFlow.value = loadSuccess(it)
+                _clientFetchingFlow.value = ProfileScreenState.Loaded(it)
             }.onFailure {
-                _clientFetchingFlow.value = Fail(it)
+                _clientFetchingFlow.value = ProfileScreenState.Fail(it)
             }
         }
     }
@@ -131,6 +121,6 @@ class ProfileScreenViewModel @AssistedInject constructor(
             authService.signOut()
             userService.deleteUser()
         }
-        _clientFetchingFlow.value = Idle
+        _clientFetchingFlow.value = ProfileScreenState.Idle
     }
 }
