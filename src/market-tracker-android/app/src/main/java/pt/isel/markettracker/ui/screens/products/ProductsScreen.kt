@@ -3,25 +3,40 @@ package pt.isel.markettracker.ui.screens.products
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
+import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.extractLists
+import pt.isel.markettracker.repository.auth.isLoggedIn
 
 @Composable
 fun ProductsScreen(
     onProductClick: (String) -> Unit,
     onBarcodeScanRequest: () -> Unit,
-    productsScreenViewModel: ProductsScreenViewModel = hiltViewModel()
+    navigateToLogin: () -> Unit,
+    authRepository: IAuthRepository,
+    productsScreenViewModel: ProductsScreenViewModel
 ) {
-    val state by productsScreenViewModel.stateFlow.collectAsState()
+    val screenState by productsScreenViewModel.stateFlow.collectAsState()
+    val addToListState by productsScreenViewModel.addToListStateFlow.collectAsState()
+    val authState by authRepository.authState.collectAsState()
 
     ProductsScreenView(
-        state = state,
+        state = screenState,
         query = productsScreenViewModel.query,
         onQueryChange = { productsScreenViewModel.query = it },
-        fetchProducts = { forceRefresh ->
-            productsScreenViewModel.fetchProducts(forceRefresh)
-        },
+        fetchProducts = productsScreenViewModel::fetchProducts,
         loadMoreProducts = { productsScreenViewModel.loadMoreProducts() },
         onProductClick = onProductClick,
+        shoppingLists = authState.extractLists(),
+        addToListState = addToListState,
+        onAddToListClick = { productOffer ->
+            if (authState.isLoggedIn())
+                productsScreenViewModel.selectProductToAddToList(productOffer)
+            else navigateToLogin()
+        },
+        onListSelectedClick = { listId ->
+            productsScreenViewModel.addProductToList(listId)
+        },
+        onAddToListDismissRequest = { productsScreenViewModel.resetAddToListState() },
         onBarcodeScanRequest = onBarcodeScanRequest
     )
 }

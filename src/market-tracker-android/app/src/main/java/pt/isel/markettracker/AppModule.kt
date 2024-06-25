@@ -30,7 +30,9 @@ import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.operations.user.UserService
 import pt.isel.markettracker.repository.auth.AuthRepository
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -61,22 +63,24 @@ class AppModule {
             .callTimeout(10, TimeUnit.SECONDS)
             .cookieJar(object : CookieJar {
                 override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-                    val token = cookies.find { it.name == "Authorization" }?.value
+                    val responseToken = cookies.find { it.name == "Authorization" }?.value
                     runBlocking {
-                        authRepository.setToken(token)
+                        authRepository.setToken(responseToken)
                     }
                 }
 
                 override fun loadForRequest(url: HttpUrl): List<Cookie> {
-                    return runBlocking {
-                        val token = authRepository.getToken()
-                        if (token != null) listOf(
+                    val token = runBlocking { authRepository.getToken() }
+                    return if (token != null) {
+                        listOf(
                             Cookie.Builder()
                                 .name("Authorization")
                                 .value(token)
                                 .domain("markettracker.com")
                                 .build()
-                        ) else emptyList()
+                        )
+                    } else {
+                        emptyList()
                     }
                 }
             })
@@ -87,10 +91,14 @@ class AppModule {
     @Singleton
     fun provideGson(): Gson {
         return GsonBuilder()
+            .serializeNulls()
             .registerTypeAdapter(
                 LocalDateTime::class.java,
                 JsonDeserializer { json, _, _ ->
-                    LocalDateTime.parse(json.asString)
+                    LocalDateTime.ofInstant(
+                        Instant.parse(json.asString),
+                        ZoneOffset.UTC
+                    )
                 })
             .registerTypeAdapter(
                 ProductUnit::class.java,

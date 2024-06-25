@@ -152,7 +152,7 @@ public class ClientServiceTest
 
         _clientRepositoryMock
             .Setup(x => x.GetClientByUsernameAsync(username))
-            .ReturnsAsync(new Client(new User(Guid.NewGuid(), name, email, Role.Client.ToString(), DateTime.Now),
+            .ReturnsAsync(new Client(new User(Guid.NewGuid(), name, email, Role.Client.ToString(), DateTime.UtcNow),
                 username, avatarUrl));
 
         // Act
@@ -177,7 +177,7 @@ public class ClientServiceTest
 
         _userRepositoryMock
             .Setup(x => x.GetUserByEmailAsync(email))
-            .ReturnsAsync(new User(Guid.NewGuid(), name, email, Role.Client.ToString(), DateTime.Now));
+            .ReturnsAsync(new User(Guid.NewGuid(), name, email, Role.Client.ToString(), DateTime.UtcNow));
 
         // Act
         var ex = await Assert.ThrowsAsync<MarketTrackerServiceException>(() =>
@@ -202,7 +202,7 @@ public class ClientServiceTest
             .Setup(x => x.GetUserByUsernameAsync(name))
             .ReturnsAsync((User?)null);
 
-        var user = new User(clientId, name, "email", Role.Client.ToString(), DateTime.Now);
+        var user = new User(clientId, name, "email", Role.Client.ToString(), DateTime.UtcNow);
         _userRepositoryMock
             .Setup(x => x.UpdateUserAsync(clientId, name))
             .ReturnsAsync(user);
@@ -229,7 +229,7 @@ public class ClientServiceTest
 
         _userRepositoryMock
             .Setup(x => x.GetUserByUsernameAsync(name))
-            .ReturnsAsync(new User(clientId, name, "email", Role.Client.ToString(), DateTime.Now));
+            .ReturnsAsync(new User(clientId, name, "email", Role.Client.ToString(), DateTime.UtcNow));
 
         // Act
         var ex = await Assert.ThrowsAsync<MarketTrackerServiceException>(() =>
@@ -276,7 +276,7 @@ public class ClientServiceTest
 
         _userRepositoryMock
             .Setup(x => x.DeleteUserAsync(clientId))
-            .ReturnsAsync(new User(clientId, "name", "email", Role.Client.ToString(), DateTime.Now));
+            .ReturnsAsync(new User(clientId, "name", "email", Role.Client.ToString(), DateTime.UtcNow));
 
         // Act
         await _clientService.DeleteClientAsync(clientId);

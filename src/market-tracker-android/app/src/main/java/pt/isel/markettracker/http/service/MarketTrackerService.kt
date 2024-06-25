@@ -31,14 +31,14 @@ abstract class MarketTrackerService {
     protected suspend inline fun <reified T> requestHandler(
         path: String,
         method: HttpMethod,
-        input: Any? = null
+        body: Any? = null
     ): T {
         val url = URL(MT_API_URL + path)
         Log.v("requestHandler", "Request to API: $url")
         val request = Request.Builder().buildRequest(
             url,
             method,
-            input
+            body
         )
 
         return suspendCancellableCoroutine {
@@ -49,10 +49,12 @@ abstract class MarketTrackerService {
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    val body = response.body?.string()
+                    val responseBody = response.body?.string()
                     if (!response.isSuccessful) {
+                        Log.v("requestHandler", "Content type: ${response.body?.contentType()}")
                         if (response.code < 500 && response.body?.contentType() == Problem.MEDIA_TYPE) {
-                            val problem = gson.fromJson(body, Problem::class.java)
+                            Log.v("requestHandler", "Response body: $responseBody")
+                            val problem = gson.fromJson(responseBody, Problem::class.java)
                             Log.v("requestHandler", "Result of call to API: $problem")
                             it.resumeWithException(APIException(problem))
                         } else {
@@ -61,7 +63,7 @@ abstract class MarketTrackerService {
                         }
                     } else {
                         val type: Type = object : TypeToken<T>() {}.type
-                        val res: T = gson.fromJson(body, type)
+                        val res: T = gson.fromJson(responseBody, type)
                         it.resumeWith(Result.success(res))
                     }
                 }
@@ -73,7 +75,7 @@ abstract class MarketTrackerService {
     protected fun Request.Builder.buildRequest(
         url: URL,
         method: HttpMethod,
-        input: Any? = null
+        body: Any? = null
     ): Request {
         val hypermediaType = "application/json".toMediaType()
         val request = this
@@ -82,9 +84,9 @@ abstract class MarketTrackerService {
 
         when (method) {
             HttpMethod.GET -> request.get()
-            HttpMethod.POST -> request.post(gson.toJson(input).toRequestBody(hypermediaType))
-            HttpMethod.PUT -> request.put(gson.toJson(input).toRequestBody(hypermediaType))
-            HttpMethod.PATCH -> request.patch(gson.toJson(input).toRequestBody(hypermediaType))
+            HttpMethod.POST -> request.post(gson.toJson(body).toRequestBody(hypermediaType))
+            HttpMethod.PUT -> request.put(gson.toJson(body).toRequestBody(hypermediaType))
+            HttpMethod.PATCH -> request.patch(gson.toJson(body).toRequestBody(hypermediaType))
             HttpMethod.DELETE -> request.delete()
         }
 

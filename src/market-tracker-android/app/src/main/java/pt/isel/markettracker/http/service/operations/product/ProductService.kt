@@ -1,23 +1,17 @@
 package pt.isel.markettracker.http.service.operations.product
 
 import com.google.gson.Gson
-import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.domain.PaginatedResult
-import pt.isel.markettracker.domain.model.account.ClientItem
 import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
-import pt.isel.markettracker.domain.model.market.inventory.product.ProductStatsCounts
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
-import pt.isel.markettracker.domain.model.market.price.CompanyPrices
-import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.domain.model.market.price.ProductPrices
-import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.http.service.MarketTrackerService
-import java.time.LocalDateTime
+
 private fun buildProductsPath(
     page: Int,
     itemsPerPage: Int?,
@@ -30,9 +24,18 @@ private fun buildProductsPath(
         itemsPerPage?.let { "&itemsPerPage=$it" }.orEmpty() +
         searchQuery?.let { "&name=$it" }.orEmpty() +
         sortOption?.let { "&sortBy=$it" }.orEmpty() +
-        (if (brandIds.isNotEmpty()) brandIds.joinToString(separator = "&brandIds=", prefix = "&brandIds=") else "") +
-        (if (companyIds.isNotEmpty()) companyIds.joinToString(separator = "&companyIds=", prefix = "&companyIds=") else "") +
-        (if (categoryIds.isNotEmpty()) categoryIds.joinToString(separator = "&categoryIds=", prefix = "&categoryIds=") else "")
+        (if (brandIds.isNotEmpty()) brandIds.joinToString(
+            separator = "&brandIds=",
+            prefix = "&brandIds="
+        ) else "") +
+        (if (companyIds.isNotEmpty()) companyIds.joinToString(
+            separator = "&companyIds=",
+            prefix = "&companyIds="
+        ) else "") +
+        (if (categoryIds.isNotEmpty()) categoryIds.joinToString(
+            separator = "&categoryIds=",
+            prefix = "&categoryIds="
+        ) else "")
 
 private fun buildProductByIdPath(id: String) = "/products/$id"
 
@@ -43,6 +46,10 @@ private fun buildProductReviewsByIdPath(id: String, page: Int, itemsPerPage: Int
             itemsPerPage?.let { "&itemsPerPage=$it" }.orEmpty()
 
 private fun buildProductStatsByIdPath(id: String) = "/products/$id/stats"
+
+private fun buildProductPreferencesByIdPath(id: String) = "/products/$id/me"
+
+private fun buildAddProductToListPath(listId: String) = "/lists/${listId}/entries"
 
 // Service provides operations related to products.
 class ProductService(
@@ -90,31 +97,10 @@ class ProductService(
     }
 
     override suspend fun getProductPreferences(productId: String): ProductPreferences {
-        return ProductPreferences(
-            false,
-            ProductReview(
-                1,
-                "1",
-                3,
-                "Gostei bastante do produto, recomendo e penso comprar mais vezes mas o preço é um pouco alto.",
-                LocalDateTime.now(),
-                ClientItem(
-                    "1",
-                    "João",
-                    "https://i.imgur.com/fL67hTu.jpeg"
-                )
-            )
+        return requestHandler(
+            path = buildProductPreferencesByIdPath(productId),
+            method = HttpMethod.GET
         )
-    }
-
-    override suspend fun getProductAlerts(productId: String): List<PriceAlert> {
-        return List(10) {
-            PriceAlert(
-                "1",
-                3,
-                35
-            )
-        }
     }
 
     override suspend fun getProductReviews(
@@ -131,18 +117,57 @@ class ProductService(
     override suspend fun submitProductReview(
         productId: String,
         rating: Int,
-        review: String?
+        comment: String?
     ): ProductReview {
-        return ProductReview(
-            1,
-            "1",
-            rating,
-            review,
-            LocalDateTime.now(),
-            ClientItem(
-                "1",
-                "João",
-                null
+        data class ReviewCreationRequest(
+            val rating: Int,
+            val comment: String?
+        )
+
+        val prefs = requestHandler<ProductPreferences>(
+            path = buildProductPreferencesByIdPath(productId),
+            method = HttpMethod.PATCH,
+            body = mapOf(
+                "review" to ReviewCreationRequest(
+                    rating = rating,
+                    comment = comment
+                )
+            )
+        )
+
+        return prefs.review!!
+    }
+
+    override suspend fun deleteProductReview(productId: String) {
+        data class ReviewDeletionRequest(
+            val review: ProductReview?
+        )
+
+        return requestHandler(
+            path = buildProductPreferencesByIdPath(productId),
+            method = HttpMethod.PATCH,
+            body = ReviewDeletionRequest(null)
+        )
+    }
+
+    override suspend fun updateFavouriteProduct(productId: String, favourite: Boolean) {
+        return requestHandler(
+            path = buildProductPreferencesByIdPath(productId),
+            method = HttpMethod.PATCH,
+            body = mapOf(
+                "isFavourite" to favourite
+            )
+        )
+    }
+
+    override suspend fun addProductToList(listId: String, productId: String, storeId: Int) {
+        return requestHandler(
+            path = buildAddProductToListPath(listId),
+            method = HttpMethod.POST,
+            body = mapOf( // TODO: check if possible, if not, change to a class
+                "productId" to productId,
+                "storeId" to storeId,
+                "quantity" to 1
             )
         )
     }

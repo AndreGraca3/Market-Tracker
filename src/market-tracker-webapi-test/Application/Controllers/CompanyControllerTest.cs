@@ -22,13 +22,13 @@ public class CompanyControllerTest
             {
                 Id = 1,
                 Name = "Company 1",
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             },
             new()
             {
                 Id = 2,
                 Name = "Company 2",
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             }
         };
 
@@ -60,7 +60,7 @@ public class CompanyControllerTest
         {
             Id = 1,
             Name = "Company 1",
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
 
         // Service Arrange
@@ -157,7 +157,7 @@ public class CompanyControllerTest
         {
             Id = 1,
             Name = "Company 1",
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
 
         // Service Arrange

@@ -16,7 +16,7 @@ public static class MockedData
             "client1master",
             "Client 1",
             "client1_email",
-            DateTime.Now - TimeSpan.FromDays(1),
+            DateTime.UtcNow - TimeSpan.FromDays(1),
             "avatar1"
         ),
         new Client(
@@ -24,7 +24,7 @@ public static class MockedData
             "client2master",
             "Client 2",
             "client2_email",
-            DateTime.Now - TimeSpan.FromDays(1),
+            DateTime.UtcNow - TimeSpan.FromDays(1),
             "avatar2"
         )
     ];
@@ -49,11 +49,11 @@ public static class MockedData
     public static readonly List<Store> DummyStores =
     [
         new Store(1, "Store 1", "Address 1", new City(1, "city1"),
-            new Company(1, "company1", "company1", DateTime.Now), Guid.NewGuid()),
+            new Company(1, "company1", "company1", DateTime.UtcNow), Guid.NewGuid()),
 
 
         new Store(2, "Store 2", "Address 2", new City(2, "city2"),
-            new Company(2, "company2", "company2", DateTime.Now), Guid.NewGuid())
+            new Company(2, "company2", "company2", DateTime.UtcNow), Guid.NewGuid())
     ];
 
     public static readonly List<Product> DummyProducts =
@@ -81,23 +81,23 @@ public static class MockedData
             "1",
             "List 1 with members",
             null,
-            DateTime.Now - TimeSpan.FromDays(1),
+            DateTime.UtcNow - TimeSpan.FromDays(1),
             DummyClients[0].Id.Value,
             [DummyClients[1].Id.Value]
         ),
         new ShoppingList(
             "2",
             "List 2 without members",
-            DateTime.Now - TimeSpan.FromDays(1),
-            DateTime.Now - TimeSpan.FromDays(3),
+            DateTime.UtcNow - TimeSpan.FromDays(1),
+            DateTime.UtcNow - TimeSpan.FromDays(3),
             DummyClients[0].Id.Value,
             []
         ),
         new ShoppingList(
             "3",
             "List 3 from user 2 without members",
-            DateTime.Now - TimeSpan.FromDays(1),
-            DateTime.Now - TimeSpan.FromDays(2),
+            DateTime.UtcNow - TimeSpan.FromDays(1),
+            DateTime.UtcNow - TimeSpan.FromDays(2),
             DummyClients[1].Id.Value,
             []
         )

@@ -7,7 +7,8 @@ sealed class ProfileScreenState {
 
     data object Idle : ProfileScreenState()
 
-    data class Fail(val error: Throwable) : ProfileScreenState()
+    data class Success(val client: Client, val nLists: Int, val nFavorites: Int, val nAlerts: Int) :
+        ProfileScreenState()
 
-    data class Loaded(val client: Client) : ProfileScreenState()
+    data class Fail(val error: Throwable) : ProfileScreenState()
 }

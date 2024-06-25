@@ -52,11 +52,11 @@ static class Program
         app.Use(
             async (context, next) =>
             {
-                var startTime = DateTime.Now;
+                var startTime = DateTime.UtcNow;
                 Console.WriteLine($"Request: {context.Request.Method} {context.Request.Path}");
                 await next();
                 Console.WriteLine(
-                    $"Response: {context.Response.StatusCode} in {(DateTime.Now - startTime).TotalMilliseconds}ms"
+                    $"Response: {context.Response.StatusCode} in {(DateTime.UtcNow - startTime).TotalMilliseconds}ms"
                 );
             }
         );

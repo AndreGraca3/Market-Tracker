@@ -10,9 +10,11 @@ import pt.isel.markettracker.http.models.user.UserCreationInputModel
 import pt.isel.markettracker.http.models.user.UserUpdateInputModel
 import pt.isel.markettracker.http.service.MarketTrackerService
 
-private const val usersAllPath = "/clients"
-private const val authenticatedUserPath = "$usersAllPath/me"
-private fun buildUserByIdPath(id: String) = "$usersAllPath/$id"
+private const val usersBasePath = "/clients"
+private const val authenticatedUserPath = "$usersBasePath/me"
+private fun buildUserByIdPath(id: String) = "$usersBasePath/$id"
+
+private const val registerDevicePath = "$authenticatedUserPath/register-push-notifications"
 
 class UserService(
     override val httpClient: OkHttpClient,
@@ -21,9 +23,9 @@ class UserService(
 
     override suspend fun getUsers(username: String?): PaginatedResult<ClientItem> {
         return requestHandler(
-            path = usersAllPath,
+            path = usersBasePath,
             method = HttpMethod.GET,
-            input = username
+            body = username
         )
     }
 
@@ -41,26 +43,50 @@ class UserService(
         )
     }
 
-    override suspend fun createUser(input: UserCreationInputModel): StringIdOutputModel {
-        return requestHandler(
-            path = usersAllPath,
+    override suspend fun createUser(
+        name: String,
+        username: String,
+        email: String,
+        password: String,
+        avatar: String?
+    ): String {
+        return requestHandler<StringIdOutputModel>(
+            path = usersBasePath,
             method = HttpMethod.POST,
-            input = input
-        )
+            body = UserCreationInputModel(
+                name = name,
+                username = username,
+                email = email,
+                password = password,
+                avatar = avatar
+            )
+        ).id
     }
 
-    override suspend fun updateUser(input: UserUpdateInputModel): Client {
+    override suspend fun updateUser(name: String?, username: String?, avatar: String?): Client {
         return requestHandler(
-            path = usersAllPath,
+            path = usersBasePath,
             method = HttpMethod.PUT,
-            input = input
+            body = UserUpdateInputModel(
+                name = name,
+                username = username,
+                avatar = avatar
+            )
         )
     }
 
     override suspend fun deleteUser() {
         return requestHandler(
-            path = usersAllPath,
+            path = usersBasePath,
             method = HttpMethod.DELETE
+        )
+    }
+
+    override suspend fun registerDevice(token: String, deviceId: String) {
+        return requestHandler(
+            path = registerDevicePath,
+            method = HttpMethod.POST,
+            body = mapOf("firebaseToken" to token, "deviceId" to deviceId)
         )
     }
 }

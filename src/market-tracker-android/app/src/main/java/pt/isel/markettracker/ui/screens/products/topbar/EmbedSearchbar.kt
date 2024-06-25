@@ -22,6 +22,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,9 +45,10 @@ fun EmbeddedSearchBar(
     onBarcodeScanRequest: () -> Unit
 ) {
     val previousQueries = remember { mutableStateListOf<String>() }
+    val focusRequester = remember { FocusRequester() }
 
     SearchBar(
-        modifier = modifier,
+        modifier = modifier.focusRequester(focusRequester),
         colors = SearchBarDefaults.colors(Grey),
         query = searchQuery,
         onQueryChange = onSearchQueryChange,
@@ -81,7 +84,8 @@ fun EmbeddedSearchBar(
                         onClick = {
                             onSearchQueryChange(null)
                             if (!active) {
-                                onSearch()
+                                focusRequester.requestFocus()
+                                onActiveChange(true)
                             }
                         }
                     ) {

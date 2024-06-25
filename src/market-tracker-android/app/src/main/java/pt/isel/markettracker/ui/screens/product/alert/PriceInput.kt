@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.product.alert
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,7 +31,9 @@ import pt.isel.markettracker.utils.euroToCent
 
 @Composable
 fun PriceInput(maxPrice: Int, onValueChange: (Int) -> Unit) {
-    var priceState by remember { mutableStateOf(PriceInputState(maxPrice.toDouble(), "", true)) }
+    var priceState by remember {
+        mutableStateOf(PriceInputManager(maxPrice.toDouble(), "", true))
+    }
 
     var textFieldValue by remember {
         mutableStateOf(

@@ -2,7 +2,6 @@ package pt.isel.markettracker.ui.screens.product
 
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -10,7 +9,10 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProductDetailsActivity : ComponentActivity() {
@@ -34,6 +36,9 @@ class ProductDetailsActivity : ComponentActivity() {
 
     private val vm by viewModels<ProductDetailsScreenViewModel>()
 
+    @Inject
+    lateinit var authRepository: IAuthRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -41,14 +46,14 @@ class ProductDetailsActivity : ComponentActivity() {
             vm.stateFlow.collect { state ->
                 if (state is ProductDetailsScreenState.Idle) vm.fetchProductById(productId)
                 if (state is ProductDetailsScreenState.LoadedProduct) {
-                    vm.fetchProductDetails(productId)
+                    vm.fetchProductDetails(productId, authRepository.authState.value.isLoggedIn())
                 }
             }
         }
 
         setContent {
             MarkettrackerTheme {
-                ProductDetailsScreen(onBackRequest = { finish() }, vm)
+                ProductDetailsScreen(onBackRequest = { finish() }, vm, authRepository)
             }
         }
     }

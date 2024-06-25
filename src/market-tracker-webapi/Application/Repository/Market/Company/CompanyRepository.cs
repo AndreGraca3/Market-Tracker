@@ -32,7 +32,7 @@ public class CompanyRepository(MarketTrackerDataContext marketTrackerDataContext
 
     public async Task<CompanyId> AddCompanyAsync(string name, string logoUrl)
     {
-        var newCompany = new CompanyEntity { Name = name, LogoUrl = logoUrl, CreatedAt = DateTime.Now };
+        var newCompany = new CompanyEntity { Name = name, LogoUrl = logoUrl, CreatedAt = DateTime.UtcNow };
 
         marketTrackerDataContext.Company.Add(newCompany);
         await marketTrackerDataContext.SaveChangesAsync();

@@ -203,14 +203,14 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                 ProductId = productId,
                 StoreId = storeId,
                 IsAvailable = isAvailable,
-                LastChecked = DateTime.Now
+                LastChecked = DateTime.UtcNow
             };
             await dataContext.ProductAvailability.AddAsync(availability);
         }
         else
         {
             availability.IsAvailable = isAvailable;
-            availability.LastChecked = DateTime.Now;
+            availability.LastChecked = DateTime.UtcNow;
         }
 
         await dataContext.SaveChangesAsync();

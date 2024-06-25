@@ -1,5 +1,6 @@
 package pt.isel.markettracker.ui.screens.product.prices
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAlert
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +44,9 @@ import java.time.LocalDateTime
 fun CompanyPriceBox(
     price: Price,
     lastChecked: LocalDateTime,
+    showOptions: Boolean,
+    hasAlert: Boolean,
+    onAlertClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val positionProvider = rememberPlainTooltipPositionProvider()
@@ -53,16 +58,18 @@ fun CompanyPriceBox(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
     ) {
-        IconButton(
-            onClick = {}, modifier = Modifier
-                .background(Color.LightGray, shape = CircleShape)
-                .size(28.dp)
-                .padding(4.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.AddAlert,
-                contentDescription = "Alert"
-            )
+        AnimatedVisibility(showOptions) {
+            IconButton(
+                onClick = onAlertClick, modifier = Modifier
+                    .background(Color.LightGray, shape = CircleShape)
+                    .size(28.dp)
+                    .padding(4.dp)
+            ) {
+                Icon(
+                    imageVector = if (hasAlert) Icons.Filled.Remove else Icons.Filled.AddAlert,
+                    contentDescription = "Alert"
+                )
+            }
         }
 
         Column(
@@ -103,7 +110,10 @@ fun CompanyPriceBox(
                     }
                 }
             }
-            AddToListButton(onClick = {})
+
+            AnimatedVisibility(visible = showOptions) {
+                AddToListButton(onClick = {})
+            }
         }
     }
 }
@@ -113,6 +123,9 @@ fun CompanyPriceBox(
 fun CompanyPriceBoxPreview() {
     CompanyPriceBox(
         price = Price(100, 50, Promotion(10, LocalDateTime.now()), LocalDateTime.now()),
-        lastChecked = LocalDateTime.now()
+        lastChecked = LocalDateTime.now(),
+        showOptions = true,
+        hasAlert = false,
+        onAlertClick = {}
     )
 }

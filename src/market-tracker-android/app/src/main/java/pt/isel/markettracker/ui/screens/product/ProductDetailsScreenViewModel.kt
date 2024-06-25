@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.product
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
@@ -10,13 +9,19 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import pt.isel.markettracker.domain.model.market.price.PriceAlert
+import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
+import pt.isel.markettracker.ui.screens.product.alert.PriceAlertState
+import pt.isel.markettracker.ui.screens.product.rating.ProductPreferencesState
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductDetailsScreenViewModel @Inject constructor(
-    private val productService: IProductService
+    private val productService: IProductService,
+    private val alertService: IAlertService
 ) : ViewModel() {
 
     private val _stateFlow: MutableStateFlow<ProductDetailsScreenState> =
@@ -41,18 +46,17 @@ class ProductDetailsScreenViewModel @Inject constructor(
         }
     }
 
-    fun fetchProductDetails(productId: String) {
+    fun fetchProductDetails(productId: String, isAuthenticated: Boolean) {
         val screenState = _stateFlow.value
         if (screenState !is ProductDetailsScreenState.LoadedProduct) return
         _stateFlow.value = ProductDetailsScreenState.LoadingProductDetails(screenState.product)
 
         fetchProductStats(productId)
-        fetchProductPreferences(productId)
+        fetchProductPreferences(productId, isAuthenticated)
         fetchProductPrices(productId)
-        fetchProductAlerts(productId)
     }
 
-    fun fetchProductPrices(productId: String) {
+    private fun fetchProductPrices(productId: String) {
         val screenState = _stateFlow.value
         if (screenState !is ProductDetailsScreenState.LoadingProductDetails ||
             screenState.prices != null
@@ -63,7 +67,7 @@ class ProductDetailsScreenViewModel @Inject constructor(
         }
     }
 
-    fun fetchProductStats(productId: String) {
+    private fun fetchProductStats(productId: String) {
         val screenState = _stateFlow.value
         if (screenState !is ProductDetailsScreenState.LoadingProductDetails ||
             screenState.stats != null
@@ -71,30 +75,6 @@ class ProductDetailsScreenViewModel @Inject constructor(
 
         loadDetailAndSetScreenStateIfReady(apiCall = { productService.getProductStats(productId) }) {
             copy(stats = it)
-        }
-    }
-
-    fun fetchProductPreferences(productId: String) {
-        val screenState = _stateFlow.value
-        if (screenState !is ProductDetailsScreenState.LoadingProductDetails ||
-            screenState.preferences != null
-        ) return
-
-        loadDetailAndSetScreenStateIfReady(apiCall = {
-            productService.getProductPreferences(productId)
-        }) {
-            copy(preferences = it)
-        }
-    }
-
-    fun fetchProductAlerts(productId: String) {
-        val screenState = _stateFlow.value
-        if (screenState !is ProductDetailsScreenState.LoadingProductDetails ||
-            screenState.alerts != null
-        ) return
-
-        loadDetailAndSetScreenStateIfReady(apiCall = { productService.getProductAlerts(productId) }) {
-            copy(alerts = it)
         }
     }
 
@@ -117,48 +97,189 @@ class ProductDetailsScreenViewModel @Inject constructor(
             }
 
             res.onSuccess {
-                val paginatedReviews = (screenState.paginatedReviews?.items?.plus(it.items)) ?: it.items
+                val paginatedReviews =
+                    (screenState.paginatedReviews?.items?.plus(it.items)) ?: it.items
                 _stateFlow.value = ProductDetailsScreenState.LoadedDetails(
                     product = screenState.product,
                     prices = screenState.prices,
                     stats = screenState.stats,
-                    preferences = screenState.preferences,
-                    alerts = screenState.alerts,
                     paginatedReviews = it.copy(items = paginatedReviews)
                 )
             }
         }
     }
 
-    fun submitUserRating(productId: String, rating: Int, text: String) {
-        Log.v("Reviews", "submitting user rating")
-        val screenState = _stateFlow.value
-        if (screenState !is ProductDetailsScreenState.LoadedDetails) return
-        _stateFlow.value = screenState.toSubmittingReview()
+    private val _prefsStateFlow: MutableStateFlow<ProductPreferencesState> =
+        MutableStateFlow(ProductPreferencesState.Idle)
+    val prefsStateFlow
+        get() = _prefsStateFlow.asStateFlow()
 
-        Log.v("Reviews", "actually submitting user rating")
+    private fun fetchProductPreferences(productId: String, isAuthenticated: Boolean) {
+        val prefsState = _prefsStateFlow.value
+        if (prefsState !is ProductPreferencesState.Idle) return
+        if (!isAuthenticated) {
+            _prefsStateFlow.value = ProductPreferencesState.Unauthenticated
+            return
+        }
+
+        _prefsStateFlow.value = ProductPreferencesState.Loading
+
+        viewModelScope.launch {
+            val res = runCatchingAPIFailure { productService.getProductPreferences(productId) }
+
+            res.onSuccess {
+                _prefsStateFlow.value = ProductPreferencesState.Loaded(it)
+            }.onFailure {
+                _prefsStateFlow.value = ProductPreferencesState.Failed(it)
+            }
+        }
+    }
+
+    fun submitUserRating(productId: String, rating: Int, comment: String) {
+        val screenState = _stateFlow.value
+        val prefsState = _prefsStateFlow.value
+        if (screenState !is ProductDetailsScreenState.LoadedDetails ||
+            prefsState !is ProductPreferencesState.Loaded
+        ) return
+
+        _prefsStateFlow.value = ProductPreferencesState.Loading
 
         viewModelScope.launch {
             val res = runCatchingAPIFailure {
                 productService.submitProductReview(
                     productId,
                     rating,
-                    text
+                    comment.takeIf { it.isNotBlank() }
                 )
             }
 
-            res.onSuccess {
-                Log.v("Reviews", "submitted user rating")
-                _stateFlow.value =
-                    screenState.copy(
-                        paginatedReviews = screenState.paginatedReviews?.copy(
-                            items = screenState.paginatedReviews.items + it
+            res.onSuccess { newReview ->
+                if (screenState.paginatedReviews != null) {
+                    var isNewReview = true
+
+                    val reviews = screenState.paginatedReviews.items.map {
+                        if (it.id == newReview.id) {
+                            isNewReview = false
+                            newReview
+                        } else it
+                    }
+
+                    _stateFlow.value = screenState.copy(
+                        paginatedReviews = screenState.paginatedReviews.copy(
+                            items =
+                            if (isNewReview) listOf(newReview) + screenState.paginatedReviews.items
+                            else reviews
                         )
                     )
+                }
+
+                _prefsStateFlow.value = prefsState.copy(
+                    prefsState.preferences.copy(review = newReview)
+                )
             }.onFailure {
-                _stateFlow.value = ProductDetailsScreenState.Failed(it)
+                _prefsStateFlow.value = ProductPreferencesState.Failed(it)
             }
         }
+    }
+
+    fun deleteReview(productId: String) {
+        val initialScreenState = _stateFlow.value
+        val initialPrefsState = _prefsStateFlow.value
+        if (initialScreenState !is ProductDetailsScreenState.LoadedDetails ||
+            initialPrefsState !is ProductPreferencesState.Loaded
+        ) return
+
+        // Optimistic update
+        val optimisticUpdateScreenState = initialScreenState.copy(
+            paginatedReviews = initialScreenState.paginatedReviews?.copy(
+                items = initialScreenState.paginatedReviews.items.filterNot {
+                    it.id == initialPrefsState.preferences.review?.id
+                }
+            )
+        )
+        _stateFlow.value = optimisticUpdateScreenState
+
+        _prefsStateFlow.value = initialPrefsState.copy(
+            initialPrefsState.preferences.copy(review = null)
+        )
+
+        viewModelScope.launch {
+            runCatchingAPIFailure {
+                productService.deleteProductReview(productId)
+            }.onFailure {
+                _stateFlow.value = initialScreenState
+                _prefsStateFlow.value = initialPrefsState
+            }
+        }
+    }
+
+    fun submitFavourite(isFavourite: Boolean) {
+        val currScreenState = _stateFlow.value
+        val currPrefsState = _prefsStateFlow.value
+        if (currScreenState !is ProductDetailsScreenState.LoadedDetails ||
+            currPrefsState !is ProductPreferencesState.Loaded
+        ) return
+
+        // Optimistic update
+        _prefsStateFlow.value = currPrefsState.copy(
+            currPrefsState.preferences.copy(isFavourite = isFavourite)
+        )
+
+        viewModelScope.launch {
+            val res = runCatchingAPIFailure {
+                productService.updateFavouriteProduct(currScreenState.product.id, isFavourite)
+            }
+
+            res.onFailure {
+                _prefsStateFlow.value = currPrefsState
+            }
+        }
+    }
+
+    // Alert
+    private val _priceAlertStateFlow: MutableStateFlow<PriceAlertState> =
+        MutableStateFlow(PriceAlertState.Idle)
+    val priceAlertStateFlow
+        get() = _priceAlertStateFlow.asStateFlow()
+
+    fun createAlert(productId: String, storeId: Int, priceThreshold: Int) {
+        if (_priceAlertStateFlow.value is PriceAlertState.Loading) return
+        _priceAlertStateFlow.value = PriceAlertState.Loading
+
+        viewModelScope.launch {
+            runCatchingAPIFailure {
+                alertService.createAlert(productId, storeId, priceThreshold)
+            }.onSuccess {
+                _priceAlertStateFlow.value = PriceAlertState.Created(
+                    PriceAlert(
+                        id = it.id,
+                        productId = productId,
+                        storeId = storeId,
+                        priceThreshold = priceThreshold,
+                        createdAt = LocalDateTime.now()
+                    )
+                )
+            }.onFailure {
+                _priceAlertStateFlow.value = PriceAlertState.Error(it)
+            }
+        }
+    }
+
+    fun deleteAlert(alertId: String) {
+        if (_priceAlertStateFlow.value is PriceAlertState.Loading) return
+        _priceAlertStateFlow.value = PriceAlertState.Loading
+
+        viewModelScope.launch {
+            runCatchingAPIFailure { alertService.deleteAlert(alertId) }.onSuccess {
+                _priceAlertStateFlow.value = PriceAlertState.Deleted
+            }.onFailure {
+                _priceAlertStateFlow.value = PriceAlertState.Error(it)
+            }
+        }
+    }
+
+    fun resetPriceAlertState() {
+        _priceAlertStateFlow.value = PriceAlertState.Idle
     }
 
     private inline fun <T> loadDetailAndSetScreenStateIfReady(

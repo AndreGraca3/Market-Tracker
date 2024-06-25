@@ -7,7 +7,6 @@ import pt.isel.markettracker.domain.model.market.inventory.product.ProductPrefer
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
-import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.domain.model.market.price.ProductPrices
 
 interface IProductService {
@@ -25,13 +24,21 @@ interface IProductService {
 
     suspend fun getProductPreferences(productId: String): ProductPreferences
 
-    suspend fun getProductAlerts(productId: String): List<PriceAlert>
-
-    suspend fun getProductReviews(productId: String, page: Int, itemsPerPage: Int? = null): PaginatedResult<ProductReview>
+    suspend fun getProductReviews(
+        productId: String,
+        page: Int,
+        itemsPerPage: Int? = null
+    ): PaginatedResult<ProductReview>
 
     suspend fun submitProductReview(
         productId: String,
         rating: Int,
-        review: String?
+        comment: String?
     ): ProductReview
+
+    suspend fun deleteProductReview(productId: String)
+
+    suspend fun updateFavouriteProduct(productId: String, favourite: Boolean)
+
+    suspend fun addProductToList(listId: String, productId: String, storeId: Int)
 }

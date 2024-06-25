@@ -32,8 +32,8 @@ public class ProductFeedbackService(
     public async Task<ProductPreferences> UpsertProductPreferencesAsync(
         Guid clientId,
         string productId,
-        Optional<bool> isFavorite,
-        Optional<ProductReviewInputModel?> review
+        Optional<bool> newIsFavorite,
+        Optional<ProductReviewInputModel?> newReview
     )
     {
         return await transactionManager.ExecuteAsync(async () =>
@@ -48,38 +48,54 @@ public class ProductFeedbackService(
             var oldPreferences = await productFeedbackRepository.GetProductPreferencesAsync(
                 clientId, productId);
 
-            var updatedReview = oldPreferences.Review;
+            var review = oldPreferences.Review;
 
-            if (review.HasValue)
+            if (newReview.HasValue)
             {
-                if (review.Value is not null)
+                if (newReview.Value is not null)
                 {
-                    updatedReview = await productFeedbackRepository.UpsertReviewAsync(
-                        clientId,
-                        productId,
-                        review.Value.Rating,
-                        review.Value.Comment
-                    );
+                    if (review is null)
+                    {
+                        var newReviewId = await productFeedbackRepository.AddReviewAsync(
+                            clientId,
+                            productId,
+                            newReview.Value.Rating,
+                            newReview.Value.Comment
+                        );
+
+                        review = await productFeedbackRepository.GetReviewByIdAsync(
+                            newReviewId.Value
+                        );
+                    }
+                    else
+                    {
+                        review = await productFeedbackRepository.UpdateReviewAsync(
+                            review.Id.Value,
+                            newReview.Value.Rating,
+                            newReview.Value.Comment
+                        );
+                    }
                 }
                 else
                 {
-                    await productFeedbackRepository.RemoveReviewAsync(clientId, productId);
-                    updatedReview = null;
+                    if (review is not null)
+                        await productFeedbackRepository.RemoveReviewAsync(review.Id.Value);
+                    review = null;
                 }
             }
 
-            var updatedIsFavourite = oldPreferences.IsFavourite;
+            var isFavourite = oldPreferences.IsFavourite;
 
-            if (isFavorite.HasValue)
+            if (newIsFavorite.HasValue)
             {
-                updatedIsFavourite = await productFeedbackRepository.UpdateProductFavouriteAsync(
+                isFavourite = await productFeedbackRepository.UpdateProductFavouriteAsync(
                     clientId,
                     productId,
-                    isFavorite.Value
+                    newIsFavorite.Value
                 );
             }
 
-            return new ProductPreferences(updatedIsFavourite, updatedReview);
+            return new ProductPreferences(isFavourite, review);
         });
     }
 

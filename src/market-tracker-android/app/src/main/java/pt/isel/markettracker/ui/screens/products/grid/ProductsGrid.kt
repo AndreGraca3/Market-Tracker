@@ -1,8 +1,6 @@
 package pt.isel.markettracker.ui.screens.products.grid
 
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,7 +42,8 @@ fun ProductsGrid(
     lazyGridState: LazyGridState,
     hasMore: Boolean,
     productsOffers: List<ProductOffer>,
-    onProductClick: (String) -> Unit
+    onProductClick: (String) -> Unit,
+    onAddToListClick: (ProductOffer) -> Unit
 ) {
     if (productsOffers.isEmpty()) {
         Column(
@@ -72,6 +71,9 @@ fun ProductsGrid(
             ProductCard(
                 productOffer = productsOffers[index],
                 onProductClick = onProductClick,
+                onAddToListClick = {
+                    onAddToListClick(productsOffers[index])
+                },
                 modifier = Modifier
                     .width(170.dp)
                     .height(370.dp)
@@ -123,6 +125,7 @@ fun ProductsGridPreview() {
         lazyGridState = LazyGridState(),
         hasMore = true,
         productsOffers = dummyProducts.map { ProductOffer(it, dummyStoreOffers.first()) },
-        onProductClick = {}
+        onProductClick = {},
+        onAddToListClick = {}
     )
 }

@@ -30,7 +30,7 @@ public class ClientDeviceRepository(MarketTrackerDataContext dataContext) : ICli
             ClientId = clientId,
             DeviceId = deviceId,
             Token = firebaseToken,
-            UpdatedAt = DateTime.Now
+            UpdatedAt = DateTime.UtcNow
         };
 
         await dataContext.FcmRegister.AddAsync(fcmRegisterEntity);
@@ -50,7 +50,7 @@ public class ClientDeviceRepository(MarketTrackerDataContext dataContext) : ICli
         }
 
         fcmRegisterEntity.Token = firebaseToken;
-        fcmRegisterEntity.UpdatedAt = DateTime.Now;
+        fcmRegisterEntity.UpdatedAt = DateTime.UtcNow;
 
         await dataContext.SaveChangesAsync();
         return fcmRegisterEntity.ToDeviceToken();

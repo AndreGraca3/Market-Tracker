@@ -1,6 +1,6 @@
 package pt.isel.markettracker.ui.screens.product.alert
 
-data class PriceInputState(
+data class PriceInputManager(
     val maxPrice: Double,
     val priceText: String,
     val isValid: Boolean
@@ -14,7 +14,7 @@ data class PriceInputState(
         return priceText.replace(",", ".").toDoubleOrNull() ?: 0.0
     }
 
-    fun setNewPrice(newPriceText: String): PriceInputState {
+    fun setNewPrice(newPriceText: String): PriceInputManager {
         val formattedPriceText = newPriceText.replace(".", ",")
 
         if (formattedPriceText.count { it == ',' } > 1) {

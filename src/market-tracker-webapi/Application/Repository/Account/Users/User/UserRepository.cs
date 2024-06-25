@@ -47,7 +47,7 @@ public class UserRepository(
             Name = name,
             Email = email,
             Role = role,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
         await dataContext.User.AddAsync(newUser);
         await dataContext.SaveChangesAsync();

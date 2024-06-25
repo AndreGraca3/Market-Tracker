@@ -29,12 +29,14 @@ import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
 fun PriceAlertDialog(
+    showAlertDialog: Boolean,
     price: Int,
     onAlertSet: (Int) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     var currentPriceThreshold by rememberSaveable { mutableIntStateOf(price) }
 
+    if (!showAlertDialog) return
     Dialog(onDismissRequest = {
         currentPriceThreshold = price
         onDismissRequest()
@@ -65,9 +67,7 @@ fun PriceAlertDialog(
                         textAlign = TextAlign.Center
                     )
 
-                    PriceInput(maxPrice = 500) {
-                        currentPriceThreshold = it
-                    }
+                    PriceInput(maxPrice = 500, onValueChange = { currentPriceThreshold = it })
 
                     Button(
                         onClick = { onAlertSet(currentPriceThreshold) },
@@ -91,5 +91,6 @@ fun PriceAlertDialog(
 @Preview
 @Composable
 fun PriceAlertDialogPreview() {
-    PriceAlertDialog(price = 109, onAlertSet = {}, onDismissRequest = {})
+    PriceAlertDialog(
+        showAlertDialog = true, price = 109, onAlertSet = {}, onDismissRequest = {})
 }

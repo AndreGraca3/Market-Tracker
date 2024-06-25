@@ -174,7 +174,7 @@ public class StoreServiceTest
     {
         // Arrange
         var newStore = new Store(1, "new Store 1", "Address 1", new City(1, "city1"),
-            new Company(1, "company1", "company1", DateTime.Now), Guid.NewGuid());
+            new Company(1, "company1", "company1", DateTime.UtcNow), Guid.NewGuid());
 
         _storeRepositoryMock
             .Setup(x => x.GetStoreByIdAsync(MockedData.DummyStores[0].Id.Value))

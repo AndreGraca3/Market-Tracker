@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -24,6 +25,7 @@ import com.example.markettracker.R
 fun SettingsButton(
     onEditRequested: () -> Unit,
     onLogoutRequested: () -> Unit,
+    onDeleteAccountRequested: () -> Unit,
     modifier: Modifier
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -79,6 +81,22 @@ fun SettingsButton(
                     )
                 },
                 onClick = onLogoutRequested
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = "Apagar",
+                        color = Color.White
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.DeleteForever,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                },
+                onClick = onDeleteAccountRequested
             )
         }
     }

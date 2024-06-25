@@ -12,11 +12,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import pt.isel.markettracker.domain.model.list.ShoppingList
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
-import pt.isel.markettracker.domain.model.market.inventory.product.filter.resetAll
 import pt.isel.markettracker.ui.components.common.PullToRefreshLazyColumn
 import pt.isel.markettracker.ui.screens.products.filters.FilterOptionsRow
 import pt.isel.markettracker.ui.screens.products.grid.ProductsGridView
+import pt.isel.markettracker.ui.screens.products.list.AddToListState
+import pt.isel.markettracker.ui.screens.products.list.ListsBottomSheet
 import pt.isel.markettracker.ui.screens.products.topbar.ProductsTopBar
 
 @Composable
@@ -24,16 +27,17 @@ fun ProductsScreenView(
     state: ProductsScreenState,
     query: ProductsQuery,
     onQueryChange: (ProductsQuery) -> Unit,
-    fetchProducts: (Boolean) -> Unit,
+    fetchProducts: () -> Unit,
     loadMoreProducts: (ProductsQuery) -> Unit,
     onProductClick: (String) -> Unit,
-    onBarcodeScanRequest: () -> Unit
+    shoppingLists: List<ShoppingList>,
+    addToListState: AddToListState,
+    onAddToListClick: (ProductOffer) -> Unit,
+    onListSelectedClick: (String) -> Unit,
+    onAddToListDismissRequest: () -> Unit,
+    onBarcodeScanRequest: () -> Unit,
 ) {
     var isRefreshing by rememberSaveable { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        fetchProducts(false)
-    }
 
     LaunchedEffect(state) {
         if (state !is ProductsScreenState.Loading && isRefreshing) {
@@ -46,7 +50,7 @@ fun ProductsScreenView(
             ProductsTopBar(
                 searchTerm = query.searchTerm.orEmpty(),
                 onSearchTermChange = { onQueryChange(query.copy(searchTerm = it)) },
-                onSearch = { fetchProducts(true) },
+                onSearch = fetchProducts,
                 onBarcodeScanRequest = onBarcodeScanRequest
             )
         }
@@ -55,7 +59,7 @@ fun ProductsScreenView(
             isRefreshing = isRefreshing,
             onRefresh = {
                 isRefreshing = true
-                fetchProducts(true)
+                fetchProducts()
             },
             modifier = Modifier
                 .padding(paddingValues)
@@ -70,7 +74,7 @@ fun ProductsScreenView(
                     query = query,
                     onQueryChange = {
                         onQueryChange(it)
-                        fetchProducts(true)
+                        fetchProducts()
                     },
                     isLoading = state is ProductsScreenState.Loading
                 )
@@ -79,7 +83,16 @@ fun ProductsScreenView(
                     state = state,
                     loadMoreProducts = { loadMoreProducts(query) },
                     onProductClick = onProductClick,
+                    onAddToListClick = onAddToListClick
                 )
+
+                if (addToListState is AddToListState.SelectingList) {
+                    ListsBottomSheet(
+                        shoppingLists = shoppingLists ,
+                        onListSelectedClick = onListSelectedClick,
+                        onDismissRequest = onAddToListDismissRequest
+                    )
+                }
             }
         }
     }

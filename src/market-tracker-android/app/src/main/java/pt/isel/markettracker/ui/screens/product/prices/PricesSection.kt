@@ -27,7 +27,13 @@ import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.utils.shimmerEffect
 
 @Composable
-fun PricesSection(productPrices: ProductPrices?, alerts: List<PriceAlert>?) {
+fun PricesSection(
+    productPrices: ProductPrices?,
+    showOptions: Boolean,
+    alerts: List<PriceAlert>,
+    onAlertSet: (Int, Int) -> Unit,
+    onAlertDelete: (String) -> Unit
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(21.dp)
     ) {
@@ -63,7 +69,7 @@ fun PricesSection(productPrices: ProductPrices?, alerts: List<PriceAlert>?) {
                         color = Color.Red
                     )
                 } else companiesPricing.forEach {
-                    CompanyRow(companyPrices = it)
+                    CompanyRow(it, showOptions, alerts, onAlertSet, onAlertDelete)
                     HorizontalDivider()
                 }
             } ?: repeat(3) {

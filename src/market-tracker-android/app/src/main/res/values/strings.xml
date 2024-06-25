@@ -3,6 +3,8 @@
     <string name="exit_title">Deseja mesmo sair da aplicação?</string>
     <string name="accept">Aceitar</string>
     <string name="reject">Rejeitar</string>
+    <string name="add_to_list">Adicionar a lista</string>
+    <string name="no_lists">Não existem listas</string>
     <string name="search_hint">Pesquise por produto ou marca</string>
     <string name="brands_title">Marcas</string>
     <string name="categories_title">Categorias</string>
@@ -18,9 +20,10 @@
     <string name="write_review">Escrever avaliação</string>
     <string name="edit_review">Editar avaliação</string>
     <string name="describe_product">Descreva a sua experiência (opcional)</string>
+    <string name="delete_review">Apagar avaliação</string>
     <string name="product_stats_loading_error">Erro ao carregar estatísticas do produto</string>
     <string name="prices_section_title">Comparação de Preços</string>
-    <string name="prices_outdated_warning">Os preços resgistados podem não estar atualizados em algumas lojas</string>
+    <string name="prices_outdated_warning">Os preços registados podem não estar atualizados em algumas lojas</string>
     <string name="no_prices_found">Ainda não existem preços para este produto</string>
     <string name="not_available">Indisponível</string>
     <string name="verified_at">"Verificado há"</string>
@@ -28,5 +31,8 @@
     <string name="invalid_price">Preço Inválido</string>
     <string name="price_alert_title">Nós avisamos-te quando o preço diminuir</string>
     <string name="set_alert">Definir alerta</string>
+    <string name="alert_set">Alerta definido</string>
+    <string name="alert_removed">Alerta removido</string>
+    <string name="alert_error">Erro ao definir alerta</string>
     <string name="GOOGLE_CLIENT_ID">317635904868-mgmlu2g27gt43tb00c7i5kfevprerrsn.apps.googleusercontent.com</string>
 </resources>

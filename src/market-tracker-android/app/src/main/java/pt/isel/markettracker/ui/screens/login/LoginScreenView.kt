@@ -1,8 +1,8 @@
 package pt.isel.markettracker.ui.screens.login
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,9 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.markettracker.R
@@ -31,9 +29,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import com.talhafaki.composablesweettoast.util.SweetToastUtil.SweetError
 import pt.isel.markettracker.ui.components.buttons.ButtonWithImage
+import pt.isel.markettracker.ui.components.common.LoadingIcon
 import pt.isel.markettracker.ui.components.text.LinesWithElementCentered
 import pt.isel.markettracker.ui.components.text.MarketTrackerTextField
 import pt.isel.markettracker.ui.screens.login.components.GoogleLoginButton
+import pt.isel.markettracker.ui.screens.login.components.LoginButton
 import pt.isel.markettracker.ui.screens.login.components.PasswordTextField
 import pt.isel.markettracker.ui.screens.products.topbar.HeaderLogo
 import pt.isel.markettracker.ui.theme.mainFont
@@ -51,8 +51,8 @@ fun LoginScreenView(
     onPasswordChangeRequested: (String) -> Unit,
     onSignUpRequested: () -> Unit,
     onLoginRequested: () -> Unit,
-    onGoogleSignInRequested: (Task<GoogleSignInAccount>) -> Unit,
-    onForgotPasswordClick: () -> Unit,
+    googleSignInHandler: (Task<GoogleSignInAccount>) -> Unit,
+    getGoogleLoginIntent: () -> Intent,
     onSuggestionRequested: () -> Unit,
 ) {
     Scaffold(
@@ -71,6 +71,7 @@ fun LoginScreenView(
                     HeaderLogo(
                         modifier = Modifier
                             .align(alignment = Alignment.CenterStart)
+                            .size(52.dp)
                     )
                     Text(
                         "Login 📝",
@@ -84,15 +85,6 @@ fun LoginScreenView(
             }
         }
     ) { paddingValues ->
-
-        if (state is LoginScreenState.Fail) {
-            SweetError(
-                state.error.message ?: "Unknown error",
-                Toast.LENGTH_LONG,
-                contentAlignment = Alignment.Center
-            )
-        }
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -100,6 +92,12 @@ fun LoginScreenView(
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
+            //when (state) {
+            //    is LoginScreenState.Loading -> {
+            //        //LoadingIcon()
+            //    }
+//
+            //    else -> {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -109,6 +107,15 @@ fun LoginScreenView(
                         vertical = 24.dp
                     )
                 ) {
+                    if (state is LoginScreenState.Fail) {
+                        SweetError(
+                            "Failed to login.\n" +
+                                    "Reason: ${state.error.message}",
+                            Toast.LENGTH_LONG,
+                            contentAlignment = Alignment.Center
+                        )
+                    }
+
                     Text(
                         text = "Ao iniciar sessão implica concordância com os termos e condições",
                         fontFamily = mainFont,
@@ -142,24 +149,13 @@ fun LoginScreenView(
                         onValueChange = onPasswordChangeRequested,
                     )
 
-                    Text(
-                        text = "Esqueceu-se da sua palavra-passe?",
-                        textAlign = TextAlign.Center,
-                        fontSize = 10.sp,
-                        maxLines = 1,
-                        style = TextStyle(textDecoration = TextDecoration.Underline),
-                        modifier = Modifier
-                            .clickable(
-                                onClick = onForgotPasswordClick
-                            )
+                    LoginButton(
+                        onLoginRequested = onLoginRequested,
+                        enabled = state !is LoginScreenState.Loading,
+                        loadingContent = {
+                            LoadingIcon()
+                        }
                     )
-
-                    Button(
-                        onClick = onLoginRequested,
-                        enabled = state !is LoginScreenState.Loading
-                    ) {
-                        Text(text = "Login", fontFamily = mainFont)
-                    }
 
                     LinesWithElementCentered(
                         xOffset = 3,
@@ -173,9 +169,7 @@ fun LoginScreenView(
                         )
                     }
 
-                    GoogleLoginButton(
-                        onGoogleLoginRequested = onGoogleSignInRequested
-                    )
+                    GoogleLoginButton(googleSignInHandler, getGoogleLoginIntent)
 
                     ButtonWithImage(
                         onClick = onSignUpRequested,
@@ -190,6 +184,8 @@ fun LoginScreenView(
                     )
                 }
             }
+            //}
+            //}
         }
     }
 }

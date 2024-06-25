@@ -3,7 +3,7 @@ package pt.isel.markettracker.http.service.operations.list
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.domain.model.CollectionOutputModel
-import pt.isel.markettracker.http.models.list.ShoppingListOutputModel
+import pt.isel.markettracker.domain.model.list.ShoppingList
 import pt.isel.markettracker.http.service.MarketTrackerService
 import java.time.LocalDateTime
 
@@ -27,10 +27,10 @@ class ListService(
         createdAfter: LocalDateTime?,
         isArchived: Boolean?,
         isOwner: Boolean?
-    ): CollectionOutputModel<ShoppingListOutputModel> {
-        return requestHandler(
+    ): List<ShoppingList> {
+        return requestHandler<CollectionOutputModel<ShoppingList>>(
             path = buildListsPath(listName, createdAfter, isArchived, isOwner),
             method = HttpMethod.GET
-        )
+        ).items
     }
 }
