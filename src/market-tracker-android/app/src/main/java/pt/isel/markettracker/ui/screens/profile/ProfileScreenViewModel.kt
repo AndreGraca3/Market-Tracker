@@ -44,7 +44,7 @@ class ProfileScreenViewModel @AssistedInject constructor(
 
     fun fetchUser() {
         if (_clientFetchingFlow.value !is ProfileScreenState.Idle) return
-
+        Log.v("User", "Fetching user...")
         _clientFetchingFlow.value = ProfileScreenState.Loading
 
         viewModelScope.launch {
@@ -66,9 +66,9 @@ class ProfileScreenViewModel @AssistedInject constructor(
                         val lists = listsDeferred.await()
                         val alerts = alertsDeferred.await()
 
-                        if (listsDeferred.await().isFailure || alertsDeferred.await().isFailure) {
+                        if (lists.isFailure || alerts.isFailure) {
                             _clientFetchingFlow.value =
-                                Fail(Exception("Failed to fetch lists or alerts"))
+                                ProfileScreenState.Fail(Exception("Failed to fetch lists or alerts"))
                         } else {
                             authRepository.setDetails(lists.getOrThrow(), alerts.getOrThrow())
                         }

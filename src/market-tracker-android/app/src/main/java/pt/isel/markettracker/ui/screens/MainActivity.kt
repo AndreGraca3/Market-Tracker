@@ -20,12 +20,14 @@ import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.screens.login.LoginScreenState
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
 import pt.isel.markettracker.ui.screens.products.list.AddToListState
+import pt.isel.markettracker.ui.screens.profile.ProfileScreenState
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModelFactory
 import pt.isel.markettracker.ui.screens.signup.SignUpActivity
@@ -64,7 +66,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         productsScreenViewModel.fetchProducts()
-        profileScreenViewModel.fetchUser()
+        if (authRepository.authState.value.isLoggedIn()) profileScreenViewModel.fetchUser()
 
         lifecycleScope.launch {
             productsScreenViewModel.addToListStateFlow.collect {
@@ -77,13 +79,14 @@ class MainActivity : ComponentActivity() {
                 Log.v("User", "LoginScreenState is $loginState")
                 if (loginState is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
                 if (loginState is LoginScreenState.Success) {
+                    Log.v("User", "LoginScreenState is Success, fetching user...")
+                    profileScreenViewModel.fetchUser()
                     /*FirebaseMessaging.getInstance().token.addOnCompleteListener {
                         if (it.isSuccessful) {
                             val token = it.result
                             profileScreenViewModel.registerDevice(token)
                         }
                     }*/ // leave this for me please Digo
-                    profileScreenViewModel.fetchUser()
                 }
             }
         }

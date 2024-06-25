@@ -2,6 +2,7 @@ package pt.isel.markettracker.navigation
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -26,7 +27,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.markettracker.R
-import pt.isel.markettracker.repository.auth.AuthEvent
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.screens.list.ListScreen
@@ -100,6 +100,7 @@ fun NavGraph(
 
             composable(Destination.PROFILE.route) {
                 val authState by authRepository.authState.collectAsState()
+                Log.v("User", "AuthState is $authState")
                 if (authState.isLoggedIn()) {
                     ProfileScreen(profileScreenViewModel)
                 } else {
