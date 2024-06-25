@@ -100,12 +100,17 @@ fun ProfileScreenView(
     ) { paddingValues ->
         when (userState) {
             is ProfileScreenState.Loading -> {
-                LoadingIcon()
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingIcon()
+                }
             }
 
             is ProfileScreenState.Fail -> {
                 SweetError(
-                    "Failed to login.",
+                    "Failed to fetch user.",
                     Toast.LENGTH_LONG,
                     contentAlignment = Alignment.Center
                 )

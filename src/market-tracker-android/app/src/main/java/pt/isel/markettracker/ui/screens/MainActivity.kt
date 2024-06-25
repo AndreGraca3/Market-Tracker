@@ -3,7 +3,6 @@ package pt.isel.markettracker.ui.screens
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -75,17 +74,14 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             loginScreenViewModel.loginPhase.collect { loginState ->
-                Log.v("User", "LoginScreenState is $loginState")
-                if (loginState is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
                 if (loginState is LoginScreenState.Success) {
-                    Log.v("User", "LoginScreenState is Success, fetching user...")
-                    profileScreenViewModel.fetchUser()
                     /*FirebaseMessaging.getInstance().token.addOnCompleteListener {
                         if (it.isSuccessful) {
                             val token = it.result
                             profileScreenViewModel.registerDevice(token)
                         }
                     }*/ // leave this for me please Digo
+                    profileScreenViewModel.fetchUser()
                 }
             }
         }

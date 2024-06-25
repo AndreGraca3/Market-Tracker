@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -74,9 +75,5 @@ class LoginScreenViewModel @Inject constructor(
             Log.e(TAG, "Result fail: ${task.exception}")
             loginPhaseFlow.value = LoginScreenState.Fail(it)
         }
-    }
-
-    fun resetLoginPhase() {
-        loginPhaseFlow.value = LoginScreenState.Idle
     }
 }
