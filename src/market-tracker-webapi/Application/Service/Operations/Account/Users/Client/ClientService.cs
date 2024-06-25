@@ -72,10 +72,10 @@ public class ClientService(
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            if (name is not null && await userRepository.GetUserByUsernameAsync(name) is not null)
+            if (username is not null && await userRepository.GetUserByUsernameAsync(username) is not null)
             {
                 throw new MarketTrackerServiceException(
-                    new UserCreationError.InvalidUsername(name)
+                    new UserCreationError.InvalidUsername(username)
                 );
             }
 

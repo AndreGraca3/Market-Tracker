@@ -27,7 +27,6 @@ import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
 import pt.isel.markettracker.ui.screens.products.list.AddToListState
-import pt.isel.markettracker.ui.screens.profile.ProfileScreenState
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModelFactory
 import pt.isel.markettracker.ui.screens.signup.SignUpActivity
@@ -132,7 +131,6 @@ class MainActivity : ComponentActivity() {
             .requestEmail()
             .build()
         val client = GoogleSignIn.getClient(ctx, options)
-        //client.revokeAccess() // this is here so it asks all the time for consent
         return client.signInIntent
     }
 }
