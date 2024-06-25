@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.profile.components
 
-import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -15,28 +14,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil.compose.SubcomposeAsyncImage
 import com.example.markettracker.R
 
 const val AvatarTag = "ProfileScreenAvatarTag"
 
 @Composable
 fun AsyncAvatarIcon(
-    avatarIcon: Uri?,
+    avatarIcon: String?,
     isEditing: Boolean,
     onIconClick: () -> Unit,
 ) {
     Box {
-        AsyncImage(
+        SubcomposeAsyncImage(
             contentScale = ContentScale.Crop,
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(avatarIcon)
-                .placeholder(R.drawable.user_icon)
-                .build(),
+            model = avatarIcon ?: R.drawable.user_icon,
             contentDescription = null,
             modifier = Modifier
                 .size(150.dp)

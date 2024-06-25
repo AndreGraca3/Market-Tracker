@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -28,8 +27,8 @@ class LoginScreenViewModel @Inject constructor(
     val loginPhase
         get() = loginPhaseFlow.asStateFlow()
 
-    var email by mutableStateOf("")
-    var password by mutableStateOf("")
+    var email by mutableStateOf("test@g")
+    var password by mutableStateOf("123")
 
     fun login() {
         if (loginPhaseFlow.value is LoginScreenState.Loading || email.isEmpty() || password.isEmpty()) return

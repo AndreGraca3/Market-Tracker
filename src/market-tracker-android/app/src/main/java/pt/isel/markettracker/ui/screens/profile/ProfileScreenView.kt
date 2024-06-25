@@ -39,15 +39,14 @@ const val ProfileScreenTestTag = "SignUpScreenTag"
 @Composable
 fun ProfileScreenView(
     userState: ProfileScreenState,
-    avatar: Uri?,
     name: String,
     username: String,
     onNameChangeRequested: (String) -> Unit,
     onUsernameChangeRequested: (String) -> Unit,
     onLogoutRequested: () -> Unit,
-    onUpdateAvatarPath: (Uri) -> Unit,
+    onUpdateAvatarPath: (Uri?) -> Unit,
     onUpdateUserRequested: () -> Unit,
-    onDeleteAccountRequested: () -> Unit
+    onDeleteAccountRequested: () -> Unit,
 ) {
 
     var isInEditMode by rememberSaveable { mutableStateOf(false) }
@@ -55,11 +54,7 @@ fun ProfileScreenView(
     val launcher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent(),
-            onResult = { contentPath ->
-                if (contentPath != null) {
-                    onUpdateAvatarPath(contentPath)
-                }
-            }
+            onResult = { uri -> onUpdateAvatarPath(uri) }
         )
 
     Scaffold(
@@ -116,7 +111,9 @@ fun ProfileScreenView(
                 )
             }
 
-            is ProfileScreenState.Loaded -> {
+            is ProfileScreenState.Success -> {
+                val user = userState.client
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -130,7 +127,7 @@ fun ProfileScreenView(
                         modifier = Modifier.padding(20.dp)
                     ) {
                         AsyncAvatarIcon(
-                            avatarIcon = avatar,
+                            avatarIcon = user.avatar,
                             isEditing = isInEditMode,
                             onIconClick = {
                                 launcher.launch("image/*")
@@ -140,8 +137,8 @@ fun ProfileScreenView(
                         DisplayUserInfo(
                             name = name,
                             username = username,
-                            email = userState.client.email,
-                            createdAt = userState.client.createdAt,
+                            email = user.email,
+                            createdAt = user.createdAt,
                             onNameChangeRequested = onNameChangeRequested,
                             onUsernameChangeRequested = onUsernameChangeRequested,
                             onSaveChangesRequested = {
@@ -151,6 +148,9 @@ fun ProfileScreenView(
                             onCancelChangesRequested = {
                                 isInEditMode = false
                             },
+                            nLists = userState.nLists,
+                            nFavorites = userState.nFavorites,
+                            nAlerts = userState.nAlerts,
                             isInEditMode = isInEditMode,
                         )
                     }

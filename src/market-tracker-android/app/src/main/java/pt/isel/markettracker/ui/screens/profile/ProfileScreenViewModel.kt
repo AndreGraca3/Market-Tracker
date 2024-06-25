@@ -21,6 +21,9 @@ import pt.isel.markettracker.http.service.operations.list.IListService
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.extractAlerts
+import pt.isel.markettracker.repository.auth.extractLists
+import pt.isel.markettracker.utils.convertImageToBase64
 
 @HiltViewModel(assistedFactory = ProfileScreenViewModelFactory::class)
 class ProfileScreenViewModel @AssistedInject constructor(
@@ -29,7 +32,7 @@ class ProfileScreenViewModel @AssistedInject constructor(
     private val authService: IAuthService,
     private val listService: IListService,
     private val alertService: IAlertService,
-    private val authRepository: IAuthRepository
+    private val authRepository: IAuthRepository,
 ) : ViewModel() {
 
     private val _clientFetchingFlow: MutableStateFlow<ProfileScreenState> =
@@ -52,10 +55,11 @@ class ProfileScreenViewModel @AssistedInject constructor(
                 .onSuccess { client ->
                     name = client.name
                     username = client.username
-                    avatarPath = Uri.parse(client.avatar)
-                    _clientFetchingFlow.value = ProfileScreenState.Loaded(client)
-                    Log.v("Avatar", "On fetch AvatarPath : $avatarPath")
-                    Log.v("Avatar", "On fetch Avatar from db : ${client.avatar}")
+                    Log.v("Avatar", "On fetch AvatarPath : ${avatarPath.toString().take(40)}")
+                    Log.v(
+                        "Avatar",
+                        "On fetch Avatar from db : ${client.avatar.toString().take(40)}"
+                    )
 
                     this.launch {
                         // Fetch lists and alerts in parallel
@@ -70,16 +74,19 @@ class ProfileScreenViewModel @AssistedInject constructor(
                             _clientFetchingFlow.value =
                                 ProfileScreenState.Fail(Exception("Failed to fetch lists or alerts"))
                         } else {
-                            authRepository.setDetails(lists.getOrThrow(), alerts.getOrThrow())
+                            val loadedLists = lists.getOrThrow()
+                            val loadedAlerts = alerts.getOrThrow()
+                            authRepository.setDetails(loadedLists, loadedAlerts)
+                            _clientFetchingFlow.value =
+                                ProfileScreenState.Success(
+                                    client,
+                                    loadedLists.size,
+                                    0,
+                                    loadedAlerts.size
+                                )
                         }
                     }
                 }.onFailure {
-                    // I think this is unnecessary, there is a handler to remove the token from repo
-                    //if (it.problem.status == 401) {
-                    //    this.launch {
-                    //        authRepository.setToken(null)
-                    //    }
-                    //}
                     _clientFetchingFlow.value = ProfileScreenState.Fail(it)
                 }
         }
@@ -103,13 +110,24 @@ class ProfileScreenViewModel @AssistedInject constructor(
                 userService.updateUser(
                     name = name,
                     username = username,
-                    avatar = avatarPath.toString()
+                    avatar = avatarPath.let { uri ->
+                        uri?.let {
+                            convertImageToBase64(
+                                contentResolver,
+                                it
+                            )
+                        }
+                    }
                 )
             }.onSuccess {
-                Log.v("Avatar", "On Update AvatarPath : $avatarPath")
-                Log.v("Avatar", "On Update Avatar from db : ${it.avatar}")
-                avatarPath = Uri.parse(it.avatar)
-                _clientFetchingFlow.value = ProfileScreenState.Loaded(it)
+                Log.v("Avatar", "On Update AvatarPath : ${avatarPath.toString().take(40)}")
+                Log.v("Avatar", "On Update Avatar from db : ${it.avatar.toString().take(40)}")
+                _clientFetchingFlow.value = ProfileScreenState.Success(
+                    it,
+                    authRepository.authState.value.extractLists().size,
+                    0,
+                    authRepository.authState.value.extractAlerts().size
+                )
             }.onFailure {
                 _clientFetchingFlow.value = ProfileScreenState.Fail(it)
             }
@@ -129,5 +147,18 @@ class ProfileScreenViewModel @AssistedInject constructor(
             userService.deleteUser()
         }
         _clientFetchingFlow.value = ProfileScreenState.Idle
+    }
+
+    fun updateLocalAvatar(uri: Uri?) {
+        val currentState = _clientFetchingFlow.value
+        if (currentState !is ProfileScreenState.Success) return
+        avatarPath = uri
+        if (uri != null) {
+            _clientFetchingFlow.value = currentState.copy(
+                client = currentState.client.copy(
+                    avatar = convertImageToBase64(contentResolver, uri)
+                )
+            )
+        }
     }
 }

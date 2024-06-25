@@ -1,11 +1,8 @@
 package pt.isel.markettracker.ui.screens.profile.components
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +25,10 @@ fun DisplayUserInfo(
     onUsernameChangeRequested: (String) -> Unit,
     onSaveChangesRequested: () -> Unit,
     onCancelChangesRequested: () -> Unit,
-    isInEditMode: Boolean
+    nLists: Int,
+    nFavorites: Int,
+    nAlerts: Int,
+    isInEditMode: Boolean,
 ) {
     if (isInEditMode) {
         MarketTrackerTextField(
@@ -43,16 +43,11 @@ fun DisplayUserInfo(
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
         )
 
-        Text(
-            text = email,
-            fontFamily = mainFont,
-            fontSize = 20.sp
-        )
     } else {
         Text(
             text = name,
             fontFamily = mainFont,
-            fontSize = 20.sp
+            fontSize = 20.sp,
         )
 
         Text(
@@ -60,13 +55,15 @@ fun DisplayUserInfo(
             fontFamily = mainFont,
             fontSize = 20.sp
         )
-
-        Text(
-            text = email,
-            fontFamily = mainFont,
-            fontSize = 20.sp
-        )
     }
+
+    Text(
+        text = email,
+        fontFamily = mainFont,
+        fontSize = 20.sp
+    )
+
+    DisplayStats(nLists = nLists, nFavorites = nFavorites, nAlerts = nAlerts)
 
     Box(
         modifier = Modifier
@@ -75,38 +72,10 @@ fun DisplayUserInfo(
         contentAlignment = Alignment.BottomCenter
     ) {
         if (isInEditMode) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(0.5F),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Button(
-                        onClick = onSaveChangesRequested
-                    ) {
-                        Text(
-                            text = "Guardar ✔️"
-                        )
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(0.5F),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Button(
-                        onClick = onCancelChangesRequested
-                    ) {
-                        Text(
-                            text = "Cancelar ❌"
-                        )
-                    }
-                }
-            }
+            ProfileEditButtons(
+                onSaveChangesRequested = onSaveChangesRequested,
+                onCancelChangesRequested = onCancelChangesRequested
+            )
         } else {
             TimeDisplay(createdAt)
         }
