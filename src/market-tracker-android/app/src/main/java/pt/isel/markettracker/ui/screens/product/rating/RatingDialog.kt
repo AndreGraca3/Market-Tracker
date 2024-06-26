@@ -31,7 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.ui.components.icons.RatingStarsRow
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography

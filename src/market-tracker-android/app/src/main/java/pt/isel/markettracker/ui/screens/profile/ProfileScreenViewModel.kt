@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,6 +61,13 @@ class ProfileScreenViewModel @AssistedInject constructor(
                         "Avatar",
                         "On fetch Avatar from db : ${client.avatar.toString().take(40)}"
                     )
+
+                    FirebaseMessaging.getInstance().token.addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            val token = it.result
+                            registerDevice(token)
+                        }
+                    }
 
                     this.launch {
                         // Fetch lists and alerts in parallel

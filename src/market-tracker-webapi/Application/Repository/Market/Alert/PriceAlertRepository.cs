@@ -22,11 +22,12 @@ public class PriceAlertRepository(MarketTrackerDataContext dataContext) : IPrice
     public async Task<PriceAlert?> GetPriceAlertAsync(Guid clientId, string productId, int storeId)
     {
         var priceAlertEntity = await dataContext.PriceAlert
-            .FirstOrDefaultAsync(alert => alert.ClientId == clientId && alert.ProductId == productId);
+            .FirstOrDefaultAsync(alert =>
+                alert.ClientId == clientId && alert.ProductId == productId && alert.StoreId == storeId);
         return priceAlertEntity?.ToPriceAlert();
     }
 
-    public async Task<PriceAlert> AddPriceAlertAsync(
+    public async Task<PriceAlertId> AddPriceAlertAsync(
         Guid clientId,
         string productId,
         int storeId,
@@ -43,10 +44,10 @@ public class PriceAlertRepository(MarketTrackerDataContext dataContext) : IPrice
         };
         await dataContext.PriceAlert.AddAsync(priceAlertEntity);
         await dataContext.SaveChangesAsync();
-        return priceAlertEntity.ToPriceAlert();
+        return new PriceAlertId(priceAlertEntity.Id);
     }
 
-    public async Task<PriceAlert?> RemovePriceAlertAsync(string alertId)
+    public async Task<PriceAlert?> RemovePriceAlertByIdAsync(string alertId)
     {
         var priceAlertEntity = await dataContext.PriceAlert.FindAsync(alertId);
         if (priceAlertEntity is null)

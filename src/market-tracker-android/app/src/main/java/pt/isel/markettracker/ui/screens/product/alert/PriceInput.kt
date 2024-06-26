@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -26,13 +27,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.markettracker.R
+import pt.isel.markettracker.R
+import pt.isel.markettracker.utils.centToEuro
 import pt.isel.markettracker.utils.euroToCent
 
 @Composable
-fun PriceInput(maxPrice: Int, onValueChange: (Int) -> Unit) {
+fun PriceInput(value: Int, maxPrice: Int, onValueChange: (Int) -> Unit) {
     var priceState by remember {
-        mutableStateOf(PriceInputManager(maxPrice.toDouble(), "", true))
+        mutableStateOf(PriceInputManager(maxPrice.toDouble(), value.centToEuro(), true))
     }
 
     var textFieldValue by remember {
@@ -48,6 +50,7 @@ fun PriceInput(maxPrice: Int, onValueChange: (Int) -> Unit) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.fillMaxWidth(0.5F)
         ) {
             TextField(
                 value = textFieldValue,
@@ -62,12 +65,15 @@ fun PriceInput(maxPrice: Int, onValueChange: (Int) -> Unit) {
 
                     onValueChange(newPriceState.getPriceValue().euroToCent())
                 },
+                singleLine = true,
                 placeholder = { Text("0,00", color = Color.Gray) },
                 isError = !priceState.isValid,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number,
-                )
+                ),
+                modifier = Modifier.weight(0.3F)
             )
+
             Icon(
                 imageVector = Icons.Default.Euro,
                 contentDescription = "Euro"
@@ -90,5 +96,5 @@ fun PriceInput(maxPrice: Int, onValueChange: (Int) -> Unit) {
 @Preview
 @Composable
 fun PriceInputPreview() {
-    PriceInput(1000) {}
+    PriceInput(10, 1000) {}
 }

@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsFilters
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.resetBrands
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.resetCategories

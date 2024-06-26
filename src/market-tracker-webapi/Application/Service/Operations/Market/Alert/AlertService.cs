@@ -63,12 +63,12 @@ public class AlertService(
                 );
             }
 
-            return (await priceAlertRepository.AddPriceAlertAsync(
+            return await priceAlertRepository.AddPriceAlertAsync(
                 clientId,
                 productId,
                 storeId,
                 priceThreshold
-            )).Id;
+            );
         });
     }
 
@@ -76,7 +76,7 @@ public class AlertService(
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var priceAlert = await priceAlertRepository.RemovePriceAlertAsync(alertId);
+            var priceAlert = await priceAlertRepository.RemovePriceAlertByIdAsync(alertId);
 
             if (priceAlert is null)
             {

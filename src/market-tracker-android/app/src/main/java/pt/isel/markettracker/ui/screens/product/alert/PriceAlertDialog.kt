@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
@@ -67,7 +67,10 @@ fun PriceAlertDialog(
                         textAlign = TextAlign.Center
                     )
 
-                    PriceInput(maxPrice = 500, onValueChange = { currentPriceThreshold = it })
+                    PriceInput(
+                        value = currentPriceThreshold,
+                        maxPrice = 500,
+                        onValueChange = { currentPriceThreshold = it })
 
                     Button(
                         onClick = { onAlertSet(currentPriceThreshold) },

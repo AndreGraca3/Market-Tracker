@@ -17,7 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 
 const val AvatarTag = "ProfileScreenAvatarTag"
 

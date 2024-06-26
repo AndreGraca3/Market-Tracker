@@ -59,6 +59,18 @@ class AuthRepository @Inject constructor(private val dataStore: DataStore<Prefer
         _authState.value = AuthState.Loaded(lists, alerts)
         Log.v(TAG, "AuthState is loaded")
     }
+
+    override fun addAlert(alert: PriceAlert) {
+        val state = _authState.value
+        if (state !is AuthState.Loaded) return
+        _authState.value = AuthState.Loaded(state.lists, state.alerts + alert)
+    }
+
+    override fun removeAlert(alertId: String) {
+        val state = _authState.value
+        if (state !is AuthState.Loaded) return
+        _authState.value = AuthState.Loaded(state.lists, state.alerts.filter { it.id != alertId })
+    }
 }
 
 sealed class AuthState {

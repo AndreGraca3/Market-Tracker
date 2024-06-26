@@ -26,7 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.screens.list.ListScreen

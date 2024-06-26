@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.ui.theme.Primary400
 import pt.isel.markettracker.ui.theme.Primary500

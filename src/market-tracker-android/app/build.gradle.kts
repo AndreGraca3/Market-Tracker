@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.markettracker"
+    namespace = "pt.isel.markettracker"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.markettracker"
+        applicationId = "pt.isel.markettracker"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -34,7 +34,7 @@ android {
             buildConfigField("String", "API_URL", "\"http://192.168.1.18:2001/api\"")
         }
         debug {
-            buildConfigField("String", "API_URL", "\"http://192.168.1.18:2001/api\"")
+            buildConfigField("String", "API_URL", "\"http://192.168.1.249:2001/api\"")
         }
     }
     compileOptions {
@@ -91,7 +91,7 @@ dependencies {
     implementation("com.github.tfaki:ComposableSweetToast:1.0.1")
 
     implementation("com.google.android.gms:play-services-auth:21.0.0")
-    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
     implementation("com.google.firebase:firebase-messaging")
 
     testImplementation("junit:junit:4.13.2")

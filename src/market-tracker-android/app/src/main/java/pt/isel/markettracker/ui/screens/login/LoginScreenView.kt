@@ -24,10 +24,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.markettracker.R
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import com.talhafaki.composablesweettoast.util.SweetToastUtil.SweetError
+import pt.isel.markettracker.R
 import pt.isel.markettracker.ui.components.buttons.ButtonWithImage
 import pt.isel.markettracker.ui.components.common.LoadingIcon
 import pt.isel.markettracker.ui.components.text.LinesWithElementCentered
