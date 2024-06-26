@@ -30,8 +30,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.markettracker.R
 import kotlinx.coroutines.launch
+import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.market.price.Price
 import pt.isel.markettracker.domain.model.market.price.Promotion
 import pt.isel.markettracker.ui.components.buttons.AddToListButton

@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
 import pt.isel.markettracker.ui.screens.product.reviews.ReviewTile
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography

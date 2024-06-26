@@ -29,7 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.dummy.dummyCompanyPrices

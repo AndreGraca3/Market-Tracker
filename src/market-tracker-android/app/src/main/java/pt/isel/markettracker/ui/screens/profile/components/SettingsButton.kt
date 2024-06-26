@@ -18,7 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 
 @Composable
 fun SettingsButton(

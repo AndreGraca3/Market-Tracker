@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.example.markettracker.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.journeyapps.barcodescanner.ScanContract
@@ -17,6 +16,7 @@ import com.journeyapps.barcodescanner.ScanOptions
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlinx.coroutines.launch
+import pt.isel.markettracker.R
 import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.ui.screens.login.LoginScreenState
@@ -74,15 +74,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             loginScreenViewModel.loginPhase.collect { loginState ->
                 if (loginState is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
-                if (loginState is LoginScreenState.Success) {
-                    /*FirebaseMessaging.getInstance().token.addOnCompleteListener {
-                        if (it.isSuccessful) {
-                            val token = it.result
-                            profileScreenViewModel.registerDevice(token)
-                        }
-                    }*/ // leave this for me please Digo
-                    profileScreenViewModel.fetchUser()
-                }
+                if (loginState is LoginScreenState.Success) profileScreenViewModel.fetchUser()
             }
         }
 
@@ -120,7 +112,7 @@ class MainActivity : ComponentActivity() {
             .setOrientationLocked(false)
     }
 
-    fun getGoogleLoginIntent(ctx: Context): Intent {
+    private fun getGoogleLoginIntent(ctx: Context): Intent {
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(ContextCompat.getString(ctx, R.string.GOOGLE_CLIENT_ID))
             .requestProfile()

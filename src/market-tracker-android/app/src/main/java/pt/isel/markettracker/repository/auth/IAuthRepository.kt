@@ -17,4 +17,8 @@ interface IAuthRepository {
     suspend fun getToken(): String?
 
     fun setDetails(lists: List<ShoppingList>, alerts: List<PriceAlert>)
+
+    fun addAlert(alert: PriceAlert)
+
+    fun removeAlert(alertId: String)
 }

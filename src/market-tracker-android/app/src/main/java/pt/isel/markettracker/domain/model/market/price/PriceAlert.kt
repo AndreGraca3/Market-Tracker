@@ -11,5 +11,5 @@ data class PriceAlert(
 )
 
 data class PriceAlertId(
-    val id: String
+    val value: String
 )

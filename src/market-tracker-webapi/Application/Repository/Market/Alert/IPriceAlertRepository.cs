@@ -9,12 +9,12 @@ public interface IPriceAlertRepository
 
     Task<PriceAlert?> GetPriceAlertAsync(Guid clientId, string productId, int storeId);
 
-    Task<PriceAlert> AddPriceAlertAsync(
+    Task<PriceAlertId> AddPriceAlertAsync(
         Guid clientId,
         string productId,
         int storeId,
         int priceThreshold
     );
 
-    Task<PriceAlert?> RemovePriceAlertAsync(string alertId);
+    Task<PriceAlert?> RemovePriceAlertByIdAsync(string alertId);
 }

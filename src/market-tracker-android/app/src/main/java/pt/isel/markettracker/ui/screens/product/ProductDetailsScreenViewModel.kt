@@ -13,6 +13,8 @@ import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
+import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.screens.product.alert.PriceAlertState
 import pt.isel.markettracker.ui.screens.product.rating.ProductPreferencesState
 import java.time.LocalDateTime
@@ -21,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProductDetailsScreenViewModel @Inject constructor(
     private val productService: IProductService,
-    private val alertService: IAlertService
+    private val alertService: IAlertService,
+    private val authRepository: IAuthRepository
 ) : ViewModel() {
 
     private val _stateFlow: MutableStateFlow<ProductDetailsScreenState> =
@@ -46,13 +49,13 @@ class ProductDetailsScreenViewModel @Inject constructor(
         }
     }
 
-    fun fetchProductDetails(productId: String, isAuthenticated: Boolean) {
+    fun fetchProductDetails(productId: String) {
         val screenState = _stateFlow.value
         if (screenState !is ProductDetailsScreenState.LoadedProduct) return
         _stateFlow.value = ProductDetailsScreenState.LoadingProductDetails(screenState.product)
 
         fetchProductStats(productId)
-        fetchProductPreferences(productId, isAuthenticated)
+        fetchProductPreferences(productId)
         fetchProductPrices(productId)
     }
 
@@ -114,10 +117,10 @@ class ProductDetailsScreenViewModel @Inject constructor(
     val prefsStateFlow
         get() = _prefsStateFlow.asStateFlow()
 
-    private fun fetchProductPreferences(productId: String, isAuthenticated: Boolean) {
+    private fun fetchProductPreferences(productId: String) {
         val prefsState = _prefsStateFlow.value
         if (prefsState !is ProductPreferencesState.Idle) return
-        if (!isAuthenticated) {
+        if (!authRepository.authState.value.isLoggedIn()) {
             _prefsStateFlow.value = ProductPreferencesState.Unauthenticated
             return
         }
@@ -250,15 +253,15 @@ class ProductDetailsScreenViewModel @Inject constructor(
             runCatchingAPIFailure {
                 alertService.createAlert(productId, storeId, priceThreshold)
             }.onSuccess {
-                _priceAlertStateFlow.value = PriceAlertState.Created(
-                    PriceAlert(
-                        id = it.id,
-                        productId = productId,
-                        storeId = storeId,
-                        priceThreshold = priceThreshold,
-                        createdAt = LocalDateTime.now()
-                    )
+                val alert = PriceAlert(
+                    id = it.value,
+                    productId = productId,
+                    storeId = storeId,
+                    priceThreshold = priceThreshold,
+                    createdAt = LocalDateTime.now()
                 )
+                _priceAlertStateFlow.value = PriceAlertState.Created(alert)
+                authRepository.addAlert(alert)
             }.onFailure {
                 _priceAlertStateFlow.value = PriceAlertState.Error(it)
             }
@@ -272,14 +275,12 @@ class ProductDetailsScreenViewModel @Inject constructor(
         viewModelScope.launch {
             runCatchingAPIFailure { alertService.deleteAlert(alertId) }.onSuccess {
                 _priceAlertStateFlow.value = PriceAlertState.Deleted
+            }.onSuccess {
+                authRepository.removeAlert(alertId)
             }.onFailure {
                 _priceAlertStateFlow.value = PriceAlertState.Error(it)
             }
         }
-    }
-
-    fun resetPriceAlertState() {
-        _priceAlertStateFlow.value = PriceAlertState.Idle
     }
 
     private inline fun <T> loadDetailAndSetScreenStateIfReady(

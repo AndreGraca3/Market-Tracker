@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.market.price.StoreOfferItem
 import pt.isel.markettracker.ui.screens.products.card.PriceLabel
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography

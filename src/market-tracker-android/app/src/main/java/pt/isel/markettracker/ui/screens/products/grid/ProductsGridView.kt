@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.ui.components.common.LoadingIcon
 import pt.isel.markettracker.ui.screens.products.ProductsScreenState

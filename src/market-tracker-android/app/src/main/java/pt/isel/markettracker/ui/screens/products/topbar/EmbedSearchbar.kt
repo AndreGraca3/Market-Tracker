@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.ui.theme.Grey
 
 @OptIn(ExperimentalMaterial3Api::class)

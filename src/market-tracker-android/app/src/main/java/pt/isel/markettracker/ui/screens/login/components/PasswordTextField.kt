@@ -13,7 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.ui.components.text.MarketTrackerTextField
 import pt.isel.markettracker.ui.screens.login.LoginPasswordInputTag
 import pt.isel.markettracker.ui.theme.mainFont

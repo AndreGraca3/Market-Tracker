@@ -1,7 +1,6 @@
 package pt.isel.markettracker.http.service
 
 import android.util.Log
-import com.example.markettracker.BuildConfig
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -13,6 +12,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okio.IOException
+import pt.isel.markettracker.BuildConfig
 import pt.isel.markettracker.http.problem.InternalServerErrorProblem
 import pt.isel.markettracker.http.problem.Problem
 import pt.isel.markettracker.http.service.result.APIException

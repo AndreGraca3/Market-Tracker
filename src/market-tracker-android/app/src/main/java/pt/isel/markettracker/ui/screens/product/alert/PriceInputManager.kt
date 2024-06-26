@@ -24,11 +24,13 @@ data class PriceInputManager(
         val normalizedPriceText =
             if (formattedPriceText == "." || formattedPriceText == ",") "0," else formattedPriceText
 
+        val maxIntLength = maxPrice.toInt().toString().length + 1
         if (normalizedPriceText.contains(",")) {
-            val decimalPart = normalizedPriceText.split(",")[1]
-            if (decimalPart.length > 2) {
-                return this
-            }
+            val numericParts = normalizedPriceText.split(",")
+            if (numericParts[0].length > maxIntLength || numericParts[1].length > 2) return this
+        } else {
+            if (normalizedPriceText.length > maxIntLength
+            ) return this
         }
 
         val priceVal = normalizedPriceText.replace(",", ".").toDoubleOrNull()

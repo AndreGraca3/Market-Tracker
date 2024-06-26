@@ -17,8 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.markettracker.R
 import com.talhafaki.composablesweettoast.util.SweetToastUtil
+import pt.isel.markettracker.R
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.repository.auth.extractAlerts
 import pt.isel.markettracker.repository.auth.isLoggedIn
@@ -36,6 +36,7 @@ import pt.isel.markettracker.ui.screens.product.specs.ProductSpecs
 @Composable
 fun ProductDetailsScreen(
     onBackRequest: () -> Unit,
+    checkOrRequestNotificationPermission: (() -> Unit) -> Unit,
     vm: ProductDetailsScreenViewModel,
     authRepository: IAuthRepository
 ) {
@@ -92,7 +93,9 @@ fun ProductDetailsScreen(
                 showOptions = authState.isLoggedIn(),
                 alerts = authState.extractAlerts(),
                 onAlertSet = { id, price ->
-                    if (product != null) vm.createAlert(product.id, id, price)
+                    checkOrRequestNotificationPermission {
+                        if (product != null) vm.createAlert(product.id, id, price)
+                    }
                 },
                 onAlertDelete = vm::deleteAlert
             )
