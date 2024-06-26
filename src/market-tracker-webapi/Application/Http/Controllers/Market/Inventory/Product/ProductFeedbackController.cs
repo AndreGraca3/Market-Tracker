@@ -2,6 +2,7 @@ using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Schemas.Account.Auth;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Http.Models.Schemas.Market.Inventory.Product.Feedback;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
@@ -18,7 +19,7 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     {
         var reviews = await productFeedbackService.GetReviewsByProductIdAsync(
             productId, paginationInputs.Skip, paginationInputs.ItemsPerPage);
-        
+
         return reviews.Select(review => review.ToOutputModel());
     }
 
@@ -43,6 +44,17 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
             preferencesInput.IsFavourite,
             preferencesInput.Review
         )).ToOutputModel();
+    }
+
+    [HttpGet(Uris.Products.Favourites)]
+    [Authorized([Role.Client])]
+    public async Task<ActionResult<CollectionOutputModel<ProductItemOutputModel>>> GetFavouritesAsync()
+    {
+        var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
+        var favourites = await productFeedbackService.GetFavouritesAsync(authUser.User.Id.Value);
+
+        return new CollectionOutputModel<ProductItemOutputModel>(
+            favourites.Select(favourite => favourite.ToProductItemOutputModel()));
     }
 
     [HttpGet(Uris.Products.StatsByProductId)]

@@ -45,4 +45,14 @@ public class ProductEntity
             category
         );
     }
+
+    public ProductItem ToProductItem(Brand brand)
+    {
+        return new ProductItem(
+            Id,
+            Name,
+            ImageUrl,
+            brand.Name
+        );
+    }
 }

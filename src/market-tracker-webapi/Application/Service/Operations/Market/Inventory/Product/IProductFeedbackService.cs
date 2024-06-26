@@ -19,6 +19,8 @@ public interface IProductFeedbackService
         Optional<bool> newIsFavorite,
         Optional<ProductReviewInputModel?> review
     );
+    
+    Task<IEnumerable<ProductItem>> GetFavouritesAsync(Guid clientId);
 
     Task<ProductPreferences> GetProductPreferencesAsync(Guid clientId, string productId);
 

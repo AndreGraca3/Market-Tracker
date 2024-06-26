@@ -5,7 +5,7 @@ namespace market_tracker_webapi.Application.Http;
 public static class Uris
 {
     public const string JsonMediaType = "application/json";
-    
+
     public const string ApiBase = "/api";
 
     public static class Users
@@ -37,7 +37,7 @@ public static class Uris
     {
         public const string Base = $"{ApiBase}/operators";
         public const string OperatorById = $"{Base}/{{id}}";
-        
+
         public static string BuildOperatorByIdUri(Guid id) => OperatorById.ExpandUri(id);
     }
 
@@ -51,6 +51,7 @@ public static class Uris
         public const string PricesByProductId = $"{ProductById}/prices";
         public const string HistoryByProductId = $"{ProductById}/price-history";
         public const string ProductPreferencesById = $"{ProductById}/me";
+        public const string Favourites = $"{Base}/favourites";
 
         public static string BuildProductByIdUri(string id) => ProductById.ExpandUri(id);
     }
@@ -73,6 +74,7 @@ public static class Uris
         public const string ClientByListId = $"{ClientsByListId}/{{clientId}}";
 
         public static string BuildListByIdUri(string id) => ListById.ExpandUri(id);
+
         public static string BuildListEntryByIdUri(string listId, string entryId) =>
             ListEntryEntryById.ExpandUri(listId, entryId);
     }
@@ -108,7 +110,7 @@ public static class Uris
         public const string StoresPreRegister = $"{Base}/pre-register";
         public const string StoresPending = $"{Base}/pending";
         public const string StoresPendingById = $"{Base}/pending/{{id}}";
-        
+
         public static string BuildStoreByIdUri(int id) => StoreById.ExpandUri(id);
     }
 

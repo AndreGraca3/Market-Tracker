@@ -23,6 +23,8 @@ public interface IProductFeedbackRepository
     );
 
     Task<ProductReview?> RemoveReviewAsync(int reviewId);
+    
+    Task<IEnumerable<ProductItem>> GetFavouriteProductsAsync(Guid clientId);
 
     Task<bool> UpdateProductFavouriteAsync(Guid clientId, string productId, bool isFavourite);
 
