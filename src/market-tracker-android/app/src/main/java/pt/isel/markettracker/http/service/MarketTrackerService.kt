@@ -51,7 +51,9 @@ abstract class MarketTrackerService {
                 override fun onResponse(call: Call, response: Response) {
                     val responseBody = response.body?.string()
                     if (!response.isSuccessful) {
+                        Log.v("requestHandler", "Content type: ${response.body?.contentType()}")
                         if (response.code < 500 && response.body?.contentType() == Problem.MEDIA_TYPE) {
+                            Log.v("requestHandler", "Response body: $responseBody")
                             val problem = gson.fromJson(responseBody, Problem::class.java)
                             Log.v("requestHandler", "Result of call to API: $problem")
                             it.resumeWithException(APIException(problem))

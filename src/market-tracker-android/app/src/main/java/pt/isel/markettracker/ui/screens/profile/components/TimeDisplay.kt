@@ -75,8 +75,5 @@ fun TimeDisplay(time: LocalDateTime) {
 }
 
 private fun getSpacing(value: Int): Dp {
-    return when ("$value".length) {
-        1 -> 15.dp
-        else -> ("$value".length.times(10)).dp
-    }
+    return ("$value".length.times(10) + 5).dp
 }

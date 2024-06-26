@@ -16,19 +16,15 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import pt.isel.markettracker.domain.Fail
-import pt.isel.markettracker.domain.IOState
-import pt.isel.markettracker.domain.Idle
-import pt.isel.markettracker.domain.Loading
-import pt.isel.markettracker.domain.loadSuccess
-import pt.isel.markettracker.domain.model.account.Client
-import pt.isel.markettracker.http.models.user.UserUpdateInputModel
 import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.operations.auth.IAuthService
 import pt.isel.markettracker.http.service.operations.list.IListService
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.extractAlerts
+import pt.isel.markettracker.repository.auth.extractLists
+import pt.isel.markettracker.utils.convertImageToBase64
 
 @HiltViewModel(assistedFactory = ProfileScreenViewModelFactory::class)
 class ProfileScreenViewModel @AssistedInject constructor(
@@ -37,35 +33,34 @@ class ProfileScreenViewModel @AssistedInject constructor(
     private val authService: IAuthService,
     private val listService: IListService,
     private val alertService: IAlertService,
-    private val authRepository: IAuthRepository
+    private val authRepository: IAuthRepository,
 ) : ViewModel() {
 
-    private val _clientFetchingFlow: MutableStateFlow<IOState<Client>> =
-        MutableStateFlow(Idle)
+    private val _clientFetchingFlow: MutableStateFlow<ProfileScreenState> =
+        MutableStateFlow(ProfileScreenState.Idle)
     val clientFetchingFlow
         get() = _clientFetchingFlow.asStateFlow()
 
     var name by mutableStateOf("")
     var username by mutableStateOf("")
-    var email by mutableStateOf("")
 
     var avatarPath by mutableStateOf<Uri?>(null)
 
     fun fetchUser() {
-        if (_clientFetchingFlow.value !is Idle) return
-        _clientFetchingFlow.value = Loading()
+        if (_clientFetchingFlow.value !is ProfileScreenState.Idle) return
+        Log.v("User", "Fetching user...")
+        _clientFetchingFlow.value = ProfileScreenState.Loading
 
         viewModelScope.launch {
             runCatchingAPIFailure { userService.getAuthenticatedUser() }
                 .onSuccess { client ->
-                    // TODO: this should be in a state...
                     name = client.name
                     username = client.username
-                    email = client.email
-                    avatarPath = Uri.parse(client.avatar)
-                    _clientFetchingFlow.value = loadSuccess(client)
-                    Log.v("Avatar", "On fetch AvatarPath : $avatarPath")
-                    Log.v("Avatar", "On fetch Avatar from db : ${client.avatar}")
+                    Log.v("Avatar", "On fetch AvatarPath : ${avatarPath.toString().take(40)}")
+                    Log.v(
+                        "Avatar",
+                        "On fetch Avatar from db : ${client.avatar.toString().take(40)}"
+                    )
 
                     FirebaseMessaging.getInstance().token.addOnCompleteListener {
                         if (it.isSuccessful) {
@@ -83,57 +78,66 @@ class ProfileScreenViewModel @AssistedInject constructor(
                         val lists = listsDeferred.await()
                         val alerts = alertsDeferred.await()
 
-                        if (listsDeferred.await().isFailure || alertsDeferred.await().isFailure) {
+                        if (lists.isFailure || alerts.isFailure) {
                             _clientFetchingFlow.value =
-                                Fail(Exception("Failed to fetch lists or alerts"))
+                                ProfileScreenState.Fail(Exception("Failed to fetch lists or alerts"))
                         } else {
-                            authRepository.setDetails(lists.getOrThrow(), alerts.getOrThrow())
+                            val loadedLists = lists.getOrThrow()
+                            val loadedAlerts = alerts.getOrThrow()
+                            authRepository.setDetails(loadedLists, loadedAlerts)
+                            _clientFetchingFlow.value =
+                                ProfileScreenState.Success(
+                                    client,
+                                    loadedLists.size,
+                                    0,
+                                    loadedAlerts.size
+                                )
                         }
                     }
                 }.onFailure {
-                    if (it.problem.status == 401) {
-                        this.launch {
-                            authRepository.setToken(null)
-                        }
-                    }
-                    _clientFetchingFlow.value = Fail(it)
+                    _clientFetchingFlow.value = ProfileScreenState.Fail(it)
                 }
         }
     }
 
     fun logout() {
-        _clientFetchingFlow.value = Loading()
+        _clientFetchingFlow.value = ProfileScreenState.Loading
         viewModelScope.launch {
             authService.signOut()
             avatarPath = null
-            _clientFetchingFlow.value = Idle
+            _clientFetchingFlow.value = ProfileScreenState.Idle
         }
     }
 
     fun updateUser() {
-        if (_clientFetchingFlow.value is Loading || name.isBlank() || username.isBlank() || email.isBlank()) return
-        _clientFetchingFlow.value = Loading()
+        if (_clientFetchingFlow.value is ProfileScreenState.Loading || name.isBlank() || username.isBlank()) return
+        _clientFetchingFlow.value = ProfileScreenState.Loading
 
         viewModelScope.launch {
-            val res = runCatchingAPIFailure {
+            runCatchingAPIFailure {
                 userService.updateUser(
-                    UserUpdateInputModel(
-                        name = name,
-                        username = username,
-                        avatar = avatarPath.toString()
-                    )
+                    name = name,
+                    username = username,
+                    avatar = avatarPath.let { uri ->
+                        uri?.let {
+                            convertImageToBase64(
+                                contentResolver,
+                                it
+                            )
+                        }
+                    }
                 )
-            }
-
-            res.onSuccess {
-                Log.v("Avatar", "On Update AvatarPath : $avatarPath")
-                Log.v("Avatar", "On Update Avatar from db : ${it.avatar}")
-                avatarPath = Uri.parse(it.avatar)
-                _clientFetchingFlow.value = loadSuccess(it)
-            }
-
-            res.onFailure {
-                _clientFetchingFlow.value = Fail(it)
+            }.onSuccess {
+                Log.v("Avatar", "On Update AvatarPath : ${avatarPath.toString().take(40)}")
+                Log.v("Avatar", "On Update Avatar from db : ${it.avatar.toString().take(40)}")
+                _clientFetchingFlow.value = ProfileScreenState.Success(
+                    it,
+                    authRepository.authState.value.extractLists().size,
+                    0,
+                    authRepository.authState.value.extractAlerts().size
+                )
+            }.onFailure {
+                _clientFetchingFlow.value = ProfileScreenState.Fail(it)
             }
         }
     }
@@ -150,6 +154,19 @@ class ProfileScreenViewModel @AssistedInject constructor(
             authService.signOut()
             userService.deleteUser()
         }
-        _clientFetchingFlow.value = Idle
+        _clientFetchingFlow.value = ProfileScreenState.Idle
+    }
+
+    fun updateLocalAvatar(uri: Uri?) {
+        val currentState = _clientFetchingFlow.value
+        if (currentState !is ProfileScreenState.Success) return
+        avatarPath = uri
+        if (uri != null) {
+            _clientFetchingFlow.value = currentState.copy(
+                client = currentState.client.copy(
+                    avatar = convertImageToBase64(contentResolver, uri)
+                )
+            )
+        }
     }
 }

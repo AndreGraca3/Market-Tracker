@@ -2,6 +2,7 @@ package pt.isel.markettracker.navigation
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -48,7 +49,7 @@ fun NavGraph(
     productsScreenViewModel: ProductsScreenViewModel
 ) {
     val navController = rememberNavController()
-    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(2) }
 
     var showExitDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -99,6 +100,7 @@ fun NavGraph(
 
             composable(Destination.PROFILE.route) {
                 val authState by authRepository.authState.collectAsState()
+                Log.v("User", "AuthState is $authState")
                 if (authState.isLoggedIn()) {
                     ProfileScreen(profileScreenViewModel)
                 } else {

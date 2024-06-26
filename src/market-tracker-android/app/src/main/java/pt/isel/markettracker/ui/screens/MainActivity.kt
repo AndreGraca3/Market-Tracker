@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.R
 import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.screens.login.LoginScreenState
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
@@ -73,7 +74,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             loginScreenViewModel.loginPhase.collect { loginState ->
-                if (loginState is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
+                // if (loginState is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
                 if (loginState is LoginScreenState.Success) profileScreenViewModel.fetchUser()
             }
         }
@@ -119,7 +120,6 @@ class MainActivity : ComponentActivity() {
             .requestEmail()
             .build()
         val client = GoogleSignIn.getClient(ctx, options)
-        //client.revokeAccess() // this is here so it asks all the time for consent
         return client.signInIntent
     }
 }

@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,6 +33,7 @@ import pt.isel.markettracker.ui.components.common.LoadingIcon
 import pt.isel.markettracker.ui.components.text.LinesWithElementCentered
 import pt.isel.markettracker.ui.components.text.MarketTrackerTextField
 import pt.isel.markettracker.ui.screens.login.components.GoogleLoginButton
+import pt.isel.markettracker.ui.screens.login.components.LoginButton
 import pt.isel.markettracker.ui.screens.login.components.PasswordTextField
 import pt.isel.markettracker.ui.screens.products.topbar.HeaderLogo
 import pt.isel.markettracker.ui.theme.mainFont
@@ -70,6 +71,7 @@ fun LoginScreenView(
                     HeaderLogo(
                         modifier = Modifier
                             .align(alignment = Alignment.CenterStart)
+                            .size(52.dp)
                     )
                     Text(
                         "Login 📝",
@@ -90,98 +92,100 @@ fun LoginScreenView(
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            when (state) {
-                is LoginScreenState.Loading -> {
-                    LoadingIcon()
-                }
+            //when (state) {
+            //    is LoginScreenState.Loading -> {
+            //        //LoadingIcon()
+            //    }
+//
+            //    else -> {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(
+                        vertical = 24.dp
+                    )
+                ) {
+                    if (state is LoginScreenState.Fail) {
+                        SweetError(
+                            "Failed to login.\n" +
+                                    "Reason: ${state.error.message}",
+                            Toast.LENGTH_LONG,
+                            contentAlignment = Alignment.Center
+                        )
+                    }
 
-                is LoginScreenState.Fail -> {
-                    SweetError(
-                        "Failed to login.",
-                        Toast.LENGTH_LONG,
-                        contentAlignment = Alignment.Center
+                    Text(
+                        text = "Ao iniciar sessão implica concordância com os termos e condições",
+                        fontFamily = mainFont,
+                        textAlign = TextAlign.Center,
+                        fontSize = 10.sp,
+                        maxLines = 1,
+                    )
+
+                    MarketTrackerTextField(
+                        value = email,
+                        onValueChange = onEmailChangeRequested,
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Email,
+                                contentDescription = "Email"
+                            )
+                        },
+                        placeholder = {
+                            Text(text = "Email", fontFamily = mainFont)
+                        },
+                        modifier = Modifier.testTag(LoginEmailInputTag)
                     )
                 }
 
-                else -> {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    PasswordTextField(
+                        value = password,
+                        onValueChange = onPasswordChangeRequested,
+                    )
+
+                    LoginButton(
+                        onLoginRequested = onLoginRequested,
+                        enabled = state !is LoginScreenState.Loading,
+                        loadingContent = {
+                            LoadingIcon()
+                        }
+                    )
+
+                    LinesWithElementCentered(
+                        xOffset = 3,
+                        color = Color.LightGray
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(
-                                vertical = 24.dp
-                            )
-                        ) {
-                            Text(
-                                text = "Ao iniciar sessão implica concordância com os termos e condições",
-                                fontFamily = mainFont,
-                                textAlign = TextAlign.Center,
-                                fontSize = 10.sp,
-                                maxLines = 1,
-                            )
-
-                            MarketTrackerTextField(
-                                value = email,
-                                onValueChange = onEmailChangeRequested,
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Default.Email,
-                                        contentDescription = "Email"
-                                    )
-                                },
-                                placeholder = {
-                                    Text(text = "Email", fontFamily = mainFont)
-                                },
-                                modifier = Modifier.testTag(LoginEmailInputTag)
-                            )
-                        }
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            PasswordTextField(
-                                value = password,
-                                onValueChange = onPasswordChangeRequested,
-                            )
-
-                            Button(
-                                onClick = onLoginRequested,
-                                enabled = state !is LoginScreenState.Loading
-                            ) {
-                                Text(text = "Login", fontFamily = mainFont)
-                            }
-
-                            LinesWithElementCentered(
-                                xOffset = 3,
-                                color = Color.LightGray
-                            ) {
-                                Text(
-                                    text = "ou",
-                                    modifier = Modifier.weight(0.2f),
-                                    textAlign = TextAlign.Center,
-                                    fontFamily = mainFont
-                                )
-                            }
-
-                            GoogleLoginButton(googleSignInHandler, getGoogleLoginIntent)
-
-                            ButtonWithImage(
-                                onClick = onSignUpRequested,
-                                image = R.drawable.mt_logo,
-                                buttonText = "Criar conta Market Tracker"
-                            )
-
-                            ButtonWithImage(
-                                onClick = onSuggestionRequested,
-                                image = R.drawable.mail,
-                                buttonText = "Envia-nos a sua sugestão"
-                            )
-                        }
+                        Text(
+                            text = "ou",
+                            modifier = Modifier.weight(0.2f),
+                            textAlign = TextAlign.Center,
+                            fontFamily = mainFont
+                        )
                     }
+
+                    GoogleLoginButton(googleSignInHandler, getGoogleLoginIntent)
+
+                    ButtonWithImage(
+                        onClick = onSignUpRequested,
+                        image = R.drawable.mt_logo,
+                        buttonText = "Criar conta Market Tracker"
+                    )
+
+                    ButtonWithImage(
+                        onClick = onSuggestionRequested,
+                        image = R.drawable.mail,
+                        buttonText = "Envia-nos a sua sugestão"
+                    )
                 }
             }
+            //}
+            //}
         }
     }
 }

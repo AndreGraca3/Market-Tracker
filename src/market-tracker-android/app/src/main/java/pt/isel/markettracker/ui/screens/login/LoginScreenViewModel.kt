@@ -27,8 +27,8 @@ class LoginScreenViewModel @Inject constructor(
     val loginPhase
         get() = loginPhaseFlow.asStateFlow()
 
-    var email by mutableStateOf("")
-    var password by mutableStateOf("")
+    var email by mutableStateOf("test@g")
+    var password by mutableStateOf("123")
 
     fun login() {
         if (loginPhaseFlow.value is LoginScreenState.Loading || email.isEmpty() || password.isEmpty()) return
@@ -74,9 +74,5 @@ class LoginScreenViewModel @Inject constructor(
             Log.e(TAG, "Result fail: ${task.exception}")
             loginPhaseFlow.value = LoginScreenState.Fail(it)
         }
-    }
-
-    fun resetLoginPhase() {
-        loginPhaseFlow.value = LoginScreenState.Idle
     }
 }
