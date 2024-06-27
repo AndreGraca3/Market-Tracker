@@ -10,11 +10,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
-import pt.isel.markettracker.domain.model.market.inventory.product.filter.replaceWithState
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsSortOption
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.replaceFacets
 import pt.isel.markettracker.http.service.operations.product.IProductService
-import pt.isel.markettracker.ui.screens.ProductsScreenState
-import pt.isel.markettracker.ui.screens.extractProductsOffers
+import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
+import pt.isel.markettracker.ui.screens.products.list.AddToListState
+import pt.isel.markettracker.ui.screens.products.list.toSuccess
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,25 +29,24 @@ class ProductsScreenViewModel @Inject constructor(
         const val MAX_GRID_COLUMNS = 2
     }
 
-    // actual listed products
     private val _stateFlow: MutableStateFlow<ProductsScreenState> =
         MutableStateFlow(ProductsScreenState.Idle)
     val stateFlow
         get() = _stateFlow.asStateFlow()
 
-    var query by mutableStateOf(ProductsQuery())
-
+    var query by mutableStateOf(ProductsQuery(sortOption = ProductsSortOption.Relevance))
     private var currentPage by mutableIntStateOf(1)
 
-    fun fetchProducts(productsQuery: ProductsQuery, forceRefresh: Boolean) {
-        if (_stateFlow.value !is ProductsScreenState.Idle && !forceRefresh) return
-
+    fun fetchProducts() {
         currentPage = 1
         _stateFlow.value = ProductsScreenState.Loading
-        handleProductsFetch(productsQuery)
+
+        handleProductsFetch(onFetch = {
+            query = query.replaceFacets(it.facets)
+        })
     }
 
-    fun loadMoreProducts(productsQuery: ProductsQuery) {
+    fun loadMoreProducts() {
         val currentState = _stateFlow.value
         if (currentState is ProductsScreenState.LoadingMore ||
             currentState !is ProductsScreenState.Loaded ||
@@ -51,28 +54,73 @@ class ProductsScreenViewModel @Inject constructor(
         ) return
 
         _stateFlow.value = ProductsScreenState.LoadingMore(currentState.productsOffers)
-        handleProductsFetch(productsQuery)
+        handleProductsFetch()
     }
 
-    private fun handleProductsFetch(productsQuery: ProductsQuery) {
+    private fun handleProductsFetch(
+        onFetch: (PaginatedProductOffers) -> Unit = {}
+    ) {
         val oldProducts = _stateFlow.value.extractProductsOffers()
 
         viewModelScope.launch {
-            val res = kotlin.runCatching {
+            val res = runCatchingAPIFailure {
                 productService.getProducts(
                     currentPage++,
-                    searchQuery = productsQuery.searchTerm,
-                    sortOption = productsQuery.sortOption.name
+                    query = query
                 )
             }
 
             res.onSuccess {
                 val allProducts = oldProducts + it.items
-                _stateFlow.value = ProductsScreenState.IdleLoaded(allProducts, it.hasMore)
-                query =
-                    productsQuery.copy(filters = productsQuery.filters.replaceWithState(it.facets))
+                _stateFlow.value =
+                    ProductsScreenState.IdleLoaded(allProducts, it.hasMore)
+                onFetch(it)
             }
-            res.onFailure { _stateFlow.value = ProductsScreenState.Error(it) }
+
+            res.onFailure { _stateFlow.value = ProductsScreenState.Failed(it) }
         }
+    }
+
+    private val _addToListStateFlow: MutableStateFlow<AddToListState> =
+        MutableStateFlow(AddToListState.Idle)
+    val addToListStateFlow
+        get() = _addToListStateFlow.asStateFlow()
+
+    fun selectProductToAddToList(productOffer: ProductOffer) {
+        if (_addToListStateFlow.value !is AddToListState.Idle) return
+        _addToListStateFlow.value = AddToListState.SelectingList(productOffer)
+    }
+
+    fun addProductToList(listId: String) {
+        val state = _addToListStateFlow.value
+        if (state !is AddToListState.SelectingList) return
+
+        _addToListStateFlow.value = AddToListState.AddingToList(
+            state.productOffer,
+            listId
+        )
+
+        viewModelScope.launch {
+            val newState = _addToListStateFlow.value
+            if (newState !is AddToListState.AddingToList) return@launch
+
+            val res = runCatchingAPIFailure {
+                productService.addProductToList(
+                    listId,
+                    state.productOffer.product.id,
+                    state.productOffer.storeOffer.store.id
+                )
+            }
+
+            res.onSuccess {
+                _addToListStateFlow.value = newState.toSuccess()
+            }
+
+            res.onFailure { _addToListStateFlow.value = AddToListState.Failed(it) }
+        }
+    }
+
+    fun resetAddToListState() {
+        _addToListStateFlow.value = AddToListState.Idle
     }
 }

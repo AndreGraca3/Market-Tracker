@@ -7,8 +7,7 @@
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/your_username/supermarket-scraping-scripts.git
-    cd supermarket-scraping-scripts
+   git clone https://github.com/AndreGraca3/Market-Tracker.git
    ```
 
 2. ** Install Dependencies:**
@@ -19,5 +18,5 @@
 
 3. **Run the Script:**
    ```bash
-    npx ts-node src/app.ts
+    npx ts-node src/index.ts
    ```

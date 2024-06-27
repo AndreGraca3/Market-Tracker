@@ -6,5 +6,15 @@ data class Store(
     val address: String,
     val city: City?,
     val company: Company,
-    val isOnline: Boolean = city == null
+    val isOnline: Boolean
+) {
+    fun toStoreInfo() = StoreInfo(id, name, address, city, isOnline)
+}
+
+data class StoreInfo(
+    val id: Int,
+    val name: String,
+    val address: String,
+    val city: City?,
+    val isOnline: Boolean
 )

@@ -1,4 +1,4 @@
-using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Http.Problems;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace market_tracker_webapi.Application.Http.Pipeline.Authorization;

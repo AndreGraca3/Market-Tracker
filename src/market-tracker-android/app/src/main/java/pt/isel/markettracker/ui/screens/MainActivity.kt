@@ -1,19 +1,33 @@
 package pt.isel.markettracker.ui.screens
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
+import kotlinx.coroutines.launch
+import pt.isel.markettracker.R
+import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.isLoggedIn
+import pt.isel.markettracker.ui.screens.login.LoginScreenState
+import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.list.productsList.ListIdExtra
 import pt.isel.markettracker.ui.screens.list.productsList.ListProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
+import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
+import pt.isel.markettracker.ui.screens.products.list.AddToListState
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModelFactory
 import pt.isel.markettracker.ui.screens.signup.SignUpActivity
@@ -32,6 +46,9 @@ class MainActivity : ComponentActivity() {
         }
     )
 
+    private val productsScreenViewModel by viewModels<ProductsScreenViewModel>()
+    private val loginScreenViewModel by viewModels<LoginScreenViewModel>()
+
     @Inject
     lateinit var authRepository: IAuthRepository
 
@@ -46,13 +63,27 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
         super.onCreate(savedInstanceState)
+        installSplashScreen()
+        productsScreenViewModel.fetchProducts()
+        profileScreenViewModel.fetchUser()
+
+        lifecycleScope.launch {
+            productsScreenViewModel.addToListStateFlow.collect {
+                if (it is AddToListState.Done) productsScreenViewModel.resetAddToListState()
+            }
+        }
+
+        lifecycleScope.launch {
+            loginScreenViewModel.loginPhase.collect { loginState ->
+                // if (loginState is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
+                if (loginState is LoginScreenState.Success) profileScreenViewModel.fetchUser()
+            }
+        }
 
         setContent {
             MarkettrackerTheme {
                 NavGraph(
-                    profileScreenViewModel = profileScreenViewModel,
                     onProductClick = {
                         navigateTo<ProductDetailsActivity>(
                             this,
@@ -70,10 +101,14 @@ class MainActivity : ComponentActivity() {
                     onSignUpRequested = {
                         navigateTo<SignUpActivity>(this)
                     },
+                    getGoogleLoginIntent = { getGoogleLoginIntent(this) },
                     onBarcodeScanRequest = {
                         barCodeLauncher.launch(barcodeScannerOptions)
                     },
-                    authRepository = authRepository
+                    authRepository = authRepository,
+                    loginScreenViewModel = loginScreenViewModel,
+                    profileScreenViewModel = profileScreenViewModel,
+                    productsScreenViewModel = productsScreenViewModel
                 )
             }
         }
@@ -85,5 +120,15 @@ class MainActivity : ComponentActivity() {
             .setPrompt("Escaneie o código de barras do produto")
             .setBeepEnabled(false)
             .setOrientationLocked(false)
+    }
+
+    private fun getGoogleLoginIntent(ctx: Context): Intent {
+        val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(ContextCompat.getString(ctx, R.string.GOOGLE_CLIENT_ID))
+            .requestProfile()
+            .requestEmail()
+            .build()
+        val client = GoogleSignIn.getClient(ctx, options)
+        return client.signInIntent
     }
 }

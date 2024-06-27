@@ -2,8 +2,8 @@ package pt.isel.markettracker.dummy
 
 import pt.isel.markettracker.domain.model.market.inventory.Brand
 import pt.isel.markettracker.domain.model.market.inventory.Category
-import pt.isel.markettracker.domain.model.market.inventory.ProductUnit
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductUnit
 
 val dummyCategories = listOf(
     Category(1, "Mercearia"),
@@ -26,7 +26,7 @@ val dummyProducts = listOf(
         "https://media.kabaz.pt/images/products/1/2/6/9/4/126946-1706041053.png",
         1,
         ProductUnit.GRAMS,
-        2.0,
+        3.5,
         dummyBrands[0],
         dummyCategories[1]
     ),
@@ -36,7 +36,7 @@ val dummyProducts = listOf(
         "https://media.kabaz.pt/images/products/0/6/5/6/5/6565-1683877053.png",
         1,
         ProductUnit.GRAMS,
-        4.5,
+        2.6,
         dummyBrands[1],
         dummyCategories[0]
     ),
@@ -56,7 +56,7 @@ val dummyProducts = listOf(
         "https://media.kabaz.pt/images/products/1/1/7/7/6/117763-1681385790.png",
         1,
         ProductUnit.GRAMS,
-        4.5,
+        2.5,
         dummyBrands[3],
         dummyCategories[0]
     ),

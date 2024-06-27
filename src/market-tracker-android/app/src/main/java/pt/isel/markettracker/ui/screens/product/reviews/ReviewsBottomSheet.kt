@@ -1,74 +1,67 @@
 package pt.isel.markettracker.ui.screens.product.reviews
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
+import pt.isel.markettracker.ui.components.sheets.CustomDragHandle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewsBottomSheet(
-    showReviews: Boolean,
+    reviewsOpen: Boolean,
+    reviews: List<ProductReview>?,
+    hasMore: Boolean,
+    loadMoreReviews: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scrollState = rememberLazyListState()
 
-    if (showReviews) {
+    if (reviewsOpen) {
         ModalBottomSheet(
             modifier = Modifier.fillMaxHeight(0.7F),
             onDismissRequest = onDismissRequest,
             sheetState = sheetState,
             dragHandle = {
-                Row(
-                    modifier = Modifier
-                        .padding(18.dp, 14.dp)
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        Text(text = "Reviews", fontWeight = FontWeight.Bold)
-                    }
-                    BottomSheetDefaults.DragHandle()
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        IconButton(onClick = onDismissRequest) {
-                            Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
-                        }
-                    }
-                }
+                CustomDragHandle(
+                    title = "Reviews",
+                    onDismissRequest = onDismissRequest
+                )
             }
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = if (reviews == null) Alignment.Center else Alignment.TopCenter
             ) {
-                (1..100).forEach {
-                    ReviewTile()
-                }
+                reviews?.let {
+                    ReviewsList(
+                        scrollState = scrollState,
+                        reviews = it,
+                        hasMore = hasMore,
+                        loadMoreReviews = loadMoreReviews
+                    )
+                } ?: LoadingReviewsIndicator(loadMoreReviews)
             }
         }
     }
+}
+
+@Composable
+fun LoadingReviewsIndicator(loadMoreReviews: () -> Unit) {
+    LaunchedEffect(Unit) {
+        // Load first batch of reviews
+        // doesn't run twice because this composable is removed from composition after
+        loadMoreReviews()
+    }
+    CircularProgressIndicator()
 }

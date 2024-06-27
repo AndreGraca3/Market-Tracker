@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -25,24 +26,36 @@ fun ProductCardSpecs(
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            text = product.name,
-            style = MarketTrackerTypography.bodyMedium,
+            text = product.brand.name,
+            style = MarketTrackerTypography.labelMedium,
+            color = Primary600,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
+            textAlign = TextAlign.Left,
+            fontWeight = FontWeight.Bold
         )
+
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(1.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Text(
-                text = product.brand.name,
+                text = product.name,
+                style = MarketTrackerTypography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
+            )
+
+            Text(
+                text = "${product.quantity} ${product.unit.title}",
                 style = MarketTrackerTypography.labelMedium,
-                color = Primary600,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 textAlign = TextAlign.Left,
-                fontWeight = FontWeight.Bold
+                color = Color.Gray
             )
+
             Text(
                 text = product.category.name,
                 style = MarketTrackerTypography.labelMedium,

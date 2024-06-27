@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -23,33 +23,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
-import pt.isel.markettracker.dummy.dummyCompanyPrices
+import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
+import pt.isel.markettracker.domain.model.market.price.PriceAlert
+import pt.isel.markettracker.dummy.dummyCompanyPrices
+import pt.isel.markettracker.ui.screens.product.alert.PriceAlertDialog
 import pt.isel.markettracker.ui.screens.product.stores.StoresBottomSheet
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
-fun CompanyRow(companyPrices: CompanyPrices) {
+fun CompanyRow(
+    companyPrices: CompanyPrices,
+    showOptions: Boolean,
+    alerts: List<PriceAlert>,
+    onAlertSet: (Int, Int) -> Unit,
+    onAlertDelete: (String) -> Unit
+) {
     var showCompanyStores by rememberSaveable { mutableStateOf(false) }
+    var showAlertDialog by rememberSaveable { mutableStateOf(false) }
 
-    var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.storePrices.first().store.id) }
-    val selectedStorePrice = companyPrices.storePrices.first { it.store.id == selectedStoreId }
+    var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.stores.first().store.id) }
+    val selectedStoreOffer = companyPrices.stores.first { it.store.id == selectedStoreId }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp),
+            .wrapContentHeight(),
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth(0.7F),
+            modifier = Modifier.weight(1F),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Box(
@@ -58,7 +68,7 @@ fun CompanyRow(companyPrices: CompanyPrices) {
                 contentAlignment = Alignment.CenterStart
             ) {
                 SubcomposeAsyncImage(
-                    model = companyPrices.company.logoUrl,
+                    model = companyPrices.logoUrl,
                     loading = {
                         CircularProgressIndicator()
                     },
@@ -68,14 +78,14 @@ fun CompanyRow(companyPrices: CompanyPrices) {
             }
 
             Text(
-                text = selectedStorePrice.store.name,
+                text = selectedStoreOffer.store.name,
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
                     .clickable {
                         showCompanyStores = true
                     }
                     .padding(vertical = 4.dp),
-                style = MarketTrackerTypography.bodyMedium,
+                style = MarketTrackerTypography.bodySmall,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Gray,
                 maxLines = 1,
@@ -83,18 +93,47 @@ fun CompanyRow(companyPrices: CompanyPrices) {
             )
         }
 
-        CompanyPriceBox(price = selectedStorePrice.priceData.finalPrice)
+        if (selectedStoreOffer.isAvailable) {
+            val alert = alerts.find { it.storeId == selectedStoreOffer.store.id }
+            CompanyPriceBox(
+                price = selectedStoreOffer.price,
+                lastChecked = selectedStoreOffer.lastChecked,
+                showOptions = showOptions,
+                hasAlert = alert != null,
+                onAlertClick = {
+                    if (alert != null) onAlertDelete(alert.id) else showAlertDialog = true
+                }
+            )
+        } else {
+            Text(
+                text = stringResource(id = R.string.not_available),
+                style = MarketTrackerTypography.bodySmall,
+                color = Color.Red
+            )
+        }
     }
+
     StoresBottomSheet(
         showStores = showCompanyStores,
-        storesPrices = companyPrices.storePrices,
+        storesPrices = companyPrices.stores,
         onStoreSelect = { selectedStoreId = it },
         onDismissRequest = { showCompanyStores = false }
     )
+
+    PriceAlertDialog(
+        showAlertDialog = showAlertDialog,
+        price = selectedStoreOffer.price.finalPrice,
+        onAlertSet = { priceThreshold ->
+            onAlertSet(selectedStoreOffer.store.id, priceThreshold)
+            showAlertDialog = false
+        },
+        onDismissRequest = { showAlertDialog = false }
+    )
+
 }
 
 @Preview
 @Composable
 fun PriceRowPreview() {
-    CompanyRow(dummyCompanyPrices.first())
+    CompanyRow(dummyCompanyPrices.first(), true, emptyList(), { _, _ -> }, { })
 }

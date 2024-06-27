@@ -12,4 +12,9 @@ public class UserCreationError : IUserError
         public string CredentialName { get; } = credentialName;
         public string CredentialValue { get; } = credentialValue;
     }
+    
+    public class InvalidUsername(string username) : UserCreationError
+    {
+        public string Username { get; } = username;
+    }
 }

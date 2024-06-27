@@ -1,31 +1,37 @@
 ﻿using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
-using market_tracker_webapi.Application.Repository.Operations.Account;
-using market_tracker_webapi.Application.Repository.Operations.Alert;
-using market_tracker_webapi.Application.Repository.Operations.Brand;
-using market_tracker_webapi.Application.Repository.Operations.Category;
-using market_tracker_webapi.Application.Repository.Operations.City;
-using market_tracker_webapi.Application.Repository.Operations.Client;
-using market_tracker_webapi.Application.Repository.Operations.Company;
-using market_tracker_webapi.Application.Repository.Operations.List;
-using market_tracker_webapi.Application.Repository.Operations.Price;
-using market_tracker_webapi.Application.Repository.Operations.Product;
-using market_tracker_webapi.Application.Repository.Operations.Store;
-using market_tracker_webapi.Application.Repository.Operations.Token;
-using market_tracker_webapi.Application.Repository.Operations.User;
+using market_tracker_webapi.Application.Repository.Account.Credential;
+using market_tracker_webapi.Application.Repository.Account.Token;
+using market_tracker_webapi.Application.Repository.Account.Users.Client;
+using market_tracker_webapi.Application.Repository.Account.Users.Operator;
+using market_tracker_webapi.Application.Repository.Account.Users.User;
+using market_tracker_webapi.Application.Repository.List;
+using market_tracker_webapi.Application.Repository.List.ListEntry;
+using market_tracker_webapi.Application.Repository.Market.Alert;
+using market_tracker_webapi.Application.Repository.Market.City;
+using market_tracker_webapi.Application.Repository.Market.Company;
+using market_tracker_webapi.Application.Repository.Market.Inventory.Brand;
+using market_tracker_webapi.Application.Repository.Market.Inventory.Category;
+using market_tracker_webapi.Application.Repository.Market.Inventory.Product;
+using market_tracker_webapi.Application.Repository.Market.Price;
+using market_tracker_webapi.Application.Repository.Market.Store;
+using market_tracker_webapi.Application.Repository.Market.Store.PreRegister;
+using market_tracker_webapi.Application.Service.Errors.PreRegister;
 using market_tracker_webapi.Application.Service.External;
-using market_tracker_webapi.Application.Service.Operations.Alert;
-using market_tracker_webapi.Application.Service.Operations.Category;
-using market_tracker_webapi.Application.Service.Operations.City;
-using market_tracker_webapi.Application.Service.Operations.Client;
-using market_tracker_webapi.Application.Service.Operations.Company;
-using market_tracker_webapi.Application.Service.Operations.GoogleAuth;
+using market_tracker_webapi.Application.Service.Operations.Account.Auth.GoogleAuth;
+using market_tracker_webapi.Application.Service.Operations.Account.Auth.PreRegister;
+using market_tracker_webapi.Application.Service.Operations.Account.Auth.Token;
+using market_tracker_webapi.Application.Service.Operations.Account.Users.Client;
+using market_tracker_webapi.Application.Service.Operations.Account.Users.Operator;
+using market_tracker_webapi.Application.Service.Operations.Account.Users.User;
 using market_tracker_webapi.Application.Service.Operations.List;
-using market_tracker_webapi.Application.Service.Operations.Product;
-using market_tracker_webapi.Application.Service.Operations.Store;
-using market_tracker_webapi.Application.Service.Operations.Token;
-using market_tracker_webapi.Application.Service.Operations.User;
+using market_tracker_webapi.Application.Service.Operations.Market.Alert;
+using market_tracker_webapi.Application.Service.Operations.Market.City;
+using market_tracker_webapi.Application.Service.Operations.Market.Company;
+using market_tracker_webapi.Application.Service.Operations.Market.Inventory.Category;
+using market_tracker_webapi.Application.Service.Operations.Market.Inventory.Product;
+using market_tracker_webapi.Application.Service.Operations.Market.Store;
 using market_tracker_webapi.Application.Service.Transaction;
 using market_tracker_webapi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -117,6 +123,15 @@ namespace market_tracker_webapi.Application.Service.DependencyResolver
 
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<IClientRepository, ClientRepository>();
+
+            services.AddScoped<IClientDeviceService, ClientDeviceService>();
+            services.AddScoped<IClientDeviceRepository, ClientDeviceRepository>();
+
+            services.AddScoped<IOperatorService, OperatorService>();
+            services.AddScoped<IOperatorRepository, OperatorRepository>();
+
+            services.AddScoped<IPreRegistrationRepository, PreRegistrationRepository>();
+            services.AddScoped<IPreRegistrationService, PreRegistrationService>();
 
             return services;
         }

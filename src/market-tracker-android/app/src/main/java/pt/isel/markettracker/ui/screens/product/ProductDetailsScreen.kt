@@ -2,6 +2,7 @@ package pt.isel.markettracker.ui.screens.product
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -10,24 +11,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.markettracker.R
-import pt.isel.markettracker.domain.Loaded
-import pt.isel.markettracker.domain.exceptionOrNull
-import pt.isel.markettracker.domain.extractValue
-import pt.isel.markettracker.domain.getOrNull
-import pt.isel.markettracker.domain.loaded
-import pt.isel.markettracker.domain.loading
-import pt.isel.markettracker.domain.toResultSuccess
-import pt.isel.markettracker.ui.screens.product.alert.PriceAlertDialog
+import com.talhafaki.composablesweettoast.util.SweetToastUtil
+import pt.isel.markettracker.R
+import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.extractAlerts
+import pt.isel.markettracker.repository.auth.isLoggedIn
+import pt.isel.markettracker.ui.screens.product.alert.PriceAlertState
 import pt.isel.markettracker.ui.screens.product.components.ProductNotFoundDialog
 import pt.isel.markettracker.ui.screens.product.components.ProductTopBar
 import pt.isel.markettracker.ui.screens.product.prices.PricesSection
-import pt.isel.markettracker.ui.screens.product.rating.ProductRatingsRow
+import pt.isel.markettracker.ui.screens.product.rating.ProductRatingsColumn
+import pt.isel.markettracker.ui.screens.product.rating.RatingDialog
+import pt.isel.markettracker.ui.screens.product.rating.extractPreferences
 import pt.isel.markettracker.ui.screens.product.reviews.ReviewsBottomSheet
 import pt.isel.markettracker.ui.screens.product.specs.ProductImage
 import pt.isel.markettracker.ui.screens.product.specs.ProductSpecs
@@ -35,15 +36,18 @@ import pt.isel.markettracker.ui.screens.product.specs.ProductSpecs
 @Composable
 fun ProductDetailsScreen(
     onBackRequest: () -> Unit,
-    vm: ProductDetailsScreenViewModel
+    checkOrRequestNotificationPermission: (() -> Unit) -> Unit,
+    vm: ProductDetailsScreenViewModel,
+    authRepository: IAuthRepository
 ) {
-    val productState by vm.product.collectAsState()
-    val preferencesState by vm.preferences.collectAsState()
-    val pricesState by vm.prices.collectAsState()
-    val statsState by vm.stats.collectAsState()
+    val screenState by vm.stateFlow.collectAsState()
+    val prefsState by vm.prefsStateFlow.collectAsState()
+    val priceAlertState by vm.priceAlertStateFlow.collectAsState()
 
-    var isReviewsSectionOpen by remember { mutableStateOf(false) }
-    var isPriceAlertOpen by remember { mutableStateOf(false) }
+    val authState by authRepository.authState.collectAsState()
+
+    var isReviewsSectionOpen by rememberSaveable { mutableStateOf(false) }
+    var isRatingDialogOpen by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -52,53 +56,101 @@ fun ProductDetailsScreen(
     ) {
         ProductTopBar(
             onBackRequest = onBackRequest,
-            preferencesState = preferencesState,
-            onAlertRequest = { isPriceAlertOpen = true },
-            onFavoriteRequest = {}
+            prefsState.extractPreferences(),
+            onFavoriteRequest = if (authState.isLoggedIn()) { isFavorite ->
+                vm.submitFavourite(isFavorite)
+            } else null
         )
 
-        productState.exceptionOrNull()?.let {
+        if (screenState is ProductDetailsScreenState.FailedToLoadProduct) {
             ProductNotFoundDialog(
                 message = stringResource(id = R.string.product_not_found_title),
                 onDismissRequest = onBackRequest
             )
         }
 
-        val product = productState.getOrNull()
-
+        val product = screenState.extractProduct()
         ProductImage(product?.imageUrl)
 
         Column(
-            modifier = Modifier.padding(24.dp, 18.dp),
+            modifier = Modifier.padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
             ProductSpecs(product)
 
-            ProductRatingsRow(
-                statsState = statsState,
-                productReviewState = when (val loadedPrefs = preferencesState) {
-                    is Loaded -> loaded(loadedPrefs.extractValue().review.toResultSuccess())
-                    else -> loading()
-                },
-                onCommunityReviewsRequest = { isReviewsSectionOpen = true }
+            ProductRatingsColumn(
+                productPreferences = prefsState.extractPreferences(),
+                productStats = screenState.extractStats(),
+                onCommunityReviewsRequest = { isReviewsSectionOpen = true },
+                isLoggedIn = authState.isLoggedIn(),
+                onUserRatingRequest = {
+                    isRatingDialogOpen = true
+                }
             )
 
-            PricesSection(pricesState)
+            PricesSection(
+                productPrices = screenState.extractPrices(),
+                showOptions = authState.isLoggedIn(),
+                alerts = authState.extractAlerts(),
+                onAlertSet = { id, price ->
+                    checkOrRequestNotificationPermission {
+                        if (product != null) vm.createAlert(product.id, id, price)
+                    }
+                },
+                onAlertDelete = vm::deleteAlert
+            )
         }
 
-        ReviewsBottomSheet(
-            isReviewsSectionOpen,
-            onDismissRequest = { isReviewsSectionOpen = false }
-        )
+        if (product != null) {
+            ReviewsBottomSheet(
+                reviewsOpen = isReviewsSectionOpen,
+                reviews = screenState.extractReviews(),
+                hasMore = screenState.hasMoreReviews(),
+                loadMoreReviews = { vm.fetchProductReviews(product.id) },
+                onDismissRequest = { isReviewsSectionOpen = false }
+            )
 
-        preferencesState.let {
-            if (it is Loaded && isPriceAlertOpen) {
-                PriceAlertDialog(
-                    price = it.extractValue().priceAlert?.priceThreshold ?: 0,
-                    onAlertSet = { isPriceAlertOpen = false },
-                    onDismissRequest = { isPriceAlertOpen = false }
+            RatingDialog(
+                dialogOpen = isRatingDialogOpen,
+                review = prefsState.extractPreferences()?.review,
+                onReviewRequest = { rating, text ->
+                    vm.submitUserRating(product.id, rating, text)
+                    isRatingDialogOpen = false
+                },
+                onDeleteRequest = {
+                    isRatingDialogOpen = false
+                    vm.deleteReview(product.id)
+                },
+                onDismissRequest = { isRatingDialogOpen = false }
+            )
+        }
+
+        when (priceAlertState) {
+            is PriceAlertState.Created -> {
+                SweetToastUtil.SweetSuccess(
+                    message = stringResource(id = R.string.alert_set),
+                    contentAlignment = Alignment.TopCenter,
+                    padding = PaddingValues(top = 18.dp)
                 )
             }
+
+            is PriceAlertState.Deleted -> {
+                SweetToastUtil.SweetSuccess(
+                    message = stringResource(id = R.string.alert_removed),
+                    contentAlignment = Alignment.TopCenter,
+                    padding = PaddingValues(top = 18.dp)
+                )
+            }
+
+            is PriceAlertState.Error -> {
+                SweetToastUtil.SweetError(
+                    message = stringResource(id = R.string.alert_error),
+                    contentAlignment = Alignment.TopCenter,
+                    padding = PaddingValues(top = 18.dp)
+                )
+            }
+
+            else -> {}
         }
     }
 }

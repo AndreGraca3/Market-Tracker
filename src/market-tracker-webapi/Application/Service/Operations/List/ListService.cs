@@ -1,191 +1,158 @@
-﻿using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Http.Models.List;
-using market_tracker_webapi.Application.Repository.Operations.List;
-using market_tracker_webapi.Application.Repository.Operations.User;
+﻿using market_tracker_webapi.Application.Domain.Schemas.List;
+using market_tracker_webapi.Application.Repository.Account.Users.Client;
+using market_tracker_webapi.Application.Repository.List;
 using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.User;
+using market_tracker_webapi.Application.Service.Results;
 using market_tracker_webapi.Application.Service.Transaction;
-using market_tracker_webapi.Application.Utils;
 using Microsoft.IdentityModel.Tokens;
 
 namespace market_tracker_webapi.Application.Service.Operations.List;
 
 public class ListService(
     IListRepository listRepository,
-    IUserRepository userRepository,
+    IClientRepository clientRepository,
     ITransactionManager transactionManager) : IListService
 {
-    private const int MaxListNumber = 10;
+    public static readonly int MaxListNumber = 10;
 
-    public async Task<Either<IServiceError, CollectionOutputModel<ShoppingList>>> GetListsAsync(Guid clientId,
-        bool isOwner, string? listName, DateTime? createdAfter, bool? isArchived)
+    public async Task<IEnumerable<ShoppingList>> GetListsAsync(Guid clientId,
+        bool? isOwner, string? listName, DateTime? createdAfter, bool? isArchived)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
             var lists
-                = await listRepository.GetListsAsync(clientId, isOwner, listName, createdAfter, isArchived);
-            return EitherExtensions.Success<IServiceError, CollectionOutputModel<ShoppingList>>(
-                new CollectionOutputModel<ShoppingList>(lists));
+                = await listRepository.GetListsFromClientAsync(clientId, isOwner, listName, createdAfter, isArchived);
+            return lists;
         });
     }
 
-    public async Task<Either<ListFetchingError, ShoppingListOutputModel>> GetListByIdAsync(int id, Guid clientId)
+    public async Task<ShoppingListResult> GetListByIdAsync(string listId, Guid clientId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var list = await listRepository.GetListByIdAsync(id);
+            var list = await listRepository.GetListByIdAsync(listId);
             if (list is null)
-                return EitherExtensions.Failure<ListFetchingError, ShoppingListOutputModel>(
-                    new ListFetchingError.ListByIdNotFound(id));
+                throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-            var listClients = (await listRepository.GetClientIdsByListIdAsync(id)).ToList();
-            if (!listClients.Contains(clientId))
-                return EitherExtensions.Failure<ListFetchingError, ShoppingListOutputModel>(
-                    new ListFetchingError.UserDoesNotOwnList(clientId, id)
-                );
+            var listClients = (await listRepository.GetClientMembersByListIdAsync(listId)).ToList();
+            if (!list.BelongsTo(clientId))
+                throw new MarketTrackerServiceException(
+                    new ListFetchingError.ClientDoesNotBelongToList(clientId, listId));
 
-            return EitherExtensions.Success<ListFetchingError, ShoppingListOutputModel>(
-                new ShoppingListOutputModel
-                {
-                    Id = list.Id,
-                    Name = list.Name,
-                    ArchivedAt = list.ArchivedAt,
-                    CreatedAt = list.CreatedAt,
-                    ClientIds = listClients
-                }
+            var listOwner = await clientRepository.GetClientByIdAsync(list.OwnerId.Value) ??
+                            throw new MarketTrackerServiceException(
+                                new UserFetchingError.UserByIdNotFound(list.OwnerId.Value));
+
+            return new ShoppingListResult(
+                list.Id.Value,
+                list.Name,
+                list.ArchivedAt,
+                list.CreatedAt,
+                listOwner.ToClientItem(),
+                listClients
             );
         });
     }
 
-    public async Task<Either<IServiceError, IntIdOutputModel>> AddListAsync(Guid clientId, string listName)
+    public async Task<ShoppingListId> AddListAsync(Guid clientId, string listName)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            if (!(await listRepository.GetListsAsync(clientId, true, listName)).IsNullOrEmpty())
-                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
+            if (!(await listRepository.GetListsFromClientAsync(clientId, true, listName)).IsNullOrEmpty())
+                throw new MarketTrackerServiceException(
                     new ListCreationError.ListNameAlreadyExists(clientId, listName));
 
-            if ((await listRepository.GetListsAsync(clientId, true)).Count() >= MaxListNumber)
-                return EitherExtensions.Failure<IServiceError, IntIdOutputModel>(
+            if ((await listRepository.GetListsFromClientAsync(clientId, true)).Count() >= MaxListNumber)
+                throw new MarketTrackerServiceException(
                     new ListCreationError.MaxListNumberReached(clientId, MaxListNumber));
 
-            var id = await listRepository.AddListAsync(listName, clientId);
-            await listRepository.AddListClientAsync(id, clientId);
-            return EitherExtensions.Success<IServiceError, IntIdOutputModel>(new IntIdOutputModel(id));
+            return await listRepository.AddListAsync(listName, clientId);
         });
     }
 
-    public async Task<Either<IServiceError, ShoppingList>> UpdateListAsync(int id, Guid clientId, string? listName,
-        bool? isArchived
-    )
+    public async Task<ShoppingListItem> UpdateListAsync(string listId, Guid clientId, string? listName,
+        bool? isArchived)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var list = await listRepository.GetListByIdAsync(id);
+            var list = await listRepository.GetListByIdAsync(listId);
             if (list is null)
-                return EitherExtensions.Failure<IServiceError, ShoppingList>(
-                    new ListFetchingError.ListByIdNotFound(id));
+                throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-            if (list.OwnerId != clientId)
-                return EitherExtensions.Failure<IServiceError, ShoppingList>(
-                    new ListFetchingError.UserDoesNotOwnList(clientId, id));
+            if (!list.IsOwner(clientId))
+                throw new MarketTrackerServiceException(new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
             if (list.ArchivedAt != null)
-                return EitherExtensions.Failure<IServiceError, ShoppingList>(
-                    new ListUpdateError.ListIsArchived(id)
-                );
+                throw new MarketTrackerServiceException(new ListUpdateError.ListIsArchived(listId));
 
-            if (listName is not null && !(await listRepository.GetListsAsync(clientId, true, listName)).IsNullOrEmpty())
-                return EitherExtensions.Failure<IServiceError, ShoppingList>(
-                    new ListCreationError.ListNameAlreadyExists(clientId, listName)
-                );
+            if (listName is not null &&
+                !(await listRepository.GetListsFromClientAsync(clientId, true, listName)).IsNullOrEmpty())
+                throw new MarketTrackerServiceException(
+                    new ListCreationError.ListNameAlreadyExists(clientId, listName));
 
-            DateTime? archivedAt = isArchived.HasValue && isArchived.Value ? DateTime.Now : null;
+            DateTime? archivedAt = isArchived.HasValue && isArchived.Value ? DateTime.UtcNow : null;
 
-            var updatedList = await listRepository.UpdateListAsync(id, archivedAt, listName);
-            return EitherExtensions.Success<IServiceError, ShoppingList>(updatedList!);
+            return (await listRepository.UpdateListAsync(listId, archivedAt, listName))!;
         });
     }
 
-    public async Task<Either<ListFetchingError, ShoppingList>> DeleteListAsync(int id, Guid clientId)
+    public async Task<ShoppingListItem> DeleteListAsync(string listId, Guid clientId)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var list = await listRepository.GetListByIdAsync(id);
+            var list = await listRepository.GetListByIdAsync(listId);
             if (list is null)
-                return EitherExtensions.Failure<ListFetchingError, ShoppingList>(
-                    new ListFetchingError.ListByIdNotFound(id));
+                throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-            if (list.OwnerId != clientId)
-                return EitherExtensions.Failure<ListFetchingError, ShoppingList>(
-                    new ListFetchingError.UserDoesNotOwnList(clientId, id));
+            if (!list.IsOwner(clientId))
+                throw new MarketTrackerServiceException(new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
-            var deletedList = await listRepository.DeleteListAsync(id);
-            return EitherExtensions.Success<ListFetchingError, ShoppingList>(deletedList!);
+            return (await listRepository.DeleteListAsync(listId))!;
         });
     }
 
-    public async Task<Either<IServiceError, ListClient>> AddClientToListAsync(int listId,
+    public async Task<ListClient> AddClientToListAsync(string listId,
         Guid clientId, Guid clientIdToAdd)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            if (await userRepository.GetUserByIdAsync(clientIdToAdd) is null)
-                return EitherExtensions.Failure<IServiceError, ListClient>(
-                    new UserFetchingError.UserByIdNotFound(clientId));
+            if (await clientRepository.GetClientByIdAsync(clientIdToAdd) is null)
+                throw new MarketTrackerServiceException(new UserFetchingError.UserByIdNotFound(clientIdToAdd));
 
-            var list = await listRepository.GetListByIdAsync(listId);
-            if (list is null)
-                return EitherExtensions.Failure<IServiceError, ListClient>(
-                    new ListFetchingError.ListByIdNotFound(listId));
+            var list = await listRepository.GetListByIdAsync(listId) ??
+                       throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-            if (list.OwnerId != clientId)
-                return EitherExtensions.Failure<IServiceError, ListClient>(
-                    new ListFetchingError.UserDoesNotOwnList(clientId, listId));
+            if (!list.IsOwner(clientId))
+                throw new MarketTrackerServiceException(new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
-            if (await listRepository.IsClientInListAsync(listId, clientIdToAdd))
-                return EitherExtensions.Failure<IServiceError, ListClient>(
-                    new ListClientCreationError.ClientAlreadyInList(listId, clientIdToAdd));
+            if (list.BelongsTo(clientIdToAdd))
+                throw new MarketTrackerServiceException(
+                    new ListCreationError.ClientAlreadyInList(listId, clientIdToAdd));
 
-            await listRepository.AddListClientAsync(listId, clientIdToAdd);
-            return EitherExtensions.Success<IServiceError, ListClient>(new ListClient()
-            {
-                ClientId = clientIdToAdd,
-                ListId = listId
-            });
+            await listRepository.AddListMemberAsync(listId, clientIdToAdd);
+            return new ListClient(clientIdToAdd, listId);
         });
     }
 
-    public async Task<Either<IListError, ListClient>> RemoveClientFromListAsync(int listId, Guid clientId,
+    public async Task<ListClient> RemoveClientFromListAsync(string listId, Guid clientId,
         Guid clientIdToRemove)
     {
         return await transactionManager.ExecuteAsync(async () =>
         {
-            var list = await listRepository.GetListByIdAsync(listId);
-            if (list is null)
-                return EitherExtensions.Failure<IListError, ListClient>(
-                    new ListFetchingError.ListByIdNotFound(listId));
+            var list = await listRepository.GetListByIdAsync(listId) ??
+                       throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
 
-            if (list.OwnerId != clientId)
-            {
-                return EitherExtensions.Failure<IListError, ListClient>(
-                    new ListFetchingError.UserDoesNotOwnList(clientId, listId));
-            }
+            if (!list.IsOwner(clientId))
+                throw new MarketTrackerServiceException(new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
-            if (!await listRepository.IsClientInListAsync(listId, clientIdToRemove))
-            {
-                return EitherExtensions.Failure<IListError, ListClient>(
-                    new ListClientFetchingError.ClientInListNotFound(listId, clientIdToRemove));
-            }
+            if (!list.IsMember(clientIdToRemove))
+                throw new MarketTrackerServiceException(
+                    new ListFetchingError.ClientDoesNotBelongToList(clientIdToRemove, listId));
 
-            await listRepository.DeleteListClientAsync(listId, clientIdToRemove);
-            return EitherExtensions.Success<IListError, ListClient>(new ListClient()
-            {
-                ClientId = clientIdToRemove,
-                ListId = listId
-            });
+            await listRepository.DeleteListMemberAsync(listId, clientIdToRemove);
+            return new ListClient(clientIdToRemove, listId);
         });
     }
 }

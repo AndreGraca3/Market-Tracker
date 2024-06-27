@@ -1,16 +1,24 @@
 package pt.isel.markettracker.repository.auth
 
 import kotlinx.coroutines.flow.StateFlow
+import pt.isel.markettracker.domain.model.list.ShoppingList
+import pt.isel.markettracker.domain.model.market.price.PriceAlert
 
 /**
  * Used for global authentication state management
  */
 interface IAuthRepository {
-    val authState: StateFlow<AuthEvent>
+    val authState: StateFlow<AuthState>
 
-    fun isUserLoggedIn(): Boolean
+    suspend fun getOrGenerateDeviceId(): String
 
-    fun login()
+    suspend fun setToken(token: String?)
 
-    fun logout()
+    suspend fun getToken(): String?
+
+    fun setDetails(lists: List<ShoppingList>, alerts: List<PriceAlert>)
+
+    fun addAlert(alert: PriceAlert)
+
+    fun removeAlert(alertId: String)
 }

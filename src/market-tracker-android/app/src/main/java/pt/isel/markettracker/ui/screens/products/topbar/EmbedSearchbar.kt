@@ -22,13 +22,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.ui.theme.Grey
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,18 +39,19 @@ fun EmbeddedSearchBar(
     searchQuery: String,
     active: Boolean,
     onActiveChange: (Boolean) -> Unit,
-    onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
+    onSearchQueryChange: (String?) -> Unit,
+    onSearch: () -> Unit,
     modifier: Modifier = Modifier,
     onBarcodeScanRequest: () -> Unit
 ) {
     val previousQueries = remember { mutableStateListOf<String>() }
+    val focusRequester = remember { FocusRequester() }
 
     SearchBar(
-        modifier = modifier,
+        modifier = modifier.focusRequester(focusRequester),
         colors = SearchBarDefaults.colors(Grey),
         query = searchQuery,
-        onQueryChange = onQueryChange,
+        onQueryChange = onSearchQueryChange,
         placeholder = {
             Text(
                 text = stringResource(id = R.string.search_hint),
@@ -56,8 +59,8 @@ fun EmbeddedSearchBar(
             )
         },
         onSearch = {
-            onSearch(it)
-            previousQueries.add(it)
+            previousQueries.add(0, searchQuery)
+            onSearch()
         },
         active = active,
         onActiveChange = onActiveChange,
@@ -79,11 +82,11 @@ fun EmbeddedSearchBar(
                         modifier = Modifier
                             .clip(CircleShape),
                         onClick = {
-                            onQueryChange("")
-                            if (active) {
-                                onActiveChange(false)
+                            onSearchQueryChange(null)
+                            if (!active) {
+                                focusRequester.requestFocus()
+                                onActiveChange(true)
                             }
-                            onSearch(searchQuery)
                         }
                     ) {
                         Icon(
@@ -111,8 +114,10 @@ fun EmbeddedSearchBar(
             SearchHistoryItem(
                 searchQuery = it,
                 onHistoryItemClick = {
-                    onQueryChange(it)
-                    onSearch(it)
+                    previousQueries.remove(it)
+                    previousQueries.add(0, it)
+                    onSearchQueryChange(it)
+                    onSearch()
                 }
             )
         }
@@ -126,7 +131,7 @@ fun EmbedSearchBarPreview() {
         active = false,
         onActiveChange = { },
         searchQuery = "",
-        onQueryChange = { },
+        onSearchQueryChange = { },
         onSearch = { },
         onBarcodeScanRequest = { }
     )

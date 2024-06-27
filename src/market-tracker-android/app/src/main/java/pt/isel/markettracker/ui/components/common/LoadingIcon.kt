@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 
 @Composable
 fun LoadingIcon(text: String? = null) {

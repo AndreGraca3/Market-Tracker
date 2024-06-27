@@ -13,11 +13,10 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.IOState
 import pt.isel.markettracker.domain.fail
 import pt.isel.markettracker.domain.idle
-import pt.isel.markettracker.domain.loaded
+import pt.isel.markettracker.domain.loadSuccess
 import pt.isel.markettracker.domain.loading
-import pt.isel.markettracker.http.models.identifiers.StringIdOutputModel
-import pt.isel.markettracker.http.models.user.UserCreationInputModel
 import pt.isel.markettracker.http.service.operations.user.IUserService
+import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,19 +38,17 @@ class SignUpScreenViewModel @Inject constructor(
     fun createUser() {
         signUpPhaseFlow.value = loading()
         viewModelScope.launch {
-            val result = runCatching {
+            runCatchingAPIFailure {
                 userService.createUser(
-                    UserCreationInputModel(
-                        name,
-                        username,
-                        email,
-                        password,
-                    )
+                    name,
+                    username,
+                    email,
+                    password
                 )
-            }
-            signUpPhaseFlow.value = when (result.isSuccess) {
-                true -> loaded(result)
-                false -> fail(Exception("Invalid Credentials"))
+            }.onSuccess {
+                signUpPhaseFlow.value = loadSuccess(it)
+            }.onFailure {
+                signUpPhaseFlow.value = fail(it)
             }
         }
     }

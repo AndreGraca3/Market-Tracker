@@ -1,6 +1,6 @@
 ﻿namespace market_tracker_webapi.Application.Service.Errors.PreRegister;
 
-public class PreRegistrationFetchingError
+public class PreRegistrationFetchingError : IPreRegistrationError
 {
     public class PreRegistrationByIdNotFound(Guid id) : PreRegistrationFetchingError
     {

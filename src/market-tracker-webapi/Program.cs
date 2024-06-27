@@ -2,7 +2,8 @@ using System.Text.Json.Serialization;
 using market_tracker_webapi.Application.Http;
 using market_tracker_webapi.Application.Http.Pipeline;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
-using market_tracker_webapi.Application.Http.Problem;
+using market_tracker_webapi.Application.Http.Pipeline.Converters;
+using market_tracker_webapi.Application.Http.Problems;
 using market_tracker_webapi.Application.Service.DependencyResolver;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
@@ -10,7 +11,6 @@ using Microsoft.AspNetCore.OData.Batch;
 using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
-using Microsoft.OpenApi.Models;
 
 namespace market_tracker_webapi;
 
@@ -52,11 +52,11 @@ static class Program
         app.Use(
             async (context, next) =>
             {
-                var startTime = DateTime.Now;
+                var startTime = DateTime.UtcNow;
                 Console.WriteLine($"Request: {context.Request.Method} {context.Request.Path}");
                 await next();
                 Console.WriteLine(
-                    $"Response: {context.Response.StatusCode} in {(DateTime.Now - startTime).TotalMilliseconds}ms"
+                    $"Response: {context.Response.StatusCode} in {(DateTime.UtcNow - startTime).TotalMilliseconds}ms"
                 );
             }
         );
@@ -74,9 +74,14 @@ static class Program
     {
         builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
-        var batchHandler = new DefaultODataBatchHandler();
-        batchHandler.MessageQuotas.MaxOperationsPerChangeset = 10;
-        batchHandler.MessageQuotas.MaxPartsPerBatch = 1000;
+        var batchHandler = new DefaultODataBatchHandler
+        {
+            MessageQuotas =
+            {
+                MaxOperationsPerChangeset = 10,
+                MaxPartsPerBatch = 1000
+            }
+        };
         builder
             .Services.AddControllers(options =>
             {
@@ -109,7 +114,7 @@ static class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        
+
         builder.Services.AddFirebaseServices(builder.Configuration);
         builder.Services.AddPgSqlServer(builder.Configuration);
         builder.Services.AddMarketTrackerDataServices();

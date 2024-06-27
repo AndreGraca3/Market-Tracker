@@ -7,7 +7,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 
 val mainFont = FontFamily(
     Font(R.font.outfit_medium),
@@ -22,7 +22,7 @@ val MarketTrackerTypography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 18.sp,
         color = Color.Black,
-        lineHeight = 26.sp,
+        lineHeight = 28.sp,
         letterSpacing = 0.5.sp
     ),
     bodyMedium = TextStyle(
@@ -60,9 +60,9 @@ val MarketTrackerTypography = Typography(
     titleSmall = TextStyle(
         fontFamily = mainFont,
         fontWeight = FontWeight.Normal,
-        fontSize = 10.sp,
+        fontSize = 14.sp,
         color = Color.Black,
-        lineHeight = 20.sp,
+        lineHeight = 24.sp,
         letterSpacing = 0.sp
     ),
     labelSmall = TextStyle(

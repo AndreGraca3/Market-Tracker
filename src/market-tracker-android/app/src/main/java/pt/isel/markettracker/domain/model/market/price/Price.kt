@@ -3,7 +3,7 @@ package pt.isel.markettracker.domain.model.market.price
 import java.time.LocalDateTime
 
 data class Price(
-    val regularPrice: Int,
+    val basePrice: Int,
     val finalPrice: Int,
     val promotion: Promotion?,
     val createdAt: LocalDateTime

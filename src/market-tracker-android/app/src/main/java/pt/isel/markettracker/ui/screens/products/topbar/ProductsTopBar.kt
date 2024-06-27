@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,9 +26,9 @@ import pt.isel.markettracker.ui.theme.Primary400
 
 @Composable
 fun ProductsTopBar(
-    searchQuery: String,
-    onSearchQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
+    searchTerm: String,
+    onSearchTermChange: (String?) -> Unit,
+    onSearch: () -> Unit,
     onBarcodeScanRequest: () -> Unit
 ) {
     var isSearching by rememberSaveable { mutableStateOf(false) }
@@ -40,7 +41,7 @@ fun ProductsTopBar(
         modifier = Modifier
             .fillMaxWidth()
             .background(background)
-            .padding(10.dp),
+            .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
@@ -59,17 +60,17 @@ fun ProductsTopBar(
                 )
             )
         ) {
-            HeaderLogo()
+            HeaderLogo(modifier = Modifier.size(48.dp))
         }
         EmbeddedSearchBar(
             active = isSearching,
             onActiveChange = { isSearching = it },
             onSearch = {
                 isSearching = false
-                onSearch(it)
+                onSearch()
             },
-            searchQuery = searchQuery,
-            onQueryChange = onSearchQueryChange,
+            searchQuery = searchTerm,
+            onSearchQueryChange = onSearchTermChange,
             onBarcodeScanRequest = onBarcodeScanRequest,
             modifier = Modifier.weight(1f)
         )
@@ -80,8 +81,8 @@ fun ProductsTopBar(
 @Composable
 fun ProductsTopBarPreview() {
     ProductsTopBar(
-        searchQuery = "",
-        onSearchQueryChange = {},
+        searchTerm = "",
+        onSearchTermChange = {},
         onSearch = {},
         onBarcodeScanRequest = {}
     )

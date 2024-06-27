@@ -1,9 +1,9 @@
 ﻿using FluentAssertions;
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Repository.Operations.Company;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
+using market_tracker_webapi.Application.Repository.Market.Company;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.Company;
-using market_tracker_webapi.Application.Service.Operations.Company;
+using market_tracker_webapi.Application.Service.Operations.Market.Company;
 using Moq;
 
 namespace market_tracker_webapi_test.Application.Service;
@@ -27,51 +27,28 @@ public class CompanyServiceTest
     public async Task GetCompaniesAsync_ReturnsCompaniesCollectionOutputModel()
     {
         // Arrange
-        var companies = new List<Company>
-        {
-            new()
-            {
-                Id = 1,
-                Name = "Company 1",
-                CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-            },
-            new()
-            {
-                Id = 2,
-                Name = "Company 2",
-                CreatedAt = new DateTime(2024, 1, 2, 0, 0, 0, DateTimeKind.Unspecified)
-            }
-        };
-
-        _companyRepositoryMock.Setup(x => x.GetCompaniesAsync()).ReturnsAsync(companies);
+        _companyRepositoryMock.Setup(x => x.GetCompaniesAsync()).ReturnsAsync(MockedData.DummyCompanies);
 
         // Act
         var result = await _companyService.GetCompaniesAsync();
 
         // Assert
-        result.Value.Should().BeEquivalentTo(new CollectionOutputModel<Company>(companies));
+        result.Should().BeEquivalentTo(MockedData.DummyCompanies);
     }
 
     [Fact]
     public async Task GetCompanyByIdAsync_ReturnsCompany()
     {
         // Arrange
-        var company = new Company
-        {
-            Id = 1,
-            Name = "Company 1",
-            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-        };
-
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(company);
+            .ReturnsAsync(MockedData.DummyCompanies[0]);
 
         // Act
         var result = await _companyService.GetCompanyByIdAsync(1);
 
         // Assert
-        result.Value.Should().BeEquivalentTo(company);
+        result.Should().BeEquivalentTo(MockedData.DummyCompanies[0]);
     }
 
     [Fact]
@@ -83,32 +60,28 @@ public class CompanyServiceTest
             .ReturnsAsync((Company)null!);
 
         // Act
-        var result = await _companyService.GetCompanyByIdAsync(1);
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _companyService.GetCompanyByIdAsync(1));
 
         // Assert
-        result.Error.Should().BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(1));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(1));
     }
 
     [Fact]
     public async Task GetCompanyByNameAsync_ReturnsCompany()
     {
         // Arrange
-        var company = new Company
-        {
-            Id = 1,
-            Name = "Company 1",
-            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-        };
-
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
-            .ReturnsAsync(company);
+            .ReturnsAsync(MockedData.DummyCompanies[0]);
 
         // Act
         var result = await _companyService.GetCompanyByNameAsync("Company 1");
 
         // Assert
-        result.Value.Should().BeEquivalentTo(company);
+        result.Should().BeEquivalentTo(MockedData.DummyCompanies[0]);
     }
 
     [Fact]
@@ -120,11 +93,13 @@ public class CompanyServiceTest
             .ReturnsAsync((Company)null!);
 
         // Act
-        var result = await _companyService.GetCompanyByNameAsync("Company 1");
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _companyService.GetCompanyByNameAsync("Company 1"));
 
         // Assert
         result
-            .Error.Should()
+            .ServiceError
+            .Should()
             .BeEquivalentTo(new CompanyFetchingError.CompanyByNameNotFound("Company 1"));
     }
 
@@ -132,151 +107,122 @@ public class CompanyServiceTest
     public async Task AddCompanyAsync_ReturnsIdOutputModel()
     {
         // Arrange
-        var companyName = "Company 1";
-
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
             .ReturnsAsync(It.IsAny<Company>());
 
-        _companyRepositoryMock.Setup(x => x.AddCompanyAsync(It.IsAny<string>())).ReturnsAsync(1);
+        _companyRepositoryMock
+            .Setup(x => x.AddCompanyAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new CompanyId(1));
 
         // Act
-        var result = await _companyService.AddCompanyAsync(companyName);
+        var result = await _companyService.AddCompanyAsync("Company 1", "company1_logo");
 
         // Assert
-        result.Value.Id.Should().Be(1);
+        result.Should().BeEquivalentTo(new CompanyId(1));
     }
 
     [Fact]
     public async Task AddCompanyAsync_ReturnsCompanyNameAlreadyExists()
     {
         // Arrange
-        var companyName = "Company 1";
-
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
-            .ReturnsAsync(
-                new Company
-                {
-                    Id = 1,
-                    Name = "Company 1",
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-                }
-            );
+            .ReturnsAsync(MockedData.DummyCompanies[0]);
 
         // Act
-        var result = await _companyService.AddCompanyAsync(companyName);
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _companyService.AddCompanyAsync(MockedData.DummyCompanies[0].Name, MockedData.DummyCompanies[0].LogoUrl));
 
         // Assert
         result
-            .Error.Should()
-            .BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(companyName));
+            .ServiceError
+            .Should()
+            .BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(MockedData.DummyCompanies[0].Name));
     }
 
     [Fact]
-    public async Task DeleteCompanyAsync_ReturnsIdOutputModel()
+    public async Task DeleteCompanyAsync_ReturnsCompanyId()
     {
         // Arrange
-        var id = 1;
-
         _companyRepositoryMock
             .Setup(x => x.DeleteCompanyAsync(It.IsAny<int>()))
-            .ReturnsAsync(
-                new Company
-                {
-                    Id = 1,
-                    Name = "Company 1",
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-                }
-            );
+            .ReturnsAsync(MockedData.DummyCompanies[0]);
 
         // Act
-        var result = await _companyService.DeleteCompanyAsync(id);
+        var result = await _companyService.DeleteCompanyAsync(MockedData.DummyCompanies[0].Id.Value);
 
         // Assert
-        result.Value.Id.Should().Be(1);
+        result.Should().BeEquivalentTo(MockedData.DummyCompanies[0].Id);
     }
 
     [Fact]
     public async Task DeleteCompanyAsync_ReturnsCompanyByIdNotFound()
     {
         // Arrange
-        var id = 1;
-
         _companyRepositoryMock
             .Setup(x => x.DeleteCompanyAsync(It.IsAny<int>()))
             .ReturnsAsync((Company)null!);
 
         // Act
-        var result = await _companyService.DeleteCompanyAsync(id);
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _companyService.DeleteCompanyAsync(MockedData.DummyCompanies[0].Id.Value));
 
         // Assert
-        result.Error.Should().BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(id));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(MockedData.DummyCompanies[0].Id.Value));
     }
 
     [Fact]
-    public async Task UpdateCompanyAsync_ReturnsCompanyDomain()
+    public async Task UpdateCompanyAsync_ReturnsCompany()
     {
         // Arrange
-        var id = 1;
-        var companyName = "Company 1";
-
+        Company newCompany = new Company(
+            MockedData.DummyCompanies[0].Id.Value,
+            "new_company_name",
+            MockedData.DummyCompanies[0].LogoUrl,
+            MockedData.DummyCompanies[0].CreatedAt
+        );
+        
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
             .ReturnsAsync((Company)null!);
 
         _companyRepositoryMock
             .Setup(x => x.UpdateCompanyAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(
-                new Company
-                {
-                    Id = 1,
-                    Name = "Company 1",
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-                }
-            );
+            .ReturnsAsync(newCompany);
 
         // Act
-        var result = await _companyService.UpdateCompanyAsync(id, companyName);
+        var result = await _companyService.UpdateCompanyAsync(MockedData.DummyCompanies[0].Id.Value, newCompany.Name);
 
         // Assert
-        result.Value.Id.Should().Be(1);
+        result.Should().BeEquivalentTo(newCompany);
     }
 
     [Fact]
     public async Task UpdateCompanyAsync_ReturnsCompanyNameAlreadyExists()
     {
         // Arrange
-        var id = 1;
-        var companyName = "Company 1";
-
+        var newCompanyName = "new_company_name";
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
-            .ReturnsAsync(
-                new Company
-                {
-                    Id = 1,
-                    Name = "Company 1",
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
-                }
-            );
+            .ReturnsAsync(MockedData.DummyCompanies[0]);
 
         // Act
-        var result = await _companyService.UpdateCompanyAsync(id, companyName);
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _companyService.UpdateCompanyAsync(MockedData.DummyCompanies[0].Id.Value, newCompanyName));
 
         // Assert
         result
-            .Error.Should()
-            .BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(companyName));
+            .ServiceError.Should()
+            .BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(newCompanyName));
     }
 
     [Fact]
     public async Task UpdateCompanyAsync_ReturnsCompanyByIdNotFound()
     {
         // Arrange
-        var id = 1;
-        var companyName = "Company 1";
-
         _companyRepositoryMock
             .Setup(x => x.GetCompanyByNameAsync(It.IsAny<string>()))
             .ReturnsAsync((Company)null!);
@@ -286,9 +232,12 @@ public class CompanyServiceTest
             .ReturnsAsync((Company)null!);
 
         // Act
-        var result = await _companyService.UpdateCompanyAsync(id, companyName);
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () => 
+            await _companyService.UpdateCompanyAsync(MockedData.DummyCompanies[0].Id.Value, "new_company_name"));
 
         // Assert
-        result.Error.Should().BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(id));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(MockedData.DummyCompanies[0].Id.Value));
     }
 }

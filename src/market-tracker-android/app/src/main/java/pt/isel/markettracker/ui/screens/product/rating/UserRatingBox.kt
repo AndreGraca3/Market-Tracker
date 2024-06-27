@@ -2,8 +2,9 @@ package pt.isel.markettracker.ui.screens.product.rating
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,69 +15,51 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.markettracker.R
-import pt.isel.markettracker.domain.IOState
-import pt.isel.markettracker.domain.Loaded
-import pt.isel.markettracker.domain.extractValue
-import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
-import pt.isel.markettracker.ui.components.icons.StarIcon
+import pt.isel.markettracker.R
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
+import pt.isel.markettracker.ui.screens.product.reviews.ReviewTile
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
-import java.time.LocalDateTime
 
 @Composable
 fun UserRatingBox(
-    productReviewState: IOState<ProductReview?>,
-    onUserRatingRequest: (ProductReview) -> Unit
+    preferences: ProductPreferences?,
+    onUserRatingRequest: () -> Unit
 ) {
-    when (productReviewState) {
-        is Loaded -> {
-            val productReview = productReviewState.extractValue()
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Row {
-                    val starSize = 32.dp
-                    repeat(5) {
-                        if (productReview == null) {
-                            StarIcon(
-                                filled = null,
-                                modifier = Modifier.size(starSize).clickable {
-                                    onUserRatingRequest(
-                                        ProductReview(
-                                            "a",
-                                            it + 1,
-                                            "sd",
-                                            "cl2",
-                                            LocalDateTime.now()
-                                        )
-                                    )
-                                }
-                            )
-                        } else {
-                            StarIcon(filled = it + 1 < productReview.rating, modifier = Modifier.size(starSize))
-                        }
-                    }
-                }
-                Text(
-                    text = stringResource(id = R.string.write_review),
-                    style = MarketTrackerTypography.bodyMedium,
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        preferences?.let {
+            Text(
+                text = stringResource(id = R.string.user_rating_section_title),
+                fontWeight = FontWeight.Bold,
+                style = MarketTrackerTypography.bodyLarge
+            )
+
+            if (preferences.review != null) {
+                Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .clickable {
-                            /* TODO: Open review dialog */
-                        }
+                        .clickable { onUserRatingRequest() }
+                        .padding(6.dp)
+                ) {
+                    ReviewTile(preferences.review)
+                }
+            } else {
+                Text(
+                    text = stringResource(id = R.string.write_review),
+                    textAlign = TextAlign.Center,
+                    style = MarketTrackerTypography.bodyMedium,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { onUserRatingRequest() }
                         .padding(vertical = 4.dp)
                 )
             }
-        }
-
-        else -> {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(60.dp)
-            )
-        }
+        } ?: CircularProgressIndicator(modifier = Modifier.size(60.dp))
     }
 }

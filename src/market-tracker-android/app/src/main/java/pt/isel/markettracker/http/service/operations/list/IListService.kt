@@ -1,13 +1,19 @@
 package pt.isel.markettracker.http.service.operations.list
 
 import pt.isel.markettracker.domain.model.list.ShoppingList
+import java.time.LocalDateTime
 import pt.isel.markettracker.domain.model.list.ShoppingListSocial
 import pt.isel.markettracker.domain.model.list.listEntry.ShoppingListEntries
 import pt.isel.markettracker.http.models.identifiers.StringIdOutputModel
 
 interface IListService {
 
-    suspend fun getLists(): List<ShoppingListSocial>
+    suspend fun getLists(
+        listName: String? = null,
+        createdAfter: LocalDateTime? = null,
+        isArchived: Boolean? = null,
+        isOwner: Boolean? = null
+    ): List<ShoppingList>
 
     suspend fun getListById(id: String): ShoppingListSocial
 

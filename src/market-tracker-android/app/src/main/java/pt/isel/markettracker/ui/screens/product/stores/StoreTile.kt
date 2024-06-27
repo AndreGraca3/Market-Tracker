@@ -11,17 +11,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import pt.isel.markettracker.R
+import pt.isel.markettracker.domain.model.market.price.StoreOfferItem
 import pt.isel.markettracker.ui.screens.products.card.PriceLabel
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
 @Composable
 fun StoreTile(
-    storeName: String,
-    storeAddress: String,
-    storeCity: String?,
-    storePrice: Int,
+    storeOffer: StoreOfferItem,
     onStoreSelected: () -> Unit
 ) {
     Row(
@@ -33,25 +33,40 @@ fun StoreTile(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.7F),
+                .weight(1F),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = storeName,
+                text = storeOffer.store.name,
                 style = MarketTrackerTypography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.DarkGray
             )
-            listOf(storeAddress, storeCity).forEach {
-                if (it != null) Text(
-                    text = it,
-                    style = MarketTrackerTypography.bodyMedium,
-                    color = Color.DarkGray
-                )
+
+            listOf(storeOffer.store.address, storeOffer.store.city?.name).forEach {
+                if (it != null) {
+                    Text(
+                        text = it,
+                        style = MarketTrackerTypography.bodyMedium,
+                        color = Color.DarkGray
+                    )
+                }
             }
         }
 
-        PriceLabel(price = storePrice)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            PriceLabel(price = storeOffer.price, true)
+
+            if (!storeOffer.isAvailable) {
+                Text(
+                    text = stringResource(R.string.not_available),
+                    style = MarketTrackerTypography.bodyMedium,
+                    color = Color.Red
+                )
+            }
+        }
     }
 }

@@ -8,15 +8,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import pt.isel.markettracker.domain.model.list.ShoppingList
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.ui.components.common.PullToRefreshLazyColumn
-import pt.isel.markettracker.ui.screens.ProductsScreenState
 import pt.isel.markettracker.ui.screens.products.filters.FilterOptionsRow
 import pt.isel.markettracker.ui.screens.products.grid.ProductsGridView
+import pt.isel.markettracker.ui.screens.products.list.AddToListState
+import pt.isel.markettracker.ui.screens.products.list.ListsBottomSheet
 import pt.isel.markettracker.ui.screens.products.topbar.ProductsTopBar
 
 @Composable
@@ -24,19 +27,20 @@ fun ProductsScreenView(
     state: ProductsScreenState,
     query: ProductsQuery,
     onQueryChange: (ProductsQuery) -> Unit,
-    fetchProducts: (ProductsQuery, Boolean) -> Unit,
+    fetchProducts: () -> Unit,
     loadMoreProducts: (ProductsQuery) -> Unit,
     onProductClick: (String) -> Unit,
+    shoppingLists: List<ShoppingList>,
+    addToListState: AddToListState,
+    onAddToListClick: (ProductOffer) -> Unit,
+    onListSelectedClick: (String) -> Unit,
+    onAddToListDismissRequest: () -> Unit,
     onBarcodeScanRequest: () -> Unit,
 ) {
-    var isRefreshing by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        fetchProducts(query, false)
-    }
+    var isRefreshing by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(state) {
-        if (state !is ProductsScreenState.Loading) {
+        if (state !is ProductsScreenState.Loading && isRefreshing) {
             isRefreshing = false // stop circular indicator
         }
     }
@@ -44,13 +48,9 @@ fun ProductsScreenView(
     Scaffold(
         topBar = {
             ProductsTopBar(
-                onSearch = {
-                    fetchProducts(query, true)
-                },
-                searchQuery = query.searchTerm.orEmpty(),
-                onSearchQueryChange = {
-                    onQueryChange(query.copy(searchTerm = it))
-                },
+                searchTerm = query.searchTerm.orEmpty(),
+                onSearchTermChange = { onQueryChange(query.copy(searchTerm = it)) },
+                onSearch = fetchProducts,
                 onBarcodeScanRequest = onBarcodeScanRequest
             )
         }
@@ -59,7 +59,7 @@ fun ProductsScreenView(
             isRefreshing = isRefreshing,
             onRefresh = {
                 isRefreshing = true
-                fetchProducts(query, true)
+                fetchProducts()
             },
             modifier = Modifier
                 .padding(paddingValues)
@@ -70,10 +70,11 @@ fun ProductsScreenView(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 FilterOptionsRow(
+                    enabled = state is ProductsScreenState.Loaded,
                     query = query,
                     onQueryChange = {
                         onQueryChange(it)
-                        fetchProducts(it, true)
+                        fetchProducts()
                     },
                     isLoading = state is ProductsScreenState.Loading
                 )
@@ -82,7 +83,16 @@ fun ProductsScreenView(
                     state = state,
                     loadMoreProducts = { loadMoreProducts(query) },
                     onProductClick = onProductClick,
+                    onAddToListClick = onAddToListClick
                 )
+
+                if (addToListState is AddToListState.SelectingList) {
+                    ListsBottomSheet(
+                        shoppingLists = shoppingLists ,
+                        onListSelectedClick = onListSelectedClick,
+                        onDismissRequest = onAddToListDismissRequest
+                    )
+                }
             }
         }
     }

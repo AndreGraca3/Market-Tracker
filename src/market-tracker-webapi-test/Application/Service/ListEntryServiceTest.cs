@@ -1,12 +1,16 @@
 ﻿using FluentAssertions;
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Application.Http.Models;
-using market_tracker_webapi.Application.Repository.Dto.List;
-using market_tracker_webapi.Application.Repository.Dto.Product;
-using market_tracker_webapi.Application.Repository.Dto.Store;
-using market_tracker_webapi.Application.Repository.Operations.List;
-using market_tracker_webapi.Application.Repository.Operations.Product;
-using market_tracker_webapi.Application.Repository.Operations.Store;
+using market_tracker_webapi.Application.Domain.Filters.List;
+using market_tracker_webapi.Application.Domain.Schemas.List;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales.Pricing;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
+using market_tracker_webapi.Application.Repository.List;
+using market_tracker_webapi.Application.Repository.List.ListEntry;
+using market_tracker_webapi.Application.Repository.Market.Inventory.Product;
+using market_tracker_webapi.Application.Repository.Market.Price;
+using market_tracker_webapi.Application.Repository.Market.Store;
+using market_tracker_webapi.Application.Service.Errors;
 using market_tracker_webapi.Application.Service.Errors.List;
 using market_tracker_webapi.Application.Service.Errors.ListEntry;
 using market_tracker_webapi.Application.Service.Errors.Product;
@@ -17,17 +21,16 @@ using DateTime = System.DateTime;
 
 namespace market_tracker_webapi_test.Application.Service;
 
-/*
 public class ListEntryServiceTest
 {
-    private readonly Mock<IListRepository> _listRepositoryMock; 
+    private readonly Mock<IListRepository> _listRepositoryMock;
     private readonly Mock<IPriceRepository> _priceRepositoryMock;
     private readonly Mock<IProductRepository> _productRepositoryMock;
     private readonly Mock<IListEntryRepository> _listEntryRepositoryMock;
     private readonly Mock<IStoreRepository> _storeRepositoryMock;
-    
+
     private readonly ListEntryService _listEntryService;
-    
+
     public ListEntryServiceTest()
     {
         _listRepositoryMock = new Mock<IListRepository>();
@@ -35,7 +38,7 @@ public class ListEntryServiceTest
         _productRepositoryMock = new Mock<IProductRepository>();
         _storeRepositoryMock = new Mock<IStoreRepository>();
         _listEntryRepositoryMock = new Mock<IListEntryRepository>();
-        
+
         _listEntryService = new ListEntryService(
             _listRepositoryMock.Object,
             _listEntryRepositoryMock.Object,
@@ -44,485 +47,484 @@ public class ListEntryServiceTest
             _storeRepositoryMock.Object,
             new MockedTransactionManager());
     }
-    
-    [Fact]
-    public async Task GetListEntryByIdAsync_ReturnsListEntryDetails()
-    {
-        // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        
-        var listEntry = new ListEntry
-        {
-            ListId = listId,
-            ProductId = productId,
-            StoreId = 1,
-            Quantity = 1
-        };
-        
-        var product = new ProductDetails(
-            It.IsAny<string>(),
-            "Product",
-            It.IsAny<string>(),
-            It.IsAny<int>(),
-            It.IsAny<string>(),
-            It.IsAny<int>(),
-            It.IsAny<double>(),
-            It.IsAny<Brand>(),
-            It.IsAny<Category>());
 
-        var listEntryDetails = new ListEntryDetails()
-        {
-            ProductItem = new ProductItem()
-            {
-                ProductId = "product1",
-                Name = "Product"
-            },
-            Quantity = 1,
-            StorePrice = It.IsAny<StorePrice>(),
-            IsAvailable = false
-        };
-        
-        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(listEntry);
-        
-        _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(product);
-        
-        _priceRepositoryMock.Setup(x => x.GetStorePriceByProductIdAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>()))
-            .ReturnsAsync(It.IsAny<StorePrice>());
-        
-        _priceRepositoryMock.Setup(x => x.GetStoresAvailabilityAsync(It.IsAny<string>(), It.IsAny<int?>()))
-            .ReturnsAsync(It.IsAny<IEnumerable<StoreAvailability>>());
-        
-        // Act
-        var result = await _listEntryService.GetListEntryByIdAsync(listId, productId);
-        
-        // Assert
-        result.Value.Should().BeEquivalentTo(listEntryDetails);
-    }
-    
     [Fact]
-    public async Task GetListEntryByIdAsync_ReturnsListEntryNotFound()
+    public async Task GetListEntriesAsync_ReturnsListEntries()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
+        const int pricePerProduct = 10;
         
-        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync((ListEntry)null!);
-        
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
+        _listEntryRepositoryMock.Setup(x => x.GetListEntriesAsync(It.IsAny<string>(), null))
+            .ReturnsAsync(MockedData.DummyListEntries);
+
+        var dummyOffer = new StoreOffer(MockedData.DummyStores[0], new Price(pricePerProduct, null, DateTime.UtcNow),
+            new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, true, DateTime.UtcNow));
+
+        _priceRepositoryMock.Setup(x =>
+                x.GetStoreOfferAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>()))
+            .ReturnsAsync(dummyOffer);
+
         // Act
-        var result = await _listEntryService.GetListEntryByIdAsync(listId, productId);
-        
+        var result =
+            await _listEntryService.GetListEntriesAsync(
+                MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value, null, null, null, null);
+
         // Assert
-        result.Error.Should().BeEquivalentTo(new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId));
+        foreach (var listEntryOffer in result.Entries)
+        {
+            listEntryOffer.ProductOffer.StoreOffer.Should().BeEquivalentTo(dummyOffer);
+        }
+        result.TotalPrice.Should().Be(pricePerProduct * MockedData.DummyListEntries.Count);
+        result.TotalProducts.Should().Be(MockedData.DummyListEntries.Count);
     }
-    
+
+    [Fact]
+    public async Task GetCheapestListEntriesAsync_ReturnsCheapestListEntries()
+    {
+        // Arrange
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
+        _listEntryRepositoryMock.Setup(x => x.GetListEntriesAsync(It.IsAny<string>(), null))
+            .ReturnsAsync(MockedData.DummyListEntries);
+
+        var cheapestOffer = new StoreOffer(MockedData.DummyStores[0], new Price(10, null, DateTime.UtcNow),
+            new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, true, DateTime.UtcNow));
+
+        _priceRepositoryMock.Setup(x =>
+                x.GetCheapestStoreOfferAvailableByProductIdAsync(It.IsAny<string>(), null, null, null))
+            .ReturnsAsync(cheapestOffer);
+
+        // Act
+        var result =
+            await _listEntryService.GetListEntriesAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                ShoppingListAlternativeType.Cheapest, null, null, null);
+
+        // Assert
+        foreach (var listEntryOffer in result.Entries)
+        {
+            listEntryOffer.ProductOffer.StoreOffer?.PriceData.Should().BeEquivalentTo(cheapestOffer.PriceData);
+        }
+    }
+
     [Fact]
     public async Task AddListEntryAsync_ReturnsListEntryId()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        const int storeId = 1;
-        const int quantity = 1;
-        
-        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new ShoppingList()
-            {
-                Id = It.IsAny<int>(),
-                Name = "List1",
-                ArchivedAt = null,
-                CreatedAt = It.IsAny<DateTime>(),
-                ClientId = It.IsAny<Guid>()
-            });
-        
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
         _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(new ProductDetails(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<int>(),
-                It.IsAny<string>(),
-                It.IsAny<int>(),
-                It.IsAny<double>(),
-                It.IsAny<Brand>(),
-                It.IsAny<Category>()));
-        
+            .ReturnsAsync(MockedData.DummyProducts[0]);
+
         _storeRepositoryMock.Setup(x => x.GetStoreByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new Store()
-            {
-                Id = It.IsAny<int>(),
-                Address = It.IsAny<string>(),
-                Name = It.IsAny<string>(),
-                CityId = It.IsAny<int?>(),
-                CompanyId = It.IsAny<int>()
-            });
-        
-        _priceRepositoryMock.Setup(x => x.GetStoresAvailabilityAsync(It.IsAny<string>(), It.IsAny<int>()))
-            .ReturnsAsync(new List<StoreAvailability>() { 
+            .ReturnsAsync(MockedData.DummyStores[0]);
+
+        _priceRepositoryMock.Setup(x => x.GetStoreAvailabilityStatusAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(
                 new StoreAvailability(
-                    It.IsAny<int>(), 
-                    It.IsAny<string>(), 
                     It.IsAny<int>(),
-                    It.IsAny<bool>(),
+                    It.IsAny<string>(),
+                    true,
                     It.IsAny<DateTime>()
-            )});
-        
-        _listEntryRepositoryMock.Setup(x => x.AddListEntryAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(1);
-        
+                ));
+
+        _listEntryRepositoryMock.Setup(x =>
+                x.AddListEntryAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(MockedData.DummyListEntries[0].Id);
+
         // Act
-        var result = await _listEntryService.AddListEntryAsync(listId, productId, storeId, quantity);
-        
+        var result =
+            await _listEntryService.AddListEntryAsync(
+                MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value, MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value, 1);
+
         // Assert
-        result.Value.Should().BeEquivalentTo(new IntIdOutputModel(1));
+        result.Should().BeEquivalentTo(MockedData.DummyListEntries[0].Id);
     }
-    
+
     [Fact]
-    public async Task AddListEntryAsync_ReturnsListEntryQuantityInvalid()
+    public async Task AddListEntryAsync_ReturnsClientDoesNotBelongToList()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        const int storeId = 1;
-        const int quantity = 0;
-        
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[2]);
+
+        _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyProducts[0]);
+
+        _storeRepositoryMock.Setup(x => x.GetStoreByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(MockedData.DummyStores[0]);
+
+        _priceRepositoryMock.Setup(x => x.GetStoreAvailabilityStatusAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(
+                new StoreAvailability(
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    true,
+                    It.IsAny<DateTime>()
+                ));
+
         // Act
-        var result = await _listEntryService.AddListEntryAsync(listId, productId, storeId, quantity);
-        
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.AddListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value, 1));
+
         // Assert
-        result.Error.Should().BeEquivalentTo(new ListEntryCreationError.ListEntryQuantityInvalid(quantity));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new ListFetchingError.ClientDoesNotBelongToList(MockedData.DummyClients[0].Id.Value, MockedData.DummyListEntries[0].Id.Value));
     }
-    
+
+    [Fact]
+    public async Task AddListEntryAsync_ReturnsProductAlreadyInList()
+    {
+        // Arrange
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
+        _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyProducts[0]);
+
+        _storeRepositoryMock.Setup(x => x.GetStoreByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(MockedData.DummyStores[0]);
+
+        _priceRepositoryMock.Setup(x => x.GetStoreAvailabilityStatusAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(
+                new StoreAvailability(
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    true,
+                    It.IsAny<DateTime>()
+                ));
+
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryByProductIdAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyListEntries[0]);
+
+        // Act
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.AddListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value, 1));
+
+        // Assert
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new ListEntryCreationError.ProductAlreadyInList(MockedData.DummyProducts[0].Id.Value, MockedData.DummyListEntries[0].Id.Value));
+    }
+
+    [Fact]
+    public async Task AddListEntryAsync_ReturnsListEntryInvalidQuantity()
+    {
+        // Arrange
+        const int invalidQuantity = 0;
+
+        // Act
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.AddListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value, invalidQuantity));
+
+        // Assert
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new ListEntryCreationError.ListEntryQuantityInvalid(invalidQuantity));
+    }
+
     [Fact]
     public async Task AddListEntryAsync_ReturnsListByIdNotFound()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        const int storeId = 1;
-        const int quantity = 1;
-        
-        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
             .ReturnsAsync((ShoppingList)null!);
-        
+
         // Act
-        var result = await _listEntryService.AddListEntryAsync(listId, productId, storeId, quantity);
-        
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.AddListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value, 1));
+
         // Assert
-        result.Error.Should().BeEquivalentTo(new ListFetchingError.ListByIdNotFound(listId));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new ListFetchingError.ListByIdNotFound(MockedData.DummyListEntries[0].Id.Value));
     }
-    
+
     [Fact]
     public async Task AddListEntryAsync_ReturnsListIsArchived()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        const int storeId = 1;
-        const int quantity = 1;
-        
-        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new ShoppingList()
-            {
-                Id = It.IsAny<int>(),
-                Name = "List1",
-                ArchivedAt = DateTime.Now,
-                CreatedAt = It.IsAny<DateTime>(),
-                ClientId = It.IsAny<Guid>()
-            });
-        
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[1]);
+
         // Act
-        var result = await _listEntryService.AddListEntryAsync(listId, productId, storeId, quantity);
-        
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.AddListEntryAsync(MockedData.DummyListEntries[1].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value, 1));
+
         // Assert
-        result.Error.Should().BeEquivalentTo(new ListUpdateError.ListIsArchived(listId));
+        result.ServiceError.Should().BeEquivalentTo(new ListUpdateError.ListIsArchived(MockedData.DummyListEntries[1].Id.Value));
     }
-    
+
     [Fact]
     public async Task AddListEntryAsync_ReturnsProductByIdNotFound()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        const int storeId = 1;
-        const int quantity = 1;
-        
-        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new ShoppingList()
-            {
-                Id = It.IsAny<int>(),
-                Name = "List1",
-                ArchivedAt = null,
-                CreatedAt = It.IsAny<DateTime>(),
-                ClientId = It.IsAny<Guid>()
-            });
-        
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
         _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync((ProductDetails)null!);
-        
+            .ReturnsAsync((Product)null!);
+
         // Act
-        var result = await _listEntryService.AddListEntryAsync(listId, productId, storeId, quantity);
-        
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.AddListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value, 1));
+
         // Assert
-        result.Error.Should().BeEquivalentTo(new ProductFetchingError.ProductByIdNotFound(productId));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new ProductFetchingError.ProductByIdNotFound(MockedData.DummyProducts[0].Id.Value));
     }
-    
+
     [Fact]
     public async Task AddListEntryAsync_ReturnsStoreByIdNotFound()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        const int storeId = 1;
-        const int quantity = 1;
-        
-        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new ShoppingList()
-            {
-                Id = It.IsAny<int>(),
-                Name = "List1",
-                ArchivedAt = null,
-                CreatedAt = It.IsAny<DateTime>(),
-                ClientId = It.IsAny<Guid>()
-            });
-        
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
         _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(new ProductDetails(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<int>(),
-                It.IsAny<string>(),
-                It.IsAny<int>(),
-                It.IsAny<double>(),
-                It.IsAny<Brand>(),
-                It.IsAny<Category>()));
-        
+            .ReturnsAsync(MockedData.DummyProducts[0]);
+
         _storeRepositoryMock.Setup(x => x.GetStoreByIdAsync(It.IsAny<int>()))
             .ReturnsAsync((Store)null!);
-        
+
         // Act
-        var result = await _listEntryService.AddListEntryAsync(listId, productId, storeId, quantity);
-        
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.AddListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value, 1));
+
         // Assert
-        result.Error.Should().BeEquivalentTo(new StoreFetchingError.StoreByIdNotFound(storeId));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new StoreFetchingError.StoreByIdNotFound(MockedData.DummyStores[0].Id.Value));
     }
-    
+
     [Fact]
     public async Task AddListEntryAsync_ReturnsUnavailableProductInStore()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        const int storeId = 1;
-        const int quantity = 1;
-        
-        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new ShoppingList()
-            {
-                Id = It.IsAny<int>(),
-                Name = "List1",
-                ArchivedAt = null,
-                CreatedAt = It.IsAny<DateTime>(),
-                ClientId = It.IsAny<Guid>()
-            });
-        
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
         _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(new ProductDetails(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<int>(),
-                It.IsAny<string>(),
-                It.IsAny<int>(),
-                It.IsAny<double>(),
-                It.IsAny<Brand>(),
-                It.IsAny<Category>()));
-        
+            .ReturnsAsync(MockedData.DummyProducts[0]);
+
         _storeRepositoryMock.Setup(x => x.GetStoreByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(new Store()
-            {
-                Id = It.IsAny<int>(),
-                Address = It.IsAny<string>(),
-                Name = It.IsAny<string>(),
-                CityId = It.IsAny<int?>(),
-                CompanyId = It.IsAny<int>()
-            });
-        
-        _priceRepositoryMock.Setup(x => x.GetStoresAvailabilityAsync(It.IsAny<string>(), It.IsAny<int>()))
-            .ReturnsAsync(new List<StoreAvailability>());
-        
+            .ReturnsAsync(MockedData.DummyStores[0]);
+
+        _priceRepositoryMock.Setup(x => x.GetStoreAvailabilityStatusAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, false, DateTime.UtcNow));
+
         // Act
-        var result = await _listEntryService.AddListEntryAsync(listId, productId, storeId, quantity);
-        
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.AddListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value, 1));
+
         // Assert
-        result.Error.Should().BeEquivalentTo(new ProductFetchingError.UnavailableProductInStore(productId, storeId));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new ProductFetchingError.OutOfStockInStore(MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value));
     }
-    
+
     [Fact]
     public async Task UpdateListEntryAsync_ReturnsListEntry()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        
-        var listEntry = new ListEntry
-        {
-            ListId = listId,
-            ProductId = productId,
-            StoreId = 1,
-            Quantity = 1
-        };
-        
-        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(listEntry);
-        
-        _priceRepositoryMock.Setup(x => x.GetStoresAvailabilityAsync(It.IsAny<string>(), It.IsAny<int?>()))
-            .ReturnsAsync(new List<StoreAvailability>() { 
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyListEntries[0]);
+
+        _priceRepositoryMock.Setup(x => x.GetStoreAvailabilityStatusAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(
                 new StoreAvailability(
-                    It.IsAny<int>(), 
-                    It.IsAny<string>(), 
                     It.IsAny<int>(),
-                    It.IsAny<bool>(),
+                    It.IsAny<string>(),
+                    true,
                     It.IsAny<DateTime>()
-            )});
-        
-        _listEntryRepositoryMock.Setup(x => x.UpdateListEntryAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<int?>()))
-            .ReturnsAsync(listEntry);
-        
+                ));
+
+        _storeRepositoryMock.Setup(x => x.GetStoreByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(MockedData.DummyStores[0]);
+
+        _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyProducts[0]);
+
+        _listEntryRepositoryMock.Setup(x =>
+                x.UpdateListEntryByIdAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int?>()))
+            .ReturnsAsync(MockedData.DummyListEntries[0]);
+
         // Act
-        var result = await _listEntryService.UpdateListEntryAsync(listId, productId, 1, 1);
-        
+        var result =
+            await _listEntryService.UpdateListEntryAsync(
+                MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value, MockedData.DummyProducts[0].Id.Value, 1, 1);
+
         // Assert
-        result.Value.Should().BeEquivalentTo(listEntry);
+        result.Should().BeEquivalentTo(MockedData.DummyListEntries[0]);
     }
-    
+
     [Fact]
     public async Task UpdateListEntryAsync_ReturnsListEntryByIdNotFound()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        
-        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryByIdAsync(It.IsAny<string>()))
             .ReturnsAsync((ListEntry)null!);
-        
+
         // Act
-        var result = await _listEntryService.UpdateListEntryAsync(listId, productId, 1, 1);
-        
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.UpdateListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, 1, 1));
+
         // Assert
-        result.Error.Should().BeEquivalentTo(new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new ListEntryFetchingError.ListEntryByIdNotFound(MockedData.DummyListEntries[0].Id.Value));
     }
-    
+
     [Fact]
-    public async Task UpdateListEntryAsync_ReturnsUnavailableProductInStore()
+    public async Task UpdateListEntryAsync_ReturnsProductNotFoundInStore()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        
-        var listEntry = new ListEntry
-        {
-            ListId = listId,
-            ProductId = productId,
-            StoreId = 1,
-            Quantity = 1
-        };
-        
-        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(listEntry);
-        
-        _priceRepositoryMock.Setup(x => x.GetStoresAvailabilityAsync(It.IsAny<string>(), It.IsAny<int?>()))
-            .ReturnsAsync(new List<StoreAvailability>());
-        
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyListEntries[0]);
+
+        _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyProducts[0]);
+
+        _storeRepositoryMock.Setup(x => x.GetStoreByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(MockedData.DummyStores[0]);
+
+        _priceRepositoryMock.Setup(x => x.GetStoreAvailabilityStatusAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync((StoreAvailability)null!);
+
         // Act
-        var result = await _listEntryService.UpdateListEntryAsync(listId, productId, 1, 1);
-        
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.UpdateListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, 1, 1));
+
         // Assert
-        result.Error.Should().BeEquivalentTo(new ProductFetchingError.UnavailableProductInStore(productId, 1));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new ProductFetchingError.ProductNotFoundInStore(MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value));
     }
-    
+
+    [Fact]
+    public async Task UpdateListEntryAsync_ReturnsProductOutOfStockInStore()
+    {
+        // Arrange
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyListEntries[0]);
+
+        _productRepositoryMock.Setup(x => x.GetProductByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyProducts[0]);
+
+        _storeRepositoryMock.Setup(x => x.GetStoreByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(MockedData.DummyStores[0]);
+
+        _priceRepositoryMock.Setup(x => x.GetStoreAvailabilityStatusAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(new StoreAvailability(MockedData.DummyStores[0].Id.Value, MockedData.DummyProducts[0].Id.Value, false, DateTime.UtcNow));
+
+        // Act
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.UpdateListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, 1, 1));
+
+        // Assert
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new ProductFetchingError.OutOfStockInStore(MockedData.DummyProducts[0].Id.Value, MockedData.DummyStores[0].Id.Value));
+    }
+
     [Fact]
     public async Task UpdateListEntryAsync_ReturnsListEntryQuantityInvalid()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        
-        var listEntry = new ListEntry
-        {
-            ListId = listId,
-            ProductId = productId,
-            StoreId = 1,
-            Quantity = 0
-        };
-        
-        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(listEntry);
-        
-        _priceRepositoryMock.Setup(x => x.GetStoresAvailabilityAsync(It.IsAny<string>(), It.IsAny<int?>()))
-            .ReturnsAsync(new List<StoreAvailability>() { 
+        const int invalidQuantity = 0;
+
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyListEntries[0]);
+
+        _priceRepositoryMock.Setup(x => x.GetStoreAvailabilityStatusAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(
                 new StoreAvailability(
-                    It.IsAny<int>(), 
-                    It.IsAny<string>(), 
                     It.IsAny<int>(),
-                    It.IsAny<bool>(),
+                    It.IsAny<string>(),
+                    true,
                     It.IsAny<DateTime>()
-                )});
-        
+                ));
+
         // Act
-        var result = await _listEntryService.UpdateListEntryAsync(listId, productId, 1, 0);
-        
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.UpdateListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyProducts[0].Id.Value, 1, invalidQuantity));
+
         // Assert
-        result.Error.Should().BeEquivalentTo(new ListEntryCreationError.ListEntryQuantityInvalid(0));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new ListEntryCreationError.ListEntryQuantityInvalid(invalidQuantity));
     }
-    
+
     [Fact]
     public async Task DeleteListEntryAsync_ReturnsListEntry()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        
-        var listEntry = new ListEntry
-        {
-            ListId = listId,
-            ProductId = productId,
-            StoreId = 1,
-            Quantity = 1
-        };
-        
-        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(listEntry);
-        
-        _listEntryRepositoryMock.Setup(x => x.DeleteListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(listEntry);
-        
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
+        _listEntryRepositoryMock.Setup(x => x.DeleteListEntryByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyListEntries[0]);
+
         // Act
-        var result = await _listEntryService.DeleteListEntryAsync(listId, productId);
-        
+        var result =
+            await _listEntryService.DeleteListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyListEntries[0].Id.Value);
+
         // Assert
-        result.Value.Should().BeEquivalentTo(listEntry);
+        result.Should().BeEquivalentTo(MockedData.DummyListEntries[0].Id);
     }
-    
+
     [Fact]
     public async Task DeleteListEntryAsync_ReturnsListEntryByIdNotFound()
     {
         // Arrange
-        const int listId = 1;
-        const string productId = "product1";
-        
-        _listEntryRepositoryMock.Setup(x => x.GetListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
+        _listRepositoryMock.Setup(x => x.GetListByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(MockedData.DummyLists[0]);
+
+        _listEntryRepositoryMock.Setup(x => x.GetListEntryByIdAsync(It.IsAny<string>()))
             .ReturnsAsync((ListEntry)null!);
-        
+
         // Act
-        var result = await _listEntryService.DeleteListEntryAsync(listId, productId);
-        
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _listEntryService.DeleteListEntryAsync(MockedData.DummyListEntries[0].Id.Value, MockedData.DummyClients[0].Id.Value,
+                MockedData.DummyListEntries[0].Id.Value));
+
         // Assert
-        result.Error.Should().BeEquivalentTo(new ListEntryFetchingError.ListEntryByIdNotFound(listId, productId));
+        result.ServiceError
+            .Should()
+            .BeEquivalentTo(new ListEntryFetchingError.ListEntryByIdNotFound(MockedData.DummyListEntries[0].Id.Value));
     }
 }
-*/
