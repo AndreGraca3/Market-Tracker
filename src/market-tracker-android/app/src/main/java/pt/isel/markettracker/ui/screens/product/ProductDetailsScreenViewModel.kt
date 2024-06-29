@@ -157,6 +157,17 @@ class ProductDetailsScreenViewModel @Inject constructor(
             }
 
             res.onSuccess { newReview ->
+                val newCounts = screenState.stats.counts.ratings + 1
+                val newRating = (screenState.stats.averageRating *
+                        screenState.stats.counts.ratings + rating) / newCounts
+
+                var newState = screenState.copy(
+                    stats = screenState.stats.copy(
+                        averageRating = newRating,
+                        counts = screenState.stats.counts.copy(ratings = newCounts)
+                    )
+                )
+
                 if (screenState.paginatedReviews != null) {
                     var isNewReview = true
 
@@ -167,14 +178,16 @@ class ProductDetailsScreenViewModel @Inject constructor(
                         } else it
                     }
 
-                    _stateFlow.value = screenState.copy(
+                    newState = newState.copy(
                         paginatedReviews = screenState.paginatedReviews.copy(
-                            items =
-                            if (isNewReview) listOf(newReview) + screenState.paginatedReviews.items
+                            items = if (isNewReview) listOf(newReview) +
+                                    screenState.paginatedReviews.items
                             else reviews
                         )
                     )
                 }
+
+                _stateFlow.value = newState
 
                 _prefsStateFlow.value = prefsState.copy(
                     prefsState.preferences.copy(review = newReview)
@@ -189,18 +202,30 @@ class ProductDetailsScreenViewModel @Inject constructor(
         val initialScreenState = _stateFlow.value
         val initialPrefsState = _prefsStateFlow.value
         if (initialScreenState !is ProductDetailsScreenState.LoadedDetails ||
-            initialPrefsState !is ProductPreferencesState.Loaded
+            initialPrefsState !is ProductPreferencesState.Loaded ||
+            initialPrefsState.preferences.review == null
         ) return
 
+        val newCounts = initialScreenState.stats.counts.ratings - 1
+        val newRating = if (newCounts == 0) 0.0 else {
+            (initialScreenState.stats.averageRating * initialScreenState.stats.counts.ratings -
+                    initialPrefsState.preferences.review.rating) / newCounts
+        }
+
         // Optimistic update
-        val optimisticUpdateScreenState = initialScreenState.copy(
+        _stateFlow.value = initialScreenState.copy(
             paginatedReviews = initialScreenState.paginatedReviews?.copy(
                 items = initialScreenState.paginatedReviews.items.filterNot {
-                    it.id == initialPrefsState.preferences.review?.id
+                    it.id == initialPrefsState.preferences.review.id
                 }
+            ),
+            stats = initialScreenState.stats.copy(
+                averageRating = newRating,
+                counts = initialScreenState.stats.counts.copy(
+                    ratings = newCounts
+                )
             )
         )
-        _stateFlow.value = optimisticUpdateScreenState
 
         _prefsStateFlow.value = initialPrefsState.copy(
             initialPrefsState.preferences.copy(review = null)

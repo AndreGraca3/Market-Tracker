@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
+import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsFilters
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsSortOption
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.replaceFacets
@@ -37,8 +38,13 @@ class ProductsScreenViewModel @Inject constructor(
     var query by mutableStateOf(ProductsQuery(sortOption = ProductsSortOption.Relevance))
     private var currentPage by mutableIntStateOf(1)
 
-    fun fetchProducts() {
+    fun fetchProducts(forceRefresh: Boolean, searchTerm: String? = null) {
+        if (_stateFlow.value !is ProductsScreenState.Idle && !forceRefresh) return
+
         currentPage = 1
+        if (query.searchTerm != searchTerm) {
+            query = query.copy(searchTerm = searchTerm, filters = ProductsFilters())
+        }
         _stateFlow.value = ProductsScreenState.Loading
 
         handleProductsFetch(onFetch = {

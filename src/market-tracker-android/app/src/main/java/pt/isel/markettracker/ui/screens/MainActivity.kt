@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
-        productsScreenViewModel.fetchProducts()
+        productsScreenViewModel.fetchProducts(false)
         lifecycleScope.launch {
             if (authRepository.getToken() != null) {
                 profileScreenViewModel.fetchUser()

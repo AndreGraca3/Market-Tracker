@@ -23,7 +23,7 @@ fun ProductsScreen(
         state = screenState,
         query = productsScreenViewModel.query,
         onQueryChange = { productsScreenViewModel.query = it },
-        fetchProducts = productsScreenViewModel::fetchProducts,
+        fetchProducts = { productsScreenViewModel.fetchProducts(true, it) },
         loadMoreProducts = { productsScreenViewModel.loadMoreProducts() },
         onProductClick = onProductClick,
         shoppingLists = authState.extractLists(),

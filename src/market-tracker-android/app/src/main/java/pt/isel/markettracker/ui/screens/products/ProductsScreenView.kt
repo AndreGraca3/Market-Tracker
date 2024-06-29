@@ -27,7 +27,7 @@ fun ProductsScreenView(
     state: ProductsScreenState,
     query: ProductsQuery,
     onQueryChange: (ProductsQuery) -> Unit,
-    fetchProducts: () -> Unit,
+    fetchProducts: (String?) -> Unit,
     loadMoreProducts: (ProductsQuery) -> Unit,
     onProductClick: (String) -> Unit,
     shoppingLists: List<ShoppingList>,
@@ -49,7 +49,6 @@ fun ProductsScreenView(
         topBar = {
             ProductsTopBar(
                 searchTerm = query.searchTerm.orEmpty(),
-                onSearchTermChange = { onQueryChange(query.copy(searchTerm = it)) },
                 onSearch = fetchProducts,
                 onBarcodeScanRequest = onBarcodeScanRequest
             )
@@ -59,7 +58,7 @@ fun ProductsScreenView(
             isRefreshing = isRefreshing,
             onRefresh = {
                 isRefreshing = true
-                fetchProducts()
+                fetchProducts(query.searchTerm)
             },
             modifier = Modifier
                 .padding(paddingValues)
@@ -74,7 +73,7 @@ fun ProductsScreenView(
                     query = query,
                     onQueryChange = {
                         onQueryChange(it)
-                        fetchProducts()
+                        fetchProducts(it.searchTerm)
                     },
                     isLoading = state is ProductsScreenState.Loading
                 )

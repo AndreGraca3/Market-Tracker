@@ -17,8 +17,13 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,19 +44,25 @@ fun EmbeddedSearchBar(
     searchQuery: String,
     active: Boolean,
     onActiveChange: (Boolean) -> Unit,
-    onSearchQueryChange: (String?) -> Unit,
-    onSearch: () -> Unit,
+    onSearch: (String?) -> Unit,
     modifier: Modifier = Modifier,
     onBarcodeScanRequest: () -> Unit
 ) {
     val previousQueries = remember { mutableStateListOf<String>() }
     val focusRequester = remember { FocusRequester() }
+    var currSearchQuery by rememberSaveable { mutableStateOf(searchQuery) }
+
+    LaunchedEffect(active) {
+        if (!active) currSearchQuery = searchQuery
+    }
 
     SearchBar(
         modifier = modifier.focusRequester(focusRequester),
         colors = SearchBarDefaults.colors(Grey),
-        query = searchQuery,
-        onQueryChange = onSearchQueryChange,
+        query = currSearchQuery,
+        onQueryChange = {
+            currSearchQuery = it
+        },
         placeholder = {
             Text(
                 text = stringResource(id = R.string.search_hint),
@@ -59,8 +70,11 @@ fun EmbeddedSearchBar(
             )
         },
         onSearch = {
-            previousQueries.add(0, searchQuery)
-            onSearch()
+            if (previousQueries.contains(currSearchQuery)) {
+                previousQueries.remove(currSearchQuery)
+            }
+            if (currSearchQuery.isNotEmpty()) previousQueries.add(0, currSearchQuery)
+            onSearch(currSearchQuery)
         },
         active = active,
         onActiveChange = onActiveChange,
@@ -82,7 +96,7 @@ fun EmbeddedSearchBar(
                         modifier = Modifier
                             .clip(CircleShape),
                         onClick = {
-                            onSearchQueryChange(null)
+                            currSearchQuery = ""
                             if (!active) {
                                 focusRequester.requestFocus()
                                 onActiveChange(true)
@@ -116,8 +130,7 @@ fun EmbeddedSearchBar(
                 onHistoryItemClick = {
                     previousQueries.remove(it)
                     previousQueries.add(0, it)
-                    onSearchQueryChange(it)
-                    onSearch()
+                    onSearch(it)
                 }
             )
         }
@@ -131,7 +144,6 @@ fun EmbedSearchBarPreview() {
         active = false,
         onActiveChange = { },
         searchQuery = "",
-        onSearchQueryChange = { },
         onSearch = { },
         onBarcodeScanRequest = { }
     )
