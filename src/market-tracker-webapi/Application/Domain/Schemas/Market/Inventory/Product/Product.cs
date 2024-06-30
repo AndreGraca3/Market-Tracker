@@ -37,4 +37,12 @@ public record Product(
     }
 }
 
+public record ProductItem(ProductId Id, string Name, string ImageUrl, string BrandName)
+{
+    public ProductItem(string Id, string Name, string ImageUrl, string BrandName) : this(new ProductId(Id), Name,
+        ImageUrl, BrandName)
+    {
+    }
+}
+
 public record ProductId(string Value);

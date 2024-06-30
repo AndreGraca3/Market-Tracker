@@ -30,7 +30,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
 
         return new PaginatedResult<ProductReview>(reviews, query.Count(), skip, take);
     }
-    
+
     public async Task<ProductReview?> GetReviewByIdAsync(int reviewId)
     {
         var query = from pr in dataContext.ProductReview
@@ -103,6 +103,24 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
         dataContext.ProductReview.Remove(reviewEntity);
         await dataContext.SaveChangesAsync();
         return review;
+    }
+
+    public async Task<IEnumerable<ProductItem>> GetFavouriteProductsAsync(Guid clientId)
+    {
+        var query = from productFavorite in dataContext.ProductFavorite
+            join product in dataContext.Product on productFavorite.ProductId equals product.Id
+            join brand in dataContext.Brand on product.BrandId equals brand.Id 
+            where productFavorite.ClientId == clientId
+            select new
+            {
+                ProductEntity = product,
+                BrandEntity = brand
+            };
+
+        return await query
+            .Select(g =>
+                g.ProductEntity.ToProductItem(g.BrandEntity.ToBrand())
+            ).ToListAsync();
     }
 
     public async Task<bool> UpdateProductFavouriteAsync(

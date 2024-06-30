@@ -44,4 +44,14 @@ public static class ProductInfoOutputModelMapper
             product.Brand.Name
         );
     }
+    
+    public static ProductItemOutputModel ToProductItemOutputModel(this ProductItem product)
+    {
+        return new ProductItemOutputModel(
+            product.Id.Value,
+            product.Name,
+            product.ImageUrl,
+            product.BrandName
+        );
+    }
 }

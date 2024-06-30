@@ -20,40 +20,40 @@ private const val TAG = "GoogleAuth"
 
 @HiltViewModel
 class LoginScreenViewModel @Inject constructor(
-    private val authService: IAuthService
+    private val authService: IAuthService,
 ) : ViewModel() {
-    private val loginPhaseFlow: MutableStateFlow<LoginScreenState> =
+    private val _loginPhaseFlow: MutableStateFlow<LoginScreenState> =
         MutableStateFlow(LoginScreenState.Idle)
     val loginPhase
-        get() = loginPhaseFlow.asStateFlow()
+        get() = _loginPhaseFlow.asStateFlow()
 
-    var email by mutableStateOf("test@g")
-    var password by mutableStateOf("123")
+    var email by mutableStateOf("")
+    var password by mutableStateOf("")
 
     fun login() {
-        if (loginPhaseFlow.value is LoginScreenState.Loading || email.isEmpty() || password.isEmpty()) return
-        loginPhaseFlow.value = LoginScreenState.Loading
+        if (_loginPhaseFlow.value is LoginScreenState.Loading || email.isEmpty() || password.isEmpty()) return
+        _loginPhaseFlow.value = LoginScreenState.Loading
 
         viewModelScope.launch {
             runCatchingAPIFailure {
                 authService.signIn(email, password)
             }.onSuccess {
-                loginPhaseFlow.value = LoginScreenState.Success
+                _loginPhaseFlow.value = LoginScreenState.Success
             }.onFailure {
-                loginPhaseFlow.value = LoginScreenState.Fail(it)
+                _loginPhaseFlow.value = LoginScreenState.Fail(it)
             }
         }
     }
 
     fun handleGoogleSignInTask(task: Task<GoogleSignInAccount>) {
         Log.d(TAG, "Handling google sign in task")
-        loginPhaseFlow.value = LoginScreenState.Loading
+        _loginPhaseFlow.value = LoginScreenState.Loading
         task.addOnSuccessListener { googleSignInAccount ->
             val idToken = googleSignInAccount.idToken
             Log.d(TAG, "Result success: $idToken")
 
             if (idToken == null) {
-                loginPhaseFlow.value =
+                _loginPhaseFlow.value =
                     LoginScreenState.Fail(Exception("Google idToken is null"))
                 return@addOnSuccessListener
             }
@@ -62,9 +62,9 @@ class LoginScreenViewModel @Inject constructor(
                 runCatchingAPIFailure {
                     authService.googleSignIn(idToken)
                 }.onSuccess {
-                    loginPhaseFlow.value = LoginScreenState.Success
+                    _loginPhaseFlow.value = LoginScreenState.Success
                 }.onFailure {
-                    loginPhaseFlow.value = LoginScreenState.Fail(it)
+                    _loginPhaseFlow.value = LoginScreenState.Fail(it)
                 }
             }
         }
@@ -72,7 +72,7 @@ class LoginScreenViewModel @Inject constructor(
         task.addOnFailureListener {
             Log.e(TAG, "Google sign in failed: ${it.message}")
             Log.e(TAG, "Result fail: ${task.exception}")
-            loginPhaseFlow.value = LoginScreenState.Fail(it)
+            _loginPhaseFlow.value = LoginScreenState.Fail(it)
         }
     }
 }

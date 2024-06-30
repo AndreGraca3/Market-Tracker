@@ -99,6 +99,12 @@ public class ProductFeedbackService(
         });
     }
 
+    public async Task<IEnumerable<ProductItem>> GetFavouritesAsync(Guid clientId)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+            await productFeedbackRepository.GetFavouriteProductsAsync(clientId));
+    }
+
     public async Task<ProductPreferences> GetProductPreferencesAsync(Guid clientId,
         string productId)
     {
