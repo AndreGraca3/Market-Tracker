@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import pt.isel.markettracker.domain.model.list.ShoppingList
 import pt.isel.markettracker.domain.model.list.ShoppingListSocial
 import pt.isel.markettracker.ui.screens.list.shoppingLists.components.ListNameDisplay
 import pt.isel.markettracker.ui.screens.list.shoppingLists.components.OwnershipStatusIcon
@@ -30,8 +31,8 @@ import pt.isel.markettracker.utils.advanceShadow
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListItemCard(
-    listInfo: ShoppingListSocial,
-    onListItemClick: (Int) -> Unit,
+    listInfo: ShoppingList,
+    onListItemClick: (String) -> Unit,
     onLongClickRequest: () -> Unit
 ) {
     val shape = RoundedCornerShape(8.dp)
@@ -65,13 +66,13 @@ fun ListItemCard(
                     modifier = Modifier
                         .weight(0.4f)
                 ) {
-                    ListNameDisplay(listInfo.listName)
+                    ListNameDisplay(listInfo.name)
                 }
                 Column(
                     modifier = Modifier
                         .weight(0.3f)
                 ) {
-                    ParticipantBadge(listInfo.numberOfParticipants)
+                    ParticipantBadge(4)
                 }
             }
             Row(
@@ -79,7 +80,7 @@ fun ListItemCard(
                     .align(Alignment.TopEnd)
                     .padding(start = 2.dp, top = 4.dp)
             ) {
-                OwnershipStatusIcon(listInfo.isOwner, listInfo.archivedAt)
+                OwnershipStatusIcon(true, listInfo.archivedAt)
             }
         }
     }

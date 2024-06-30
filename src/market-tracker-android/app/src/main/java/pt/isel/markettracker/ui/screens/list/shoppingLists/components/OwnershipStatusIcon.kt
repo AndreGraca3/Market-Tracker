@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.res.painterResource
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import java.time.LocalDateTime
 
 @Composable

@@ -92,12 +92,6 @@ fun LoginScreenView(
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            //when (state) {
-            //    is LoginScreenState.Loading -> {
-            //        //LoadingIcon()
-            //    }
-//
-            //    else -> {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -184,8 +178,6 @@ fun LoginScreenView(
                     )
                 }
             }
-            //}
-            //}
         }
     }
 }

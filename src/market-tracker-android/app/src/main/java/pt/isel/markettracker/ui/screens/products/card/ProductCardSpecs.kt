@@ -20,7 +20,6 @@ fun ProductCardSpecs(
     product: Product,
     modifier: Modifier
 ) {
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(6.dp),

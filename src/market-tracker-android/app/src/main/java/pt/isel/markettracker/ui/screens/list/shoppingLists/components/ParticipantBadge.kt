@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.BadgedBox
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 
 @Composable
 fun ParticipantBadge(numberOfParticipants: Int) {

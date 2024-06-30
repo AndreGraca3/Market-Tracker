@@ -19,22 +19,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.example.markettracker.R
+import pt.isel.markettracker.R
 import pt.isel.markettracker.ui.components.common.LoadingIcon
 import pt.isel.markettracker.ui.components.dialogs.MarketTrackerDialog
 import pt.isel.markettracker.ui.screens.list.shoppingLists.ShoppingListsScreenState
 import pt.isel.markettracker.ui.screens.list.shoppingLists.extractShoppingLists
 
-
-/**
- * this takes care of fetch items state
- * **/
 @Composable
 fun ListGrid(
     state: ShoppingListsScreenState,
-    onArchiveListRequest: (Int) -> Unit,
-    onDeleteListRequest: (Int) -> Unit,
-    onListDetailsRequest: (Int) -> Unit
+    onArchiveListRequest: (String) -> Unit,
+    onDeleteListRequest: (String) -> Unit,
+    onListDetailsRequest: (String) -> Unit
 ) {
     val lists = state.extractShoppingLists()
 

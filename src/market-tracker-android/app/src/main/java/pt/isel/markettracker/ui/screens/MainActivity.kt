@@ -19,11 +19,11 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.R
 import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
-import pt.isel.markettracker.repository.auth.isLoggedIn
-import pt.isel.markettracker.ui.screens.login.LoginScreenState
-import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.list.productsList.ListIdExtra
 import pt.isel.markettracker.ui.screens.list.productsList.ListProductDetailsActivity
+import pt.isel.markettracker.ui.screens.list.shoppingLists.ListScreenViewModel
+import pt.isel.markettracker.ui.screens.login.LoginScreenState
+import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
 
     private val productsScreenViewModel by viewModels<ProductsScreenViewModel>()
     private val loginScreenViewModel by viewModels<LoginScreenViewModel>()
+    private val listScreenViewModel by viewModels<ListScreenViewModel>()
 
     @Inject
     lateinit var authRepository: IAuthRepository
@@ -76,7 +77,6 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             loginScreenViewModel.loginPhase.collect { loginState ->
-                // if (loginState is LoginScreenState.Fail) loginScreenViewModel.resetLoginPhase()
                 if (loginState is LoginScreenState.Success) profileScreenViewModel.fetchUser()
             }
         }
@@ -108,7 +108,8 @@ class MainActivity : ComponentActivity() {
                     authRepository = authRepository,
                     loginScreenViewModel = loginScreenViewModel,
                     profileScreenViewModel = profileScreenViewModel,
-                    productsScreenViewModel = productsScreenViewModel
+                    productsScreenViewModel = productsScreenViewModel,
+                    listScreenViewModel = listScreenViewModel
                 )
             }
         }

@@ -5,21 +5,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.domain.model.list.ShoppingListSocial
+import pt.isel.markettracker.domain.model.list.ShoppingList
 import pt.isel.markettracker.ui.screens.list.shoppingLists.card.ListItemCard
 
-
-/** This crap ain't no view **/
 @Composable
 fun LazyListView(
-    lists: List<ShoppingListSocial>,
+    lists: List<ShoppingList>,
     onLongClickRequest: () -> Unit,
-    onListItemClick: (Int) -> Unit
+    onListItemClick: (String) -> Unit,
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),

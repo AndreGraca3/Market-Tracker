@@ -32,7 +32,7 @@ class ListProductDetailsScreenViewModel @Inject constructor(
         listProductFlow.value = loading()
         viewModelScope.launch {
             val res = kotlin.runCatching {
-                listEntryService.getListEntries()
+                listEntryService.getListEntries("")
             }
             listProductFlow.value = when (res.isSuccess) {
                 true -> loaded(res)

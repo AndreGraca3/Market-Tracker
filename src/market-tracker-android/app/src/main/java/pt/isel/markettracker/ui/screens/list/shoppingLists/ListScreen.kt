@@ -7,7 +7,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun ListScreen(
-    onListItemClick: (Int) -> Unit,
+    onListItemClick: (String) -> Unit,
     listScreenViewModel: ListScreenViewModel = hiltViewModel()
 ) {
     val listState by listScreenViewModel.listsInfo.collectAsState()
@@ -17,12 +17,15 @@ fun ListScreen(
         fetchLists = { forceRefresh ->
             listScreenViewModel.fetchLists(forceRefresh)
         },
-        onArchiveList = {
+        onAddListRequested = {
+            // :)
+        },
+        onArchiveListRequested = {
             //::listScreenViewModel.archiveList
         },
-        onDeleteList = {
+        onDeleteListRequested = {
             //::ListScreenViewModel.deleteList
         },
-        onListClick = onListItemClick
+        onListDetailsRequested = onListItemClick
     )
 }

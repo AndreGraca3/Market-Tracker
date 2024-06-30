@@ -2,15 +2,30 @@ package pt.isel.markettracker.http.service.operations.list.listEntry
 
 import pt.isel.markettracker.domain.model.list.listEntry.ListEntry
 import pt.isel.markettracker.domain.model.list.listEntry.ShoppingListEntries
-import pt.isel.markettracker.http.models.identifiers.StringIdOutputModel
 
 interface IListEntryService {
 
-    suspend fun addListEntry(/* TODO: input model*/): StringIdOutputModel
+    suspend fun addListEntry(
+        listId: String,
+        productId: String,
+        storeId: Int,
+        quantity: Int,
+    ): String
 
-    suspend fun updateListEntry(/* TODO: input model*/): ListEntry
+    suspend fun updateListEntry(
+        listId: String,
+        entryId: String,
+        storeId: Int,
+        quantity: Int,
+    ): ListEntry
 
-    suspend fun deleteListEntry(/* TODO: input model*/)
+    suspend fun deleteListEntry(listId: String, entryId: String)
 
-    suspend fun getListEntries(/* TODO: input model*/): ShoppingListEntries
+    suspend fun getListEntries(
+        listId: String,
+        alternativeType: AlternativeType? = null,
+        companyIds: List<Int> = emptyList(),
+        storeIds: List<Int> = emptyList(),
+        cityIds: List<Int> = emptyList(),
+    ): ShoppingListEntries
 }

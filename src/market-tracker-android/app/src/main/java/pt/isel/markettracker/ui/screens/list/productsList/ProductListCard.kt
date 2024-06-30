@@ -49,7 +49,7 @@ fun ProductListCard(productEntry: ListEntryOffer, isInCheckBoxMode: Boolean = fa
                     .fillMaxWidth(.2F)
             ) {
                 LoadableImage(
-                    model = product.imageUrl,
+                    url = product.imageUrl,
                     contentDescription = product.name,
                     modifier = Modifier.fillMaxSize()
                 )

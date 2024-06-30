@@ -62,7 +62,10 @@ fun ProductCardDetails(
                     }
             }
         }
-        ProductCardSpecs(product = productOffer.product)
+        ProductCardSpecs(
+            product = productOffer.product,
+            modifier = Modifier
+        )
 
         RatingStarsRow(rating = productOffer.product.rating)
 

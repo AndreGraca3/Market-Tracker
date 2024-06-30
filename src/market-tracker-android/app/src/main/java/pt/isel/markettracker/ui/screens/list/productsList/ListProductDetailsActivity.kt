@@ -50,4 +50,4 @@ class ListProductDetailsActivity : ComponentActivity() {
 }
 
 @Parcelize
-data class ListIdExtra(val id: Int) : Parcelable
+data class ListIdExtra(val id: String) : Parcelable

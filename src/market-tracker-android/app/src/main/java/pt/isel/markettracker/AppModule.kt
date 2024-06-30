@@ -118,12 +118,6 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideListService(httpClient: OkHttpClient, gson: Gson): IListService {
-        return ListService(httpClient, gson)
-    }
-
-    @Provides
-    @Singleton
     fun provideProductService(httpClient: OkHttpClient, gson: Gson): IProductService {
         return ProductService(httpClient, gson)
     }

@@ -1,8 +1,5 @@
 package pt.isel.markettracker.navigation
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
@@ -32,7 +29,6 @@ import androidx.navigation.compose.rememberNavController
 import pt.isel.markettracker.R
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.repository.auth.isLoggedIn
-import pt.isel.markettracker.ui.screens.list.ListScreen
 import pt.isel.markettracker.ui.screens.list.shoppingLists.ListScreen
 import pt.isel.markettracker.ui.screens.list.shoppingLists.ListScreenViewModel
 import pt.isel.markettracker.ui.screens.login.LoginScreen
@@ -45,7 +41,7 @@ import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 @Composable
 fun NavGraph(
     onProductClick: (String) -> Unit,
-    onListClick: (Int) -> Unit,
+    onListClick: (String) -> Unit,
     onBarcodeScanRequest: () -> Unit,
     onSignUpRequested: () -> Unit,
     getGoogleLoginIntent: () -> Intent,
@@ -53,7 +49,7 @@ fun NavGraph(
     loginScreenViewModel: LoginScreenViewModel,
     profileScreenViewModel: ProfileScreenViewModel,
     productsScreenViewModel: ProductsScreenViewModel,
-    listScreenViewModel: ListScreenViewModel = hiltViewModel(),
+    listScreenViewModel: ListScreenViewModel,
 ) {
     val navController = rememberNavController()
     var selectedIndex by rememberSaveable { mutableIntStateOf(2) }
