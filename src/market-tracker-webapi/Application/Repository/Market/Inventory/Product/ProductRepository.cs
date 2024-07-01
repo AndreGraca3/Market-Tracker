@@ -18,6 +18,7 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
         IList<int>? brandIds = null, int? minPrice = null, int? maxPrice = null, int? minRating = null,
         int? maxRating = null, IList<int>? companyIds = null, IList<int>? storeIds = null, IList<int>? cityIds = null)
     {
+        var startTime = DateTime.UtcNow;
         var baseQuery = from product in dataContext.Product
             join availability in dataContext.ProductAvailability on product.Id equals availability.ProductId
             join store in dataContext.Store on availability.StoreId equals store.Id
@@ -62,8 +63,25 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                 Availability = availability
             };
 
+        var queryFinished = DateTime.UtcNow;
+        Console.WriteLine($"Query time: {(queryFinished - startTime).TotalMilliseconds}ms");
+
+        var facetQuery = await baseQuery
+            .Select(g => new
+            {
+                Product = new {
+                    g.Product.Id,
+                    g.Product.BrandId,
+                    g.Product.CategoryId,
+                },
+                g.Brand,
+                g.Category,
+                Company = new { g.Company.Id, g.Company.Name }
+            })
+            .ToListAsync();
+
         // Facets
-        var categoryFacets = await baseQuery
+        var categoryFacets = facetQuery
             .Where(p =>
                 (brandIds == null || brandIds.Contains(p.Product.BrandId)) &&
                 (companyIds == null || companyIds.Contains(p.Company.Id))
@@ -75,9 +93,9 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                 Name = grouping.First().Category.Name,
                 Count = grouping.GroupBy(g => g.Product.Id).Count()
             })
-            .OrderByDescending(facet => facet.Count).ToListAsync();
+            .OrderByDescending(facet => facet.Count);
 
-        var brandFacets = await baseQuery
+        var brandFacets = facetQuery
             .Where(p =>
                 (categoryIds == null || categoryIds.Contains(p.Product.CategoryId)) &&
                 (companyIds == null || companyIds.Contains(p.Company.Id))
@@ -88,9 +106,9 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                 Id = grouping.Key,
                 Name = grouping.First().Brand.Name,
                 Count = grouping.GroupBy(g => g.Product.Id).Count()
-            }).OrderByDescending(facet => facet.Count).Take(maxValuesPerFacet).ToListAsync();
+            }).OrderByDescending(facet => facet.Count).Take(maxValuesPerFacet);
 
-        var companyFacets = await baseQuery
+        var companyFacets = facetQuery
             .Where(p =>
                 (categoryIds == null || categoryIds.Contains(p.Product.CategoryId)) &&
                 (brandIds == null || brandIds.Contains(p.Product.BrandId))
@@ -102,10 +120,12 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                 Name = grouping.First().Company.Name,
                 Count = grouping.GroupBy(g => g.Product.Id).Count()
             })
-            .OrderByDescending(facet => facet.Count)
-            .ToListAsync();
+            .OrderByDescending(facet => facet.Count);
 
         var facets = new ProductsFacetsCounters(brandFacets, categoryFacets, companyFacets);
+
+        var facetsFinished = DateTime.UtcNow;
+        Console.WriteLine($"Facets time: {(facetsFinished - queryFinished).TotalMilliseconds}ms");
 
         var query = baseQuery.GroupBy(p => p.Product.Id);
 
@@ -124,9 +144,11 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
                 queryRes.First().Price.Price - (queryRes.First().Promotion == null
                     ? 0
                     : queryRes.First().Price.Price * (queryRes.First().Promotion.Percentage / 100))),
-            _ => query.OrderBy(queryRes =>
-                    name == null ? 1 : EF.Functions.TrigramsSimilarityDistance(queryRes.First().Product.Name, name))
-                .ThenBy(queryRes => queryRes.First().Product.Id)
+            _ => name == null
+                ? query
+                : query.OrderBy(queryRes =>
+                        EF.Functions.TrigramsSimilarityDistance(queryRes.First().Product.Name, name))
+                    .ThenBy(queryRes => queryRes.First().Product.Id)
         };
 
         var products = await orderedQuery
@@ -135,6 +157,10 @@ public class ProductRepository(MarketTrackerDataContext dataContext) : IProductR
             .Select(g =>
                 g.First().Product.ToProduct(g.First().Brand.ToBrand(), g.First().Category.ToCategory()))
             .ToListAsync();
+
+        var orderedQueryFinished = DateTime.UtcNow;
+        Console.WriteLine($"Ordered query time: {(orderedQueryFinished - facetsFinished).TotalMilliseconds}ms");
+        Console.WriteLine($"Total repo time: {(DateTime.UtcNow - startTime).TotalMilliseconds}ms");
 
         return new PaginatedFacetedProducts(
             new PaginatedResult<Product>(products, query.Count(), skip, take),
