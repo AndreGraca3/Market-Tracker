@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list.shoppingLists.grid
+package pt.isel.markettracker.ui.screens.list.grid
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -22,15 +22,20 @@ import androidx.compose.ui.res.stringResource
 import pt.isel.markettracker.R
 import pt.isel.markettracker.ui.components.common.LoadingIcon
 import pt.isel.markettracker.ui.components.dialogs.MarketTrackerDialog
-import pt.isel.markettracker.ui.screens.list.shoppingLists.ShoppingListsScreenState
-import pt.isel.markettracker.ui.screens.list.shoppingLists.extractShoppingLists
+import pt.isel.markettracker.ui.screens.list.ShoppingListsScreenState
+import pt.isel.markettracker.ui.screens.list.extractShoppingLists
 
 @Composable
 fun ListGrid(
     state: ShoppingListsScreenState,
+    value: String,
+    isEditing: Boolean,
+    onCreateListRequested: () -> Unit,
+    onCancelCreatingListRequested: () -> Unit,
     onArchiveListRequest: (String) -> Unit,
-    onDeleteListRequest: (String) -> Unit,
-    onListDetailsRequest: (String) -> Unit
+    onDeleteListRequest: () -> Unit,
+    onListDetailsRequest: (String) -> Unit,
+    onLongClickRequested: (String) -> Unit,
 ) {
     val lists = state.extractShoppingLists()
 
@@ -50,7 +55,7 @@ fun ListGrid(
                     Text("Arquivar")
                 }
 
-                Button(onClick = { /** TODO: "not yet implemented" **/ }) {
+                Button(onClick = onDeleteListRequest) {
                     Text("Apagar")
                 }
             }
@@ -65,7 +70,14 @@ fun ListGrid(
             is ShoppingListsScreenState.Loaded -> {
                 LazyListView(
                     lists = lists,
-                    onLongClickRequest = { openDialog = true },
+                    isEditing = isEditing,
+                    value = value,
+                    onCreateListRequested = onCreateListRequested,
+                    onCancelRequested = onCancelCreatingListRequested,
+                    onLongClickRequest = { it ->
+                        onLongClickRequested(it)
+                        openDialog = true
+                    },
                     onListItemClick = onListDetailsRequest
                 )
             }

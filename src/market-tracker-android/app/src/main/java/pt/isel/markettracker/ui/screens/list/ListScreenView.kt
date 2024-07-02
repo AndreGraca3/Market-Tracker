@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list.shoppingLists
+package pt.isel.markettracker.ui.screens.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,19 +23,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pt.isel.markettracker.ui.components.common.PullToRefreshLazyColumn
-import pt.isel.markettracker.ui.screens.list.shoppingLists.components.AddListButton
-import pt.isel.markettracker.ui.screens.list.shoppingLists.grid.ListGrid
+import pt.isel.markettracker.ui.screens.list.components.AddListButton
+import pt.isel.markettracker.ui.screens.list.grid.ListGrid
 import pt.isel.markettracker.ui.screens.products.topbar.HeaderLogo
 import pt.isel.markettracker.ui.theme.mainFont
 
 @Composable
 fun ListScreenView(
     state: ShoppingListsScreenState,
+    value: String,
+    isEditing: Boolean,
     fetchLists: (Boolean) -> Unit,
-    onAddListRequested: () -> Unit,
+    onCreateListRequested: () -> Unit,
+    onCancelCreatingListRequested: () -> Unit,
     onArchiveListRequested: (String) -> Unit,
-    onDeleteListRequested: (String) -> Unit,
+    onDeleteListRequested: () -> Unit,
     onListDetailsRequested: (String) -> Unit,
+    onEditRequested: () -> Unit,
+    onLongClickRequested: (String) -> Unit
 ) {
     var isRefreshing by remember { mutableStateOf(false) }
 
@@ -68,7 +73,7 @@ fun ListScreenView(
                             .size(48.dp)
                     )
                     Text(
-                        text = "As minhas listas 📝",
+                        text = "Listas 📝",
                         color = Color.White,
                         fontFamily = mainFont,
                         fontSize = 30.sp,
@@ -76,7 +81,7 @@ fun ListScreenView(
                             .align(alignment = Alignment.Center)
                     )
                     AddListButton(
-                        onAddListRequested = onAddListRequested,
+                        onAddListRequested = onEditRequested,
                         modifier = Modifier.align(alignment = Alignment.CenterEnd)
                     )
                 }
@@ -94,15 +99,19 @@ fun ListScreenView(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.LightGray),
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 ListGrid(
                     state = state,
+                    value = value,
+                    isEditing = isEditing,
+                    onCreateListRequested = onCreateListRequested,
+                    onCancelCreatingListRequested = onCancelCreatingListRequested,
                     onArchiveListRequest = onArchiveListRequested,
                     onDeleteListRequest = onDeleteListRequested,
-                    onListDetailsRequest = onListDetailsRequested
+                    onListDetailsRequest = onListDetailsRequested,
+                    onLongClickRequested = onLongClickRequested
                 )
             }
         }

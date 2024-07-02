@@ -52,6 +52,7 @@ fun MarketTrackerDialog(
                         .wrapContentSize(Alignment.Center),
                     textAlign = TextAlign.Center,
                 )
+                content()
             }
         }
     }

@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list.shoppingLists
+package pt.isel.markettracker.ui.screens.list
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +22,10 @@ class ListScreenViewModel @Inject constructor(
     val listsInfo
         get() = _listsInfoFlow
 
+    var isEditing by mutableStateOf(false)
+
     var listName by mutableStateOf("")
+    var idList by mutableStateOf<String?>(null)
 
     fun fetchLists(forceRefresh: Boolean = false) {
         if (_listsInfoFlow.value !is ShoppingListsScreenState.Idle && !forceRefresh) return
@@ -40,9 +43,10 @@ class ListScreenViewModel @Inject constructor(
     }
 
     fun addList() {
-        if (_listsInfoFlow.value !is ShoppingListsScreenState.Idle) return
+        if (_listsInfoFlow.value !is ShoppingListsScreenState.Loaded
+            || _listsInfoFlow.value.extractShoppingLists().size == 10
+        ) return
 
-        _listsInfoFlow.value = ShoppingListsScreenState.Loading
         viewModelScope.launch {
             runCatchingAPIFailure {
                 listService.addList(listName)
@@ -55,16 +59,16 @@ class ListScreenViewModel @Inject constructor(
         }
     }
 
-    fun deleteList(id: String) {
-        if (_listsInfoFlow.value !is ShoppingListsScreenState.Idle) return
+    fun deleteList() {
+        if (_listsInfoFlow.value !is ShoppingListsScreenState.Idle && idList == null) return
 
         _listsInfoFlow.value = ShoppingListsScreenState.Loading
         viewModelScope.launch {
             runCatchingAPIFailure {
-                listService.deleteListById(id)
+                listService.deleteListById(idList!!)
             }.onSuccess {
                 _listsInfoFlow.value = ShoppingListsScreenState.Loaded(
-                    _listsInfoFlow.value.extractShoppingLists().filter { it.id != id }
+                    _listsInfoFlow.value.extractShoppingLists().filter { it.id != idList }
                 )
             }.onFailure {
                 _listsInfoFlow.value = ShoppingListsScreenState.Failed(it)

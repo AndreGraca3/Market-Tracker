@@ -29,8 +29,8 @@ import androidx.navigation.compose.rememberNavController
 import pt.isel.markettracker.R
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.repository.auth.isLoggedIn
-import pt.isel.markettracker.ui.screens.list.shoppingLists.ListScreen
-import pt.isel.markettracker.ui.screens.list.shoppingLists.ListScreenViewModel
+import pt.isel.markettracker.ui.screens.list.ListScreen
+import pt.isel.markettracker.ui.screens.list.ListScreenViewModel
 import pt.isel.markettracker.ui.screens.login.LoginScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.products.ProductsScreen

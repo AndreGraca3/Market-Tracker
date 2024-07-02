@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list.productsList.components
+package pt.isel.markettracker.ui.screens.productsList.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement

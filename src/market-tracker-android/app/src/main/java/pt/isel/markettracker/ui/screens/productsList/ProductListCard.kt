@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list.productsList
+package pt.isel.markettracker.ui.screens.productsList
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.model.list.listEntry.ListEntryOffer
 import pt.isel.markettracker.dummy.dummyShoppingListEntries
 import pt.isel.markettracker.ui.components.LoadableImage
-import pt.isel.markettracker.ui.screens.list.productsList.components.ProductQuantityCounter
+import pt.isel.markettracker.ui.screens.productsList.components.ProductQuantityCounter
 import pt.isel.markettracker.ui.screens.products.card.ProductCardSpecs
 
 @Composable

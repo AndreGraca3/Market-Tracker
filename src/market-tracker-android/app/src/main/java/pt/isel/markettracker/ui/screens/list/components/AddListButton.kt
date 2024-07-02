@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list.shoppingLists.components
+package pt.isel.markettracker.ui.screens.list.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Icon

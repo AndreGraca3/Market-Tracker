@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list.shoppingLists
+package pt.isel.markettracker.ui.screens.list
 
 import pt.isel.markettracker.domain.model.list.ShoppingList
 

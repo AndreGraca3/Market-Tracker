@@ -3,6 +3,7 @@ package pt.isel.markettracker.ui.screens
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -19,9 +20,9 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.R
 import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
-import pt.isel.markettracker.ui.screens.list.productsList.ListIdExtra
-import pt.isel.markettracker.ui.screens.list.productsList.ListProductDetailsActivity
-import pt.isel.markettracker.ui.screens.list.shoppingLists.ListScreenViewModel
+import pt.isel.markettracker.ui.screens.productsList.ListIdExtra
+import pt.isel.markettracker.ui.screens.productsList.ListProductDetailsActivity
+import pt.isel.markettracker.ui.screens.list.ListScreenViewModel
 import pt.isel.markettracker.ui.screens.login.LoginScreenState
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
@@ -81,6 +82,13 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             loginScreenViewModel.loginPhase.collect { loginState ->
+                Log.v("User", "LoginState is $loginState")
+                //if (loginState is LoginScreenState.Fail) {
+                //    if (loginState.error::class.isInstance(APIException::class)) {
+                //        val status = (loginState.error as APIException).problem.Status
+                //        if (status == 500) profileScreenViewModel.resetToIdle()
+                //    }
+                //}
                 if (loginState is LoginScreenState.Success) profileScreenViewModel.fetchUser()
             }
         }

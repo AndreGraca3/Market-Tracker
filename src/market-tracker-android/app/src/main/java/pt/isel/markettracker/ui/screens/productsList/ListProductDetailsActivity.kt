@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list.productsList
+package pt.isel.markettracker.ui.screens.productsList
 
 import android.os.Bundle
 import android.os.Parcelable

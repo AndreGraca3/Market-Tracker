@@ -169,4 +169,8 @@ class ProfileScreenViewModel @AssistedInject constructor(
             )
         }
     }
+
+    fun resetToIdle() {
+        _clientFetchingFlow.value = ProfileScreenState.Idle
+    }
 }
