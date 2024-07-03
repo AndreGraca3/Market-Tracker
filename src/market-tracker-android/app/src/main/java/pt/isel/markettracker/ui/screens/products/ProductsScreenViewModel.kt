@@ -78,8 +78,7 @@ class ProductsScreenViewModel @Inject constructor(
 
             res.onSuccess {
                 val allProducts = oldProducts + it.items
-                _stateFlow.value =
-                    ProductsScreenState.IdleLoaded(allProducts, it.hasMore)
+                _stateFlow.value = ProductsScreenState.IdleLoaded(allProducts, it.hasMore)
                 onFetch(it)
             }
 
