@@ -25,6 +25,8 @@ class ListScreenViewModel @Inject constructor(
     var isEditing by mutableStateOf(false)
 
     var listName by mutableStateOf("")
+
+    /** Id of the list currently selected **/
     var idList by mutableStateOf<String?>(null)
 
     fun fetchLists(forceRefresh: Boolean = false) {
@@ -60,12 +62,29 @@ class ListScreenViewModel @Inject constructor(
     }
 
     fun deleteList() {
-        if (_listsInfoFlow.value !is ShoppingListsScreenState.Idle && idList == null) return
+        if (_listsInfoFlow.value !is ShoppingListsScreenState.Loaded || idList.isNullOrBlank()) return
 
         _listsInfoFlow.value = ShoppingListsScreenState.Loading
         viewModelScope.launch {
             runCatchingAPIFailure {
                 listService.deleteListById(idList!!)
+            }.onSuccess {
+                _listsInfoFlow.value = ShoppingListsScreenState.Loaded(
+                    _listsInfoFlow.value.extractShoppingLists().filter { it.id != idList }
+                )
+            }.onFailure {
+                _listsInfoFlow.value = ShoppingListsScreenState.Failed(it)
+            }
+        }
+    }
+
+    fun archiveList() {
+        if (_listsInfoFlow.value !is ShoppingListsScreenState.Loaded || idList.isNullOrBlank()) return
+
+        _listsInfoFlow.value = ShoppingListsScreenState.Loading
+        viewModelScope.launch {
+            runCatchingAPIFailure {
+                listService.updateList(id = idList!!, listName = null, isArchived = true)
             }.onSuccess {
                 _listsInfoFlow.value = ShoppingListsScreenState.Loaded(
                     _listsInfoFlow.value.extractShoppingLists().filter { it.id != idList }

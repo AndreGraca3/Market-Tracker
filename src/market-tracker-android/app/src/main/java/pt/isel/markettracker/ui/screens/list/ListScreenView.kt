@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,13 +37,16 @@ fun ListScreenView(
     fetchLists: (Boolean) -> Unit,
     onCreateListRequested: () -> Unit,
     onCancelCreatingListRequested: () -> Unit,
-    onArchiveListRequested: (String) -> Unit,
+    onArchiveListRequested: () -> Unit,
     onDeleteListRequested: () -> Unit,
     onListDetailsRequested: (String) -> Unit,
     onEditRequested: () -> Unit,
-    onLongClickRequested: (String) -> Unit
+    onLongClickRequested: (String) -> Unit,
 ) {
     var isRefreshing by remember { mutableStateOf(false) }
+    var tabIndex by remember { mutableIntStateOf(0) }
+
+    val tabs = listOf("Ativas", "Arquivadas")
 
     LaunchedEffect(Unit) {
         fetchLists(false)

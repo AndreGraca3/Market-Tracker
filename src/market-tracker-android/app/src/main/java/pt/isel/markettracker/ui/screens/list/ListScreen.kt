@@ -24,9 +24,7 @@ fun ListScreen(
             listScreenViewModel.listName = ""
             listScreenViewModel.isEditing = false
         },
-        onArchiveListRequested = {
-            //::listScreenViewModel.archiveList
-        },
+        onArchiveListRequested = listScreenViewModel::archiveList,
         onDeleteListRequested = listScreenViewModel::deleteList,
         onListDetailsRequested = onListItemClick,
         onEditRequested = {

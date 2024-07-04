@@ -40,6 +40,7 @@ fun ListCard(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .size(width = 350.dp, 125.dp)
+            .border(2.dp, Color.Cyan)
     ) {
         Card(
             modifier = Modifier
