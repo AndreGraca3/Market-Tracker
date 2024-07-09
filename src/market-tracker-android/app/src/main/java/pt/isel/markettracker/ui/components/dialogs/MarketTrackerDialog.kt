@@ -25,13 +25,15 @@ fun MarketTrackerDialog(
     icon: ImageVector,
     message: String,
     onDismissRequest: () -> Unit = {},
-    content: @Composable () -> Unit = {}
+    content: @Composable () -> Unit = {},
 ) {
-    Dialog(onDismissRequest) {
+    Dialog(
+        onDismissRequest = { onDismissRequest() }
+    ) {
         Card(
             modifier = Modifier
                 .height(250.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth(0.8F),
             shape = RoundedCornerShape(16.dp),
         ) {
             Column(
@@ -41,7 +43,6 @@ fun MarketTrackerDialog(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-
                 Icon(
                     imageVector = icon,
                     contentDescription = "DialogIcon"

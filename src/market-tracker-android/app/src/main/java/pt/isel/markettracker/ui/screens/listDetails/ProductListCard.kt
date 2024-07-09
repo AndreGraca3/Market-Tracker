@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.productsList
+package pt.isel.markettracker.ui.screens.listDetails
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,11 +20,16 @@ import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.model.list.listEntry.ListEntryOffer
 import pt.isel.markettracker.dummy.dummyShoppingListEntries
 import pt.isel.markettracker.ui.components.LoadableImage
-import pt.isel.markettracker.ui.screens.productsList.components.ProductQuantityCounter
+import pt.isel.markettracker.ui.screens.listDetails.components.ProductQuantityCounter
 import pt.isel.markettracker.ui.screens.products.card.ProductCardSpecs
 
 @Composable
-fun ProductListCard(productEntry: ListEntryOffer, isInCheckBoxMode: Boolean = false) {
+fun ProductListCard(
+    productEntry: ListEntryOffer,
+    isInCheckBoxMode: Boolean = false,
+    //onQuantityIncreaseRequest: () -> Unit,
+    //onQuantityDecreaseRequest: () -> Unit
+) {
     val shape = RoundedCornerShape(8.dp)
     val product = productEntry.productOffer.product
 
@@ -57,12 +62,15 @@ fun ProductListCard(productEntry: ListEntryOffer, isInCheckBoxMode: Boolean = fa
             ProductCardSpecs(product = product, modifier = Modifier.fillMaxWidth(.4F))
 
             Box(
-                modifier = Modifier.fillMaxHeight(.4F)
+                modifier = Modifier
+                    .fillMaxHeight(.4F)
                     .fillMaxWidth(.6F)
             ) {
                 ProductQuantityCounter(
-                    quantity = product.quantity,
-                    onQuantityIncreaseRequest = {},
+                    quantity = productEntry.quantity,
+                    onQuantityIncreaseRequest = {
+                        //onQuantityIncreaseRequest
+                    },
                     onQuantityDecreaseRequest = {}
                 )
             }

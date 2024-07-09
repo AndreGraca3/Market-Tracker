@@ -3,18 +3,17 @@ package pt.isel.markettracker.ui.screens.list.grid
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ListAlt
-import androidx.compose.material3.Button
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.RemoveShoppingCart
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -22,51 +21,85 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.R
+import pt.isel.markettracker.domain.model.list.ShoppingList
 import pt.isel.markettracker.ui.components.common.LoadingIcon
 import pt.isel.markettracker.ui.components.dialogs.MarketTrackerDialog
 import pt.isel.markettracker.ui.screens.list.ShoppingListsScreenState
+import pt.isel.markettracker.ui.screens.list.buttons.EditListButton
 import pt.isel.markettracker.ui.screens.list.extractShoppingLists
-import pt.isel.markettracker.ui.theme.mainFont
 
 @Composable
 fun ListGrid(
     state: ShoppingListsScreenState,
-    value: String,
-    isEditing: Boolean,
+    tabIndex: Int,
+    newListName: String,
+    isCreatingNewList: Boolean,
+    onNewListNameChangeRequested: (String) -> Unit,
     onCreateListRequested: () -> Unit,
     onCancelCreatingListRequested: () -> Unit,
     onArchiveListRequest: () -> Unit,
     onDeleteListRequest: () -> Unit,
+    onEditListNameRequested: () -> Unit,
     onListDetailsRequest: (String) -> Unit,
-    onLongClickRequested: (String) -> Unit,
+    onLongClickRequested: (ShoppingList) -> Unit,
+    onDismissDialogRequest: () -> Unit,
 ) {
     val lists = state.extractShoppingLists()
 
     var openDialog by remember { mutableStateOf(false) }
 
-    var tabIndex by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Ativas", "Arquivadas")
-
     if (openDialog) {
         MarketTrackerDialog(
-            icon = Icons.Default.ListAlt,
-            message = "O que pretende fazer á lista?",
-            onDismissRequest = { openDialog = false }
+            icon = Icons.AutoMirrored.Filled.ListAlt,
+            message = if (state !is ShoppingListsScreenState.Editing) "Tem de selecionar uma lista" else "O que pretende fazer á ${state.currentListEditing.name}?",
+            onDismissRequest = {
+                if (state is ShoppingListsScreenState.WaitFinishCreation) return@MarketTrackerDialog
+                onDismissDialogRequest()
+                openDialog = false
+            }
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Button(onClick = onArchiveListRequest) {
-                    Text("Arquivar")
+            when (state) {
+                is ShoppingListsScreenState.Editing -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(vertical = 2.dp)
+                    ) {
+                        if (!state.currentListEditing.isArchived) {
+                            EditListButton(
+                                text = "Arquivar",
+                                icon = Icons.Default.Archive,
+                                onClick = {
+                                    onArchiveListRequest()
+                                    openDialog = false
+                                },
+                            )
+                        }
+                        EditListButton(
+                            text = "Editar",
+                            icon = Icons.Default.Edit,
+                            onClick = onEditListNameRequested,
+                        )
+                        EditListButton(
+                            text = "Apagar",
+                            icon = Icons.Default.RemoveShoppingCart,
+                            onClick = {
+                                onDeleteListRequest()
+                                openDialog = false
+                            },
+                        )
+                    }
                 }
 
-                Button(onClick = onDeleteListRequest) {
-                    Text("Apagar")
+                is ShoppingListsScreenState.WaitFinishCreation -> {
+                    LoadingIcon()
                 }
+
+                else -> {}
             }
         }
     }
@@ -76,34 +109,22 @@ fun ListGrid(
         modifier = Modifier.fillMaxSize()
     ) {
         when (state) {
-            is ShoppingListsScreenState.Loaded -> {
+            is ShoppingListsScreenState.Loaded,
+            is ShoppingListsScreenState.Editing,
+            is ShoppingListsScreenState.WaitFinishCreation,
+            -> {
                 val activeLists = lists.filter { !it.isArchived }
                 val archivedLists = lists.filter { it.isArchived }
-
-                TabRow(selectedTabIndex = tabIndex) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(text = {
-                            Text(
-                                text = title,
-                                modifier = Modifier.align(Alignment.Center),
-                                textAlign = TextAlign.Center,
-                                fontFamily = mainFont
-                            )
-                        },
-                            selected = tabIndex == index,
-                            onClick = { tabIndex = index }
-                        )
-                    }
-                }
-
                 LazyListView(
                     lists = when (tabIndex) {
                         0 -> activeLists
                         1 -> archivedLists
                         else -> emptyList()
                     },
-                    isEditing = isEditing,
-                    value = value,
+                    isCreatingNewList = isCreatingNewList,
+                    isLoading = state is ShoppingListsScreenState.WaitFinishCreation,
+                    newListName = newListName,
+                    onNewListNameChangeRequested = onNewListNameChangeRequested,
                     onCreateListRequested = onCreateListRequested,
                     onCancelRequested = onCancelCreatingListRequested,
                     onLongClickRequest = {
@@ -122,7 +143,7 @@ fun ListGrid(
                 ) {
                     item {
                         Image(
-                            painter = painterResource(id = R.drawable.server_error),
+                            painter = painterResource(id = R.drawable.products_not_found),
                             contentDescription = "No lists"
                         )
                     }

@@ -68,7 +68,9 @@ public class ListService(
                 throw new MarketTrackerServiceException(
                     new ListCreationError.MaxListNumberReached(clientId, MaxListNumber));
 
-            return await listRepository.AddListAsync(listName, clientId);
+            var listId = await listRepository.AddListAsync(listName, clientId);
+            await listRepository.AddListMemberAsync(listId.Value, clientId);
+            return listId;
         });
     }
 

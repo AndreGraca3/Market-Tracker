@@ -71,7 +71,7 @@ fun LoginScreenView(
                     HeaderLogo(
                         modifier = Modifier
                             .align(alignment = Alignment.CenterStart)
-                            .size(52.dp)
+                            .size(48.dp)
                     )
                     Text(
                         "Login 📝",

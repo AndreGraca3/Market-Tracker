@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import pt.isel.markettracker.R
+import pt.isel.markettracker.domain.model.list.ShoppingList
 import pt.isel.markettracker.http.service.operations.list.IListService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import javax.inject.Inject
@@ -19,15 +21,11 @@ class ListScreenViewModel @Inject constructor(
     private val _listsInfoFlow: MutableStateFlow<ShoppingListsScreenState> =
         MutableStateFlow(ShoppingListsScreenState.Idle)
 
-    val listsInfo
+    val listsInfoState
         get() = _listsInfoFlow
 
-    var isEditing by mutableStateOf(false)
-
+    var isCreatingNewList by mutableStateOf(false)
     var listName by mutableStateOf("")
-
-    /** Id of the list currently selected **/
-    var idList by mutableStateOf<String?>(null)
 
     fun fetchLists(forceRefresh: Boolean = false) {
         if (_listsInfoFlow.value !is ShoppingListsScreenState.Idle && !forceRefresh) return
@@ -45,15 +43,20 @@ class ListScreenViewModel @Inject constructor(
     }
 
     fun addList() {
-        if (_listsInfoFlow.value !is ShoppingListsScreenState.Loaded
-            || _listsInfoFlow.value.extractShoppingLists().size == 10
+        val loadedState = _listsInfoFlow.value
+        if (loadedState !is ShoppingListsScreenState.Loaded
+            || _listsInfoFlow.value.extractShoppingLists().size == R.integer.max_lists_per_user
         ) return
 
+        _listsInfoFlow.value =
+            ShoppingListsScreenState.WaitFinishCreation(loadedState.shoppingLists)
         viewModelScope.launch {
             runCatchingAPIFailure {
                 listService.addList(listName)
                 listService.getLists()
             }.onSuccess {
+                listName = ""
+                isCreatingNewList = false
                 _listsInfoFlow.value = ShoppingListsScreenState.Loaded(it)
             }.onFailure {
                 _listsInfoFlow.value = ShoppingListsScreenState.Failed(it)
@@ -62,16 +65,17 @@ class ListScreenViewModel @Inject constructor(
     }
 
     fun deleteList() {
-        if (_listsInfoFlow.value !is ShoppingListsScreenState.Loaded || idList.isNullOrBlank()) return
+        val editState = _listsInfoFlow.value
+        if (editState !is ShoppingListsScreenState.Editing) return
+        val oldShoppingLists = editState.shoppingLists.toMutableList()
 
-        _listsInfoFlow.value = ShoppingListsScreenState.Loading
         viewModelScope.launch {
             runCatchingAPIFailure {
-                listService.deleteListById(idList!!)
+                listService.deleteListById(editState.currentListEditing.id)
             }.onSuccess {
-                _listsInfoFlow.value = ShoppingListsScreenState.Loaded(
-                    _listsInfoFlow.value.extractShoppingLists().filter { it.id != idList }
-                )
+                oldShoppingLists
+                    .removeIf { it.id == editState.currentListEditing.id }
+                _listsInfoFlow.value = ShoppingListsScreenState.Loaded(oldShoppingLists)
             }.onFailure {
                 _listsInfoFlow.value = ShoppingListsScreenState.Failed(it)
             }
@@ -79,19 +83,44 @@ class ListScreenViewModel @Inject constructor(
     }
 
     fun archiveList() {
-        if (_listsInfoFlow.value !is ShoppingListsScreenState.Loaded || idList.isNullOrBlank()) return
+        val editState = _listsInfoFlow.value
+        if (editState !is ShoppingListsScreenState.Editing) return
+        val currentListSelected = editState.currentListEditing
 
-        _listsInfoFlow.value = ShoppingListsScreenState.Loading
         viewModelScope.launch {
             runCatchingAPIFailure {
-                listService.updateList(id = idList!!, listName = null, isArchived = true)
-            }.onSuccess {
-                _listsInfoFlow.value = ShoppingListsScreenState.Loaded(
-                    _listsInfoFlow.value.extractShoppingLists().filter { it.id != idList }
+                listService.updateList(
+                    id = currentListSelected.id,
+                    listName = null,
+                    isArchived = !currentListSelected.isArchived
                 )
+            }.onSuccess { updatedList ->
+                _listsInfoFlow.value = ShoppingListsScreenState.Loaded(editState.shoppingLists.map {
+                    if (it.id == updatedList.id) {
+                        it.copy(
+                            archivedAt = updatedList.archivedAt,
+                            isArchived = updatedList.isArchived
+                        )
+                    } else it
+                })
             }.onFailure {
                 _listsInfoFlow.value = ShoppingListsScreenState.Failed(it)
             }
         }
+    }
+
+    fun stateToEditing(currentListSelected: ShoppingList) {
+        val loadedState = _listsInfoFlow.value
+        if (loadedState !is ShoppingListsScreenState.Loaded) return
+        val currentList = loadedState.extractShoppingLists()
+
+        _listsInfoFlow.value = ShoppingListsScreenState.Editing(currentList, currentListSelected)
+    }
+
+    fun resetToLoaded() {
+        val editingState = _listsInfoFlow.value
+        if (editingState !is ShoppingListsScreenState.Editing) return
+
+        _listsInfoFlow.value = ShoppingListsScreenState.Loaded(editingState.shoppingLists)
     }
 }

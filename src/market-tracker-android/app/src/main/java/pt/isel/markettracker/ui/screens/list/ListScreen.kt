@@ -10,28 +10,34 @@ fun ListScreen(
     onListItemClick: (String) -> Unit,
     listScreenViewModel: ListScreenViewModel = hiltViewModel(),
 ) {
-    val listState by listScreenViewModel.listsInfo.collectAsState()
+    val listState by listScreenViewModel.listsInfoState.collectAsState()
 
     ListScreenView(
         state = listState,
-        value = listScreenViewModel.listName,
-        isEditing = listScreenViewModel.isEditing,
+        newListName = listScreenViewModel.listName,
+        isCreatingNewList = listScreenViewModel.isCreatingNewList,
         fetchLists = { forceRefresh ->
             listScreenViewModel.fetchLists(forceRefresh)
+        },
+        onNewListNameChangeRequested = {
+            listScreenViewModel.listName = it
         },
         onCreateListRequested = listScreenViewModel::addList,
         onCancelCreatingListRequested = {
             listScreenViewModel.listName = ""
-            listScreenViewModel.isEditing = false
+            listScreenViewModel.isCreatingNewList = false
         },
         onArchiveListRequested = listScreenViewModel::archiveList,
         onDeleteListRequested = listScreenViewModel::deleteList,
         onListDetailsRequested = onListItemClick,
         onEditRequested = {
-            listScreenViewModel.isEditing = !listScreenViewModel.isEditing
+            listScreenViewModel.isCreatingNewList = !listScreenViewModel.isCreatingNewList
         },
         onLongClickRequested = {
-            listScreenViewModel.idList = it
+            listScreenViewModel.stateToEditing(it)
+        },
+        onDismissDialogRequested = {
+            listScreenViewModel.resetToLoaded()
         }
     )
 }

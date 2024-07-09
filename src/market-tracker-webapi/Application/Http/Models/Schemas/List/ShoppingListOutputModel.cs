@@ -9,7 +9,8 @@ public record ShoppingListOutputModel(
     DateTime CreatedAt,
     Guid OwnerId,
     bool IsOwner,
-    bool IsArchived
+    bool IsArchived,
+    int NumberOfMembers
 );
 
 public static class ListOutputModelMapper
@@ -23,20 +24,8 @@ public static class ListOutputModelMapper
             list.CreatedAt,
             list.OwnerId.Value,
             list.OwnerId.Value == authUserId,
-            list.IsArchived
-        );
-    }
-    
-    public static ShoppingListOutputModel ToOutputModel(this ShoppingListItem list, Guid authUserId)
-    {
-        return new ShoppingListOutputModel(
-            list.Id,
-            list.Name,
-            list.ArchivedAt,
-            list.CreatedAt,
-            list.OwnerId,
-            list.OwnerId == authUserId,
-            list.IsArchived
+            list.IsArchived,
+            list.MemberIds.Count()
         );
     }
 }

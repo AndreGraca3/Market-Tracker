@@ -20,9 +20,9 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.R
 import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
-import pt.isel.markettracker.ui.screens.productsList.ListIdExtra
-import pt.isel.markettracker.ui.screens.productsList.ListProductDetailsActivity
 import pt.isel.markettracker.ui.screens.list.ListScreenViewModel
+import pt.isel.markettracker.ui.screens.listDetails.ListDetailsActivity
+import pt.isel.markettracker.ui.screens.listDetails.ListIdExtra
 import pt.isel.markettracker.ui.screens.login.LoginScreenState
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
@@ -69,7 +69,8 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         productsScreenViewModel.fetchProducts(false)
         lifecycleScope.launch {
-            if (authRepository.getToken() != null) {
+            val token = authRepository.getToken()
+            if (token != null) {
                 profileScreenViewModel.fetchUser()
             }
         }
@@ -83,13 +84,13 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             loginScreenViewModel.loginPhase.collect { loginState ->
                 Log.v("User", "LoginState is $loginState")
-                //if (loginState is LoginScreenState.Fail) {
-                //    if (loginState.error::class.isInstance(APIException::class)) {
-                //        val status = (loginState.error as APIException).problem.Status
-                //        if (status == 500) profileScreenViewModel.resetToIdle()
-                //    }
-                //}
                 if (loginState is LoginScreenState.Success) profileScreenViewModel.fetchUser()
+            }
+        }
+
+        lifecycleScope.launch {
+            listScreenViewModel.listsInfoState.collect { listsState ->
+                Log.v("Lists", "ListsState is $listsState")
             }
         }
 
@@ -104,9 +105,9 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     onListClick = {
-                        navigateTo<ListProductDetailsActivity>(
+                        navigateTo<ListDetailsActivity>(
                             this,
-                            ListProductDetailsActivity.LIST_PRODUCT_ID_EXTRA,
+                            ListDetailsActivity.LIST_PRODUCT_ID_EXTRA,
                             ListIdExtra(it)
                         )
                     },

@@ -7,7 +7,7 @@ data class ListEntry(
     val id: String,
     val productId: String,
     val storeId: Store?,
-    val quantity: Int
+    val quantity: Int,
 )
 
-data class ListEntryOffer(val productOffer: ProductOffer, val quantity: Int)
+data class ListEntryOffer(val id: String, val productOffer: ProductOffer, val quantity: Int)

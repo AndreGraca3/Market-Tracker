@@ -47,7 +47,7 @@ public class ListController(IListService listService) : ControllerBase
 
     [HttpPatch(Uris.Lists.ListById)]
     [Authorized([Role.Client])]
-    public async Task<ActionResult<ShoppingListOutputModel>> UpdateListAsync(
+    public async Task<ActionResult<ShoppingListItemOutputModel>> UpdateListAsync(
         string listId, [FromBody] UpdateListInputModel inputModel)
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;

@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.list.components
+package pt.isel.markettracker.ui.screens.list.buttons
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Icon
@@ -11,17 +11,19 @@ import pt.isel.markettracker.R
 
 @Composable
 fun AddListButton(
-    onAddListRequested: ()-> Unit,
+    onAddListRequested: () -> Unit,
+    enabled: Boolean,
     modifier: Modifier,
 ) {
     Box(
         modifier = modifier
     ) {
         IconButton(
+            enabled = enabled,
             onClick = onAddListRequested
         ) {
             Icon(
-                painter = painterResource(R.drawable.add_shopping_cart),
+                painter = painterResource(if (enabled) R.drawable.add_shopping_cart else R.drawable.shopping_cart_off),
                 contentDescription = "settings_icon",
                 tint = Color.White
             )

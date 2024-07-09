@@ -72,7 +72,7 @@ public class MarketTrackerDataContext(DbContextOptions options) : DbContext(opti
         {
             foreach (var property in entityType.GetProperties())
             {
-                if (property.ClrType == typeof(DateTime))
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
                 {
                     property.SetValueConverter(new UtcDateTimeConverter());
                 }

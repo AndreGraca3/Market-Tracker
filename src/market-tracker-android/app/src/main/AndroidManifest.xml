@@ -46,7 +46,7 @@
             android:name="pt.isel.markettracker.ui.screens.signup.SignUpActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="pt.isel.markettracker.ui.screens.productsList.ListProductDetailsActivity"
+            android:name="pt.isel.markettracker.ui.screens.listDetails.ListDetailsActivity"
             android:screenOrientation="portrait" />
 
         <meta-data
