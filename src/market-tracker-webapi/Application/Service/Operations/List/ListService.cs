@@ -129,11 +129,9 @@ public class ListService(
             if (!list.IsOwner(clientId))
                 throw new MarketTrackerServiceException(new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
-            if (list.BelongsTo(clientIdToAdd))
-                throw new MarketTrackerServiceException(
-                    new ListCreationError.ClientAlreadyInList(listId, clientIdToAdd));
-
-            await listRepository.AddListMemberAsync(listId, clientIdToAdd);
+            if (!list.BelongsTo(clientIdToAdd))
+                await listRepository.AddListMemberAsync(listId, clientIdToAdd);
+            
             return new ListClient(clientIdToAdd, listId);
         });
     }

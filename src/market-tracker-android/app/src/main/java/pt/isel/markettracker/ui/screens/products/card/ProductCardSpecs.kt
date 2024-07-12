@@ -17,11 +17,9 @@ import pt.isel.markettracker.ui.theme.Primary600
 
 @Composable
 fun ProductCardSpecs(
-    product: Product,
-    modifier: Modifier
+    product: Product
 ) {
     Column(
-        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
@@ -64,5 +62,4 @@ fun ProductCardSpecs(
             )
         }
     }
-
 }

@@ -69,7 +69,7 @@ fun ProductsGridView(
             }
 
             is ProductsScreenState.Failed -> {
-                LazyColumn( // TODO: remove maybe?
+                LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally

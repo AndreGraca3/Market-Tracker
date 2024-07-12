@@ -16,7 +16,7 @@ sealed class ShoppingListsScreenState {
         val currentListEditing: ShoppingList,
     ) : ShoppingListsScreenState()
 
-    data class WaitFinishCreation(
+    data class WaitFinishEditing(
         val shoppingLists: List<ShoppingList>,
     ) : ShoppingListsScreenState()
 
@@ -27,6 +27,6 @@ fun ShoppingListsScreenState.extractShoppingLists() =
     when (this) {
         is ShoppingListsScreenState.Loaded -> shoppingLists
         is ShoppingListsScreenState.Editing -> shoppingLists
-        is ShoppingListsScreenState.WaitFinishCreation -> shoppingLists
+        is ShoppingListsScreenState.WaitFinishEditing -> shoppingLists
         else -> emptyList()
     }

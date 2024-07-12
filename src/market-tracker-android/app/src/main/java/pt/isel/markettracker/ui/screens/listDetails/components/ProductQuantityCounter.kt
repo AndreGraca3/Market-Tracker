@@ -1,79 +1,64 @@
 package pt.isel.markettracker.ui.screens.listDetails.components
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import pt.isel.markettracker.ui.theme.Primary400
+import pt.isel.markettracker.ui.components.buttons.MarketTrackerOutlinedButton
+import pt.isel.markettracker.ui.theme.mainFont
 
 @Composable
 fun ProductQuantityCounter(
     quantity: Int,
+    enabled: Boolean,
     onQuantityIncreaseRequest: () -> Unit,
-    onQuantityDecreaseRequest: () -> Unit
+    onQuantityDecreaseRequest: () -> Unit,
 ) {
-    Row (
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        OutlinedButton(
-            onClick = onQuantityIncreaseRequest,
-            colors = ButtonDefaults.buttonColors(Primary400),
-            border = BorderStroke(2.dp, Color.Black),
+    Row {
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .clipToBounds()
-                .weight(1F)
+                .fillMaxHeight()
+                .weight(0.3F),
+            contentAlignment = Alignment.CenterStart
         ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = null,
-                    tint = Color.White,
-                )
-            }
+            MarketTrackerOutlinedButton(
+                icon = Icons.Default.Add,
+                enabled = enabled,
+                onClick = onQuantityIncreaseRequest
+            )
         }
 
-        Text("$quantity")
-
-        OutlinedButton(
-            onClick = onQuantityDecreaseRequest,
-            colors = ButtonDefaults.buttonColors(Primary400),
-            border = BorderStroke(2.dp, Color.Black),
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .clipToBounds()
-                .weight(1F)
+                .fillMaxHeight()
+                .fillMaxWidth(0.4F),
+            contentAlignment = Alignment.Center
         ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Remove,
-                    contentDescription = null,
-                    tint = Color.White,
-                )
-            }
+            Text(
+                text = "$quantity",
+                fontFamily = mainFont
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .weight(0.3F),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            MarketTrackerOutlinedButton(
+                icon = Icons.Default.Remove,
+                enabled = enabled,
+                onClick = onQuantityDecreaseRequest
+            )
         }
     }
 }

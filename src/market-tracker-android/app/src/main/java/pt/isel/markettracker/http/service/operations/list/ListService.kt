@@ -93,7 +93,7 @@ class ListService(
     override suspend fun addClientToList(id: String, clientId: String) {
         return requestHandler(
             path = buildListsClientByIdsPath(id, clientId),
-            method = HttpMethod.POST
+            method = HttpMethod.PUT
         )
     }
 

@@ -49,7 +49,7 @@ class ListScreenViewModel @Inject constructor(
         ) return
 
         _listsInfoFlow.value =
-            ShoppingListsScreenState.WaitFinishCreation(loadedState.shoppingLists)
+            ShoppingListsScreenState.WaitFinishEditing(loadedState.shoppingLists)
         viewModelScope.launch {
             runCatchingAPIFailure {
                 listService.addList(listName)

@@ -23,7 +23,8 @@ class ProductsScreenViewModelTests {
     private val mockProductService = mockk<IProductService> {
         coEvery {
             getProducts(
-                page = any()
+                page = any(),
+                query = any()
             )
         } returns PaginatedProductOffers(
             items = emptyList(),

@@ -65,13 +65,13 @@ public class ListController(IListService listService) : ControllerBase
         return NoContent();
     }
 
-    [HttpPost(Uris.Lists.ClientsByListId)]
+    [HttpPut(Uris.Lists.ClientByListId)]
     [Authorized([Role.Client])]
     public async Task<ActionResult> AddClientToListAsync(
-        string listId, [FromBody] ListInviteInputModel inviteInputModel)
+        string listId, Guid clientId)
     {
         var authUser = (AuthenticatedUser)HttpContext.Items[AuthenticationDetails.KeyUser]!;
-        await listService.AddClientToListAsync(listId, authUser.User.Id.Value, inviteInputModel.ClientId);
+        await listService.AddClientToListAsync(listId, authUser.User.Id.Value, clientId);
 
         return NoContent();
     }

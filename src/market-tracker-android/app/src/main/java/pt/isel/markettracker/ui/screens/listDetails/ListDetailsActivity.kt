@@ -2,6 +2,7 @@ package pt.isel.markettracker.ui.screens.listDetails
 
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -41,9 +42,15 @@ class ListDetailsActivity : ComponentActivity() {
             }
         }
 
+        lifecycleScope.launch {
+            vm.listDetails.collect { state ->
+                Log.v("List", "List state is $state and list is ${state.extractShoppingListEntries()}")
+            }
+        }
+
         setContent {
             MarkettrackerTheme {
-                ListProductDetailsScreen(
+                ListDetailsScreen(
                     listId = listId
                 )
             }

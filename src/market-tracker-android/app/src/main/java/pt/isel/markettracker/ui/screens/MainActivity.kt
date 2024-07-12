@@ -29,6 +29,7 @@ import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
 import pt.isel.markettracker.ui.screens.products.list.AddToListState
+import pt.isel.markettracker.ui.screens.profile.ProfileScreenState
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModelFactory
 import pt.isel.markettracker.ui.screens.signup.SignUpActivity
@@ -72,6 +73,9 @@ class MainActivity : ComponentActivity() {
             val token = authRepository.getToken()
             if (token != null) {
                 profileScreenViewModel.fetchUser()
+                if (profileScreenViewModel.clientFetchingFlow.value is ProfileScreenState.Fail) {
+                    profileScreenViewModel.resetToIdle()
+                }
             }
         }
 
@@ -85,12 +89,6 @@ class MainActivity : ComponentActivity() {
             loginScreenViewModel.loginPhase.collect { loginState ->
                 Log.v("User", "LoginState is $loginState")
                 if (loginState is LoginScreenState.Success) profileScreenViewModel.fetchUser()
-            }
-        }
-
-        lifecycleScope.launch {
-            listScreenViewModel.listsInfoState.collect { listsState ->
-                Log.v("Lists", "ListsState is $listsState")
             }
         }
 

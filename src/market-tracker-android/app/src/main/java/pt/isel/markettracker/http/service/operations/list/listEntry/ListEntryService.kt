@@ -21,7 +21,7 @@ private fun buildListEntryPath(
                 && companyIds.isEmpty()
                 && storeIds.isEmpty()
                 && cityIds.isEmpty()
-            ) "?" else "" +
+            ) "" else "?" +
                     alternativeType?.let { "alternativeType=$it" } +
                     (if (companyIds.isNotEmpty()) companyIds.joinToString(
                         separator = "&brandIds=",

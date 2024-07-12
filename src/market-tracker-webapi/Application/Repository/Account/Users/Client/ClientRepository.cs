@@ -87,8 +87,9 @@ public class ClientRepository(
             return null;
         }
 
+        var client = await GetClientByIdAsync(id);
         dataContext.Remove(deletedClientEntity);
         await dataContext.SaveChangesAsync();
-        return await GetClientByIdAsync(id);
+        return client;
     }
 }

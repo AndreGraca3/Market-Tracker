@@ -24,10 +24,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.list.ShoppingList
+import pt.isel.markettracker.ui.components.buttons.MarketTrackerOutlinedButton
 import pt.isel.markettracker.ui.components.common.LoadingIcon
 import pt.isel.markettracker.ui.components.dialogs.MarketTrackerDialog
 import pt.isel.markettracker.ui.screens.list.ShoppingListsScreenState
-import pt.isel.markettracker.ui.screens.list.buttons.EditListButton
 import pt.isel.markettracker.ui.screens.list.extractShoppingLists
 
 @Composable
@@ -55,7 +55,7 @@ fun ListGrid(
             icon = Icons.AutoMirrored.Filled.ListAlt,
             message = if (state !is ShoppingListsScreenState.Editing) "Tem de selecionar uma lista" else "O que pretende fazer á ${state.currentListEditing.name}?",
             onDismissRequest = {
-                if (state is ShoppingListsScreenState.WaitFinishCreation) return@MarketTrackerDialog
+                if (state is ShoppingListsScreenState.WaitFinishEditing) return@MarketTrackerDialog
                 onDismissDialogRequest()
                 openDialog = false
             }
@@ -70,32 +70,35 @@ fun ListGrid(
                             .padding(vertical = 2.dp)
                     ) {
                         if (!state.currentListEditing.isArchived) {
-                            EditListButton(
+                            MarketTrackerOutlinedButton(
                                 text = "Arquivar",
                                 icon = Icons.Default.Archive,
                                 onClick = {
                                     onArchiveListRequest()
                                     openDialog = false
                                 },
+                                modifier = Modifier.padding(horizontal = 10.dp)
                             )
                         }
-                        EditListButton(
+                        MarketTrackerOutlinedButton(
                             text = "Editar",
                             icon = Icons.Default.Edit,
                             onClick = onEditListNameRequested,
+                            modifier = Modifier.padding(horizontal = 10.dp)
                         )
-                        EditListButton(
+                        MarketTrackerOutlinedButton(
                             text = "Apagar",
                             icon = Icons.Default.RemoveShoppingCart,
                             onClick = {
                                 onDeleteListRequest()
                                 openDialog = false
                             },
+                            modifier = Modifier.padding(horizontal = 10.dp)
                         )
                     }
                 }
 
-                is ShoppingListsScreenState.WaitFinishCreation -> {
+                is ShoppingListsScreenState.WaitFinishEditing -> {
                     LoadingIcon()
                 }
 
@@ -111,7 +114,7 @@ fun ListGrid(
         when (state) {
             is ShoppingListsScreenState.Loaded,
             is ShoppingListsScreenState.Editing,
-            is ShoppingListsScreenState.WaitFinishCreation,
+            is ShoppingListsScreenState.WaitFinishEditing,
             -> {
                 val activeLists = lists.filter { !it.isArchived }
                 val archivedLists = lists.filter { it.isArchived }
@@ -122,7 +125,7 @@ fun ListGrid(
                         else -> emptyList()
                     },
                     isCreatingNewList = isCreatingNewList,
-                    isLoading = state is ShoppingListsScreenState.WaitFinishCreation,
+                    isLoading = state is ShoppingListsScreenState.WaitFinishEditing,
                     newListName = newListName,
                     onNewListNameChangeRequested = onNewListNameChangeRequested,
                     onCreateListRequested = onCreateListRequested,

@@ -3,14 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 using market_tracker_webapi.Application.Domain.Schemas.List;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
-using market_tracker_webapi.Application.Utils;
 
 namespace market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
 
 [Table("list_entry", Schema = "MarketTracker")]
 public class ListEntryEntity
 {
-    [Key] [Column("id")] public string Id { get; } = RandomStringGenerator.GenerateRandomString(25);
+    [Key] [Column("id")] public string Id { get; set; }
 
     [Column("list_id")] public string ListId { get; set; }
 
