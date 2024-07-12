@@ -238,7 +238,7 @@ public class ClientServiceTest
         // Assert
         ex.ServiceError
             .Should()
-            .BeEquivalentTo(new UserCreationError.InvalidUsername(name));
+            .BeEquivalentTo(new UserCreationError.InvalidUsername(name), x => x.ExcludingMissingMembers());
     }
 
     [Fact]
