@@ -1,281 +1,199 @@
-﻿using System.Collections;
-using FluentAssertions;
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Infrastructure;
-using market_tracker_webapi.Infrastructure.PostgreSQLTables;
-using Microsoft.EntityFrameworkCore;
+﻿using FluentAssertions;
+using market_tracker_webapi.Application.Domain.Schemas.Account.Users;
+using market_tracker_webapi.Application.Domain.Schemas.List;
+using market_tracker_webapi.Application.Repository.List;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Account.Users;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
 
-namespace market_tracker_webapi_test.Application.Repository;
+namespace market_tracker_webapi_test.Application.Repository.List;
 
-/*
+
 public class ListRepositoryTest
 {
+    // [Fact]
+    // public async Task GetListsFromClientAsync_ShouldReturnLists()
+    // {
+    //     // Arrange
+    //     var listsEntites = new List<ListEntity>
+    //     {
+    //         new ListEntity
+    //         {
+    //             Id = "1",
+    //             Name = "List 1",
+    //             ArchivedAt = null,
+    //             CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+    //             OwnerId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+    //         },
+    //         new ListEntity
+    //         {
+    //             Id = "2",
+    //             Name = "List 2",
+    //             ArchivedAt = null,
+    //             CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+    //             OwnerId = Guid.Parse("00000000-0000-0000-0000-000000000002")
+    //         }
+    //     };
+    //     
+    //     var context = DbHelper.CreateDatabase(listsEntites);
+    //     
+    //     var listRepository = new ListRepository(context);
+    //     
+    //     // Act
+    //     var actual = await listRepository.GetListsFromClientAsync(
+    //         clientId: Guid.Parse("00000000-0000-0000-0000-000000000001"),
+    //         isOwner: true,
+    //         listName: "List 1",
+    //         createdAfter: new DateTime(2022, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+    //         isArchived: false
+    //     );
+    //     
+    //     // Assert
+    //     var expectLists = new List<ShoppingList>
+    //     {
+    //         new(
+    //             Id: "1",
+    //             Name: "List 1",
+    //             ArchivedAt: null,
+    //             CreatedAt: new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+    //             OwnerId: Guid.Parse("00000000-0000-0000-0000-000000000001"),
+    //             MemberIds: new List<Guid>()
+    //             )
+    //     };
+    //     actual.Should().BeEquivalentTo(expectLists);
+    //}
+    
     [Fact]
-    public async Task GetListsAsync_ShouldReturnShoppingList()
+    public async Task GetClientMembersByListIdAsync_ShouldReturnClientMembers()
     {
         // Arrange
-        var listEntities = new List<ListEntity>
+        var listClientEntites = new List<ListClientEntity>
         {
-            new ListEntity
+            new ListClientEntity
             {
-                Id = 1,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 1",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 1, 1, 1, 1, DateTimeKind.Unspecified)
+                ListId = "1",
+                ClientId = Guid.Parse("00000000-0000-0000-0000-000000000001")
             },
-            new ListEntity
+            new ListClientEntity
             {
-                Id = 2,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 2",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 2, 1, 1, 1, DateTimeKind.Unspecified)
-            },
-            new ListEntity
-            {
-                Id = 3,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 3",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 3, 1, 1, 1, DateTimeKind.Unspecified)
+                ListId = "1",
+                ClientId = Guid.Parse("00000000-0000-0000-0000-000000000002")
             }
         };
-
-        var databaseContext = CreateDatabase(listEntities);
-        var listRepository = new ListRepository(databaseContext);
-
-        // Act
-        var result = await listRepository.GetListsAsync(
-            Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-            null,
-            null,
-            new DateTime(2024, 1, 1, 1, 1, 1, DateTimeKind.Unspecified));
-
-        // Assert
-        result.Should().BeEquivalentTo(new List<ShoppingList>()
+        
+        var clientEntities = new List<ClientEntity>
         {
-            new()
+            new ClientEntity
             {
-                Id = 1,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 1",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 1, 1, 1, 1, DateTimeKind.Unspecified)
+                UserId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                Username = "user1",
+                Avatar = null
+            },
+            new ClientEntity
+            {
+                UserId = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                Username = "user2",
+                Avatar = null
             }
-        });
+        }; 
+        
+        var context = DbHelper.CreateDatabase(listClientEntites, clientEntities);
+        
+        var listRepository = new ListRepository(context);
+        
+        // Act
+        var actual = await listRepository.GetClientMembersByListIdAsync("1");
+        
+        // Assert
+        var expectMembers = new List<ClientItem>
+        {
+            new(Guid.Parse("00000000-0000-0000-0000-000000000001"), "user1", null),
+            new(Guid.Parse("00000000-0000-0000-0000-000000000002"), "user2", null)
+        };
+        actual.Should().BeEquivalentTo(expectMembers);
     }
     
     [Fact]
-    public async Task GetListByIdAsync_ShouldReturnShoppingList()
+    public async Task GetListByIdAsync_ShouldReturnList()
     {
         // Arrange
         var listEntities = new List<ListEntity>
         {
             new ListEntity
             {
-                Id = 1,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
+                Id = "1",
                 Name = "List 1",
                 ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 1, 1, 1, 1, DateTimeKind.Unspecified)
-            },
-            new ListEntity
-            {
-                Id = 2,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 2",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 2, 1, 1, 1, DateTimeKind.Unspecified)
-            },
-            new ListEntity
-            {
-                Id = 3,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 3",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 3, 1, 1, 1, DateTimeKind.Unspecified)
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                OwnerId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
             }
         };
-
-        var databaseContext = CreateDatabase(listEntities);
-        var listRepository = new ListRepository(databaseContext);
-
-        // Act
-        var result = await listRepository.GetListByIdAsync(1);
-
-        // Assert
-        result.Should().BeEquivalentTo(new ShoppingList()
+        
+        var listClientEntities = new List<ListClientEntity>
         {
-            Id = 1,
-            ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
+            new ListClientEntity
+            {
+                ListId = "1",
+                ClientId = Guid.Parse("00000000-0000-0000-0000-000000000001")
+            },
+            new ListClientEntity
+            {
+                ListId = "1",
+                ClientId = Guid.Parse("00000000-0000-0000-0000-000000000002")
+            }
+        };
+        
+        var context = DbHelper.CreateDatabase(listEntities, listClientEntities);
+        
+        var listRepository = new ListRepository(context);
+        
+        // Act
+        var actual = await listRepository.GetListByIdAsync("1");
+        
+        // Assert
+        var expectList = new ShoppingList(
+            Id: "1",
+            Name: "List 1",
+            ArchivedAt: null,
+            CreatedAt: new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+            OwnerId: Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            MemberIds: new List<Guid>
+            {
+                Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                Guid.Parse("00000000-0000-0000-0000-000000000002")
+            }
+        );
+        actual.Should().BeEquivalentTo(expectList);
+    }
+    
+    [Fact]
+    public async Task AddListAsync_ShouldReturnShoppingListId()
+    {
+        // Arrange
+        var context = DbHelper.CreateDatabase();
+        
+        var listRepository = new ListRepository(context);
+        
+        // Act
+        var actual = await listRepository.AddListAsync("List 1", Guid.Parse("00000000-0000-0000-0000-000000000001"));
+        
+        // Assert
+        var expectedAddedListEntity = new ListEntity()
+        {
             Name = "List 1",
-            ArchivedAt = null,
-            CreatedAt = new DateTime(2024, 1, 1, 1, 1, 1, DateTimeKind.Unspecified)
-        });
-    }
-    
-    [Fact]
-    public async Task AddListAsync_ShouldReturnId()
-    {
-        // Arrange
-        var listEntities = new List<ListEntity>
-        {
-            new ListEntity
-            {
-                Id = 1,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 1",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 1, 1, 1, 1, DateTimeKind.Unspecified)
-            },
-            new ListEntity
-            {
-                Id = 2,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 2",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 2, 1, 1, 1, DateTimeKind.Unspecified)
-            },
-            new ListEntity
-            {
-                Id = 3,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 3",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 3, 1, 1, 1, DateTimeKind.Unspecified)
-            }
+            OwnerId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            CreatedAt = DateTime.Now
         };
-
-        var databaseContext = CreateDatabase(listEntities);
-        var listRepository = new ListRepository(databaseContext);
-
-        // Act
-        var result = await listRepository.AddListAsync(
-            Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-            "List 4");
-
-        // Assert
-        result.Should().Be(4);
-        (await databaseContext.List.FindAsync(result)).Should().BeEquivalentTo(new ListEntity()
-        {
-            Id = 4,
-            ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-            Name = "List 4",
-            ArchivedAt = null
-        }, options => options.Excluding(listEntity => listEntity.CreatedAt));
+        context.List.Should().ContainEquivalentOf(expectedAddedListEntity, 
+            x => x
+                .Excluding(y => y.CreatedAt)
+                .Excluding(y => y.Id)
+                .Excluding(y => y.ArchivedAt)
+            );
     }
-    
+
     [Fact]
-    public async Task UpdateListAsync_ShouldReturnShoppingList()
+    public async Task UpdateListAsync_ShouldReturnUpdateShoppingListItem()
     {
-        // Arrange
-        var listEntities = new List<ListEntity>
-        {
-            new ListEntity
-            {
-                Id = 1,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 1",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 1, 1, 1, 1, DateTimeKind.Unspecified)
-            },
-            new ListEntity
-            {
-                Id = 2,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 2",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 2, 1, 1, 1, DateTimeKind.Unspecified)
-            },
-            new ListEntity
-            {
-                Id = 3,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 3",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 3, 1, 1, 1, DateTimeKind.Unspecified)
-            }
-        };
-
-        var databaseContext = CreateDatabase(listEntities);
-        var listRepository = new ListRepository(databaseContext);
-
-        // Act
-        var result = await listRepository.UpdateListAsync(1, "List 4", new DateTime(2024, 1, 4, 1, 1, 1, DateTimeKind.Unspecified));
-
-        // Assert
-        result.Should().BeEquivalentTo(new ShoppingList()
-        {
-            Id = 1,
-            ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-            Name = "List 4",
-            CreatedAt = new DateTime(2024, 1, 1, 1, 1, 1, DateTimeKind.Unspecified),
-            ArchivedAt = new DateTime(2024, 1, 4, 1, 1, 1, DateTimeKind.Unspecified)
-        });
-    }
-    
-    [Fact]
-    public async Task DeleteListAsync_ShouldReturnShoppingList()
-    {
-        // Arrange
-        var listEntities = new List<ListEntity>
-        {
-            new ListEntity
-            {
-                Id = 1,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 1",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 1, 1, 1, 1, DateTimeKind.Unspecified)
-            },
-            new ListEntity
-            {
-                Id = 2,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 2",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 2, 1, 1, 1, DateTimeKind.Unspecified)
-            },
-            new ListEntity
-            {
-                Id = 3,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 3",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 3, 1, 1, 1, DateTimeKind.Unspecified)
-            }
-        };
-
-        var databaseContext = CreateDatabase(listEntities);
-        var listRepository = new ListRepository(databaseContext);
-
-        // Act
-        var result = await listRepository.DeleteListAsync(1);
-
-        // Assert
-        result.Should().BeEquivalentTo(new ShoppingList()
-        {
-            Id = 1,
-            ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-            Name = "List 1",
-            ArchivedAt = null,
-            CreatedAt = new DateTime(2024, 1, 1, 1, 1, 1, DateTimeKind.Unspecified)
-        });
-    }
-    
-    private static MarketTrackerDataContext CreateDatabase(IEnumerable<ListEntity> listEntities)
-    {
-        DbContextOptions<MarketTrackerDataContext> options =
-            new DbContextOptionsBuilder<MarketTrackerDataContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
-        var databaseContext = new MarketTrackerDataContext(options);
-        databaseContext.List.AddRange(listEntities);
-        databaseContext.SaveChanges();
-        databaseContext.Database.EnsureCreated();
-        return databaseContext;
+        
     }
 }
-*/
