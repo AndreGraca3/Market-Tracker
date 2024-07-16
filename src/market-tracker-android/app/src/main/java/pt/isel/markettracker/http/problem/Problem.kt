@@ -15,7 +15,7 @@ open class Problem(
     companion object {
         const val BASE_TYPE = "https://markettracker.pt/probs/"
 
-        val MEDIA_TYPE = "application/problem+json".toMediaType()
+        val MEDIA_TYPE = "application/problem+json".toMediaType() // TODO: Voltar a colocar o UTF-8
     }
 
     override fun toString(): String {

@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.listDetails.components
+package pt.isel.markettracker.ui.screens.listDetails.cards
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.model.list.listEntry.ListEntryOffer
 import pt.isel.markettracker.dummy.dummyShoppingListEntries
 import pt.isel.markettracker.ui.components.LoadableImage
+import pt.isel.markettracker.ui.screens.listDetails.components.ProductQuantityCounter
 import pt.isel.markettracker.ui.screens.products.card.ProductCardSpecs
 
 @Composable
@@ -41,7 +42,6 @@ fun ProductListCard(
         modifier = Modifier
             .size(width = 350.dp, 130.dp)
     ) {
-
         Card(
             modifier = Modifier
                 .fillMaxSize()

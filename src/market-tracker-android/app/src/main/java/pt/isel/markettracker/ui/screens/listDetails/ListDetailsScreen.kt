@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ListDetailsScreen(
     listId: String,
+    onAddUsersToListRequested: () -> Unit,
     listDetailsScreenViewModel: ListDetailsScreenViewModel = hiltViewModel(),
 ) {
     val listEntriesState by listDetailsScreenViewModel.listDetails.collectAsState()
@@ -33,16 +34,7 @@ fun ListDetailsScreen(
 
     ListDetailsScreenView(
         state = listEntriesState,
-        query = listDetailsScreenViewModel.usernameQuerySearch,
-        onQueryChange = {
-            listDetailsScreenViewModel.usernameQuerySearch = it
-        },
-        onSearch = {
-            listDetailsScreenViewModel.fetchUsers()
-        },
-        onAddUserToLisTRequested = { userId ->
-            listDetailsScreenViewModel.addUserToList(listId, userId)
-        },
+        onAddUsersToListRequested = onAddUsersToListRequested,
         onRemoveUserFromLisTRequested = { userId ->
             listDetailsScreenViewModel.removeUserFromList(listId, userId)
         },

@@ -31,6 +31,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
             select listEntity;
 
         return await query
+            .Distinct()
             .OrderByDescending(listEntity => listEntity.CreatedAt)
             .Select(listEntity => new ShoppingList(
                 listEntity.Id,

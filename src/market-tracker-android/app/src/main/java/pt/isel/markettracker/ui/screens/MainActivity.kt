@@ -74,6 +74,7 @@ class MainActivity : ComponentActivity() {
             if (token != null) {
                 profileScreenViewModel.fetchUser()
                 if (profileScreenViewModel.clientFetchingFlow.value is ProfileScreenState.Fail) {
+                    Log.v("User", "Dei reset")
                     profileScreenViewModel.resetToIdle()
                 }
             }
@@ -89,6 +90,12 @@ class MainActivity : ComponentActivity() {
             loginScreenViewModel.loginPhase.collect { loginState ->
                 Log.v("User", "LoginState is $loginState")
                 if (loginState is LoginScreenState.Success) profileScreenViewModel.fetchUser()
+            }
+        }
+
+        lifecycleScope.launch {
+            profileScreenViewModel.clientFetchingFlow.collect { profileState ->
+                Log.v("User", "profileState is $profileState")
             }
         }
 

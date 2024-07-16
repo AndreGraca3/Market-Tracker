@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.listDetails
 
-import pt.isel.markettracker.domain.model.account.PaginatedClientItem
 import pt.isel.markettracker.domain.model.list.ShoppingListSocial
 import pt.isel.markettracker.domain.model.list.listEntry.ShoppingListEntries
 
@@ -16,12 +15,6 @@ sealed class ListDetailsScreenState {
     data class Loaded(
         val shoppingListEntries: ShoppingListEntries,
         val shoppingListSocial: ShoppingListSocial,
-        val result: PaginatedClientItem?,
-    ) : ListDetailsScreenState()
-
-    data class SearchingUsers(
-        val shoppingListEntries: ShoppingListEntries,
-        val shoppingListSocial: ShoppingListSocial,
     ) : ListDetailsScreenState()
 
     data class Editing(
@@ -32,7 +25,7 @@ sealed class ListDetailsScreenState {
     data class WaitingForEditing(
         val shoppingListEntries: ShoppingListEntries,
         val shoppingListSocial: ShoppingListSocial,
-        val listId: String,
+        val entryId: String,
     ) : ListDetailsScreenState()
 
     data class Failed(val error: Throwable) : ListDetailsScreenState()
@@ -54,14 +47,7 @@ fun ListDetailsScreenState.extractShoppingListEntries() =
 fun ListDetailsScreenState.extractShoppingListSocial() =
     when (this) {
         is ListDetailsScreenState.Loaded -> shoppingListSocial
-        is ListDetailsScreenState.SearchingUsers -> shoppingListSocial
         is ListDetailsScreenState.Editing -> shoppingListSocial
         is ListDetailsScreenState.WaitingForEditing -> shoppingListSocial
-        else -> null
-    }
-
-fun ListDetailsScreenState.extractSearchResult() =
-    when (this) {
-        is ListDetailsScreenState.Loaded -> result
         else -> null
     }

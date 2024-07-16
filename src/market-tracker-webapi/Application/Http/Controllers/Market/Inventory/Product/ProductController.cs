@@ -10,34 +10,34 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace market_tracker_webapi.Application.Http.Controllers.Market.Inventory.Product;
 
-[ApiController]
-public class ProductController(IProductService productService, IProductPriceService productPriceService)
-    : ControllerBase
-{
-    [HttpGet(Uris.Products.Base)]
-    public async Task<ActionResult<PaginatedProductOffersOutputModel>> GetProductsAsync(
-        [FromQuery] ProductsFiltersInputModel filters,
-        [FromQuery] PaginationInputs paginationInputs,
-        [FromQuery] ProductsSortOption? sortBy
-    )
+    [ApiController]
+    public class ProductController(IProductService productService, IProductPriceService productPriceService)
+        : ControllerBase
     {
-        var paginatedProductOffers =
-            await productService.GetBestAvailableProductsOffersAsync(
-                paginationInputs.Skip,
-                paginationInputs.ItemsPerPage,
-                filters.MaxValuesPerFacet,
-                sortBy,
-                filters.Name,
-                filters.CategoryIds,
-                filters.BrandIds,
-                filters.CompanyIds,
-                filters.MinPrice,
-                filters.MaxPrice,
-                filters.MinRating,
-                filters.MaxRating
-            );
-        return paginatedProductOffers.ToOutputModel();
-    }
+        [HttpGet(Uris.Products.Base)]
+        public async Task<ActionResult<PaginatedProductOffersOutputModel>> GetProductsAsync(
+            [FromQuery] ProductsFiltersInputModel filters,
+            [FromQuery] PaginationInputs paginationInputs,
+            [FromQuery] ProductsSortOption? sortBy
+        )
+        {
+            var paginatedProductOffers =
+                await productService.GetBestAvailableProductsOffersAsync(
+                    paginationInputs.Skip,
+                    paginationInputs.ItemsPerPage,
+                    filters.MaxValuesPerFacet,
+                    sortBy,
+                    filters.Name,
+                    filters.CategoryIds,
+                    filters.BrandIds,
+                    filters.CompanyIds,
+                    filters.MinPrice,
+                    filters.MaxPrice,
+                    filters.MinRating,
+                    filters.MaxRating
+                );
+            return paginatedProductOffers.ToOutputModel();
+        }
 
     [HttpGet(Uris.Products.ProductById)]
     public async Task<ActionResult<ProductOutputModel>> GetProductByIdAsync(string productId)

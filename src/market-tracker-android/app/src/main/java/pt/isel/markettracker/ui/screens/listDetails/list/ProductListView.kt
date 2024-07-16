@@ -15,7 +15,7 @@ import pt.isel.markettracker.ui.components.common.LoadingIcon
 import pt.isel.markettracker.ui.components.common.PullToRefreshLazyColumn
 import pt.isel.markettracker.ui.screens.listDetails.ListDetailsScreenState
 import pt.isel.markettracker.ui.screens.listDetails.components.DisplayListCount
-import pt.isel.markettracker.ui.screens.listDetails.components.ProductListCard
+import pt.isel.markettracker.ui.screens.listDetails.cards.ProductListCard
 import pt.isel.markettracker.ui.screens.listDetails.extractShoppingListEntries
 
 @Composable
@@ -88,7 +88,7 @@ fun ProductListView(
                                             )
                                         }
                                     },
-                                    isLoading = state is ListDetailsScreenState.WaitingForEditing && state.listId == item.id,
+                                    isLoading = state is ListDetailsScreenState.WaitingForEditing && state.entryId == item.id,
                                     loadingContent = {
                                         LoadingIcon()
                                     }

@@ -10,7 +10,9 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import pt.isel.markettracker.ui.screens.users.UsersActivity
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
+import pt.isel.markettracker.utils.navigateTo
 
 @AndroidEntryPoint
 class ListDetailsActivity : ComponentActivity() {
@@ -44,14 +46,24 @@ class ListDetailsActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             vm.listDetails.collect { state ->
-                Log.v("List", "List state is $state and list is ${state.extractShoppingListEntries()}")
+                Log.v(
+                    "List",
+                    "List state is $state and list is empty: ${state.extractShoppingListEntries().entries.isEmpty()}"
+                )
             }
         }
 
         setContent {
             MarkettrackerTheme {
                 ListDetailsScreen(
-                    listId = listId
+                    listId = listId,
+                    onAddUsersToListRequested = {
+                        navigateTo<UsersActivity>(
+                            this,
+                            UsersActivity.LIST_ID_EXTRA,
+                            ListIdExtra(listId)
+                        )
+                    }
                 )
             }
         }

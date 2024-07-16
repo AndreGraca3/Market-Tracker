@@ -1,8 +1,5 @@
 package pt.isel.markettracker.ui.screens.listDetails
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,7 +8,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.http.service.operations.list.IListService
 import pt.isel.markettracker.http.service.operations.list.listEntry.IListEntryService
-import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import javax.inject.Inject
 
@@ -19,15 +15,12 @@ import javax.inject.Inject
 class ListDetailsScreenViewModel @Inject constructor(
     private val listEntryService: IListEntryService,
     private val listService: IListService,
-    private val userService: IUserService,
 ) : ViewModel() {
 
     private val _listDetailsFlow: MutableStateFlow<ListDetailsScreenState> =
         MutableStateFlow(ListDetailsScreenState.Idle)
     val listDetails
         get() = _listDetailsFlow.asStateFlow()
-
-    var usernameQuerySearch by mutableStateOf("")
 
     fun fetchListDetails(listId: String, forceRefresh: Boolean = false) {
         if (_listDetailsFlow.value !is ListDetailsScreenState.Idle && !forceRefresh) return
@@ -45,8 +38,7 @@ class ListDetailsScreenViewModel @Inject constructor(
                         _listDetailsFlow.value =
                             ListDetailsScreenState.Loaded(
                                 shoppingListEntries,
-                                shoppingListSocial,
-                                null
+                                shoppingListSocial
                             )
                     }.onFailure {
                         _listDetailsFlow.value = ListDetailsScreenState.Failed(it)
@@ -92,8 +84,7 @@ class ListDetailsScreenViewModel @Inject constructor(
                                 ((newQuantity - oldEntry.quantity) *
                                         oldEntry.productOffer.storeOffer.price.finalPrice)
                     ),
-                    successState.shoppingListSocial,
-                    null
+                    successState.shoppingListSocial
                 )
             }.onFailure {
                 _listDetailsFlow.value = ListDetailsScreenState.Failed(it)
@@ -129,64 +120,7 @@ class ListDetailsScreenViewModel @Inject constructor(
                                         oldEntry.productOffer.storeOffer.price.finalPrice),
                         totalProducts = successState.shoppingListEntries.totalProducts - 1
                     ),
-                    successState.shoppingListSocial,
-                    null
-                )
-            }.onFailure {
-                _listDetailsFlow.value = ListDetailsScreenState.Failed(it)
-            }
-        }
-    }
-
-    fun fetchUsers(forceRefresh: Boolean = false) {
-        val loadedState = _listDetailsFlow.value
-        if (loadedState !is ListDetailsScreenState.Loaded && !forceRefresh && usernameQuerySearch.isNotBlank()) return
-
-        val shoppingListEntries = loadedState.extractShoppingListEntries()
-        val shoppingListSocial = loadedState.extractShoppingListSocial()
-        _listDetailsFlow.value = ListDetailsScreenState.SearchingUsers(
-            shoppingListEntries,
-            shoppingListSocial!!
-        )
-        viewModelScope.launch {
-            runCatchingAPIFailure {
-                userService.getUsers(
-                    page = 1,
-                    itemsPerPage = 5,
-                    username = usernameQuerySearch
-                )
-            }.onSuccess {
-                _listDetailsFlow.value = ListDetailsScreenState.Loaded(
-                    shoppingListEntries,
-                    shoppingListSocial,
-                    it
-                )
-            }.onFailure {
-                _listDetailsFlow.value = ListDetailsScreenState.Failed(it)
-            }
-        }
-    }
-
-    fun addUserToList(listId: String, userId: String) {
-        val loadedState = _listDetailsFlow.value
-        if (loadedState !is ListDetailsScreenState.Loaded) return
-        val shoppingListEntries = loadedState.shoppingListEntries
-        val result = loadedState.result
-        val oldItems = loadedState.result?.items?.toMutableList()
-
-        viewModelScope.launch {
-            runCatchingAPIFailure {
-                listService.addClientToList(id = listId, clientId = userId)
-                listService.getListById(id = listId)
-            }.onSuccess {
-                oldItems?.removeIf { clientItem -> clientItem.id == userId }
-                val newItems = oldItems?.toList() ?: emptyList()
-                _listDetailsFlow.value = ListDetailsScreenState.Loaded(
-                    shoppingListEntries,
-                    it,
-                    result?.copy(
-                        items = newItems
-                    )
+                    successState.shoppingListSocial
                 )
             }.onFailure {
                 _listDetailsFlow.value = ListDetailsScreenState.Failed(it)
@@ -198,18 +132,19 @@ class ListDetailsScreenViewModel @Inject constructor(
         val loadedState = _listDetailsFlow.value
         if (loadedState !is ListDetailsScreenState.Loaded) return
         val shoppingListEntries = loadedState.shoppingListEntries
-        val result = loadedState.result
-
+        val oldShoppingListSocial = loadedState.shoppingListSocial
 
         viewModelScope.launch {
             runCatchingAPIFailure {
                 listService.removeClientFromList(id = listId, clientId = userId)
-                listService.getListById(id = listId)
             }.onSuccess {
+                val newMembers = oldShoppingListSocial.members.toMutableList()
+                newMembers.removeIf { clientItem -> clientItem.id == userId }
                 _listDetailsFlow.value = ListDetailsScreenState.Loaded(
                     shoppingListEntries,
-                    it,
-                    result
+                    oldShoppingListSocial.copy(
+                        members = newMembers
+                    )
                 )
             }.onFailure {
                 _listDetailsFlow.value = ListDetailsScreenState.Failed(it)

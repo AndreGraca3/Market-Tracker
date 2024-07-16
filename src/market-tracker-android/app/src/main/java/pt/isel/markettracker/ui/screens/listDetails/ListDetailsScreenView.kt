@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.ui.components.buttons.MarketTrackerOutlinedButton
 import pt.isel.markettracker.ui.screens.listDetails.buttons.OpenUserMenuButton
 import pt.isel.markettracker.ui.components.modalDrawer.MarketTrackerRightModalDrawer
-import pt.isel.markettracker.ui.screens.listDetails.components.SearchUserModal
+import pt.isel.markettracker.ui.screens.listDetails.components.MembersModal
 import pt.isel.markettracker.ui.screens.listDetails.list.ProductListView
 import pt.isel.markettracker.ui.screens.products.topbar.HeaderLogo
 import pt.isel.markettracker.ui.theme.mainFont
@@ -33,10 +33,7 @@ import pt.isel.markettracker.ui.theme.mainFont
 @Composable
 fun ListDetailsScreenView(
     state: ListDetailsScreenState,
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
-    onAddUserToLisTRequested: (String) -> Unit,
+    onAddUsersToListRequested: () -> Unit,
     onRemoveUserFromLisTRequested: (String) -> Unit,
     fetchListDetails: () -> Unit,
     isRefreshing: Boolean,
@@ -145,12 +142,9 @@ fun ListDetailsScreenView(
                             .padding(paddingValues),
                         contentAlignment = Alignment.CenterEnd
                     ) {
-                        SearchUserModal(
+                        MembersModal(
                             state = state,
-                            query = query,
-                            onQueryChange = onQueryChange,
-                            onSearch = onSearch,
-                            onAddUserToLisTRequested = onAddUserToLisTRequested,
+                            onAddUsersToListRequested = onAddUsersToListRequested,
                             onRemoveUserFromLisTRequested = onRemoveUserFromLisTRequested
                         )
                     }
