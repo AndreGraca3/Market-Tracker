@@ -30,7 +30,6 @@ import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
-import pt.isel.markettracker.ui.screens.products.list.AddToListState
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenState
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModelFactory
@@ -79,12 +78,6 @@ class MainActivity : ComponentActivity() {
                     Log.v("User", "Dei reset")
                     profileScreenViewModel.resetToIdle()
                 }
-            }
-        }
-
-        lifecycleScope.launch {
-            productsScreenViewModel.addToListStateFlow.collect {
-                if (it is AddToListState.Done) productsScreenViewModel.resetAddToListState()
             }
         }
 

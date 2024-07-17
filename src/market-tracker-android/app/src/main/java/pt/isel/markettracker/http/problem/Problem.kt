@@ -2,15 +2,15 @@ package pt.isel.markettracker.http.problem
 
 import okhttp3.MediaType.Companion.toMediaType
 import java.time.LocalDateTime
+import java.util.UUID
 
 open class Problem(
-    val Id: String,
-    val Type: String,
-    val Title: String,
-    val Status: Int,
-    val Detail: String,
-    val Timestamp: LocalDateTime,
-    val Data: String?
+    val id: String,
+    val type: String,
+    val title: String,
+    val status: Int,
+    val detail: String,
+    val timestamp: LocalDateTime
 ) {
     companion object {
         const val BASE_TYPE = "https://markettracker.pt/probs/"
@@ -19,16 +19,15 @@ open class Problem(
     }
 
     override fun toString(): String {
-        return "{type=$Type, title=$Title, status=$Status, detail=$Detail}"
+        return "{type=$type, title=$title, status=$status, detail=$detail}"
     }
 }
 
 class InternalServerErrorProblem : Problem(
-    Id = "549492bb-6c59-495a-a274-693ff05e83c9",
-    Type = "${BASE_TYPE}internal-server-error",
-    Title = "Something went wrong",
-    Status = 500,
-    Detail = "Something went wrong, please try again later",
-    Timestamp = LocalDateTime.now(),
-    Data = null
+    id = UUID.randomUUID().toString(),
+    type = "${BASE_TYPE}internal-server-error",
+    title = "Something went wrong",
+    status = 500,
+    detail = "Something went wrong, please try again later",
+    timestamp = LocalDateTime.now()
 )

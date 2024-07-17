@@ -31,10 +31,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "API_URL", "\"http://192.168.1.25:2001/api\"")
+            buildConfigField("String", "API_URL", "\"http://192.168.1.251:2001/api\"")
         }
         debug {
-            buildConfigField("String", "API_URL", "\"http://192.168.1.25:2001/api\"")
+            buildConfigField("String", "API_URL", "\"http://192.168.1.251:2001/api\"")
         }
     }
     compileOptions {

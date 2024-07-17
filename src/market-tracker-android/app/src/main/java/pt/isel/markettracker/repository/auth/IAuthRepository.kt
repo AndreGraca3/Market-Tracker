@@ -21,4 +21,8 @@ interface IAuthRepository {
     fun addAlert(alert: PriceAlert)
 
     fun removeAlert(alertId: String)
+
+    fun addList(list: ShoppingList)
+
+    fun removeList(listId: String)
 }

@@ -71,7 +71,7 @@ class UserService(
                 password = password,
                 avatar = avatar
             )
-        ).id
+        ).value
     }
 
     override suspend fun updateUser(name: String?, username: String?, avatar: String?): Client {

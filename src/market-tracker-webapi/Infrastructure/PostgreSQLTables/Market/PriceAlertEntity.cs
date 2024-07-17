@@ -23,8 +23,15 @@ public class PriceAlertEntity
 
     [Column("created_at")] public required DateTime CreatedAt { get; set; }
 
-    public PriceAlert ToPriceAlert()
+    public PriceAlert ToPriceAlert(string productName, string productImageUrl, string storeName)
     {
-        return new PriceAlert(Id, ClientId, ProductId, StoreId, PriceThreshold, CreatedAt);
+        return new PriceAlert(
+            new PriceAlertId(Id),
+            ClientId,
+            new PriceAlertProduct(ProductId, productName, productImageUrl),
+            new PriceAlertStore(StoreId, storeName),
+            PriceThreshold,
+            CreatedAt
+        );
     }
 }

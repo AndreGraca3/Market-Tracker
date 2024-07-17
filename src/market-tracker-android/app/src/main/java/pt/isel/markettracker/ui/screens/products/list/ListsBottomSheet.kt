@@ -45,7 +45,7 @@ fun ListsBottomSheet(
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentAlignment = if (shoppingLists.isEmpty()) Alignment.Center else Alignment.TopCenter
         ) {
             if (shoppingLists.isEmpty()) {
                 Text(

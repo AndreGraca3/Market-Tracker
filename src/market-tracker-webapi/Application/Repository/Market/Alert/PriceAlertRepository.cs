@@ -11,20 +11,36 @@ public class PriceAlertRepository(MarketTrackerDataContext dataContext) : IPrice
         int? storeId, int? minPriceThreshold)
     {
         return await dataContext.PriceAlert
-            .Where(alert => clientId == null || alert.ClientId == clientId)
-            .Where(alert => productId == null || alert.ProductId == productId)
-            .Where(alert => storeId == null || alert.StoreId == storeId)
-            .Where(alert => minPriceThreshold == null || alert.PriceThreshold >= minPriceThreshold)
-            .Select(alert => alert.ToPriceAlert())
+            .Join(dataContext.Product, alert => alert.ProductId, product => product.Id,
+                (alert, product) => new { alert, product })
+            .Join(dataContext.Store, g => g.alert.StoreId, store => store.Id,
+                (g, store) => new { g.alert, g.product, store })
+            .Where(g => clientId == null || g.alert.ClientId == clientId)
+            .Where(g => productId == null || g.alert.ProductId == productId)
+            .Where(g => storeId == null || g.alert.StoreId == storeId)
+            .Where(g => minPriceThreshold == null || g.alert.PriceThreshold >= minPriceThreshold)
+            .Select(g => new PriceAlert(
+                new PriceAlertId(g.alert.Id),
+                g.alert.ClientId,
+                new PriceAlertProduct(g.product.Id, g.product.Name, g.product.ImageUrl),
+                new PriceAlertStore(g.alert.StoreId, g.store.Name),
+                g.alert.PriceThreshold,
+                g.alert.CreatedAt
+            ))
             .ToListAsync();
     }
 
     public async Task<PriceAlert?> GetPriceAlertAsync(Guid clientId, string productId, int storeId)
     {
         var priceAlertEntity = await dataContext.PriceAlert
-            .FirstOrDefaultAsync(alert =>
-                alert.ClientId == clientId && alert.ProductId == productId && alert.StoreId == storeId);
-        return priceAlertEntity?.ToPriceAlert();
+            .Join(dataContext.Product, alert => alert.ProductId, product => product.Id,
+                (alert, product) => new { alert, product })
+            .Join(dataContext.Store, g => g.alert.StoreId, store => store.Id,
+                (g, store) => new { g.alert, g.product, store })
+            .FirstOrDefaultAsync(g =>
+                g.alert.ClientId == clientId && g.alert.ProductId == productId && g.alert.StoreId == storeId);
+        return priceAlertEntity?.alert.ToPriceAlert(priceAlertEntity.product.Name, priceAlertEntity.product.ImageUrl,
+            priceAlertEntity.store.Name);
     }
 
     public async Task<PriceAlertId> AddPriceAlertAsync(
@@ -49,14 +65,21 @@ public class PriceAlertRepository(MarketTrackerDataContext dataContext) : IPrice
 
     public async Task<PriceAlert?> RemovePriceAlertByIdAsync(string alertId)
     {
-        var priceAlertEntity = await dataContext.PriceAlert.FindAsync(alertId);
+        var priceAlertEntity = await dataContext.PriceAlert
+            .Join(dataContext.Product, alert => alert.ProductId, product => product.Id,
+                (alert, product) => new { alert, product })
+            .Join(dataContext.Store, g => g.alert.StoreId, store => store.Id,
+                (g, store) => new { g.alert, g.product, store })
+            .FirstOrDefaultAsync(g => g.alert.Id == alertId);
+
         if (priceAlertEntity is null)
         {
             return null;
         }
 
-        dataContext.PriceAlert.Remove(priceAlertEntity);
+        dataContext.PriceAlert.Remove(priceAlertEntity.alert);
         await dataContext.SaveChangesAsync();
-        return priceAlertEntity.ToPriceAlert();
+        return priceAlertEntity.alert.ToPriceAlert(priceAlertEntity.product.Name, 
+            priceAlertEntity.product.ImageUrl, priceAlertEntity.store.Name);
     }
 }

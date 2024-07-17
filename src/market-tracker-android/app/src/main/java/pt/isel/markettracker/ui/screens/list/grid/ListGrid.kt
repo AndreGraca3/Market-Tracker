@@ -53,7 +53,8 @@ fun ListGrid(
     if (openDialog) {
         MarketTrackerDialog(
             icon = Icons.AutoMirrored.Filled.ListAlt,
-            message = if (state !is ShoppingListsScreenState.Editing) "Tem de selecionar uma lista" else "O que pretende fazer á ${state.currentListEditing.name}?",
+            message = if (state !is ShoppingListsScreenState.Editing)
+                "Tem de selecionar uma lista" else "O que pretende fazer à lista \" ${state.currentListEditing.name}\"?",
             onDismissRequest = {
                 if (state is ShoppingListsScreenState.WaitFinishEditing) return@MarketTrackerDialog
                 onDismissDialogRequest()

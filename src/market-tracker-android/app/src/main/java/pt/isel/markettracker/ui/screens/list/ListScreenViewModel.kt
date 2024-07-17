@@ -12,11 +12,15 @@ import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.list.ShoppingList
 import pt.isel.markettracker.http.service.operations.list.IListService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
+import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.repository.auth.extractLists
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class ListScreenViewModel @Inject constructor(
     private val listService: IListService,
+    private val authRepository: IAuthRepository
 ) : ViewModel() {
     private val _listsInfoFlow: MutableStateFlow<ShoppingListsScreenState> =
         MutableStateFlow(ShoppingListsScreenState.Idle)
@@ -53,11 +57,16 @@ class ListScreenViewModel @Inject constructor(
         viewModelScope.launch {
             runCatchingAPIFailure {
                 listService.addList(listName)
-                listService.getLists()
             }.onSuccess {
+                authRepository.addList(
+                    ShoppingList(
+                        it, listName, null, LocalDateTime.now(),
+                        "", true, false, 1)
+                )
                 listName = ""
                 isCreatingNewList = false
-                _listsInfoFlow.value = ShoppingListsScreenState.Loaded(it)
+                _listsInfoFlow.value =
+                    ShoppingListsScreenState.Loaded(authRepository.authState.value.extractLists())
             }.onFailure {
                 _listsInfoFlow.value = ShoppingListsScreenState.Failed(it)
             }

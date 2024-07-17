@@ -4,9 +4,9 @@ namespace market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Pr
 
 public record PriceAlertOutputModel(
     string Id,
-    string ProductId,
-    int StoreId,
-    decimal PriceThreshold,
+    PriceAlertProduct Product,
+    PriceAlertStore Store,
+    int PriceThreshold,
     DateTime CreatedAt
 );
 
@@ -16,8 +16,8 @@ public static class PriceAlertOutputModelMapper
     {
         return new PriceAlertOutputModel(
             priceAlert.Id.Value,
-            priceAlert.ProductId,
-            priceAlert.StoreId,
+            priceAlert.Product,
+            priceAlert.Store,
             priceAlert.PriceThreshold,
             priceAlert.CreatedAt
         );

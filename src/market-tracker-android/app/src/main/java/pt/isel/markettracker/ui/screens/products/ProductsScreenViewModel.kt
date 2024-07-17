@@ -93,7 +93,8 @@ class ProductsScreenViewModel @Inject constructor(
         get() = _addToListStateFlow.asStateFlow()
 
     fun selectProductToAddToList(productOffer: ProductOffer) {
-        if (_addToListStateFlow.value !is AddToListState.Idle) return
+        if (_addToListStateFlow.value !is AddToListState.Idle &&
+            _addToListStateFlow.value !is AddToListState.Done) return
         _addToListStateFlow.value = AddToListState.SelectingList(productOffer)
     }
 

@@ -57,7 +57,7 @@ class ListEntryService(
                 storeId = storeId,
                 quantity = quantity
             )
-        ).id
+        ).value
     }
 
     override suspend fun updateListEntry(

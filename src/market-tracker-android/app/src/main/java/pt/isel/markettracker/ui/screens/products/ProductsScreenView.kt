@@ -1,6 +1,7 @@
 package pt.isel.markettracker.ui.screens.products
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -12,6 +13,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.talhafaki.composablesweettoast.util.SweetToastUtil
 import pt.isel.markettracker.domain.model.list.ShoppingList
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.domain.model.market.inventory.product.filter.ProductsQuery
@@ -85,12 +88,32 @@ fun ProductsScreenView(
                     onAddToListClick = onAddToListClick
                 )
 
-                if (addToListState is AddToListState.SelectingList) {
-                    ListsBottomSheet(
-                        shoppingLists = shoppingLists ,
-                        onListSelectedClick = onListSelectedClick,
-                        onDismissRequest = onAddToListDismissRequest
-                    )
+                when (addToListState) {
+                    is AddToListState.SelectingList ->
+                        ListsBottomSheet(
+                            shoppingLists = shoppingLists,
+                            onListSelectedClick = onListSelectedClick,
+                            onDismissRequest = onAddToListDismissRequest
+                        )
+
+                    is AddToListState.Success -> {
+                        SweetToastUtil.SweetSuccess(
+                            message = "Product added to list",
+                            padding = PaddingValues(32.dp),
+                            contentAlignment = Alignment.BottomCenter
+                        )
+                    }
+
+                    is AddToListState.Failed -> {
+                        SweetToastUtil.SweetError(
+                            message = addToListState.error.localizedMessage
+                                ?: "Failed to add product to list", padding = PaddingValues(32.dp),
+                            contentAlignment = Alignment.BottomCenter
+                        )
+                    }
+
+                    else -> { /* do nothing */
+                    }
                 }
             }
         }

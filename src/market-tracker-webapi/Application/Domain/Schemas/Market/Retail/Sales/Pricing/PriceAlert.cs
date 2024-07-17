@@ -3,29 +3,22 @@ namespace market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales.P
 public record PriceAlert(
     PriceAlertId Id,
     Guid ClientId,
-    string ProductId,
-    int StoreId,
+    PriceAlertProduct Product,
+    PriceAlertStore Store,
     int PriceThreshold,
-    DateTime CreatedAt)
-{
-    public PriceAlert(
-        string id,
-        Guid clientId,
-        string productId,
-        int storeId,
-        int priceThreshold,
-        DateTime createdAt
-    ) : this(
-        new PriceAlertId(id),
-        clientId,
-        productId,
-        storeId,
-        priceThreshold,
-        createdAt
-    )
-    {
-    }
-};
+    DateTime CreatedAt
+);
+
+public record PriceAlertProduct(
+    string Id,
+    string Name,
+    string ImageUrl
+);
+
+public record PriceAlertStore(
+    int Id,
+    string Name
+);
 
 public record PriceAlertId(
     string Value

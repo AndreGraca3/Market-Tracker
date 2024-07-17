@@ -31,6 +31,7 @@ import pt.isel.markettracker.dummy.dummyShoppingListEntries
 import pt.isel.markettracker.ui.components.LoadableImage
 import pt.isel.markettracker.ui.screens.listDetails.components.ProductQuantityCounter
 import pt.isel.markettracker.ui.screens.products.card.ProductCardSpecs
+import pt.isel.markettracker.utils.centToEuro
 
 @Composable
 fun ProductListCard(
@@ -48,7 +49,7 @@ fun ProductListCard(
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .size(width = 350.dp, 130.dp)
+            .size(width = 350.dp, 150.dp)
     ) {
         Card(
             modifier = Modifier
@@ -85,19 +86,9 @@ fun ProductListCard(
                         )
                     }
 
-                    Box(
-                        contentAlignment = Alignment.CenterStart,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(.6F)
-                    ) {
-                        ProductCardSpecs(product = product)
-                    }
+                    ProductCardSpecs(product, Modifier.fillMaxWidth(.5F))
 
                     Box(
-                        modifier = Modifier
-                            .fillMaxHeight(0.3F)
-                            .fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
                         Column {
@@ -119,7 +110,7 @@ fun ProductListCard(
                             )
 
                             Text(
-                                text = "${productEntry.productOffer.storeOffer.price.finalPrice}",
+                                text = "${productEntry.productOffer.storeOffer.price.finalPrice.centToEuro()}€",
                                 color = Color.Black,
                                 textAlign = TextAlign.Center
                             )

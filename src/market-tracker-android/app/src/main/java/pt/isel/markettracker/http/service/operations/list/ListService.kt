@@ -65,7 +65,7 @@ class ListService(
             body = ListCreationInputModel(
                 listName = listName
             )
-        ).id
+        ).value
     }
 
     override suspend fun updateList(
