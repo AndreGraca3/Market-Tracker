@@ -30,6 +30,7 @@ import pt.isel.markettracker.R
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.screens.list.ListScreen
+import pt.isel.markettracker.ui.screens.list.ListScreenViewModel
 import pt.isel.markettracker.ui.screens.login.LoginScreen
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.products.ProductsScreen
@@ -40,13 +41,17 @@ import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 @Composable
 fun NavGraph(
     onProductClick: (String) -> Unit,
+    onListClick: (String) -> Unit,
     onBarcodeScanRequest: () -> Unit,
     onSignUpRequested: () -> Unit,
+    onFavoritesRequested: () -> Unit,
+    onAlertsRequested: () -> Unit,
     getGoogleLoginIntent: () -> Intent,
     authRepository: IAuthRepository,
     loginScreenViewModel: LoginScreenViewModel,
     profileScreenViewModel: ProfileScreenViewModel,
-    productsScreenViewModel: ProductsScreenViewModel
+    productsScreenViewModel: ProductsScreenViewModel,
+    listScreenViewModel: ListScreenViewModel,
 ) {
     val navController = rememberNavController()
     var selectedIndex by rememberSaveable { mutableIntStateOf(2) }
@@ -95,14 +100,18 @@ fun NavGraph(
             }
 
             composable(Destination.LIST.route) {
-                ListScreen()
+                ListScreen(onListClick, listScreenViewModel)
             }
 
             composable(Destination.PROFILE.route) {
                 val authState by authRepository.authState.collectAsState()
                 Log.v("User", "AuthState is $authState")
                 if (authState.isLoggedIn()) {
-                    ProfileScreen(profileScreenViewModel)
+                    ProfileScreen(
+                        profileScreenViewModel = profileScreenViewModel,
+                        onFavoritesRequested = onFavoritesRequested,
+                        onAlertsRequested = onAlertsRequested,
+                    )
                 } else {
                     LoginScreen(
                         onSignUpRequested = onSignUpRequested,

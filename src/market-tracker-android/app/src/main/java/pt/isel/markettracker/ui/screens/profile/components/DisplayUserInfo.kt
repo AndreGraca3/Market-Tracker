@@ -21,6 +21,8 @@ fun DisplayUserInfo(
     username: String,
     email: String,
     createdAt: LocalDateTime,
+    onFavoritesRequested: () -> Unit,
+    onAlertsRequested: () -> Unit,
     onNameChangeRequested: (String) -> Unit,
     onUsernameChangeRequested: (String) -> Unit,
     onSaveChangesRequested: () -> Unit,
@@ -63,7 +65,13 @@ fun DisplayUserInfo(
         fontSize = 20.sp
     )
 
-    DisplayStats(nLists = nLists, nFavorites = nFavorites, nAlerts = nAlerts)
+    DisplayStats(
+        nLists = nLists,
+        nFavorites = nFavorites,
+        onFavoritesRequested = onFavoritesRequested,
+        nAlerts = nAlerts,
+        onAlertsRequested = onAlertsRequested
+    )
 
     Box(
         modifier = Modifier

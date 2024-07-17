@@ -3,8 +3,10 @@ package pt.isel.markettracker.http.service.operations.product
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import pt.isel.markettracker.domain.PaginatedResult
+import pt.isel.markettracker.domain.model.CollectionOutputModel
 import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductItem
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
@@ -19,7 +21,7 @@ private fun buildProductsPath(
     brandIds: List<Int>,
     companyIds: List<Int>,
     categoryIds: List<Int>,
-    sortOption: String?
+    sortOption: String?,
 ) = "/products?page=$page" +
         itemsPerPage?.let { "&itemsPerPage=$it" }.orEmpty() +
         searchQuery?.let { "&name=$it" }.orEmpty() +
@@ -51,15 +53,17 @@ private fun buildProductPreferencesByIdPath(id: String) = "/products/$id/me"
 
 private fun buildAddProductToListPath(listId: String) = "/lists/${listId}/entries"
 
+private const val favoriteProductsPath = "/products/favourites"
+
 // Service provides operations related to products.
 class ProductService(
     override val httpClient: OkHttpClient,
-    override val gson: Gson
+    override val gson: Gson,
 ) : IProductService, MarketTrackerService() {
     override suspend fun getProducts(
         page: Int,
         itemsPerPage: Int?,
-        query: ProductsQuery
+        query: ProductsQuery,
     ): PaginatedProductOffers {
         return requestHandler(
             path = buildProductsPath(
@@ -106,7 +110,7 @@ class ProductService(
     override suspend fun getProductReviews(
         productId: String,
         page: Int,
-        itemsPerPage: Int?
+        itemsPerPage: Int?,
     ): PaginatedResult<ProductReview> {
         return requestHandler(
             path = buildProductReviewsByIdPath(productId, page, itemsPerPage),
@@ -117,11 +121,11 @@ class ProductService(
     override suspend fun submitProductReview(
         productId: String,
         rating: Int,
-        comment: String?
+        comment: String?,
     ): ProductReview {
         data class ReviewCreationRequest(
             val rating: Int,
-            val comment: String?
+            val comment: String?,
         )
 
         val prefs = requestHandler<ProductPreferences>(
@@ -140,7 +144,7 @@ class ProductService(
 
     override suspend fun deleteProductReview(productId: String) {
         data class ReviewDeletionRequest(
-            val review: ProductReview?
+            val review: ProductReview?,
         )
 
         return requestHandler(
@@ -170,5 +174,12 @@ class ProductService(
                 "quantity" to 1
             )
         )
+    }
+
+    override suspend fun getFavoriteProducts(): List<ProductItem> {
+        return requestHandler<CollectionOutputModel<ProductItem>>(
+            path = favoriteProductsPath,
+            method = HttpMethod.GET
+        ).items
     }
 }

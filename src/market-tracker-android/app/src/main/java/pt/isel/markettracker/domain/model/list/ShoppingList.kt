@@ -9,5 +9,6 @@ data class ShoppingList(
     val createdAt: LocalDateTime,
     val ownerId: String,
     val isOwner: Boolean,
-    val isArchived: Boolean
+    val isArchived: Boolean,
+    val numberOfMembers: Int,
 )

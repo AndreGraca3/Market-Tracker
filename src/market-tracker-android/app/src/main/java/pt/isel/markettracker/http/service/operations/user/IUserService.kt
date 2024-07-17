@@ -1,11 +1,14 @@
 package pt.isel.markettracker.http.service.operations.user
 
-import pt.isel.markettracker.domain.PaginatedResult
 import pt.isel.markettracker.domain.model.account.Client
-import pt.isel.markettracker.domain.model.account.ClientItem
+import pt.isel.markettracker.domain.model.account.PaginatedClientItem
 
 interface IUserService {
-    suspend fun getUsers(username: String?): PaginatedResult<ClientItem>
+    suspend fun getUsers(
+        page: Int,
+        itemsPerPage: Int? = null,
+        username: String? = null,
+    ): PaginatedClientItem
 
     suspend fun getUser(id: String): Client
 
@@ -16,13 +19,13 @@ interface IUserService {
         username: String,
         email: String,
         password: String,
-        avatar: String? = null
+        avatar: String? = null,
     ): String
 
     suspend fun updateUser(
         name: String? = null,
         username: String? = null,
-        avatar: String? = null
+        avatar: String? = null,
     ): Client
 
     suspend fun deleteUser()

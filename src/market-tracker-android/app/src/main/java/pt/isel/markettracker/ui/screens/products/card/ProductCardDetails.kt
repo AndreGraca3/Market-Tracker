@@ -24,7 +24,7 @@ import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 @Composable
 fun ProductCardDetails(
     productOffer: ProductOffer,
-    onAddToListClick: () -> Unit
+    onAddToListClick: () -> Unit,
 ) {
     val promotion = productOffer.storeOffer.price.promotion
 
@@ -62,7 +62,9 @@ fun ProductCardDetails(
                     }
             }
         }
-        ProductCardSpecs(product = productOffer.product)
+        ProductCardSpecs(
+            product = productOffer.product
+        )
 
         RatingStarsRow(rating = productOffer.product.rating)
 
@@ -73,7 +75,7 @@ fun ProductCardDetails(
         ) {
             CompanyPriceCardHeader(productOffer, modifier = Modifier.weight(1F))
             AddToListButton(
-                onClick = {onAddToListClick()},
+                onClick = { onAddToListClick() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.5F)

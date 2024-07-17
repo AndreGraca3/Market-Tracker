@@ -5,13 +5,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 
 @Composable
-fun ProfileScreen(profileScreenViewModel: ProfileScreenViewModel) {
+fun ProfileScreen(
+    onFavoritesRequested: () -> Unit,
+    onAlertsRequested: () -> Unit,
+    profileScreenViewModel: ProfileScreenViewModel,
+) {
     val user by profileScreenViewModel.clientFetchingFlow.collectAsState()
 
     ProfileScreenView(
         userState = user,
         name = profileScreenViewModel.name,
         username = profileScreenViewModel.username,
+        onFavoritesRequested = onFavoritesRequested,
+        onAlertsRequested = onAlertsRequested,
         onNameChangeRequested = {
             profileScreenViewModel.name = it
         },

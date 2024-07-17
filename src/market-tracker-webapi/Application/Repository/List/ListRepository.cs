@@ -31,6 +31,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
             select listEntity;
 
         return await query
+            .Distinct()
             .OrderByDescending(listEntity => listEntity.CreatedAt)
             .Select(listEntity => new ShoppingList(
                 listEntity.Id,
@@ -138,7 +139,7 @@ public class ListRepository(MarketTrackerDataContext context) : IListRepository
 
     public async Task<ListClient> AddListMemberAsync(string listId, Guid clientId)
     {
-        var listClient = new ListClientEntity()
+        var listClient = new ListClientEntity
         {
             ListId = listId,
             ClientId = clientId

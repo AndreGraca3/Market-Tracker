@@ -1,4 +1,5 @@
 ﻿using market_tracker_webapi.Application.Domain.Schemas.List;
+using market_tracker_webapi.Application.Utils;
 using market_tracker_webapi.Infrastructure;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +44,6 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
             join brand in dataContext.Brand on product.BrandId equals brand.Id
             join category in dataContext.Category on product.CategoryId equals category.Id
             join store in dataContext.Store on listEntry.StoreId equals store.Id
-            where listEntry.Id == entryId
             select new
             {
                 ListEntryEntity = listEntry,
@@ -54,9 +54,11 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
             };
 
         return await query
-            .Select(g => g.ListEntryEntity.ToListEntry(
-                g.ProductEntity.ToProduct(g.BrandEntity.ToBrand(), g.CategoryEntity.ToCategory()),
-                g.StoreEntity.ToStoreItem())
+            .Where(g => g.ListEntryEntity.Id == entryId)
+            .Select(g =>
+                g.ListEntryEntity.ToListEntry(
+                    g.ProductEntity.ToProduct(g.BrandEntity.ToBrand(), g.CategoryEntity.ToCategory()),
+                    g.StoreEntity.ToStoreItem())
             ).FirstOrDefaultAsync();
     }
 
@@ -92,6 +94,7 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
     {
         var productInListEntity = new ListEntryEntity()
         {
+            Id = RandomStringGenerator.GenerateRandomString(25),
             ListId = listId,
             ProductId = productId,
             StoreId = storeId,
@@ -138,9 +141,10 @@ public class ListEntryRepository(MarketTrackerDataContext dataContext) : IListEn
             return null;
         }
 
+        var listEntry = await GetListEntryByIdAsync(entryId);
         dataContext.ListEntry.Remove(productInListEntity);
         await dataContext.SaveChangesAsync();
 
-        return await GetListEntryByIdAsync(entryId);
+        return listEntry;
     }
 }

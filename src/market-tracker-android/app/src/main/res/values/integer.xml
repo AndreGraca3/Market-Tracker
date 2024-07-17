@@ -1,0 +1,3 @@
+<resources>
+    <integer name="max_lists_per_user">10</integer>
+</resources>

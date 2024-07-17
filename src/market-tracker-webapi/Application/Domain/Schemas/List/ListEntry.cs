@@ -20,7 +20,7 @@ public record ListEntry(ListEntryId Id, Product Product, StoreItem? Store, int Q
     }
 }
 
-public record ListEntryOffer(ProductOffer ProductOffer, int Quantity);
+public record ListEntryOffer(string Id, ProductOffer ProductOffer, int Quantity);
 
 public record ListEntryId(
     string Value

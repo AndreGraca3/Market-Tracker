@@ -8,7 +8,7 @@ using ListEntry = Domain.Schemas.List.ListEntry;
 
 public record ListEntryOutputModel(string Id, string ProductId, StoreItemOutputModel? StoreId, int Quantity);
 
-public record ListEntryOfferOutputModel(ProductOfferOutputModel ProductOffer, int Quantity);
+public record ListEntryOfferOutputModel(string Id, ProductOfferOutputModel ProductOffer, int Quantity);
 
 public static class ListEntryOutputModelMapper
 {
@@ -17,9 +17,13 @@ public static class ListEntryOutputModelMapper
         return new ListEntryOutputModel(listEntry.Id.Value, listEntry.Product.Id.Value,
             listEntry.Store?.ToOutputModel(), listEntry.Quantity);
     }
-    
+
     public static ListEntryOfferOutputModel ToOutputModel(this ListEntryOffer listEntryOffer)
     {
-        return new ListEntryOfferOutputModel(listEntryOffer.ProductOffer.ToOutputModel(), listEntryOffer.Quantity);
+        return new ListEntryOfferOutputModel(
+            listEntryOffer.Id,
+            listEntryOffer.ProductOffer.ToOutputModel(),
+            listEntryOffer.Quantity
+        );
     }
 }

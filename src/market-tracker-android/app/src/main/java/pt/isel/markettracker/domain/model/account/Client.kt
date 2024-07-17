@@ -14,5 +14,16 @@ data class Client(
 data class ClientItem(
     val id: String,
     val username: String,
-    val avatar: String?
+    val avatar: String?,
 )
+
+data class PaginatedClientItem(
+    val items: List<ClientItem>,
+    val currentPage: Int,
+    val itemsPerPage: Int,
+    val totalItems: Int,
+    val totalPages: Int,
+) {
+    val hasMore: Boolean
+        get() = currentPage < totalPages
+}

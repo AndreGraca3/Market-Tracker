@@ -2,13 +2,20 @@ package pt.isel.markettracker.http.service.operations.user
 
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
-import pt.isel.markettracker.domain.PaginatedResult
 import pt.isel.markettracker.domain.model.account.Client
-import pt.isel.markettracker.domain.model.account.ClientItem
+import pt.isel.markettracker.domain.model.account.PaginatedClientItem
 import pt.isel.markettracker.http.models.identifiers.StringIdOutputModel
 import pt.isel.markettracker.http.models.user.UserCreationInputModel
 import pt.isel.markettracker.http.models.user.UserUpdateInputModel
 import pt.isel.markettracker.http.service.MarketTrackerService
+
+private fun buildUsersPath(
+    page: Int,
+    itemsPerPage: Int?,
+    username: String?,
+) = "${usersBasePath}?page=$page" +
+        itemsPerPage?.let { "&itemsPerPage=$it" }.orEmpty() +
+        username?.let { "&username=$it" }.orEmpty()
 
 private const val usersBasePath = "/clients"
 private const val authenticatedUserPath = "$usersBasePath/me"
@@ -18,12 +25,16 @@ private const val registerDevicePath = "$authenticatedUserPath/register-push-not
 
 class UserService(
     override val httpClient: OkHttpClient,
-    override val gson: Gson
+    override val gson: Gson,
 ) : IUserService, MarketTrackerService() {
 
-    override suspend fun getUsers(username: String?): PaginatedResult<ClientItem> {
+    override suspend fun getUsers(
+        page: Int,
+        itemsPerPage: Int?,
+        username: String?,
+    ): PaginatedClientItem {
         return requestHandler(
-            path = usersBasePath,
+            path = buildUsersPath(page, itemsPerPage, username),
             method = HttpMethod.GET,
             body = username
         )
@@ -48,7 +59,7 @@ class UserService(
         username: String,
         email: String,
         password: String,
-        avatar: String?
+        avatar: String?,
     ): String {
         return requestHandler<StringIdOutputModel>(
             path = usersBasePath,

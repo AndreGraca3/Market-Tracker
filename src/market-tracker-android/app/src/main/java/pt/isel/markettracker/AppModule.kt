@@ -24,6 +24,8 @@ import pt.isel.markettracker.http.service.operations.auth.AuthService
 import pt.isel.markettracker.http.service.operations.auth.IAuthService
 import pt.isel.markettracker.http.service.operations.list.IListService
 import pt.isel.markettracker.http.service.operations.list.ListService
+import pt.isel.markettracker.http.service.operations.list.listEntry.IListEntryService
+import pt.isel.markettracker.http.service.operations.list.listEntry.ListEntryService
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.operations.product.ProductService
 import pt.isel.markettracker.http.service.operations.user.IUserService
@@ -136,5 +138,11 @@ class AppModule {
     @Singleton
     fun provideAlertService(httpClient: OkHttpClient, gson: Gson): IAlertService {
         return AlertService(httpClient, gson)
+    }
+
+    @Provides
+    @Singleton
+    fun provideListEntryService(httpClient: OkHttpClient, gson: Gson): IListEntryService {
+        return ListEntryService(httpClient, gson)
     }
 }

@@ -3,6 +3,7 @@ package pt.isel.markettracker.ui.screens
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -19,12 +20,18 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.R
 import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.ui.screens.alerts.AlertsActivity
+import pt.isel.markettracker.ui.screens.favorites.FavoritesActivity
+import pt.isel.markettracker.ui.screens.list.ListScreenViewModel
+import pt.isel.markettracker.ui.screens.listDetails.ListDetailsActivity
+import pt.isel.markettracker.ui.screens.listDetails.ListIdExtra
 import pt.isel.markettracker.ui.screens.login.LoginScreenState
 import pt.isel.markettracker.ui.screens.login.LoginScreenViewModel
 import pt.isel.markettracker.ui.screens.product.ProductDetailsActivity
 import pt.isel.markettracker.ui.screens.product.ProductIdExtra
 import pt.isel.markettracker.ui.screens.products.ProductsScreenViewModel
 import pt.isel.markettracker.ui.screens.products.list.AddToListState
+import pt.isel.markettracker.ui.screens.profile.ProfileScreenState
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModel
 import pt.isel.markettracker.ui.screens.profile.ProfileScreenViewModelFactory
 import pt.isel.markettracker.ui.screens.signup.SignUpActivity
@@ -45,6 +52,7 @@ class MainActivity : ComponentActivity() {
 
     private val productsScreenViewModel by viewModels<ProductsScreenViewModel>()
     private val loginScreenViewModel by viewModels<LoginScreenViewModel>()
+    private val listScreenViewModel by viewModels<ListScreenViewModel>()
 
     @Inject
     lateinit var authRepository: IAuthRepository
@@ -64,8 +72,13 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         productsScreenViewModel.fetchProducts(false)
         lifecycleScope.launch {
-            if (authRepository.getToken() != null) {
+            val token = authRepository.getToken()
+            if (token != null) {
                 profileScreenViewModel.fetchUser()
+                if (profileScreenViewModel.clientFetchingFlow.value is ProfileScreenState.Fail) {
+                    Log.v("User", "Dei reset")
+                    profileScreenViewModel.resetToIdle()
+                }
             }
         }
 
@@ -77,7 +90,14 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             loginScreenViewModel.loginPhase.collect { loginState ->
+                Log.v("User", "LoginState is $loginState")
                 if (loginState is LoginScreenState.Success) profileScreenViewModel.fetchUser()
+            }
+        }
+
+        lifecycleScope.launch {
+            profileScreenViewModel.clientFetchingFlow.collect { profileState ->
+                Log.v("User", "profileState is $profileState")
             }
         }
 
@@ -91,8 +111,21 @@ class MainActivity : ComponentActivity() {
                             ProductIdExtra(it)
                         )
                     },
+                    onListClick = {
+                        navigateTo<ListDetailsActivity>(
+                            this,
+                            ListDetailsActivity.LIST_PRODUCT_ID_EXTRA,
+                            ListIdExtra(it)
+                        )
+                    },
                     onSignUpRequested = {
                         navigateTo<SignUpActivity>(this)
+                    },
+                    onFavoritesRequested = {
+                        navigateTo<FavoritesActivity>(this)
+                    },
+                    onAlertsRequested = {
+                        navigateTo<AlertsActivity>(this)
                     },
                     getGoogleLoginIntent = { getGoogleLoginIntent(this) },
                     onBarcodeScanRequest = {
@@ -101,7 +134,8 @@ class MainActivity : ComponentActivity() {
                     authRepository = authRepository,
                     loginScreenViewModel = loginScreenViewModel,
                     profileScreenViewModel = profileScreenViewModel,
-                    productsScreenViewModel = productsScreenViewModel
+                    productsScreenViewModel = productsScreenViewModel,
+                    listScreenViewModel = listScreenViewModel
                 )
             }
         }

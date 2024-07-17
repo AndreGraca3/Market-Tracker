@@ -3,6 +3,7 @@ package pt.isel.markettracker.http.service.operations.product
 import pt.isel.markettracker.domain.PaginatedResult
 import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductItem
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductReview
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductStats
@@ -41,4 +42,6 @@ interface IProductService {
     suspend fun updateFavouriteProduct(productId: String, favourite: Boolean)
 
     suspend fun addProductToList(listId: String, productId: String, storeId: Int)
+
+    suspend fun getFavoriteProducts(): List<ProductItem>
 }

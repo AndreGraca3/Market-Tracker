@@ -8,7 +8,7 @@
     <string name="search_hint">Pesquise por produto ou marca</string>
     <string name="brands_title">Marcas</string>
     <string name="categories_title">Categorias</string>
-    <string name ="companies_title">Supermercados</string>
+    <string name="companies_title">Supermercados</string>
     <string name="products_loading">A carregar produtos...</string>
     <string name="products_not_found">Não foram encontrados produtos</string>
     <string name="product_not_found_title">Produto não encontrado</string>
@@ -35,4 +35,8 @@
     <string name="alert_removed">Alerta removido</string>
     <string name="alert_error">Erro na alteração do alerta</string>
     <string name="GOOGLE_CLIENT_ID">317635904868-mgmlu2g27gt43tb00c7i5kfevprerrsn.apps.googleusercontent.com</string>
+    <string name="lists_loading">A carregar listas…</string>
+    <string name="failed_to_fetch_users">Verifique a sua conexão…</string>
+    <string name="searching_for_users">"Pesquisando utilizadores…"</string>
+    <string name="search_user_hint">pesquise por nome de usuário</string>
 </resources>

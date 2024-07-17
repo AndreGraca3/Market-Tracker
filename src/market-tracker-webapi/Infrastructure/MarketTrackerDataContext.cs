@@ -61,9 +61,6 @@ public class MarketTrackerDataContext(DbContextOptions options) : DbContext(opti
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ListEntryEntity>()
-            .HasKey(le => new { le.ListId, le.ProductId });
-
         modelBuilder.Entity<ListClientEntity>()
             .HasKey(lc => new { lc.ListId, lc.ClientId });
 
@@ -72,7 +69,7 @@ public class MarketTrackerDataContext(DbContextOptions options) : DbContext(opti
         {
             foreach (var property in entityType.GetProperties())
             {
-                if (property.ClrType == typeof(DateTime))
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
                 {
                     property.SetValueConverter(new UtcDateTimeConverter());
                 }

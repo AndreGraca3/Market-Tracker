@@ -54,6 +54,7 @@ public class ListEntryService(
                         var storeOffer = await priceRepository.GetCheapestStoreOfferAvailableByProductIdAsync(
                             entry.Product.Id.Value, companyIds, storeIds, cityIds);
                         return new ListEntryOffer(
+                            entry.Id.Value,
                             new ProductOffer(
                                 entry.Product,
                                 storeOffer
@@ -72,6 +73,7 @@ public class ListEntryService(
                             : null;
 
                         return new ListEntryOffer(
+                            entry.Id.Value,
                             new ProductOffer(
                                 entry.Product,
                                 storeOffer

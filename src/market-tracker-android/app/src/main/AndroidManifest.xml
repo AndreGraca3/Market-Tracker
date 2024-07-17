@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name="pt.isel.markettracker.MarketTrackerApplication"
@@ -24,8 +24,8 @@
             android:name="pt.isel.markettracker.ui.screens.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.App.Starting"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -38,10 +38,27 @@
             android:screenOrientation="portrait"
             tools:replace="screenOrientation" />
 
-        <activity android:name="pt.isel.markettracker.ui.screens.product.ProductDetailsActivity"
+        <activity
+            android:name="pt.isel.markettracker.ui.screens.product.ProductDetailsActivity"
             android:screenOrientation="portrait" />
 
-        <activity android:name="pt.isel.markettracker.ui.screens.signup.SignUpActivity"
+        <activity
+            android:name="pt.isel.markettracker.ui.screens.signup.SignUpActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="pt.isel.markettracker.ui.screens.listDetails.ListDetailsActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.screens.users.UsersActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.screens.favorites.FavoritesActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.screens.alerts.AlertsActivity"
             android:screenOrientation="portrait" />
 
         <meta-data
