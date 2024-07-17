@@ -49,6 +49,14 @@
             android:name="pt.isel.markettracker.ui.screens.listDetails.ListDetailsActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".ui.screens.users.UsersActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.screens.favorites.FavoritesActivity"
+            android:screenOrientation="portrait" />
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/mt_logo" />

@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.R
 import pt.isel.markettracker.navigation.NavGraph
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.ui.screens.favorites.FavoritesActivity
 import pt.isel.markettracker.ui.screens.list.ListScreenViewModel
 import pt.isel.markettracker.ui.screens.listDetails.ListDetailsActivity
 import pt.isel.markettracker.ui.screens.listDetails.ListIdExtra
@@ -118,6 +119,12 @@ class MainActivity : ComponentActivity() {
                     },
                     onSignUpRequested = {
                         navigateTo<SignUpActivity>(this)
+                    },
+                    onFavoritesRequested = {
+                        navigateTo<FavoritesActivity>(this)
+                    },
+                    onAlertsRequested = {
+                        TODO("Not yet implemented")
                     },
                     getGoogleLoginIntent = { getGoogleLoginIntent(this) },
                     onBarcodeScanRequest = {

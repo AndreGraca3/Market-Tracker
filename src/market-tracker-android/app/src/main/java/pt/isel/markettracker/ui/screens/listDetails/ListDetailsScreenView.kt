@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.ui.components.buttons.MarketTrackerOutlinedButton
-import pt.isel.markettracker.ui.screens.listDetails.buttons.OpenUserMenuButton
 import pt.isel.markettracker.ui.components.modalDrawer.MarketTrackerRightModalDrawer
+import pt.isel.markettracker.ui.screens.listDetails.buttons.OpenUserMenuButton
 import pt.isel.markettracker.ui.screens.listDetails.components.MembersModal
 import pt.isel.markettracker.ui.screens.listDetails.list.ProductListView
 import pt.isel.markettracker.ui.screens.products.topbar.HeaderLogo
@@ -121,6 +121,7 @@ fun ListDetailsScreenView(
                         ProductListView(
                             state = state,
                             isRefreshing = isRefreshing,
+                            isInCheckBoxMode = false,
                             fetchListDetails = fetchListDetails,
                             onDeleteProductFromListRequested = { entryId ->
                                 deleteProductFromList(entryId)

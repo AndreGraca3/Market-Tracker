@@ -1,8 +1,11 @@
 package pt.isel.markettracker.ui.screens.users
 
+import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import dagger.hilt.android.AndroidEntryPoint
 import pt.isel.markettracker.ui.screens.listDetails.ListIdExtra
+import pt.isel.markettracker.ui.theme.MarkettrackerTheme
 
 @AndroidEntryPoint
 class UsersActivity : ComponentActivity() {
@@ -19,8 +22,20 @@ class UsersActivity : ComponentActivity() {
         else
             intent.getParcelableExtra(LIST_ID_EXTRA)
 
-        checkNotNull(extra) { "No list product id extra found in intent" }
+        checkNotNull(extra) { "No list id extra found in intent" }
         extra.id
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            MarkettrackerTheme {
+                UsersScreen(
+                    listId = listId,
+                    onBackRequested = { finish() }
+                )
+            }
+        }
+    }
 }

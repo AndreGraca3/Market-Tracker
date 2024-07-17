@@ -64,24 +64,19 @@ fun MembersModal(
                             val ownerId = state.extractShoppingListSocial()!!.owner.id
                             val users = state.extractShoppingListSocial()!!.members
                             Column {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxHeight(0.8F),
-                                    contentAlignment = Alignment.TopCenter
-                                ) {
-                                    MembersList(
-                                        users = users,
-                                        ownerId = ownerId,
-                                        onRemoveUserFromLisTRequested = onRemoveUserFromLisTRequested
-                                    )
-                                }
+                                MembersList(
+                                    users = users,
+                                    ownerId = ownerId,
+                                    onRemoveUserFromLisTRequested = onRemoveUserFromLisTRequested,
+                                    modifier = Modifier.fillMaxHeight(0.8F),
+                                )
 
                                 Box(
                                     modifier = Modifier.fillMaxWidth(),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     MarketTrackerOutlinedButton(
-                                        text = "Partilhar ",
+                                        text = "Partilhar",
                                         icon = Icons.Default.PersonAdd,
                                         onClick = onAddUsersToListRequested,
                                         modifier = Modifier

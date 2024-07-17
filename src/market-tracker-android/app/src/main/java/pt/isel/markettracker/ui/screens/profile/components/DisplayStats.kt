@@ -1,5 +1,6 @@
 package pt.isel.markettracker.ui.screens.profile.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +26,9 @@ import pt.isel.markettracker.ui.theme.mainFont
 fun DisplayStats(
     nLists: Int,
     nFavorites: Int,
+    onFavoritesRequested: () -> Unit,
     nAlerts: Int,
+    onAlertsRequested: () -> Unit,
 ) {
     Row(
         horizontalArrangement = Arrangement.Center,
@@ -39,12 +42,18 @@ fun DisplayStats(
 
         DisplayIcon(
             image = Icons.Default.Favorite,
-            value = nFavorites
+            value = nFavorites,
+            modifier = Modifier.clickable {
+                onFavoritesRequested()
+            }
         )
 
         DisplayIcon(
             image = Icons.Default.AddAlert,
-            value = nAlerts
+            value = nAlerts,
+            modifier = Modifier.clickable {
+                onAlertsRequested()
+            }
         )
     }
 }
@@ -53,9 +62,11 @@ fun DisplayStats(
 fun DisplayIcon(
     image: ImageVector,
     value: Int,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier.padding(10.dp),
+        modifier = modifier
+            .padding(10.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(

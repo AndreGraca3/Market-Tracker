@@ -41,6 +41,8 @@ fun ProfileScreenView(
     userState: ProfileScreenState,
     name: String,
     username: String,
+    onFavoritesRequested: () -> Unit,
+    onAlertsRequested: ()-> Unit,
     onNameChangeRequested: (String) -> Unit,
     onUsernameChangeRequested: (String) -> Unit,
     onLogoutRequested: () -> Unit,
@@ -139,6 +141,8 @@ fun ProfileScreenView(
                             username = username,
                             email = user.email,
                             createdAt = user.createdAt,
+                            onFavoritesRequested = onFavoritesRequested,
+                            onAlertsRequested = onAlertsRequested,
                             onNameChangeRequested = onNameChangeRequested,
                             onUsernameChangeRequested = onUsernameChangeRequested,
                             onSaveChangesRequested = {

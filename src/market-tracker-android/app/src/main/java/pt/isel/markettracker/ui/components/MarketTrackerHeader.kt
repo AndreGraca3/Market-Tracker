@@ -3,6 +3,7 @@ package pt.isel.markettracker.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,7 +17,7 @@ import pt.isel.markettracker.ui.screens.products.topbar.HeaderLogo
 
 @Composable
 fun MarketTrackerHeader(
-    content: @Composable (() -> Unit),
+    content: @Composable (BoxScope.() -> Unit),
 ) {
     Row(
         modifier = Modifier

@@ -16,7 +16,6 @@ class ListDetailsScreenViewModel @Inject constructor(
     private val listEntryService: IListEntryService,
     private val listService: IListService,
 ) : ViewModel() {
-
     private val _listDetailsFlow: MutableStateFlow<ListDetailsScreenState> =
         MutableStateFlow(ListDetailsScreenState.Idle)
     val listDetails

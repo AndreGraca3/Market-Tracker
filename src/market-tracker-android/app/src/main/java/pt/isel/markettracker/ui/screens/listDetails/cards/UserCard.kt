@@ -30,7 +30,8 @@ import pt.isel.markettracker.ui.theme.mainFont
 @Composable
 fun UserCard(
     user: ClientItem,
-    isOwner: Boolean,
+    isOwner: Boolean = false,
+    resource: Int,
     userToListRequested: (String) -> Unit,
 ) {
     Box(
@@ -97,7 +98,7 @@ fun UserCard(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Image(
-                                        painter = painterResource(id = R.drawable.person_remove),
+                                        painter = painterResource(id = resource),
                                         contentDescription = "",
                                         modifier = Modifier
                                             .size(30.dp)

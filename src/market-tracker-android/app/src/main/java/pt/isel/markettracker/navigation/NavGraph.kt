@@ -44,6 +44,8 @@ fun NavGraph(
     onListClick: (String) -> Unit,
     onBarcodeScanRequest: () -> Unit,
     onSignUpRequested: () -> Unit,
+    onFavoritesRequested: () -> Unit,
+    onAlertsRequested: () -> Unit,
     getGoogleLoginIntent: () -> Intent,
     authRepository: IAuthRepository,
     loginScreenViewModel: LoginScreenViewModel,
@@ -105,7 +107,11 @@ fun NavGraph(
                 val authState by authRepository.authState.collectAsState()
                 Log.v("User", "AuthState is $authState")
                 if (authState.isLoggedIn()) {
-                    ProfileScreen(profileScreenViewModel)
+                    ProfileScreen(
+                        profileScreenViewModel = profileScreenViewModel,
+                        onFavoritesRequested = onFavoritesRequested,
+                        onAlertsRequested = onAlertsRequested,
+                    )
                 } else {
                     LoginScreen(
                         onSignUpRequested = onSignUpRequested,
