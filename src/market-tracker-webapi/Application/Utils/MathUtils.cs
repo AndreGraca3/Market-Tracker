@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace market_tracker_webapi.Application.Utils;
 
+[ExcludeFromCodeCoverage]
 public static class MathUtils
 {
     public static int ApplyPercentage(this int value, int? percentage) {
