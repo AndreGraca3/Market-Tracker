@@ -192,8 +192,131 @@ public class ListRepositoryTest
     }
 
     [Fact]
-    public async Task UpdateListAsync_ShouldReturnUpdateShoppingListItem()
+    public async Task UpdateListAsync_ShouldReturnUpdateShoppingList()
     {
+        // Arrange 
+        var listEntities = new List<ListEntity>
+        {
+            new ListEntity
+            {
+                Id = "1",
+                Name = "List 1",
+                ArchivedAt = null,
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                OwnerId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            }
+        };
         
+        // Arrange
+        var context = DbHelper.CreateDatabase(listEntities);
+        
+        var listRepository = new ListRepository(context);
+        
+        // Act
+        var actual = await listRepository.UpdateListAsync("1", null, "New List Name");
+
+        // Assert
+        var expectedListEntity = new ListEntity()
+        {
+            Id = "1",
+            Name = "New List Name",
+            CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+            OwnerId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            ArchivedAt = null
+        };
+        context.List.Should().ContainEquivalentOf(expectedListEntity);
+    }
+    
+    [Fact]
+    public async Task DeleteListAsync_ShouldReturnDeletedShoppingList()
+    {
+        // Arrange
+        var listEntities = new List<ListEntity>
+        {
+            new ListEntity
+            {
+                Id = "1",
+                Name = "List 1",
+                ArchivedAt = null,
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                OwnerId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            }
+        };
+        
+        var context = DbHelper.CreateDatabase(listEntities);
+        
+        var listRepository = new ListRepository(context);
+        
+        // Act
+        var actual = await listRepository.DeleteListAsync("1");
+        
+        // Assert
+        var expectedListEntity = new ListEntity()
+        {
+            Id = "1",
+            Name = "List 1",
+            ArchivedAt = null,
+            CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+            OwnerId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+        };
+        context.List.Should().NotContainEquivalentOf(expectedListEntity);
+    }
+    
+    [Fact]
+    public async Task AddListMemberAsync_ShouldReturnListClient()
+    {
+        // Arrange
+        var listClientEntities = new List<ListClientEntity>
+        {
+            new ListClientEntity
+            {
+                ListId = "1",
+                ClientId = Guid.Parse("00000000-0000-0000-0000-000000000001")
+            }
+        };
+        
+        var context = DbHelper.CreateDatabase(listClientEntities);
+        
+        var listRepository = new ListRepository(context);
+        
+        // Act
+        var actual = await listRepository.AddListMemberAsync("1", Guid.Parse("00000000-0000-0000-0000-000000000002"));
+        
+        // Assert
+        var expectedListClientEntity = new ListClientEntity()
+        {
+            ListId = "1",
+            ClientId = Guid.Parse("00000000-0000-0000-0000-000000000002")
+        };
+        context.ListClient.Should().ContainEquivalentOf(expectedListClientEntity);
+    }
+    
+    [Fact]
+    public async Task DeleteListMemberAsync_ShouldReturnListClient()
+    {
+        // Arrange
+        var listClientEntities = new List<ListClientEntity>
+        {
+            new ListClientEntity
+            {
+                ListId = "1",
+                ClientId = Guid.Parse("00000000-0000-0000-0000-000000000001")
+            }
+        };
+        
+        var context = DbHelper.CreateDatabase(listClientEntities);
+        
+        var listRepository = new ListRepository(context);
+        
+        // Act
+        var actual = await listRepository.DeleteListMemberAsync("1", Guid.Parse("00000000-0000-0000-0000-000000000001"));
+        
+        // Assert
+        var expectedListClientEntity = new ListClientEntity()
+        {
+            ListId = "1",
+            ClientId = Guid.Parse("00000000-0000-0000-0000-000000000001")
+        };
+        context.ListClient.Should().NotContainEquivalentOf(expectedListClientEntity);
     }
 }

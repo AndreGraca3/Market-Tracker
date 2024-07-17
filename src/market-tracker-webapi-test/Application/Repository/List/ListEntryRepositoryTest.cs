@@ -1,174 +1,91 @@
-﻿using System.Collections;
-using FluentAssertions;
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Infrastructure;
-using market_tracker_webapi.Infrastructure.PostgreSQLTables;
-using Microsoft.EntityFrameworkCore;
+﻿using FluentAssertions;
+using market_tracker_webapi.Application.Domain.Schemas.List;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
+using market_tracker_webapi.Application.Repository.List.ListEntry;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory.Product;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Store;
 
-namespace market_tracker_webapi_test.Application.Repository;
+namespace market_tracker_webapi_test.Application.Repository.List;
 
-/*
+
 public class ListEntryRepositoryTest
 {
     [Fact]
-    public async Task GetListEntriesAsync_ShouldReturnShoppingList()
+    public async Task GetListEntriesAsync_ShouldReturnListEntries()
     {
-        // Arrange
-        var context = CreateDatabase();
-        
-        var listEntryRepository = new ListEntryRepository(context);
-        
-        // Act
-        var result = await listEntryRepository.GetListEntriesAsync(1);
-        
-        // Assert
-        result.Should().BeEquivalentTo(new List<ListEntryEntity>()
+        var listEntryEntities = new List<ListEntryEntity>
         {
-            new()
+            new ListEntryEntity
             {
-                ListId = 1,
-                StoreId = 1,
-                ProductId = "product1",
-                Quantity = 1
+                ListId = "1",
+                ProductId = "1",
+                StoreId = 1
             },
-            new()
+            new ListEntryEntity
             {
-                ListId = 1,
-                StoreId = 1,
-                ProductId = "product2",
-                Quantity = 2
+                ListId = "1",
+                ProductId = "2",
+                StoreId = 2
             }
-        });
-    }
-    
-    [Fact]
-    public async Task GetListEntriesByListIdAsync_ShouldReturnListEntry()
-    {
-        // Arrange
-        var context = CreateDatabase();
+        };
         
-        var listEntryRepository = new ListEntryRepository(context);
-        
-        // Act
-        var result = await listEntryRepository.GetListEntryAsync(1, "product1");
-        
-        // Assert
-        result.Should().BeEquivalentTo(new ListEntry()
+        var productEntities = new List<ProductEntity>
         {
-            ListId = 1,
-            StoreId = 1,
-            ProductId = "product1",
-            Quantity = 1
-        });
-    }
-    
-    [Fact]
-    public async Task AddListEntryAsync_ShouldAddListEntry()
-    {
-        // Arrange
-        var context = CreateDatabase();
-        
-        var listEntryRepository = new ListEntryRepository(context);
-        
-        // Act
-        await listEntryRepository.AddListEntryAsync(1, "product3", 1, 3);
-        
-        // Assert
-        var result = await context.ListEntry.ToListAsync();
-        result.Should().BeEquivalentTo(new List<ListEntryEntity>()
-        {
-            new()
+            new ProductEntity
             {
-                ListId = 1,
-                StoreId = 1,
-                ProductId = "product1",
-                Quantity = 1
+                Id = "1",
+                BrandId = 1,
+                CategoryId = 1,
+                Name = "Product 1",
+                Quantity = 1,
+                Unit = "unidades",
+                Views = 1,
+                Rating = 1,
+                ImageUrl = "image_url1"
             },
-            new()
+            new ProductEntity
             {
-                ListId = 1,
-                StoreId = 1,
-                ProductId = "product2",
-                Quantity = 2
-            },
-            new()
-            {
-                ListId = 1,
-                StoreId = 1,
-                ProductId = "product3",
-                Quantity = 3
+                Id = "2",
+                BrandId = 2,
+                CategoryId = 2,
+                Name = "Product 2",
+                Quantity = 2,
+                Unit = "unidades",
+                Views = 2,
+                Rating = 2,
+                ImageUrl = "image_url2"
             }
-        });
-    }
-    
-    [Fact]
-    public async Task UpdateListEntryAsync_ShouldUpdateListEntry()
-    {
-        // Arrange
-        var context = CreateDatabase();
+        };
         
-        var listEntryRepository = new ListEntryRepository(context);
-        
-        // Act
-        await listEntryRepository.UpdateListEntryAsync(1, "product1", 1, 3);
-        
-        // Assert
-        var result = await context.ListEntry.ToListAsync();
-        result.Should().BeEquivalentTo(new List<ListEntryEntity>()
+        var brandEntities = new List<BrandEntity>
         {
-            new()
-            {
-                ListId = 1,
-                StoreId = 1,
-                ProductId = "product1",
-                Quantity = 3
-            },
-            new()
-            {
-                ListId = 1,
-                StoreId = 1,
-                ProductId = "product2",
-                Quantity = 2
-            }
-        });
-    }
-    
-    [Fact]
-    public async Task DeleteListEntryAsync_ShouldDeleteListEntry()
-    {
-        // Arrange
-        var context = CreateDatabase();
-        
-        var listEntryRepository = new ListEntryRepository(context);
-        
-        // Act
-        await listEntryRepository.DeleteListEntryAsync(1, "product1");
-        
-        // Assert
-        var result = await context.ListEntry.ToListAsync();
-        result.Should().BeEquivalentTo(new List<ListEntryEntity>()
-        {
-            new()
-            {
-                ListId = 1,
-                StoreId = 1,
-                ProductId = "product2",
-                Quantity = 2
-            }
-        });
-    }
-
-    private static MarketTrackerDataContext CreateDatabase()
-    {
-        var listEntities = new List<ListEntity>
-        {
-            new ListEntity
+            new BrandEntity
             {
                 Id = 1,
-                ClientId = Guid.Parse("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"),
-                Name = "List 1",
-                ArchivedAt = null,
-                CreatedAt = new DateTime(2024, 1, 1, 1, 1, 1, DateTimeKind.Unspecified)
+                Name = "Brand 1"
+            },
+            new BrandEntity
+            {
+                Id = 2,
+                Name = "Brand 2"
+            }
+        };
+        
+        var categoryEntities = new List<CategoryEntity>
+        {
+            new CategoryEntity
+            {
+                Id = 1,
+                Name = "Category 1"
+            },
+            new CategoryEntity
+            {
+                Id = 2,
+                Name = "Category 2"
             }
         };
         
@@ -179,61 +96,390 @@ public class ListEntryRepositoryTest
                 Id = 1,
                 Name = "Store 1",
                 Address = "Address 1",
-                CompanyId = 1,
-                CityId = 1
-            }
-        };
-        
-        var companyEntities = new List<CompanyEntity>
-        {
-            new CompanyEntity
+                OperatorId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                CityId = 1,
+                CompanyId = 1
+            },
+            new StoreEntity
             {
-                Id = 1,
-                Name = "Company 1"
+                Id = 2,
+                Name = "Store 2",
+                Address = "Address 2",
+                OperatorId = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                CityId = 2,
+                CompanyId = 2
             }
         };
         
-        var cityEntities = new List<CityEntity>
+        var context = DbHelper.CreateDatabase(listEntryEntities, productEntities, brandEntities, categoryEntities, storeEntities);
+        
+        var repository = new ListEntryRepository(context);
+        
+        // Act
+        var listEntries = await repository.GetListEntriesAsync("1", 1);
+            
+        // Assert
+        var expectedProduct1 = new Product(
+            new ProductId("1"),
+            "Product 1",
+            "image_url1",
+            1,
+            ProductUnit.Units,
+            1,
+            1,
+            new Brand(1, "Brand 1"),
+            new Category(new CategoryId(1), "Category 1")
+        );
+        
+        var expectedListEntries = new List<ListEntry>
         {
-            new CityEntity
-            {
-                Id = 1,
-                Name = "City 1"
-            }
+            new("1", expectedProduct1, new StoreItem(1, "Store 1", "Address 1", 1, 1, Guid.Parse("00000000-0000-0000-0000-000000000001")), 0),
         };
         
+        listEntries.Should().BeEquivalentTo(expectedListEntries, x => x.Excluding(y => y.Id));
+    }
+
+    // [Fact]
+    // public async Task GetListEntryByIdAsync_ShouldReturnListEntry()
+    // { 
+    //     var listEntryEntities = new List<ListEntryEntity>
+    //     {
+    //         new ListEntryEntity
+    //         {
+    //             Quantity = 0,
+    //             ListId = "1",
+    //             ProductId = "1",
+    //             StoreId = 1
+    //         },
+    //         new ListEntryEntity
+    //         {
+    //             Quantity = 0,
+    //             ListId = "1",
+    //             ProductId = "2",
+    //             StoreId = 2
+    //         }
+    //     };
+    //     
+    //     var productEntities = new List<ProductEntity>
+    //     {
+    //         new ProductEntity
+    //         {
+    //             Id = "1",
+    //             BrandId = 1,
+    //             CategoryId = 1,
+    //             Name = "Product 1",
+    //             Quantity = 1,
+    //             Unit = "unidades",
+    //             Views = 1,
+    //             Rating = 1,
+    //             ImageUrl = "image_url1"
+    //         },
+    //         new ProductEntity
+    //         {
+    //             Id = "2",
+    //             BrandId = 2,
+    //             CategoryId = 2,
+    //             Name = "Product 2",
+    //             Quantity = 2,
+    //             Unit = "unidades",
+    //             Views = 2,
+    //             Rating = 2,
+    //             ImageUrl = "image_url2"
+    //         }
+    //     };
+    //     
+    //     var brandEntities = new List<BrandEntity>
+    //     {
+    //         new BrandEntity
+    //         {
+    //             Id = 1,
+    //             Name = "Brand 1"
+    //         },
+    //         new BrandEntity
+    //         {
+    //             Id = 2,
+    //             Name = "Brand 2"
+    //         }
+    //     };
+    //     
+    //     var categoryEntities = new List<CategoryEntity>
+    //     {
+    //         new CategoryEntity
+    //         {
+    //             Id = 1,
+    //             Name = "Category 1"
+    //         },
+    //         new CategoryEntity
+    //         {
+    //             Id = 2,
+    //             Name = "Category 2"
+    //         }
+    //     };
+    //     
+    //     var storeEntities = new List<StoreEntity>
+    //     {
+    //         new StoreEntity
+    //         {
+    //             Id = 1,
+    //             Name = "Store 1",
+    //             Address = "Address 1",
+    //             OperatorId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+    //             CityId = 1,
+    //             CompanyId = 1
+    //         },
+    //         new StoreEntity
+    //         {
+    //             Id = 2,
+    //             Name = "Store 2",
+    //             Address = "Address 2",
+    //             OperatorId = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+    //             CityId = 2,
+    //             CompanyId = 2
+    //         }
+    //     };
+    //     
+    //     var context = DbHelper.CreateDatabase(listEntryEntities, productEntities, brandEntities, categoryEntities, storeEntities);
+    //     
+    //     var repository = new ListEntryRepository(context);
+    //     
+    //     // Act
+    //     var listEntry = await repository.GetListEntryByIdAsync("1");
+    //     
+    //     // Assert
+    //     var expectedProduct1 = new Product(
+    //         new ProductId("1"),
+    //         "Product 1",
+    //         "image_url1",
+    //         1,
+    //         ProductUnit.Units,
+    //         1,
+    //         1,
+    //         new Brand(1, "Brand 1"),
+    //         new Category(new CategoryId(1), "Category 1")
+    //     );
+    //     
+    //     var expectedListEntry = new ListEntry("1", expectedProduct1, new StoreItem(1, "Store 1", "Address 1", 1, 1, Guid.Parse("00000000-0000-0000-0000-000000000001")), 0);
+    //
+    //     listEntry.Should().BeEquivalentTo(expectedListEntry, x => x.Excluding(y => y.Id));
+    // }
+
+    [Fact]
+    public async Task GetListEntryByProductIdAsync_ShouldReturnsListEntry()
+    {
         var listEntryEntities = new List<ListEntryEntity>
         {
             new ListEntryEntity
             {
-                ListId = 1,
-                StoreId = 1,
-                ProductId = "product1",
-                Quantity = 1
+                ListId = "1",
+                ProductId = "1",
+                StoreId = 1
             },
             new ListEntryEntity
             {
-                ListId = 1,
-                StoreId = 1,
-                ProductId = "product2",
-                Quantity = 2
+                ListId = "1",
+                ProductId = "2",
+                StoreId = 2
             }
         };
         
-        DbContextOptions<MarketTrackerDataContext> options =
-            new DbContextOptionsBuilder<MarketTrackerDataContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
+        var productEntities = new List<ProductEntity>
+        {
+            new ProductEntity
+            {
+                Id = "1",
+                BrandId = 1,
+                CategoryId = 1,
+                Name = "Product 1",
+                Quantity = 1,
+                Unit = "unidades",
+                Views = 1,
+                Rating = 1,
+                ImageUrl = "image_url1"
+            },
+            new ProductEntity
+            {
+                Id = "2",
+                BrandId = 2,
+                CategoryId = 2,
+                Name = "Product 2",
+                Quantity = 2,
+                Unit = "unidades",
+                Views = 2,
+                Rating = 2,
+                ImageUrl = "image_url2"
+            }
+        };
+        
+        var brandEntities = new List<BrandEntity>
+        {
+            new BrandEntity
+            {
+                Id = 1,
+                Name = "Brand 1"
+            },
+            new BrandEntity
+            {
+                Id = 2,
+                Name = "Brand 2"
+            }
+        };
+        
+        var categoryEntities = new List<CategoryEntity>
+        {
+            new CategoryEntity
+            {
+                Id = 1,
+                Name = "Category 1"
+            },
+            new CategoryEntity
+            {
+                Id = 2,
+                Name = "Category 2"
+            }
+        };
+        
+        var storeEntities = new List<StoreEntity>
+        {
+            new StoreEntity
+            {
+                Id = 1,
+                Name = "Store 1",
+                Address = "Address 1",
+                OperatorId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                CityId = 1,
+                CompanyId = 1
+            },
+            new StoreEntity
+            {
+                Id = 2,
+                Name = "Store 2",
+                Address = "Address 2",
+                OperatorId = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                CityId = 2,
+                CompanyId = 2
+            }
+        };
+        
+        var context = DbHelper.CreateDatabase(listEntryEntities, productEntities, brandEntities, categoryEntities, storeEntities);
+        
+        var repository = new ListEntryRepository(context);
+        
+        // Act
+        var listEntry = await repository.GetListEntryByProductIdAsync("1", "1");
+        
+        // Assert
+        var expectedProduct1 = new Product(
+            new ProductId("1"),
+            "Product 1",
+            "image_url1",
+            1,
+            ProductUnit.Units,
+            1,
+            1,
+            new Brand(1, "Brand 1"),
+            new Category(new CategoryId(1), "Category 1")
+        );
+        
+        var expectedListEntry = new ListEntry("1", expectedProduct1, new StoreItem(1, "Store 1", "Address 1", 1, 1, Guid.Parse("00000000-0000-0000-0000-000000000001")), 0);
 
-        var databaseContext = new MarketTrackerDataContext(options);
-        databaseContext.List.AddRange(listEntities);
-        databaseContext.ListEntry.AddRange(listEntryEntities);
-        databaseContext.Store.AddRange(storeEntities);
-        databaseContext.Company.AddRange(companyEntities);
-        databaseContext.City.AddRange(cityEntities);
-        databaseContext.SaveChanges();
-        databaseContext.Database.EnsureCreated();
-        return databaseContext;
+        listEntry.Should().BeEquivalentTo(expectedListEntry, x => x.Excluding(y => y.Id));
     }
+
+    [Fact]
+    public async Task AddListEntryAsync_ReturnsListEntryId()
+    {
+        var context = DbHelper.CreateDatabase();
+
+        var repository = new ListEntryRepository(context);
+        
+        // Act
+        var listEntry = await repository.AddListEntryAsync("1", "1", 1, 1);
+        
+        // Assert
+        var expectedListEntry = new ListEntryEntity()
+        {
+            ProductId = "1",
+            ListId = "1",
+            StoreId = 1,
+            Quantity = 1
+        };
+
+        context.ListEntry.Should().ContainEquivalentOf(expectedListEntry, x => x.Excluding(y => y.Id));
+    }
+
+    // [Fact]
+    // public async Task UpdateListEntryByIdAsync_ReturnListEntry()
+    // {
+    //     // Arrange
+    //     var listEntryEntities = new List<ListEntryEntity>
+    //     {
+    //         new ListEntryEntity
+    //         {
+    //             ListId = "1",
+    //             ProductId = "1",
+    //             StoreId = 1
+    //         },
+    //         new ListEntryEntity
+    //         {
+    //             ListId = "1",
+    //             ProductId = "2",
+    //             StoreId = 2
+    //         }
+    //     };
+    //
+    //     var context = DbHelper.CreateDatabase(listEntryEntities);
+    //
+    //     var repository = new ListEntryRepository(context);
+    //     
+    //     // Act
+    //     var updatedListEntry = await repository.UpdateListEntryByIdAsync("1", null, 3);
+    //     
+    //     // Assert
+    //     var expectedUpdatedListEntry = new ListEntryEntity
+    //     {
+    //         ListId = "1",
+    //         ProductId = "1",
+    //         StoreId = 1,
+    //         Quantity = 3
+    //     };
+    //
+    //     updatedListEntry.Should().BeEquivalentTo(expectedUpdatedListEntry);
+    // }
+    
+    // [Fact]
+    // public async Task DeleteListEntryByIdAsync_ReturnsListEntry()
+    // {
+    //     var listEntryEntities = new List<ListEntryEntity>
+    //     {
+    //         new ListEntryEntity
+    //         {
+    //             ListId = "1",
+    //             ProductId = "1",
+    //             StoreId = 1
+    //         },
+    //         new ListEntryEntity
+    //         {
+    //             ListId = "1",
+    //             ProductId = "2",
+    //             StoreId = 2
+    //         }
+    //     };
+    //     
+    //     var context = DbHelper.CreateDatabase(listEntryEntities);
+    //     
+    //     var repository = new ListEntryRepository(context);
+    //     
+    //     // Act
+    //     var deletedListEntry = await repository.DeleteListEntryByIdAsync("1");
+    //     
+    //     // Assert
+    //     var expectedDeletedListEntry = new ListEntryEntity
+    //     {
+    //         ListId = "1",
+    //         ProductId = "1",
+    //         StoreId = 1
+    //     };
+    //
+    //     context.ListEntry.Should().NotContainEquivalentOf(expectedDeletedListEntry);
+    // }
 }
-*/
