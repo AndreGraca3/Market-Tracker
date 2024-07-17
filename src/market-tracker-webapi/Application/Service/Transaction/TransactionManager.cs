@@ -1,7 +1,9 @@
-﻿using market_tracker_webapi.Infrastructure;
+﻿using System.Diagnostics.CodeAnalysis;
+using market_tracker_webapi.Infrastructure;
 
 namespace market_tracker_webapi.Application.Service.Transaction;
 
+[ExcludeFromCodeCoverage]
 public class TransactionManager(MarketTrackerDataContext dataContext) : ITransactionManager
 {
     public async Task<T> ExecuteAsync<T>(Func<Task<T>> action)

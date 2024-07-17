@@ -1,4 +1,5 @@
-﻿using FirebaseAdmin;
+﻿using System.Diagnostics.CodeAnalysis;
+using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using market_tracker_webapi.Application.Http.Pipeline.Authorization;
 using market_tracker_webapi.Application.Repository.Account.Credential;
@@ -38,6 +39,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace market_tracker_webapi.Application.Service.DependencyResolver
 {
+    [ExcludeFromCodeCoverage]
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddPgSqlServer(
