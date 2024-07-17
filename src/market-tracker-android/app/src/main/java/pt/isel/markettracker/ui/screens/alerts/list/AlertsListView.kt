@@ -1,4 +1,4 @@
-package pt.isel.markettracker.ui.screens.favorites.list
+package pt.isel.markettracker.ui.screens.alerts.list
 
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -17,18 +17,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.R
 import pt.isel.markettracker.ui.components.common.LoadingIcon
-import pt.isel.markettracker.ui.screens.favorites.FavoriteScreenState
-import pt.isel.markettracker.ui.screens.favorites.card.FavoriteProductCard
-import pt.isel.markettracker.ui.screens.favorites.extractFavorites
+import pt.isel.markettracker.ui.screens.alerts.AlertsScreenState
+import pt.isel.markettracker.ui.screens.alerts.card.AlertProductCard
+import pt.isel.markettracker.ui.screens.alerts.extractAlerts
 
 @Composable
-fun FavoriteListView(
-    state: FavoriteScreenState,
-    onDeleteProductFromFavoritesRequested: (String) -> Unit,
+fun AlertsListView(
+    state: AlertsScreenState,
+    onDeleteProductFromAlertsRequested: (String) -> Unit,
 ) {
     when (state) {
-        is FavoriteScreenState.Loaded -> {
-            val favorites = state.extractFavorites()
+        is AlertsScreenState.Loaded -> {
+            val favorites = state.extractAlerts()
             if (favorites.isEmpty()) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,10 +53,10 @@ fun FavoriteListView(
                     ) {
                         Log.v("Favorites", "Favorites are $favorites")
                         items(favorites.size) { index ->
-                            FavoriteProductCard(
-                                product = favorites[index],
-                                onRemoveFromFavoritesRequested = {
-                                    onDeleteProductFromFavoritesRequested(favorites[index].productId)
+                            AlertProductCard(
+                                priceAlert = favorites[index],
+                                onRemoveFromAlertsRequested = {
+                                    onDeleteProductFromAlertsRequested(favorites[index].productId)
                                 }
                             )
                         }
@@ -65,7 +65,7 @@ fun FavoriteListView(
             }
         }
 
-        is FavoriteScreenState.Loading -> {
+        is AlertsScreenState.Loading -> {
             LoadingIcon(text = "Carregando os Favoritos...")
         }
 
