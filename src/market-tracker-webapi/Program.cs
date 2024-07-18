@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using market_tracker_webapi.Application.Http;
 using market_tracker_webapi.Application.Http.Pipeline;
@@ -14,6 +15,7 @@ using Microsoft.OData.ModelBuilder;
 
 namespace market_tracker_webapi;
 
+[ExcludeFromCodeCoverage]
 static class Program
 {
     public static void Main(string[] args)
