@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.operations.product.IProductService
@@ -17,6 +18,8 @@ import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.screens.product.alert.PriceAlertState
 import pt.isel.markettracker.ui.screens.product.rating.ProductPreferencesState
+import pt.isel.markettracker.ui.screens.products.list.AddToListState
+import pt.isel.markettracker.ui.screens.products.list.toSuccess
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -324,5 +327,50 @@ class ProductDetailsScreenViewModel @Inject constructor(
                 _stateFlow.value = ProductDetailsScreenState.Failed(it)
             }
         }
+    }
+
+    private val _addToListStateFlow: MutableStateFlow<AddToListState> =
+        MutableStateFlow(AddToListState.Idle)
+    val addToListStateFlow
+        get() = _addToListStateFlow.asStateFlow()
+
+    fun selectListToAddProduct(productOffer: ProductOffer) {
+        val authState = authRepository.authState.value
+        if (!authState.isLoggedIn()) return
+
+        _addToListStateFlow.value = AddToListState.SelectingList(productOffer)
+    }
+
+    fun addProductToList(listId: String) {
+        val state = _addToListStateFlow.value
+        if (state !is AddToListState.SelectingList) return
+
+        _addToListStateFlow.value = AddToListState.AddingToList(
+            state.productOffer,
+            listId
+        )
+
+        viewModelScope.launch {
+            val newState = _addToListStateFlow.value
+            if (newState !is AddToListState.AddingToList) return@launch
+
+            val res = runCatchingAPIFailure {
+                productService.addProductToList(
+                    listId,
+                    state.productOffer.product.id,
+                    state.productOffer.storeOffer.store.id
+                )
+            }
+
+            res.onSuccess {
+                _addToListStateFlow.value = newState.toSuccess()
+            }
+
+            res.onFailure { _addToListStateFlow.value = AddToListState.Failed(it) }
+        }
+    }
+
+    fun resetAddToListState() {
+        _addToListStateFlow.value = AddToListState.Idle
     }
 }

@@ -99,7 +99,7 @@ fun ProductsScreenView(
                     is AddToListState.Success -> {
                         SweetToastUtil.SweetSuccess(
                             message = "Product added to list",
-                            padding = PaddingValues(32.dp),
+                            padding = PaddingValues(42.dp),
                             contentAlignment = Alignment.BottomCenter
                         )
                     }
@@ -107,7 +107,7 @@ fun ProductsScreenView(
                     is AddToListState.Failed -> {
                         SweetToastUtil.SweetError(
                             message = addToListState.error.localizedMessage
-                                ?: "Failed to add product to list", padding = PaddingValues(32.dp),
+                                ?: "Failed to add product to list", padding = PaddingValues(42.dp),
                             contentAlignment = Alignment.BottomCenter
                         )
                     }

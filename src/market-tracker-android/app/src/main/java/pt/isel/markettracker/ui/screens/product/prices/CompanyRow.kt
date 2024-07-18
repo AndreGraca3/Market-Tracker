@@ -30,8 +30,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import pt.isel.markettracker.R
+import pt.isel.markettracker.domain.model.market.Company
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
+import pt.isel.markettracker.domain.model.market.price.StoreOffer
 import pt.isel.markettracker.dummy.dummyCompanyPrices
 import pt.isel.markettracker.ui.screens.product.alert.PriceAlertDialog
 import pt.isel.markettracker.ui.screens.product.stores.StoresBottomSheet
@@ -43,7 +45,8 @@ fun CompanyRow(
     showOptions: Boolean,
     alerts: List<PriceAlert>,
     onAlertSet: (Int, Int) -> Unit,
-    onAlertDelete: (String) -> Unit
+    onAlertDelete: (String) -> Unit,
+    onAddToListClick: (StoreOffer) -> Unit
 ) {
     var showCompanyStores by rememberSaveable { mutableStateOf(false) }
     var showAlertDialog by rememberSaveable { mutableStateOf(false) }
@@ -102,6 +105,17 @@ fun CompanyRow(
                 hasAlert = alert != null,
                 onAlertClick = {
                     if (alert != null) onAlertDelete(alert.id) else showAlertDialog = true
+                },
+                onAddToListClick = {
+                    onAddToListClick(
+                        selectedStoreOffer.toStoreOffer(
+                            Company(
+                                companyPrices.id,
+                                companyPrices.name,
+                                companyPrices.logoUrl
+                            )
+                        )
+                    )
                 }
             )
         } else {
@@ -135,5 +149,5 @@ fun CompanyRow(
 @Preview
 @Composable
 fun PriceRowPreview() {
-    CompanyRow(dummyCompanyPrices.first(), true, emptyList(), { _, _ -> }, { })
+    CompanyRow(dummyCompanyPrices.first(), true, emptyList(), { _, _ -> }, { }, {})
 }

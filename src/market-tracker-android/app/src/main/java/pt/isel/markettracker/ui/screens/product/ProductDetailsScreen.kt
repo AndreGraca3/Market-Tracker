@@ -19,8 +19,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.talhafaki.composablesweettoast.util.SweetToastUtil
 import pt.isel.markettracker.R
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.repository.auth.extractAlerts
+import pt.isel.markettracker.repository.auth.extractLists
 import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.screens.product.alert.PriceAlertState
 import pt.isel.markettracker.ui.screens.product.components.ProductNotFoundDialog
@@ -32,6 +34,8 @@ import pt.isel.markettracker.ui.screens.product.rating.extractPreferences
 import pt.isel.markettracker.ui.screens.product.reviews.ReviewsBottomSheet
 import pt.isel.markettracker.ui.screens.product.specs.ProductImage
 import pt.isel.markettracker.ui.screens.product.specs.ProductSpecs
+import pt.isel.markettracker.ui.screens.products.list.AddToListState
+import pt.isel.markettracker.ui.screens.products.list.ListsBottomSheet
 
 @Composable
 fun ProductDetailsScreen(
@@ -97,7 +101,12 @@ fun ProductDetailsScreen(
                         if (product != null) vm.createAlert(product.id, id, price)
                     }
                 },
-                onAlertDelete = vm::deleteAlert
+                onAlertDelete = vm::deleteAlert,
+                onAddToListClick = { storeOffer ->
+                    if (product != null) vm.selectListToAddProduct(
+                        ProductOffer(product, storeOffer)
+                    )
+                }
             )
         }
 
@@ -124,33 +133,63 @@ fun ProductDetailsScreen(
                 onDismissRequest = { isRatingDialogOpen = false }
             )
         }
+    }
 
-        when (priceAlertState) {
-            is PriceAlertState.Created -> {
-                SweetToastUtil.SweetSuccess(
-                    message = stringResource(id = R.string.alert_set),
-                    contentAlignment = Alignment.TopCenter,
-                    padding = PaddingValues(top = 18.dp)
-                )
-            }
-
-            is PriceAlertState.Deleted -> {
-                SweetToastUtil.SweetSuccess(
-                    message = stringResource(id = R.string.alert_removed),
-                    contentAlignment = Alignment.TopCenter,
-                    padding = PaddingValues(top = 18.dp)
-                )
-            }
-
-            is PriceAlertState.Error -> {
-                SweetToastUtil.SweetError(
-                    message = stringResource(id = R.string.alert_error),
-                    contentAlignment = Alignment.TopCenter,
-                    padding = PaddingValues(top = 18.dp)
-                )
-            }
-
-            else -> {}
+    when (priceAlertState) {
+        is PriceAlertState.Created -> {
+            SweetToastUtil.SweetSuccess(
+                message = stringResource(id = R.string.alert_set),
+                contentAlignment = Alignment.TopCenter,
+                padding = PaddingValues(top = 18.dp)
+            )
         }
+
+        is PriceAlertState.Deleted -> {
+            SweetToastUtil.SweetSuccess(
+                message = stringResource(id = R.string.alert_removed),
+                contentAlignment = Alignment.TopCenter,
+                padding = PaddingValues(top = 18.dp)
+            )
+        }
+
+        is PriceAlertState.Error -> {
+            SweetToastUtil.SweetError(
+                message = stringResource(id = R.string.alert_error),
+                contentAlignment = Alignment.TopCenter,
+                padding = PaddingValues(top = 18.dp)
+            )
+        }
+
+        else -> {}
+    }
+
+    val addToListState by vm.addToListStateFlow.collectAsState()
+
+    when (addToListState) {
+        is AddToListState.SelectingList -> {
+            ListsBottomSheet(
+                shoppingLists = authState.extractLists(),
+                onListSelectedClick = vm::addProductToList,
+                onDismissRequest = vm::resetAddToListState
+            )
+        }
+
+        is AddToListState.Success -> {
+            SweetToastUtil.SweetSuccess(
+                message = stringResource(id = R.string.added_to_list_successfully),
+                contentAlignment = Alignment.TopCenter,
+                padding = PaddingValues(top = 18.dp)
+            )
+        }
+
+        is AddToListState.Failed -> {
+            SweetToastUtil.SweetError(
+                message = stringResource(id = R.string.error_adding_to_list),
+                contentAlignment = Alignment.TopCenter,
+                padding = PaddingValues(top = 18.dp)
+            )
+        }
+
+        else -> {}
     }
 }

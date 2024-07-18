@@ -14,6 +14,8 @@
     <string name="product_not_found_title">Produto não encontrado</string>
     <string name="product_not_found_message">Parece que ainda não temos este produto na nossa base de dados</string>
     <string name="product_loading_error">Erro ao carregar produto</string>
+    <string name="added_to_list_successfully">Produto adicionado à lista</string>
+    <string name="error_adding_to_list">Erro ao adicionar produto à lista</string>
     <string name="community_ratings_section_title">Avaliações da comunidade</string>
     <string name="user_rating_section_title">Sua avaliação</string>
     <string name="global_ratings_name">avaliações globais</string>

@@ -33,9 +33,7 @@ fun ProductsScreen(
                 productsScreenViewModel.selectProductToAddToList(productOffer)
             else navigateToLogin()
         },
-        onListSelectedClick = { listId ->
-            productsScreenViewModel.addProductToList(listId)
-        },
+        onListSelectedClick = productsScreenViewModel::addProductToList,
         onAddToListDismissRequest = { productsScreenViewModel.resetAddToListState() },
         onBarcodeScanRequest = onBarcodeScanRequest
     )

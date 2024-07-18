@@ -47,6 +47,7 @@ fun CompanyPriceBox(
     showOptions: Boolean,
     hasAlert: Boolean,
     onAlertClick: () -> Unit,
+    onAddToListClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val positionProvider = rememberPlainTooltipPositionProvider()
@@ -112,7 +113,7 @@ fun CompanyPriceBox(
             }
 
             AnimatedVisibility(visible = showOptions) {
-                AddToListButton(onClick = {})
+                AddToListButton(onClick = onAddToListClick)
             }
         }
     }
@@ -126,6 +127,7 @@ fun CompanyPriceBoxPreview() {
         lastChecked = LocalDateTime.now(),
         showOptions = true,
         hasAlert = false,
-        onAlertClick = {}
+        onAlertClick = {},
+        onAddToListClick = {}
     )
 }

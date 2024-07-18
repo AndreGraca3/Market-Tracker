@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.domain.model.market.price.ProductPrices
+import pt.isel.markettracker.domain.model.market.price.StoreOffer
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 import pt.isel.markettracker.utils.shimmerEffect
 
@@ -32,7 +33,8 @@ fun PricesSection(
     showOptions: Boolean,
     alerts: List<PriceAlert>,
     onAlertSet: (Int, Int) -> Unit,
-    onAlertDelete: (String) -> Unit
+    onAlertDelete: (String) -> Unit,
+    onAddToListClick: (StoreOffer) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(21.dp)
@@ -69,7 +71,7 @@ fun PricesSection(
                         color = Color.Red
                     )
                 } else companiesPricing.forEach {
-                    CompanyRow(it, showOptions, alerts, onAlertSet, onAlertDelete)
+                    CompanyRow(it, showOptions, alerts, onAlertSet, onAlertDelete, onAddToListClick)
                     HorizontalDivider()
                 }
             } ?: repeat(3) {
