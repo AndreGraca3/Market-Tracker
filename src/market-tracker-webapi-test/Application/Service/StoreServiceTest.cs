@@ -237,4 +237,94 @@ public class StoreServiceTest
         // Assert
         result.Should().BeEquivalentTo(new StoreId(MockedData.DummyStores[0].Id.Value));
     }
+    
+    [Fact]
+    public async Task AddStoreAsync_WhenStoreNameAlreadyExists_ShouldReturnStoreNameAlreadyExists()
+    {
+        // Arrange
+        _storeRepositoryMock
+            .Setup(x => x.GetStoreByNameAsync("Store 1"))
+            .ReturnsAsync(MockedData.DummyStores[0]);
+
+        // Act
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _storeService.AddStoreAsync("Store 1", "Address 1", 1, 1, Guid.Parse("00000000-0000-0000-0000-000000000001")));
+
+        // Assert
+        result.ServiceError.Should().BeEquivalentTo(new StoreCreationError.StoreNameAlreadyExists("Store 1"));
+    }
+    
+    [Fact]
+    public async Task AddStoreAsync_WhenCityDoesNotExist_ShouldReturnCityByIdNotFound()
+    {
+        // Arrange
+        _storeRepositoryMock
+            .Setup(x => x.GetStoreByNameAsync("Store 1"))
+            .ReturnsAsync((Store?)null);
+
+        _cityRepositoryMock
+            .Setup(x => x.GetCityByIdAsync(1))
+            .ReturnsAsync((City?)null);
+
+        // Act
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _storeService.AddStoreAsync("Store 1", "Address 1", 1, 1, Guid.Parse("00000000-0000-0000-0000-000000000001")));
+
+        // Assert
+        result.ServiceError.Should().BeEquivalentTo(new CityFetchingError.CityByIdNotFound(1));
+    }
+    
+    [Fact]
+    public async Task AddStoreAsync_WhenCompanyDoesNotExist_ShouldReturnCompanyByIdNotFound()
+    {
+        // Arrange
+        _storeRepositoryMock
+            .Setup(x => x.GetStoreByNameAsync("Store 1"))
+            .ReturnsAsync((Store?)null);
+
+        _cityRepositoryMock
+            .Setup(x => x.GetCityByIdAsync(1))
+            .ReturnsAsync(MockedData.DummyStores[0].City);
+
+        _companyRepositoryMock
+            .Setup(x => x.GetCompanyByIdAsync(1))
+            .ReturnsAsync((Company?)null);
+
+        // Act
+        var result = await Assert.ThrowsAsync<MarketTrackerServiceException>(async () =>
+            await _storeService.AddStoreAsync("Store 1", "Address 1", 1, 1, Guid.Parse("00000000-0000-0000-0000-000000000001")));
+
+        // Assert
+        result.ServiceError.Should().BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(1));
+    }
+    
+    [Fact]
+    public async Task AddStoreAsync_WhenStoreIsAdded_ShouldReturnStoreId()
+    {
+        // Arrange
+        var newStore = new Store(1, "Store 1", "Address 1", new City(1, "city1"),
+            new Company(1, "company1", "company1", DateTime.UtcNow), Guid.NewGuid());
+
+        _storeRepositoryMock
+            .Setup(x => x.GetStoreByNameAsync("Store 1"))
+            .ReturnsAsync((Store?)null);
+
+        _cityRepositoryMock
+            .Setup(x => x.GetCityByIdAsync(1))
+            .ReturnsAsync(MockedData.DummyStores[0].City);
+
+        _companyRepositoryMock
+            .Setup(x => x.GetCompanyByIdAsync(1))
+            .ReturnsAsync(MockedData.DummyStores[0].Company);
+
+        _storeRepositoryMock
+            .Setup(x => x.AddStoreAsync("Store 1", "Address 1", 1, 1, Guid.Parse("00000000-0000-0000-0000-000000000001")))
+            .ReturnsAsync(new StoreId(newStore.Id.Value));
+
+        // Act
+        var result = await _storeService.AddStoreAsync("Store 1", "Address 1", 1, 1, Guid.Parse("00000000-0000-0000-0000-000000000001"));
+
+        // Assert
+        result.Should().BeEquivalentTo(new StoreId(newStore.Id.Value));
+    }
 }
