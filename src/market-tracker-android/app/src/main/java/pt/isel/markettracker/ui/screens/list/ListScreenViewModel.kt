@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ListScreenViewModel @Inject constructor(
     private val listService: IListService,
-    private val authRepository: IAuthRepository
+    private val authRepository: IAuthRepository,
 ) : ViewModel() {
     private val _listsInfoFlow: MutableStateFlow<ShoppingListsScreenState> =
         MutableStateFlow(ShoppingListsScreenState.Idle)
@@ -60,8 +60,15 @@ class ListScreenViewModel @Inject constructor(
             }.onSuccess {
                 authRepository.addList(
                     ShoppingList(
-                        it, listName, null, LocalDateTime.now(),
-                        "", true, false, 1)
+                        id = it,
+                        name = listName,
+                        archivedAt = null,
+                        createdAt = LocalDateTime.now(),
+                        ownerId = "",
+                        isOwner = true,
+                        isArchived = false,
+                        numberOfMembers = 1
+                    )
                 )
                 listName = ""
                 isCreatingNewList = false
@@ -84,6 +91,9 @@ class ListScreenViewModel @Inject constructor(
             }.onSuccess {
                 oldShoppingLists
                     .removeIf { it.id == editState.currentListEditing.id }
+                authRepository.removeList(
+                    editState.currentListEditing.id
+                )
                 _listsInfoFlow.value = ShoppingListsScreenState.Loaded(oldShoppingLists)
             }.onFailure {
                 _listsInfoFlow.value = ShoppingListsScreenState.Failed(it)

@@ -94,13 +94,16 @@ fun ListDetailsScreenView(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    MarketTrackerOutlinedButton(
-                        text = "Vamos ás compras",
-                        icon = Icons.Default.ShoppingCartCheckout,
-                        onClick = onGenerateCheapestList,
-                        modifier = Modifier
-                            .padding(horizontal = 60.dp)
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        MarketTrackerOutlinedButton(
+                            text = "Vamos ás compras",
+                            icon = Icons.Default.ShoppingCartCheckout,
+                            onClick = onGenerateCheapestList,
+                        )
+                    }
                 }
             }
         }

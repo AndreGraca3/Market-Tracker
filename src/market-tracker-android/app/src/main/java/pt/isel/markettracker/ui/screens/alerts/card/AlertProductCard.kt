@@ -65,8 +65,8 @@ fun AlertProductCard(
                         .fillMaxWidth(.2F)
                 ) {
                     LoadableImage(
-                        url = "imageUrl" /**priceAlert.imageUrl**/,
-                        contentDescription = "name"/**priceAlert.name**/,
+                        url = priceAlert.product.imageUrl,
+                        contentDescription = priceAlert.product.name,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -81,9 +81,7 @@ fun AlertProductCard(
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(
-                            text = "brandname"
-                            /**priceAlert.brandName**/
-                            ,
+                            text = priceAlert.store.name,
                             style = MarketTrackerTypography.labelMedium,
                             color = Primary600,
                             overflow = TextOverflow.Ellipsis,
@@ -97,7 +95,7 @@ fun AlertProductCard(
                             verticalArrangement = Arrangement.spacedBy(2.dp),
                         ) {
                             Text(
-                                text = "name" /**priceAlert.name**/,
+                                text = priceAlert.product.name,
                                 style = MarketTrackerTypography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 overflow = TextOverflow.Ellipsis,

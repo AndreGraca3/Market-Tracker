@@ -38,7 +38,7 @@ fun FavoriteListView(
                         contentDescription = "No products found"
                     )
                     Text(
-                        text = stringResource(id = R.string.products_not_found)
+                        text = stringResource(id = R.string.favorites_not_found)
                     )
                 }
             } else {

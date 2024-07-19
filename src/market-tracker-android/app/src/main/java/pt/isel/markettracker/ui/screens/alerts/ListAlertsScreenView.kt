@@ -46,7 +46,7 @@ fun ListAlertsScreenView(
                             .size(48.dp)
                     )
                     Text(
-                        text = "Favoritos 🔔",
+                        text = "Alertas 🔔",
                         color = Color.White,
                         fontFamily = mainFont,
                         fontSize = 30.sp,

@@ -97,7 +97,7 @@ fun CompanyRow(
         }
 
         if (selectedStoreOffer.isAvailable) {
-            val alert = alerts.find { it.storeId == selectedStoreOffer.store.id }
+            val alert = alerts.find { it.store.id == selectedStoreOffer.store.id }
             CompanyPriceBox(
                 price = selectedStoreOffer.price,
                 lastChecked = selectedStoreOffer.lastChecked,
