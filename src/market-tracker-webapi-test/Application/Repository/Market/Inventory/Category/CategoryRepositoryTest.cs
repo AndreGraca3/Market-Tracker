@@ -1,4 +1,5 @@
 using FluentAssertions;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory;
 using market_tracker_webapi.Application.Repository.Market.Inventory.Category;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory;
 
@@ -10,14 +11,15 @@ public class CategoryRepositoryTest
     public async Task GetCategoryByIdAsync_ReturnsObjectAsync()
     {
         // Arrange
-        var expectedCategory = new CategoryEntity { Id = 1, Name = "Talho" };
 
         var mockedEntities = new List<CategoryEntity>
         {
-            expectedCategory,
+            new() { Id = 1, Name = "Talho" },
             new() { Id = 2, Name = "Legumes" },
             new() { Id = 3, Name = "Mercearia" }
         };
+        
+        var expectedCategoryObj = new Category(1, "Talho");
 
         var context = DbHelper.CreateDatabase(mockedEntities);
         var categoryRepo = new CategoryRepository(context);
@@ -26,7 +28,7 @@ public class CategoryRepositoryTest
         var actualCategory = await categoryRepo.GetCategoryByIdAsync(1);
 
         // Assert
-        actualCategory.Should().BeEquivalentTo(expectedCategory);
+        actualCategory.Should().BeEquivalentTo(expectedCategoryObj);
     }
 
     [Fact]
@@ -54,14 +56,15 @@ public class CategoryRepositoryTest
     public async Task GetCategoryByNameAsync_ReturnsObjectAsync()
     {
         // Arrange
-        var expectedCategory = new CategoryEntity { Id = 1, Name = "Talho" };
 
         var mockedEntities = new List<CategoryEntity>
         {
-            expectedCategory,
+            new() { Id = 1, Name = "Talho" },
             new() { Id = 2, Name = "Legumes" },
             new() { Id = 3, Name = "Mercearia" }
         };
+        
+        var expectedCategory = new Category(1, "Talho");
 
         var context = DbHelper.CreateDatabase(mockedEntities);
         var categoryRepo = new CategoryRepository(context);
@@ -98,14 +101,21 @@ public class CategoryRepositoryTest
     public async Task GetCategoriesAsync_ReturnsListAsync()
     {
         // Arrange
-        var expectedCategories = new List<CategoryEntity>
+        var categoryEntities = new List<CategoryEntity>
         {
             new() { Id = 1, Name = "Talho" },
             new() { Id = 2, Name = "Legumes" },
             new() { Id = 3, Name = "Mercearia" }
         };
+        
+        var expectedCategories = new List<Category>
+        {
+            new(1, "Talho"),
+            new(2, "Legumes"),
+            new(3, "Mercearia")
+        };
 
-        var context = DbHelper.CreateDatabase(expectedCategories);
+        var context = DbHelper.CreateDatabase(categoryEntities);
         var categoryRepo = new CategoryRepository(context);
 
         // Act
@@ -142,26 +152,28 @@ public class CategoryRepositoryTest
         var actualCategory = await categoryRepo.AddCategoryAsync(expectedCategory.Name);
 
         // Assert
-        actualCategory.Should().Be(expectedCategory.Id);
+        actualCategory.Value.Should().Be(expectedCategory.Id);
     }
 
     [Fact]
     public async Task UpdateCategoryAsync_ReturnsObjectAsync()
     {
         // Arrange
-        var expectedCategory = new CategoryEntity { Id = 1, Name = "Talho" };
+        var categoryEntity = new CategoryEntity { Id = 1, Name = "Talho" };
 
-        var context = DbHelper.CreateDatabase([expectedCategory]);
+        var context = DbHelper.CreateDatabase([categoryEntity]);
         var categoryRepo = new CategoryRepository(context);
+
+        var expectedCategory = new Category(Id: 1, Name: "Peixaria");
 
         // Act
         var actualCategory = await categoryRepo.UpdateCategoryAsync(
-            expectedCategory.Id,
+            categoryEntity.Id,
             "Peixaria"
         );
 
         // Assert
-        actualCategory.Should().BeEquivalentTo(new CategoryEntity { Id = 1, Name = "Peixaria" });
+        actualCategory.Should().BeEquivalentTo(expectedCategory);
     }
 
     [Fact]
@@ -182,13 +194,14 @@ public class CategoryRepositoryTest
     public async Task DeleteCategoryAsync_ReturnsObjectAsync()
     {
         // Arrange
-        var expectedCategory = new CategoryEntity { Id = 1, Name = "Talho" };
+        var categoryEntity = new CategoryEntity { Id = 1, Name = "Talho" };
+        var expectedCategory = new Category(Id: 1, Name: "Talho");
 
-        var context = DbHelper.CreateDatabase([expectedCategory]);
+        var context = DbHelper.CreateDatabase([categoryEntity]);
         var categoryRepo = new CategoryRepository(context);
 
         // Act
-        var actualCategory = await categoryRepo.RemoveCategoryAsync(expectedCategory.Id);
+        var actualCategory = await categoryRepo.RemoveCategoryAsync(categoryEntity.Id);
 
         // Assert
         actualCategory.Should().BeEquivalentTo(expectedCategory);

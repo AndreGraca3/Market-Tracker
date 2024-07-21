@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace market_tracker_webapi.Application.Utils;
 
+[ExcludeFromCodeCoverage]
 public static class RandomStringGenerator
 {
     public static string GenerateRandomString(int length)

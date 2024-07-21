@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using FirebaseAdmin.Messaging;
 
 namespace market_tracker_webapi.Application.Service.External;
 
+[ExcludeFromCodeCoverage]
 public class NotificationService : INotificationService
 {
     public async Task<bool> SendNotificationToTokenAsync(string title, string body, string token)

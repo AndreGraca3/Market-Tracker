@@ -1,9 +1,19 @@
-﻿namespace market_tracker_webapi_test.Application.Controllers;
+﻿using FluentAssertions;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
+using market_tracker_webapi.Application.Http.Controllers.Market;
+using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Schemas.Market.Retail.Company;
+using market_tracker_webapi.Application.Service.Operations.Market.Company;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 
-/*
+namespace market_tracker_webapi_test.Application.Controllers;
+
+
 public class CompanyControllerTest
 {
     private readonly Mock<ICompanyService> _companyServiceMock;
+    
     private readonly CompanyController _companyController;
 
     public CompanyControllerTest()
@@ -11,270 +21,79 @@ public class CompanyControllerTest
         _companyServiceMock = new Mock<ICompanyService>();
         _companyController = new CompanyController(_companyServiceMock.Object);
     }
-
+    
     [Fact]
-    public async Task GetCompaniesAsync_RespondsWith_Ok_ReturnsObjectAsync()
+    public async Task GetCompaniesAsync_ReturnsCompanies()
     {
-        // Expected Arrange
-        var expectedCompanies = new List<Company>
+        // Arrange
+        var companies = new List<Company>()
         {
-            new()
-            {
-                Id = 1,
-                Name = "Company 1",
-                CreatedAt = DateTime.UtcNow
-            },
-            new()
-            {
-                Id = 2,
-                Name = "Company 2",
-                CreatedAt = DateTime.UtcNow
-            }
+            new(1, "Company 1", "https://company1.com/logo.png", new DateTime(2024, 01, 01, 0 ,0 ,0, DateTimeKind.Unspecified)),
         };
-
-        // Service Arrange
         _companyServiceMock
             .Setup(service => service.GetCompaniesAsync())
-            .ReturnsAsync(EitherExtensions.Success<IServiceError, CollectionOutputModel>(
-                new CollectionOutputModel(expectedCompanies)
-            ));
-
+            .ReturnsAsync(companies);
+        
         // Act
-        var actual = await _companyController.GetCompaniesAsync();
-
+        var result = await _companyController.GetCompaniesAsync();
+        
         // Assert
-        var result = Assert.IsType<OkObjectResult>(actual.Result);
-        var actualCompaniesCollection = Assert.IsAssignableFrom<CollectionOutputModel>(
-            result.Value
-        );
-        actualCompaniesCollection
-            .Should()
-            .BeEquivalentTo(new CollectionOutputModel(expectedCompanies));
+        var actionResult = Assert.IsType<ActionResult<CollectionOutputModel<CompanyOutputModel>>>(result);
+        var collectionOutputModel = Assert.IsType<CollectionOutputModel<CompanyOutputModel>>(actionResult.Value);
+        
+        collectionOutputModel.Should().BeEquivalentTo(new CollectionOutputModel<CompanyOutputModel>(companies.Select(c => c.ToOutputModel())));
     }
-
+    
     [Fact]
-    public async Task GetCompanyByIdAsync_RespondsWith_Ok_ReturnsObjectAsync()
+    public async Task GetCompanyByIdAsync_ReturnsCompany()
     {
-        // Expected Arrange
-        var expectedCompany = new Company
-        {
-            Id = 1,
-            Name = "Company 1",
-            CreatedAt = DateTime.UtcNow
-        };
-
-        // Service Arrange
+        // Arrange
+        var company = new Company(1, "Company 1", "https://company1.com/logo.png", new DateTime(2024, 01, 01, 0 ,0 ,0, DateTimeKind.Unspecified));
         _companyServiceMock
-            .Setup(service => service.GetCompanyByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(EitherExtensions.Success<CompanyFetchingError, Company>(expectedCompany));
-
+            .Setup(service => service.GetCompanyByIdAsync(1))
+            .ReturnsAsync(company);
+        
         // Act
-        var actual = await _companyController.GetCompanyByIdAsync(It.IsAny<int>());
-
+        var result = await _companyController.GetCompanyByIdAsync(1);
+        
         // Assert
-        OkObjectResult result = Assert.IsType<OkObjectResult>(actual.Result);
-        Company company = Assert.IsAssignableFrom<Company>(result.Value);
-        company.Should().BeEquivalentTo(expectedCompany);
+        var actionResult = Assert.IsType<ActionResult<CompanyOutputModel>>(result);
+        var companyOutputModel = Assert.IsType<CompanyOutputModel>(actionResult.Value);
+        
+        companyOutputModel.Should().BeEquivalentTo(company.ToOutputModel());
     }
-
+    
     [Fact]
-    public async Task GetCompanyByIdAsync_RespondsWith_NotFound_ReturnsObjectAsync() // Ok -> NotFound
+    public async Task UpdateCompanyAsync_ReturnsUpdatedCompany()
     {
-        // Service Arrange
+        // Arrange
+        var company = new Company(1, "Company 1", "https://company1.com/logo.png", new DateTime(2024, 01, 01, 0 ,0 ,0, DateTimeKind.Unspecified));
         _companyServiceMock
-            .Setup(service => service.GetCompanyByIdAsync(It.IsAny<int>()))
-            .ReturnsAsync(
-                EitherExtensions.Failure<CompanyFetchingError, Company>(
-                    new CompanyFetchingError.CompanyByIdNotFound(It.IsAny<int>())
-                )
-            );
-
+            .Setup(service => service.UpdateCompanyAsync(1, "Company 2"))
+            .ReturnsAsync(company);
+        
         // Act
-        var actual = await _companyController.GetCompanyByIdAsync(It.IsAny<int>());
-
+        var result = await _companyController.UpdateCompanyAsync(1, new CompanyUpdateInputModel("Company 2"));
+        
         // Assert
-        ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
-        CompanyProblem.CompanyByIdNotFound problem =
-            Assert.IsAssignableFrom<CompanyProblem.CompanyByIdNotFound>(result.Value);
-        problem
-            .Data.Should()
-            .BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(It.IsAny<int>()));
+        var actionResult = Assert.IsType<ActionResult<CompanyOutputModel>>(result);
+        var companyOutputModel = Assert.IsType<CompanyOutputModel>(actionResult.Value);
+        
+        companyOutputModel.Should().BeEquivalentTo(company.ToOutputModel());
     }
-
+    
     [Fact]
-    public async Task AddCompanyAsync_RespondsWith_Created_ReturnsObjectAsync() // Ok -> Created
+    public async Task DeleteCompanyAsync_ReturnsNoContent()
     {
-        // Expected Arrange
-        var expectedId = new IntIdOutputModel(1);
-
-        // Service Arrange
+        // Arrange
         _companyServiceMock
-            .Setup(service => service.AddCompanyAsync(It.IsAny<string>()))
-            .ReturnsAsync(EitherExtensions.Success<ICompanyError, IntIdOutputModel>(expectedId));
-
+            .Setup(service => service.DeleteCompanyAsync(1))
+            .ReturnsAsync(new CompanyId(1));
+        
         // Act
-        var actual = await _companyController.AddCompanyAsync(
-            new CompanyCreationInputModel { CompanyName = It.IsAny<string>() }
-        );
-
+        var result = await _companyController.DeleteCompanyAsync(1);
+        
         // Assert
-        var result = Assert.IsType<CreatedResult>(actual.Result);
-        var idOutputModel = Assert.IsAssignableFrom<IntIdOutputModel>(result.Value);
-        idOutputModel.Should().BeEquivalentTo(expectedId);
-    }
-
-    [Fact]
-    public async Task AddCompanyAsync_RespondsWith_Conflict_ReturnsObjectAsync()
-    {
-        // Service Arrange
-        _companyServiceMock
-            .Setup(service => service.AddCompanyAsync(It.IsAny<string>()))
-            .ReturnsAsync(
-                EitherExtensions.Failure<ICompanyError, IntIdOutputModel>(
-                    new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>())
-                )
-            );
-
-        // Act
-        var actual = await _companyController.AddCompanyAsync(
-            new CompanyCreationInputModel { CompanyName = It.IsAny<string>() }
-        );
-
-        // Assert
-        ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
-        CompanyProblem.CompanyNameAlreadyExists problem =
-            Assert.IsAssignableFrom<CompanyProblem.CompanyNameAlreadyExists>(result.Value);
-        problem
-            .Data.Should()
-            .BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>()));
-    }
-
-    [Fact]
-    public async Task UpdateCompanyAsync_RespondsWith_Ok_ReturnsObjectAsync()
-    {
-        // Expected Arrange
-        var expectedCompany = new Company
-        {
-            Id = 1,
-            Name = "Company 1",
-            CreatedAt = DateTime.UtcNow
-        };
-
-        // Service Arrange
-        _companyServiceMock
-            .Setup(service => service.UpdateCompanyAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(EitherExtensions.Success<ICompanyError, Company>(expectedCompany));
-
-        // Act
-        var actual = await _companyController.UpdateCompanyAsync(
-            It.IsAny<int>(),
-            new CompanyUpdateInputModel { CompanyName = It.IsAny<string>() }
-        );
-
-        // Assert
-        OkObjectResult result = Assert.IsType<OkObjectResult>(actual.Result);
-        Company company = Assert.IsAssignableFrom<Company>(result.Value);
-        company.Should().BeEquivalentTo(expectedCompany);
-    }
-
-    [Fact]
-    public async Task UpdateCompanyAsync_RespondsWith_NotFound_ReturnsObjectAsync() // Ok -> NotFound
-    {
-        // Service Arrange
-        _companyServiceMock
-            .Setup(service => service.UpdateCompanyAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(
-                EitherExtensions.Failure<ICompanyError, Company>(
-                    new CompanyFetchingError.CompanyByIdNotFound(It.IsAny<int>())
-                )
-            );
-
-        // Act
-        var actual = await _companyController.UpdateCompanyAsync(
-            It.IsAny<int>(),
-            new CompanyUpdateInputModel { CompanyName = It.IsAny<string>() }
-        );
-
-        // Assert
-        ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
-        CompanyProblem.CompanyByIdNotFound problem =
-            Assert.IsAssignableFrom<CompanyProblem.CompanyByIdNotFound>(result.Value);
-        problem
-            .Data.Should()
-            .BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(It.IsAny<int>()));
-    }
-
-    [Fact]
-    public async Task UpdateCompanyAsync_RespondsWith_Conflict_ReturnsObjectAsync() // Ok -> Conflict
-    {
-        // Service Arrange
-        _companyServiceMock
-            .Setup(service => service.UpdateCompanyAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(
-                EitherExtensions.Failure<ICompanyError, Company>(
-                    new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>())
-                )
-            );
-
-        // Act
-        var actual = await _companyController.UpdateCompanyAsync(
-            It.IsAny<int>(),
-            new CompanyUpdateInputModel { CompanyName = It.IsAny<string>() }
-        );
-
-        // Assert
-        ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
-        CompanyProblem.CompanyNameAlreadyExists problem =
-            Assert.IsAssignableFrom<CompanyProblem.CompanyNameAlreadyExists>(result.Value);
-        problem
-            .Data.Should()
-            .BeEquivalentTo(new CompanyCreationError.CompanyNameAlreadyExists(It.IsAny<string>()));
-    }
-
-    [Fact]
-    public async Task DeleteCompanyAsync_RespondsWith_Ok_ReturnsObjectAsync()
-    {
-        // Expected Arrange
-        var expectedId = new IntIdOutputModel(1);
-
-        // Service Arrange
-        _companyServiceMock
-            .Setup(service => service.DeleteCompanyAsync(It.IsAny<int>()))
-            .ReturnsAsync(
-                EitherExtensions.Success<CompanyFetchingError, IntIdOutputModel>(expectedId)
-            );
-
-        // Act
-        var actual = await _companyController.DeleteCompanyAsync(It.IsAny<int>());
-
-        // Assert
-        OkObjectResult result = Assert.IsType<OkObjectResult>(actual.Result);
-        IntIdOutputModel idOutputModel = Assert.IsAssignableFrom<IntIdOutputModel>(result.Value);
-        idOutputModel.Should().BeEquivalentTo(expectedId);
-    }
-
-    [Fact]
-    public async Task DeleteCompanyAsync_RespondsWith_NotFound_ReturnsObjectAsync() // Ok -> NotFound
-    {
-        // Service Arrange
-        _companyServiceMock
-            .Setup(service => service.DeleteCompanyAsync(It.IsAny<int>()))
-            .ReturnsAsync(
-                EitherExtensions.Failure<CompanyFetchingError, IntIdOutputModel>(
-                    new CompanyFetchingError.CompanyByIdNotFound(It.IsAny<int>())
-                )
-            );
-
-        // Act
-        var actual = await _companyController.DeleteCompanyAsync(It.IsAny<int>());
-
-        // Assert
-        ObjectResult result = Assert.IsType<ObjectResult>(actual.Result);
-        CompanyProblem.CompanyByIdNotFound problem =
-            Assert.IsAssignableFrom<CompanyProblem.CompanyByIdNotFound>(result.Value);
-        problem
-            .Data.Should()
-            .BeEquivalentTo(new CompanyFetchingError.CompanyByIdNotFound(It.IsAny<int>()));
+        Assert.IsType<NoContentResult>(result);
     }
 }
-*/

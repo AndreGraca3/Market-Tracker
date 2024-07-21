@@ -1,817 +1,648 @@
-﻿using FluentAssertions;
-using market_tracker_webapi.Application.Domain;
-using market_tracker_webapi.Infrastructure;
-using market_tracker_webapi.Infrastructure.PostgreSQLTables;
-using Microsoft.EntityFrameworkCore;
+﻿
+using FluentAssertions;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
+using market_tracker_webapi.Application.Repository.Market.Store;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Store;
 
-/*
-namespace market_tracker_webapi_test.Application.Repository
+namespace market_tracker_webapi_test.Application.Repository.Market;
+
+public class StoreRepositoryTest
 {
-    public class StoreRepositoryTest
+    [Fact]
+    public async Task GetStoreByIdAsync_WhenStoreExists_ReturnsStore()
     {
-        [Fact]
-        public async Task GetStoresAsync_WhenStoresExist_ReturnsStoreData()
+        // Arrange
+        var storeEntities = new List<StoreEntity>
         {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
+            new StoreEntity
             {
-                new() { Id = 1, Name = "Company1" }
-            };
-
-            var cityMockEntities = new List<CityEntity>
+                Id = 1, Name = "storeName", Address = "storeAddress", CityId = 1, CompanyId = 1,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301")
+            },
+            new StoreEntity
             {
-                new() { Id = 1, Name = "Lisboa" },
-                new() { Id = 2, Name = "Amadora" },
-                new() { Id = 3, Name = "Oeiras" }
-            };
+                Id = 2, Name = "storeName2", Address = "storeAddress2", CityId = 2, CompanyId = 2,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3302")
+            }
+        };
 
-            var storeMockEntities = new List<StoreEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Store2",
-                    Address = "Address2",
-                    CityId = 2,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Store3",
-                    Address = "Address3",
-                    CityId = 3,
-                    CompanyId = 1
-                }
-            };
-
-            var expectedStores = new List<Store>
-            {
-                new Store()
-                {
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                },
-                new Store()
-                {
-                    Name = "Store2",
-                    Address = "Address2",
-                    CityId = 2,
-                    CompanyId = 1
-                },
-                new Store()
-                {
-                    Name = "Store3",
-                    Address = "Address3",
-                    CityId = 3,
-                    CompanyId = 1
-                }
-            };
-
-            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoresAsync();
-
-            // Assert
-            storeData
-                .Should()
-                .BeEquivalentTo(expectedStores, options => options.Excluding(x => x.Id));
-        }
-
-        [Fact]
-        public async Task GetStoresAsync_WhenStoresDoNotExist_ReturnsEmptyList()
+        var dbCompanyEntities = new List<CompanyEntity>
         {
-            // Arrange
-            var context = CreateDatabase(
-                new List<StoreEntity>(),
-                new List<CompanyEntity>(),
-                new List<CityEntity>()
-            );
-
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoresAsync();
-
-            // Assert
-            storeData.Should().BeEmpty();
-        }
-
-        [Fact]
-        public async Task GetStoreByIdAsync_WhenStoreExists_ReturnsStoreData()
-        {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
-            {
-                new() { Id = 1, Name = "Company1" }
-            };
-
-            var cityMockEntities = new List<CityEntity>
-            {
-                new() { Id = 1, Name = "Lisboa" },
-                new() { Id = 2, Name = "Amadora" },
-                new() { Id = 3, Name = "Oeiras" }
-            };
-
-            var storeMockEntities = new List<StoreEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Store2",
-                    Address = "Address2",
-                    CityId = 2,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Store3",
-                    Address = "Address3",
-                    CityId = 3,
-                    CompanyId = 1
-                }
-            };
-
-            var expectedStore = new Store()
-            {
-                Name = "Store1",
-                Address = "Address1",
-                CityId = 1,
-                CompanyId = 1
-            };
-
-            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoreByIdAsync(1);
-
-            // Assert
-            storeData
-                .Should()
-                .BeEquivalentTo(expectedStore, options => options.Excluding(x => x.Id));
-        }
-
-        [Fact]
-        public async Task GetStoreByIdAsync_WhenStoreDoesNotExist_ReturnNull()
-        {
-            // Arrange
-            var context = CreateDatabase(
-                new List<StoreEntity>(),
-                new List<CompanyEntity>(),
-                new List<CityEntity>()
-            );
-
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoreByIdAsync(1);
-
-            // Assert
-            storeData.Should().BeNull();
-        }
-
-        [Fact]
-        public async Task GetStoreByNameAsync_WhenStoreExists_ReturnsStoreData()
-        {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
-            {
-                new() { Id = 1, Name = "Company1" }
-            };
-
-            var cityMockEntities = new List<CityEntity>
-            {
-                new() { Id = 1, Name = "Lisboa" },
-                new() { Id = 2, Name = "Amadora" },
-                new() { Id = 3, Name = "Oeiras" }
-            };
-
-            var storeMockEntities = new List<StoreEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Store2",
-                    Address = "Address2",
-                    CityId = 2,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Store3",
-                    Address = "Address3",
-                    CityId = 3,
-                    CompanyId = 1
-                }
-            };
-
-            var expectedStore = new Store()
-            {
-                Name = "Store1",
-                Address = "Address1",
-                CityId = 1,
-                CompanyId = 1
-            };
-
-            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoreByNameAsync("Store1");
-
-            // Assert
-            storeData
-                .Should()
-                .BeEquivalentTo(expectedStore, options => options.Excluding(x => x.Id));
-        }
-
-        [Fact]
-        public async Task GetStoreByNameAsync_WhenStoreDoesNotExist_ReturnNull()
-        {
-            // Arrange
-            var context = CreateDatabase(
-                new List<StoreEntity>(),
-                new List<CompanyEntity>(),
-                new List<CityEntity>()
-            );
-
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoreByNameAsync("Store1");
-
-            // Assert
-            storeData.Should().BeNull();
-        }
-
-        [Fact]
-        public async Task GetStoreByAddressAsync_WhenStoreExists_ReturnsStoreData()
-        {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
-            {
-                new() { Id = 1, Name = "Company1" }
-            };
-
-            var cityMockEntities = new List<CityEntity>
-            {
-                new() { Id = 1, Name = "Lisboa" },
-                new() { Id = 2, Name = "Amadora" },
-                new() { Id = 3, Name = "Oeiras" }
-            };
-
-            var storeMockEntities = new List<StoreEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Store2",
-                    Address = "Address2",
-                    CityId = 2,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Store3",
-                    Address = "Address3",
-                    CityId = 3,
-                    CompanyId = 1
-                }
-            };
-
-            var expectedStore = new Store()
-            {
-                Name = "Store1",
-                Address = "Address1",
-                CityId = 1,
-                CompanyId = 1
-            };
-
-            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoreByAddressAsync("Address1");
-
-            // Assert
-            storeData
-                .Should()
-                .BeEquivalentTo(expectedStore, options => options.Excluding(x => x.Id));
-        }
-
-        [Fact]
-        public async Task GetStoreByAddressAsync_WhenStoreDoesNotExist_ReturnNull()
-        {
-            // Arrange
-            var context = CreateDatabase(
-                new List<StoreEntity>(),
-                new List<CompanyEntity>(),
-                new List<CityEntity>()
-            );
-
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoreByAddressAsync("Address1");
-
-            // Assert
-            storeData.Should().BeNull();
-        }
-
-        [Fact]
-        public async Task GetStoreFromCompanyAsync_WhenStoreExists_ReturnsStoreData()
-        {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
-            {
-                new() { Id = 1, Name = "Company1" }
-            };
-
-            var cityMockEntities = new List<CityEntity>
-            {
-                new() { Id = 1, Name = "Lisboa" },
-                new() { Id = 2, Name = "Amadora" },
-                new() { Id = 3, Name = "Oeiras" }
-            };
-
-            var storeMockEntities = new List<StoreEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Store2",
-                    Address = "Address2",
-                    CityId = 2,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Store3",
-                    Address = "Address3",
-                    CityId = 3,
-                    CompanyId = 1
-                }
-            };
-
-            var expectedStores = new List<Store>
-            {
-                new Store()
-                {
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                },
-                new Store()
-                {
-                    Name = "Store2",
-                    Address = "Address2",
-                    CityId = 2,
-                    CompanyId = 1
-                },
-                new Store()
-                {
-                    Name = "Store3",
-                    Address = "Address3",
-                    CityId = 3,
-                    CompanyId = 1
-                }
-            };
-
-            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoresFromCompanyAsync(1);
-
-            // Assert
-            storeData
-                .Should()
-                .BeEquivalentTo(expectedStores, options => options.Excluding(x => x.Id));
-        }
-
-        [Fact]
-        public async Task GetStoreFromCompanyAsync_WhenStoreDoesNotExist_ReturnsEmptyList()
-        {
-            // Arrange
-            var context = CreateDatabase(
-                new List<StoreEntity>(),
-                new List<CompanyEntity>(),
-                new List<CityEntity>()
-            );
-
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoresFromCompanyAsync(1);
-
-            // Assert
-            storeData.Should().BeEmpty();
-        }
-
-        [Fact]
-        public async Task GetStoresByCityNameAsync_WhenStoresExist_ReturnsStoreData()
-        {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
-            {
-                new() { Id = 1, Name = "Company1" }
-            };
-
-            var cityMockEntities = new List<CityEntity>
-            {
-                new() { Id = 1, Name = "Lisboa" },
-                new() { Id = 2, Name = "Amadora" },
-                new() { Id = 3, Name = "Oeiras" }
-            };
-
-            var storeMockEntities = new List<StoreEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Store2",
-                    Address = "Address2",
-                    CityId = 2,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Store3",
-                    Address = "Address3",
-                    CityId = 3,
-                    CompanyId = 1
-                }
-            };
-
-            var expectedStores = new List<Store>
-            {
-                new Store()
-                {
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                }
-            };
-
-            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoresByCityNameAsync("Lisboa");
-
-            // Assert
-            storeData
-                .Should()
-                .BeEquivalentTo(expectedStores, options => options.Excluding(x => x.Id));
-        }
-
-        [Fact]
-        public async Task GetStoresByCityNameAsync_WhenStoresDoNotExist_ReturnsEmptyList()
-        {
-            // Arrange
-            var context = CreateDatabase(
-                new List<StoreEntity>(),
-                new List<CompanyEntity>(),
-                new List<CityEntity>()
-            );
-
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoresByCityNameAsync("Lisboa");
-
-            // Assert
-            storeData.Should().BeEmpty();
-        }
-
-        [Fact]
-        public async Task GetStoreByCityNameAsync_WhenCityDoesNotExist_ReturnsEmptyList()
-        {
-            // Arrange
-            var context = CreateDatabase(
-                new List<StoreEntity>(),
-                new List<CompanyEntity>(),
-                new List<CityEntity>()
-            );
-
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeData = await storeRepository.GetStoresByCityNameAsync("Lisboa");
-
-            // Assert
-            storeData.Should().BeEmpty();
-        }
-
-        [Fact]
-        public async Task AddStoreAsync_WhenCompanyExists_ReturnsStoreId()
-        {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
-            {
-                new() { Id = 1, Name = "Company1" }
-            };
-
-            var cityMockEntities = new List<CityEntity>
-            {
-                new() { Id = 1, Name = "Lisboa" },
-                new() { Id = 2, Name = "Amadora" },
-                new() { Id = 3, Name = "Oeiras" }
-            };
-
-            var storeMockEntities = new List<StoreEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Store2",
-                    Address = "Address2",
-                    CityId = 2,
-                    CompanyId = 1
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Store3",
-                    Address = "Address3",
-                    CityId = 3,
-                    CompanyId = 1
-                }
-            };
-
-            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
-            var storeRepository = new StoreRepository(context);
-
-            var storeData = new Store()
-            {
-                Name = "Store4",
-                Address = "Address4",
-                CityId = 1,
-                CompanyId = 1
-            };
-
-            // Act
-            var storeId = await storeRepository.AddStoreAsync("Store4", "Address4", 1, 1);
-
-            var storeEntity = new StoreEntity()
-            {
-                Name = storeData.Name,
-                Address = storeData.Address,
-                CityId = storeData.CityId,
-                CompanyId = storeData.CompanyId
-            };
-
-            storeMockEntities.Add(storeEntity);
-
-            // Assert
-            context
-                .Store.Should()
-                .BeEquivalentTo(storeMockEntities, options => options.Excluding(x => x.Id));
-            storeId.Should().Be(4);
-        }
-
-        [Fact]
-        public async Task AddStoreAsync_WhenCityIsNull_ReturnsStoreData()
-        {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
-            {
-                new() { Id = 1, Name = "Company1" }
-            };
-
-            var context = CreateDatabase(
-                new List<StoreEntity>(),
-                companyMockEntities,
-                new List<CityEntity>()
-            );
-
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var storeId = await storeRepository.AddStoreAsync("Store4", "Address4", 1, 1);
-
-            // Assert
-            storeId.Should().Be(1);
-            context.Store.Should().ContainSingle();
-        }
-
-        [Fact]
-        public async Task UpdateStoreAsync_WhenStoreAndCompanyExist_ReturnsUpdatedStoreData()
-        {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
-            {
-                new() { Id = 1, Name = "Company1" }
-            };
-
-            var cityMockEntities = new List<CityEntity>
-            {
-                new() { Id = 1, Name = "Lisboa" },
-                new() { Id = 2, Name = "Porto" },
-            };
-
-            var storeMockEntities = new List<StoreEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                }
-            };
-
-            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
-            var storeRepository = new StoreRepository(context);
-
-            var storeData = new Store()
+            new()
             {
                 Id = 1,
-                Name = "Store1",
-                Address = "AddressA",
-                CityId = 2,
-                CompanyId = 1
-            };
+                Name = "Company1",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl1",
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Company2",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl2",
+            }
+        };
 
-            // Act
-            var actualStore = await storeRepository.UpdateStoreAsync(1, "AddressA", 2, 1);
-
-            // Assert
-            actualStore.Should().BeEquivalentTo(storeData);
-            (await context.Store.FindAsync(storeData.Id)).Should().BeEquivalentTo(storeData, options => options.Excluding(x => x.IsOnline));
-        }
-
-        [Fact]
-        public async Task UpdateStoreAsync_WhenStoreDoesNotExist_ReturnsNull()
+        var dbCityEntities = new List<CityEntity>
         {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
+            new()
             {
-                new() { Id = 1, Name = "Company1" }
-            };
-
-            var cityMockEntities = new List<CityEntity>
+                Id = 1,
+                Name = "City1"
+            },
+            new()
             {
-                new() { Id = 1, Name = "Lisboa" }
-            };
+                Id = 2,
+                Name = "City2"
+            }
+        };
 
-            var context = CreateDatabase(
-                new List<StoreEntity>(),
-                companyMockEntities,
-                cityMockEntities
-            );
-            var storeRepository = new StoreRepository(context);
 
-            // Act
-            var actualStore = await storeRepository.UpdateStoreAsync(1, "AddressA", 1, 1);
+        var context = DbHelper.CreateDatabase(
+            storeEntities,
+            dbCompanyEntities,
+            dbCityEntities);
 
-            // Assert
-            actualStore.Should().BeNull();
-        }
+        var storeRepository = new StoreRepository(context);
 
-        [Fact]
-        public async Task DeleteStoreAsync_WhenStoreExists_ReturnsDeletedStoreData()
+        // Act
+        var actualStore = await storeRepository.GetStoreByIdAsync(1);
+
+        // Assert
+        var expectedStore = new Store(
+            1,
+            "storeName",
+            "storeAddress",
+            new City(1, "City1"),
+            new Company(1, "Company1", "LogoUrl1", new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified)),
+            Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301"));
+
+        actualStore.Should().BeEquivalentTo(expectedStore);
+    }
+
+    [Fact]
+    public async Task GetStoreByIdAsync_WhenStoreDoesNotExist_ReturnsNull()
+    {
+        // Arrange
+        var storeEntities = new List<StoreEntity>
         {
-            // Arrange
-            var companyMockEntities = new List<CompanyEntity>
+            new StoreEntity
             {
-                new() { Id = 1, Name = "Company1" }
-            };
-
-            var cityMockEntities = new List<CityEntity>
+                Id = 1, Name = "storeName", Address = "storeAddress", CityId = 1, CompanyId = 1,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301")
+            },
+            new StoreEntity
             {
-                new() { Id = 1, Name = "Lisboa" }
-            };
+                Id = 2, Name = "storeName2", Address = "storeAddress2", CityId = 2, CompanyId = 2,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3302")
+            }
+        };
 
-            var storeMockEntities = new List<StoreEntity>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Store1",
-                    Address = "Address1",
-                    CityId = 1,
-                    CompanyId = 1
-                }
-            };
-
-            var context = CreateDatabase(storeMockEntities, companyMockEntities, cityMockEntities);
-            var storeRepository = new StoreRepository(context);
-
-            // Act
-            var actualStore = await storeRepository.DeleteStoreAsync(1);
-
-            // Assert
-            actualStore.Should().BeEquivalentTo(storeMockEntities[0]);
-            (await context.Store.FindAsync(1)).Should().BeNull();
-        }
-
-        [Fact]
-        public async Task DeleteStoreAsync_WhenStoreDoesNotExist_ReturnsNull()
+        var dbCompanyEntities = new List<CompanyEntity>
         {
-            // Arrange
-            var context = CreateDatabase(
-                new List<StoreEntity>(),
-                new List<CompanyEntity>(),
-                new List<CityEntity>()
-            );
-            var storeRepository = new StoreRepository(context);
+            new()
+            {
+                Id = 1,
+                Name = "Company1",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl1",
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Company2",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl2",
+            }
+        };
 
-            // Act
-            var actualStore = await storeRepository.DeleteStoreAsync(1);
-
-            // Assert
-            actualStore.Should().BeNull();
-        }
-
-        private static MarketTrackerDataContext CreateDatabase(
-            IEnumerable<StoreEntity> storeEntities,
-            IEnumerable<CompanyEntity> companyEntities,
-            IEnumerable<CityEntity> cityEntities
-        )
+        var dbCityEntities = new List<CityEntity>
         {
-            DbContextOptions<MarketTrackerDataContext> options =
-                new DbContextOptionsBuilder<MarketTrackerDataContext>()
-                    .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                    .Options;
+            new()
+            {
+                Id = 1,
+                Name = "City1"
+            },
+            new()
+            {
+                Id = 2,
+                Name = "City2"
+            }
+        };
 
-            var databaseContext = new MarketTrackerDataContext(options);
-            databaseContext.Company.AddRange(companyEntities);
-            databaseContext.City.AddRange(cityEntities);
-            databaseContext.Store.AddRange(storeEntities);
-            databaseContext.SaveChanges();
-            databaseContext.Database.EnsureCreated();
-            return databaseContext;
-        }
+
+        var context = DbHelper.CreateDatabase(
+            storeEntities,
+            dbCompanyEntities,
+            dbCityEntities);
+
+        var storeRepository = new StoreRepository(context);
+
+        // Act
+        var actualStore = await storeRepository.GetStoreByIdAsync(3);
+
+        // Assert
+        actualStore.Should().BeNull();
+    }
+
+    // [Fact]
+    // public async Task GetStoreByNameAsync_WhenStoreExists_ReturnsStore()
+    // {
+    //     // Arrange
+    //     var storeEntities = new List<StoreEntity>
+    //     {
+    //         new StoreEntity
+    //         {
+    //             Id = 1, Name = "storeName", Address = "storeAddress", CityId = 1, CompanyId = 1,
+    //             OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301")
+    //         },
+    //         new StoreEntity
+    //         {
+    //             Id = 2, Name = "storeName2", Address = "storeAddress2", CityId = 2, CompanyId = 2,
+    //             OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3302")
+    //         }
+    //     };
+    //
+    //     var dbCompanyEntities = new List<CompanyEntity>
+    //     {
+    //         new()
+    //         {
+    //             Id = 1,
+    //             Name = "Company1",
+    //             CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+    //             LogoUrl = "LogoUrl1",
+    //         },
+    //         new()
+    //         {
+    //             Id = 2,
+    //             Name = "Company2",
+    //             CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+    //             LogoUrl = "LogoUrl2",
+    //         }
+    //     };
+    //
+    //     var dbCityEntities = new List<CityEntity>
+    //     {
+    //         new()
+    //         {
+    //             Id = 1,
+    //             Name = "City1"
+    //         },
+    //         new()
+    //         {
+    //             Id = 2,
+    //             Name = "City2"
+    //         }
+    //     };
+    //
+    //
+    //     var context = DbHelper.CreateDatabase(
+    //         storeEntities,
+    //         dbCompanyEntities,
+    //         dbCityEntities);
+    //
+    //     var storeRepository = new StoreRepository(context);
+    //
+    //     // Act
+    //     var actualStore = await storeRepository.GetStoreByNameAsync("storeName");
+    //
+    //     // Assert
+    //     var expectedStore = new Store(
+    //         1,
+    //         "storeName",
+    //         "storeAddress",
+    //         new City(1, "City1"),
+    //         new Company(1, "Company1", "LogoUrl1", new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified)),
+    //         Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301"));
+    //
+    //     actualStore.Should().BeEquivalentTo(expectedStore);
+    // }
+
+    [Fact]
+    public async Task GetStoreByOperatorIdAsync_WhenStoreExists_ReturnsStore()
+    {
+        // Arrange
+        var storeEntities = new List<StoreEntity>
+        {
+            new StoreEntity
+            {
+                Id = 1, Name = "storeName", Address = "storeAddress", CityId = 1, CompanyId = 1,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301")
+            },
+            new StoreEntity
+            {
+                Id = 2, Name = "storeName2", Address = "storeAddress2", CityId = 2, CompanyId = 2,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3302")
+            }
+        };
+
+        var dbCompanyEntities = new List<CompanyEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Company1",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl1",
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Company2",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl2",
+            }
+        };
+
+        var dbCityEntities = new List<CityEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "City1"
+            },
+            new()
+            {
+                Id = 2,
+                Name = "City2"
+            }
+        };
+
+
+        var context = DbHelper.CreateDatabase(
+            storeEntities,
+            dbCompanyEntities,
+            dbCityEntities);
+
+        var storeRepository = new StoreRepository(context);
+
+        // Act
+        var actualStore =
+            await storeRepository.GetStoreByOperatorIdAsync(Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301"));
+
+        // Assert
+        var expectedStore = new Store(
+            1,
+            "storeName",
+            "storeAddress",
+            new City(1, "City1"),
+            new Company(1, "Company1", "LogoUrl1", new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified)),
+            Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301"));
+
+        actualStore.Should().BeEquivalentTo(expectedStore);
+    }
+
+    [Fact]
+    public async Task GetStoreByOperatorIdAsync_WhenStoreDoesNotExist_ReturnsNull()
+    {
+        // Arrange
+        var storeEntities = new List<StoreEntity>
+        {
+            new StoreEntity
+            {
+                Id = 1, Name = "storeName", Address = "storeAddress", CityId = 1, CompanyId = 1,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301")
+            },
+            new StoreEntity
+            {
+                Id = 2, Name = "storeName2", Address = "storeAddress2", CityId = 2, CompanyId = 2,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3302")
+            }
+        };
+
+        var dbCompanyEntities = new List<CompanyEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Company1",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl1",
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Company2",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl2",
+            }
+        };
+
+        var dbCityEntities = new List<CityEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "City1"
+            },
+            new()
+            {
+                Id = 2,
+                Name = "City2"
+            }
+        };
+
+        var context = DbHelper.CreateDatabase(
+            storeEntities,
+            dbCompanyEntities,
+            dbCityEntities);
+
+        var storeRepository = new StoreRepository(context);
+
+        // Act
+        var actualStore =
+            await storeRepository.GetStoreByOperatorIdAsync(Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3303"));
+
+        // Assert
+        actualStore.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task AddStoreAsync_WhenStoreDoesNotExist_AddsStore()
+    {
+        // Arrange
+        var storeEntities = new List<StoreEntity>
+        {
+            new StoreEntity
+            {
+                Id = 1, Name = "storeName", Address = "storeAddress", CityId = 1, CompanyId = 1,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301")
+            },
+            new StoreEntity
+            {
+                Id = 2, Name = "storeName2", Address = "storeAddress2", CityId = 2, CompanyId = 2,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3302")
+            }
+        };
+
+        var dbCompanyEntities = new List<CompanyEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Company1",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl1",
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Company2",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl2",
+            }
+        };
+
+        var dbCityEntities = new List<CityEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "City1"
+            },
+            new()
+            {
+                Id = 2,
+                Name = "City2"
+            }
+        };
+
+        var context = DbHelper.CreateDatabase(
+            storeEntities,
+            dbCompanyEntities,
+            dbCityEntities);
+
+        var storeRepository = new StoreRepository(context);
+        
+        // Act
+        var actualStoreId = await storeRepository.AddStoreAsync(
+            "storeName3",
+            "storeAddress3",
+            3,
+            3,
+            Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3303"));
+        
+        // Assert
+        actualStoreId.Should().BeEquivalentTo(new StoreId(3));
+    }
+    
+    [Fact]
+    public async Task UpdateStoreAsync_WhenStoreExists_UpdatesStore()
+    {
+        // Arrange
+        var storeEntities = new List<StoreEntity>
+        {
+            new StoreEntity
+            {
+                Id = 1, Name = "storeName", Address = "storeAddress", CityId = 1, CompanyId = 1,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301")
+            },
+            new StoreEntity
+            {
+                Id = 2, Name = "storeName2", Address = "storeAddress2", CityId = 2, CompanyId = 2,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3302")
+            }
+        };
+
+        var dbCompanyEntities = new List<CompanyEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Company1",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl1",
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Company2",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl2",
+            }
+        };
+
+        var dbCityEntities = new List<CityEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "City1"
+            },
+            new()
+            {
+                Id = 2,
+                Name = "City2"
+            }
+        };
+
+        var context = DbHelper.CreateDatabase(
+            storeEntities,
+            dbCompanyEntities,
+            dbCityEntities);
+
+        var storeRepository = new StoreRepository(context);
+        
+        // Act
+        var actualStoreItem = await storeRepository.UpdateStoreAsync(
+            1,
+            "storeAddress3",
+            3,
+            3);
+        
+        // Assert
+        var expectedStoreItem = new StoreItem(
+            1,
+            "storeName",
+            "storeAddress3",
+            3,
+            3,
+            Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301"));
+        
+        actualStoreItem.Should().BeEquivalentTo(expectedStoreItem);
+        
+    }
+    
+    [Fact]
+    public async Task UpdateStoreAsync_WhenStoreDoesNotExist_ReturnsNull()
+    {
+        // Arrange
+        var storeEntities = new List<StoreEntity>
+        {
+            new StoreEntity
+            {
+                Id = 1, Name = "storeName", Address = "storeAddress", CityId = 1, CompanyId = 1,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301")
+            },
+            new StoreEntity
+            {
+                Id = 2, Name = "storeName2", Address = "storeAddress2", CityId = 2, CompanyId = 2,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3302")
+            }
+        };
+
+        var dbCompanyEntities = new List<CompanyEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Company1",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl1",
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Company2",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl2",
+            }
+        };
+
+        var dbCityEntities = new List<CityEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "City1"
+            },
+            new()
+            {
+                Id = 2,
+                Name = "City2"
+            }
+        };
+
+        var context = DbHelper.CreateDatabase(
+            storeEntities,
+            dbCompanyEntities,
+            dbCityEntities);
+
+        var storeRepository = new StoreRepository(context);
+        
+        // Act
+        var actualStoreItem = await storeRepository.UpdateStoreAsync(
+            3,
+            "storeAddress3",
+            3,
+            3);
+        
+        // Assert
+        actualStoreItem.Should().BeNull();
+        
+    }
+
+    [Fact]
+    public async Task DeleteStoreAsync_WhenStoreExists_DeletesStore()
+    {
+        // Arrange
+        var storeEntities = new List<StoreEntity>
+        {
+            new StoreEntity
+            {
+                Id = 1, Name = "storeName", Address = "storeAddress", CityId = 1, CompanyId = 1,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301")
+            },
+            new StoreEntity
+            {
+                Id = 2, Name = "storeName2", Address = "storeAddress2", CityId = 2, CompanyId = 2,
+                OperatorId = Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3302")
+            }
+        };
+
+        var dbCompanyEntities = new List<CompanyEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Company1",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl1",
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Company2",
+                CreatedAt = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Unspecified),
+                LogoUrl = "LogoUrl2",
+            }
+        };
+
+        var dbCityEntities = new List<CityEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "City1"
+            },
+            new()
+            {
+                Id = 2,
+                Name = "City2"
+            }
+        };
+
+        var context = DbHelper.CreateDatabase(
+            storeEntities,
+            dbCompanyEntities,
+            dbCityEntities);
+
+        var storeRepository = new StoreRepository(context);
+
+        // Act
+        var actualStoreItem = await storeRepository.DeleteStoreAsync(1);
+
+        // Assert
+        var expectedStoreItem = new StoreItem(
+            1,
+            "storeName",
+            "storeAddress",
+            1,
+            1,
+            Guid.Parse("3f2504e0-4f89-11d3-9a0c-0305e82c3301"));
+        
+        actualStoreItem.Should().BeEquivalentTo(expectedStoreItem);
     }
 }
-*/

@@ -1,6 +1,23 @@
-﻿namespace market_tracker_webapi_test.Application.Controllers;
+﻿using FluentAssertions;
+using market_tracker_webapi.Application.Domain.Filters.List;
+using market_tracker_webapi.Application.Domain.Schemas.List;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Sales;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
+using market_tracker_webapi.Application.Http.Controllers.List;
+using market_tracker_webapi.Application.Http.Models;
+using market_tracker_webapi.Application.Http.Models.Schemas.List.ListEntry;
+using market_tracker_webapi.Application.Service.Errors;
+using market_tracker_webapi.Application.Service.Errors.ListEntry;
+using market_tracker_webapi.Application.Service.Operations.List;
+using market_tracker_webapi.Application.Service.Results;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 
-/*
+namespace market_tracker_webapi_test.Application.Controllers;
+
+
 public class ListEntryControllerTest
 {
     private readonly Mock<IListEntryService> listEntryServiceMock;
@@ -12,105 +29,36 @@ public class ListEntryControllerTest
         listEntryController = new ListEntryController(listEntryServiceMock.Object);
     }
     
-    [Fact]
-    public async Task GetListEntryByIdAsync_WhenListEntryExists_ReturnsListEntryDetails()
-    {
-        // Arrange
-        var listEntryDetails = new ListEntryDetails()
-        {
-            ProductItem = It.IsAny<ProductItem>(),
-            StoreOffer = It.IsAny<StoreOffer>(),
-            IsAvailable = true,
-            Quantity = 1
-        };
-        listEntryServiceMock.Setup(service => service.GetListEntryByIdAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(EitherExtensions.Success<IServiceError, ListEntryDetails>(listEntryDetails));
-        
-        // Act
-        var result = await listEntryController.GetListEntryByIdAsync(It.IsAny<int>(), It.IsAny<string>());
-        
-        // Assert
-        var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var model = Assert.IsType<ListEntryDetails>(okResult.Value);
-        model.Should().BeEquivalentTo(listEntryDetails);
-    }
-    
-    [Fact]
-    public async Task AddListEntryAsync_WhenListEntryIsAdded_ReturnsIntIdOutputModel()
-    {
-        // Arrange
-        var intIdOutputModel = new IntIdOutputModel(1);
-    
-        listEntryServiceMock.Setup(service => service.AddListEntryAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(EitherExtensions.Success<IServiceError, IntIdOutputModel>(intIdOutputModel));
-
-        var inputModel = new CreationListEntryInputModel
-        {
-            ListId = 1,
-            ProductId = "product1",
-            StoreId = 1,
-            Quantity = 1
-        };
-    
-        // Act
-        var result = await listEntryController.AddListEntryAsync(inputModel);
-    
-        // Assert
-        var createdResult = Assert.IsType<CreatedResult>(result.Result);
-        var value = Assert.IsType<Either<IServiceError, IntIdOutputModel>>(createdResult.Value);
-        value.Value.Should().BeEquivalentTo(intIdOutputModel);
-    }
-    
-    [Fact]
-    public async Task UpdateListEntryAsync_WhenListEntryIsUpdated_ReturnsListEntry()
-    {
-        // Arrange
-        var  updateListEntryInputModel = new UpdateListEntryInputModel
-        {
-            StoreId = 1,
-            Quantity = 1
-        };
-        
-        var listEntry = new ListEntry
-        {
-            ListId = 1,
-            ProductId = "product1",
-            StoreId = 1,
-            Quantity = 1
-        };
-        
-        listEntryServiceMock.Setup(service => service.UpdateListEntryAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<int?>()))
-            .ReturnsAsync(EitherExtensions.Success<IServiceError, ListEntry>(listEntry));
-        
-        // Act
-        var result = await listEntryController.UpdateListEntryAsync(It.IsAny<int>(), It.IsAny<string>(), updateListEntryInputModel);
-        
-        // Assert
-        var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var model = Assert.IsType<ListEntry>(okResult.Value);
-        model.Should().BeEquivalentTo(listEntry);
-    }
-    
-    [Fact]
-    public async Task DeleteListEntryAsync_WhenListEntryIsDeleted_ReturnsNoContent()
-    {
-        // Arrange
-        var listEntry = new ListEntry
-        {
-            ListId = 1,
-            ProductId = "product1",
-            StoreId = 1,
-            Quantity = 1
-        };
-    
-        listEntryServiceMock.Setup(service => service.DeleteListEntryAsync(It.IsAny<int>(), It.IsAny<string>()))
-            .ReturnsAsync(EitherExtensions.Success<ListEntryFetchingError, ListEntry>(listEntry));
-    
-        // Act
-        var result = await listEntryController.DeleteListEntryAsync(It.IsAny<int>(), It.IsAny<string>());
-    
-        // Assert
-        Assert.IsType<NoContentResult>(result.Result);
-    }
+    // [Fact]
+    // public async Task GetListEntries_ReturnsOk()
+    // {
+    //     // Arrange
+    //     var shoppingListEntryResult = new ShoppingListEntriesResult
+    //     {
+    //         Entries = It.IsAny<IEnumerable<ListEntryOffer>>(),
+    //         TotalPrice = 1,
+    //         TotalProducts = 1
+    //     };
+    //     
+    //     listEntryServiceMock
+    //         .Setup(x => x.GetListEntriesAsync(
+    //             It.IsAny<string>(),
+    //             It.IsAny<Guid>(),
+    //             It.IsAny<ShoppingListAlternativeType>(),
+    //             It.IsAny<IList<int>>(),
+    //             It.IsAny<IList<int>>(),
+    //             It.IsAny<IList<int>>()
+    //             ))
+    //         .ReturnsAsync(shoppingListEntryResult);
+    //
+    //     // Act
+    //     var result = await listEntryController.GetListEntriesAsync(
+    //         It.IsAny<string>(),
+    //         It.IsAny<ShoppingListAlternativeType>(),
+    //         It.IsAny<AlternativeListFiltersInputModel>()
+    //     );
+    //
+    //     // Assert
+    //     result.Value.Should().BeEquivalentTo(shoppingListEntryResult.ToOutputModel());
+    // }
 }
-*/

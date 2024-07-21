@@ -1,231 +1,278 @@
-﻿namespace market_tracker_webapi_test.Application.Repository;
+﻿using FluentAssertions;
+using market_tracker_webapi.Application.Domain.Schemas.Market.Retail.Shop;
+using market_tracker_webapi.Application.Repository.Market.City;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market;
 
-/*public class CityRepositoryTest
+namespace market_tracker_webapi_test.Application.Repository.Market;
+
+public class CityRepositoryTest
 {
     [Fact]
-    public async Task GetCitiesAsync_WithExistingCities_ReturnsCityData()
+    public async Task GetCityByIdAsync_WhenCityExists_ReturnsCity()
     {
         // Arrange
         var cityEntities = new List<CityEntity>
         {
-            new() { Id = 1, Name = "City 1" },
-            new() { Id = 2, Name = "City 2" }
+            new CityEntity { Id = 1, Name = "cityName" },
+            new CityEntity { Id = 2, Name = "cityName2" }
         };
-
-        var context = CreateDatabase(cityEntities);
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
         var cityRepository = new CityRepository(context);
-
-        var expectedCityData = new List<City>
-        {
-            new() { Id = 1, Name = "City 1" },
-            new() { Id = 2, Name = "City 2" }
-        };
-
+        
         // Act
-        var cityData = await cityRepository.GetCitiesAsync();
-
+        var actualCity = await cityRepository.GetCityByIdAsync(1);
+        
         // Assert
-        expectedCityData.Should().BeEquivalentTo(cityData);
+        var expectedCity = new City(1, "cityName");
+        actualCity.Should().BeEquivalentTo(expectedCity);
     }
-
+    
     [Fact]
-    public async Task GetCityByIdAsync_WithExistingCity_ReturnsCityData()
+    public async Task GetCityByIdAsync_WhenCityDoesNotExist_ReturnsNull()
     {
         // Arrange
         var cityEntities = new List<CityEntity>
         {
-            new() { Id = 1, Name = "City 1" }
+            new CityEntity { Id = 1, Name = "cityName" },
+            new CityEntity { Id = 2, Name = "cityName2" }
         };
-
-        var context = CreateDatabase(cityEntities);
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
         var cityRepository = new CityRepository(context);
-
-        var expectedCityData = new City { Id = 1, Name = "City 1" };
-
+        
         // Act
-        var cityData = await cityRepository.GetCityByIdAsync(1);
-
+        var actualCity = await cityRepository.GetCityByIdAsync(3);
+        
         // Assert
-        expectedCityData.Should().BeEquivalentTo(cityData);
+        actualCity.Should().BeNull();
     }
-
+    
     [Fact]
-    public async Task GetCityByIdAsync_WithNonExistingCity_ReturnsNull()
+    public async Task GetCityByNameAsync_WhenCityExists_ReturnsCity()
     {
         // Arrange
         var cityEntities = new List<CityEntity>
         {
-            new() { Id = 1, Name = "City 1" }
+            new CityEntity { Id = 1, Name = "cityName" },
+            new CityEntity { Id = 2, Name = "cityName2" }
         };
-
-        var context = CreateDatabase(cityEntities);
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
         var cityRepository = new CityRepository(context);
-
+        
         // Act
-        var cityData = await cityRepository.GetCityByIdAsync(2);
-
+        var actualCity = await cityRepository.GetCityByNameAsync("cityName");
+        
         // Assert
-        cityData.Should().BeNull();
+        var expectedCity = new City(1, "cityName");
+        actualCity.Should().BeEquivalentTo(expectedCity);
     }
-
+    
     [Fact]
-    public async Task GetCityByNameAsync_WithExistingCity_ReturnsCityData()
+    public async Task GetCityByNameAsync_WhenCityDoesNotExist_ReturnsNull()
     {
         // Arrange
         var cityEntities = new List<CityEntity>
         {
-            new() { Id = 1, Name = "City 1" }
+            new CityEntity { Id = 1, Name = "cityName" },
+            new CityEntity { Id = 2, Name = "cityName2" }
         };
-
-        var context = CreateDatabase(cityEntities);
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
         var cityRepository = new CityRepository(context);
-
-        var expectedCityData = new City { Id = 1, Name = "City 1" };
-
+        
         // Act
-        var cityData = await cityRepository.GetCityByNameAsync("City 1");
-
+        var actualCity = await cityRepository.GetCityByNameAsync("cityName3");
+        
         // Assert
-        expectedCityData.Should().BeEquivalentTo(cityData);
+        actualCity.Should().BeNull();
     }
-
+    
     [Fact]
-    public async Task GetCityByNameAsync_WithNonExistingCity_ReturnsNull()
+    public async Task GetCitiesAsync_WhenCitiesExist_ReturnsCities()
     {
         // Arrange
         var cityEntities = new List<CityEntity>
         {
-            new() { Id = 1, Name = "City 1" }
+            new CityEntity { Id = 1, Name = "cityName" },
+            new CityEntity { Id = 2, Name = "cityName2" }
         };
-
-        var context = CreateDatabase(cityEntities);
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
         var cityRepository = new CityRepository(context);
-
+        
         // Act
-        var cityData = await cityRepository.GetCityByNameAsync("City 2");
-
+        var actualCities = await cityRepository.GetCitiesAsync();
+        
         // Assert
-        cityData.Should().BeNull();
+        var expectedCities = new List<City>
+        {
+            new City(1, "cityName"),
+            new City(2, "cityName2")
+        };
+        actualCities.Should().BeEquivalentTo(expectedCities);
     }
-
+    
     [Fact]
-    public async Task AddCityAsync_WithCityData_ReturnsCityId()
+    public async Task GetCitiesAsync_WhenNoCitiesExist_ReturnsEmptyList()
     {
         // Arrange
-        var cityEntities = new List<CityEntity>
-        {
-            new() { Id = 1, Name = "City 1" }
-        };
-
-        var context = CreateDatabase(cityEntities);
+        var cityEntities = new List<CityEntity>();
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
         var cityRepository = new CityRepository(context);
-
-        var cityData = new City { Id = 2, Name = "City 2" };
-
+        
         // Act
-        var cityId = await cityRepository.AddCityAsync(cityData.Name);
-
+        var actualCities = await cityRepository.GetCitiesAsync();
+        
         // Assert
-        cityData.Id.Should().Be(cityId);
+        actualCities.Should().BeEmpty();
     }
-
+    
     [Fact]
-    public async Task UpdateCityAsync_WithExistingCity_ReturnsUpdatedCityData()
+    public async Task AddCityAsync_WhenCityDoesNotExist_AddsCity()
     {
         // Arrange
         var cityEntities = new List<CityEntity>
         {
-            new() { Id = 1, Name = "City 1" }
+            new CityEntity { Id = 1, Name = "cityName" },
+            new CityEntity { Id = 2, Name = "cityName2" }
         };
-
-        var context = CreateDatabase(cityEntities);
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
         var cityRepository = new CityRepository(context);
-
-        var updatedCityData = new City { Id = 1, Name = "City 2" };
-
+        
+        var city = new City(3, "cityName3");
+        
         // Act
-        var cityData = await cityRepository.UpdateCityAsync(
-            updatedCityData.Id,
-            updatedCityData.Name
-        );
-
+        await cityRepository.AddCityAsync("cityName3");
+        
         // Assert
-        updatedCityData.Should().BeEquivalentTo(cityData);
+        var actualCity = await cityRepository.GetCityByIdAsync(3);
+        actualCity.Should().BeEquivalentTo(city);
     }
-
+    
     [Fact]
-    public async Task UpdateCityAsync_WithNonExistingCity_ReturnsNull()
+    public async Task AddCityAsync_WhenCityExists_DoesNotAddCity()
     {
         // Arrange
         var cityEntities = new List<CityEntity>
         {
-            new() { Id = 1, Name = "City 1" }
+            new CityEntity { Id = 1, Name = "cityName" },
+            new CityEntity { Id = 2, Name = "cityName2" }
         };
-
-        var context = CreateDatabase(cityEntities);
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
         var cityRepository = new CityRepository(context);
-
-        var updatedCityData = new City { Id = 2, Name = "City 2" };
-
+        
+        var city = new City(1, "cityName");
+        
         // Act
-        var cityData = await cityRepository.UpdateCityAsync(
-            updatedCityData.Id,
-            updatedCityData.Name
-        );
-
+        await cityRepository.AddCityAsync("cityName");
+        
         // Assert
-        cityData.Should().BeNull();
+        var actualCity = await cityRepository.GetCityByIdAsync(1);
+        actualCity.Should().BeEquivalentTo(city);
     }
-
+    
     [Fact]
-    public async Task DeleteCityAsync_WithExistingCity_ReturnsDeletedCityData()
+    public async Task UpdateCityAsync_WhenCityExists_UpdatesCity()
     {
         // Arrange
         var cityEntities = new List<CityEntity>
         {
-            new() { Id = 1, Name = "City 1" }
+            new CityEntity { Id = 1, Name = "cityName" },
+            new CityEntity { Id = 2, Name = "cityName2" }
         };
-
-        var context = CreateDatabase(cityEntities);
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
         var cityRepository = new CityRepository(context);
-
+        
+        var city = new City(1, "cityNameUpdated");
+        
         // Act
-        var cityData = await cityRepository.DeleteCityAsync(1);
-
+        await cityRepository.UpdateCityAsync(1, "cityNameUpdated");
+        
         // Assert
-        cityData.Should().NotBeNull();
+        var actualCity = await cityRepository.GetCityByIdAsync(1);
+        actualCity.Should().BeEquivalentTo(city);
     }
-
+    
     [Fact]
-    public async Task DeleteCityAsync_WithNonExistingCity_ReturnsNull()
+    public async Task UpdateCityAsync_WhenCityDoesNotExist_DoesNotUpdateCity()
     {
         // Arrange
         var cityEntities = new List<CityEntity>
         {
-            new() { Id = 1, Name = "City 1" }
+            new CityEntity { Id = 1, Name = "cityName" },
+            new CityEntity { Id = 2, Name = "cityName2" }
         };
-
-        var context = CreateDatabase(cityEntities);
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
         var cityRepository = new CityRepository(context);
-
+        
+        var city = new City(3, "cityName3");
+        
         // Act
-        var cityData = await cityRepository.DeleteCityAsync(2);
-
+        await cityRepository.UpdateCityAsync(3, "cityName3");
+        
         // Assert
-        cityData.Should().BeNull();
+        var actualCity = await cityRepository.GetCityByIdAsync(3);
+        actualCity.Should().BeNull();
     }
-
-    private static MarketTrackerDataContext CreateDatabase(IEnumerable<CityEntity> cityEntities)
+    
+    [Fact]
+    public async Task DeleteCityAsync_WhenCityExists_DeletesCity()
     {
-        DbContextOptions<MarketTrackerDataContext> options =
-            new DbContextOptionsBuilder<MarketTrackerDataContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
-        var databaseContext = new MarketTrackerDataContext(options);
-        databaseContext.City.AddRange(cityEntities);
-        databaseContext.SaveChanges();
-        databaseContext.Database.EnsureCreated();
-        return databaseContext;
+        // Arrange
+        var cityEntities = new List<CityEntity>
+        {
+            new CityEntity { Id = 1, Name = "cityName" },
+            new CityEntity { Id = 2, Name = "cityName2" }
+        };
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
+        var cityRepository = new CityRepository(context);
+        
+        // Act
+        await cityRepository.DeleteCityAsync(1);
+        
+        // Assert
+        var actualCity = await cityRepository.GetCityByIdAsync(1);
+        actualCity.Should().BeNull();
     }
-}*/
+    
+    [Fact]
+    public async Task DeleteCityAsync_WhenCityDoesNotExist_DoesNotDeleteCity()
+    {
+        // Arrange
+        var cityEntities = new List<CityEntity>
+        {
+            new CityEntity { Id = 1, Name = "cityName" },
+            new CityEntity { Id = 2, Name = "cityName2" }
+        };
+        
+        var context = DbHelper.CreateDatabase(cityEntities);
+        
+        var cityRepository = new CityRepository(context);
+        
+        // Act
+        await cityRepository.DeleteCityAsync(3);
+        
+        // Assert
+        var actualCity = await cityRepository.GetCityByIdAsync(3);
+        actualCity.Should().BeNull();
+    }
+}
