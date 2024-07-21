@@ -1,6 +1,7 @@
 package pt.isel.markettracker.ui.screens.listDetails.cards
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.domain.model.list.listEntry.ListEntryOffer
 import pt.isel.markettracker.dummy.dummyShoppingListEntries
 import pt.isel.markettracker.ui.components.LoadableImage
+import pt.isel.markettracker.ui.screens.listDetails.components.DisplayProductsStats
 import pt.isel.markettracker.ui.screens.listDetails.components.ProductQuantityCounter
-import pt.isel.markettracker.ui.screens.products.card.ProductCardSpecs
 import pt.isel.markettracker.utils.centToEuro
 
 @Composable
@@ -44,7 +45,10 @@ fun ProductListCard(
     loadingContent: @Composable () -> Unit,
 ) {
     val shape = RoundedCornerShape(8.dp)
-    val product = productEntry.productOffer.product
+    val productOffer = productEntry.productOffer
+    val product = productOffer.product
+
+    var showMaxValue by remember { mutableStateOf(false) }
 
     Box(
         contentAlignment = Alignment.Center,
@@ -86,7 +90,7 @@ fun ProductListCard(
                         )
                     }
 
-                    ProductCardSpecs(product, Modifier.fillMaxWidth(.5F))
+                    DisplayProductsStats(productOffer, Modifier.fillMaxWidth(.5F))
 
                     Box(
                         contentAlignment = Alignment.Center
@@ -109,11 +113,22 @@ fun ProductListCard(
                                 onQuantityDecreaseRequest = onQuantityDecreaseRequest
                             )
 
-                            Text(
-                                text = "${productEntry.productOffer.storeOffer.price.finalPrice.centToEuro()}€",
-                                color = Color.Black,
-                                textAlign = TextAlign.Center
-                            )
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = if (showMaxValue)
+                                        "${
+                                            productEntry.productOffer.storeOffer.price.finalPrice.times(
+                                                productEntry.quantity
+                                            ).centToEuro()
+                                        }€" else "${productEntry.productOffer.storeOffer.price.finalPrice.centToEuro()}€",
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.clickable { showMaxValue = !showMaxValue }
+                                )
+                            }
                         }
                     }
                 }

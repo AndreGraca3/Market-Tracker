@@ -74,10 +74,6 @@ class MainActivity : ComponentActivity() {
             val token = authRepository.getToken()
             if (token != null) {
                 profileScreenViewModel.fetchUser()
-                if (profileScreenViewModel.clientFetchingFlow.value is ProfileScreenState.Fail) {
-                    Log.v("User", "Dei reset")
-                    profileScreenViewModel.resetToIdle()
-                }
             }
         }
 
@@ -90,7 +86,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             profileScreenViewModel.clientFetchingFlow.collect { profileState ->
-                Log.v("User", "profileState is $profileState")
+                if (profileState is ProfileScreenState.Fail) profileScreenViewModel.resetToIdle()
             }
         }
 

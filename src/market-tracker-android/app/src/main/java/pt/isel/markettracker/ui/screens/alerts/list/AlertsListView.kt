@@ -28,8 +28,8 @@ fun AlertsListView(
 ) {
     when (state) {
         is AlertsScreenState.Loaded -> {
-            val favorites = state.extractAlerts()
-            if (favorites.isEmpty()) {
+            val alerts = state.extractAlerts()
+            if (alerts.isEmpty()) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
@@ -38,7 +38,7 @@ fun AlertsListView(
                         contentDescription = "No products found"
                     )
                     Text(
-                        text = stringResource(id = R.string.products_not_found)
+                        text = stringResource(id = R.string.alerts_not_found)
                     )
                 }
             } else {
@@ -51,12 +51,12 @@ fun AlertsListView(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                     ) {
-                        Log.v("Favorites", "Favorites are $favorites")
-                        items(favorites.size) { index ->
+                        Log.v("Alerts", "Alerts are $alerts")
+                        items(alerts.size) { index ->
                             AlertProductCard(
-                                priceAlert = favorites[index],
+                                priceAlert = alerts[index],
                                 onRemoveFromAlertsRequested = {
-                                    onDeleteProductFromAlertsRequested(favorites[index].productId)
+                                    onDeleteProductFromAlertsRequested(alerts[index].id)
                                 }
                             )
                         }
@@ -66,7 +66,7 @@ fun AlertsListView(
         }
 
         is AlertsScreenState.Loading -> {
-            LoadingIcon(text = "Carregando os Favoritos...")
+            LoadingIcon(text = "Carregando os Alertas...")
         }
 
 

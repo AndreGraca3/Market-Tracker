@@ -2,6 +2,7 @@ package pt.isel.markettracker.http.service.operations.product
 
 import pt.isel.markettracker.domain.PaginatedResult
 import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
+import pt.isel.markettracker.domain.model.market.inventory.product.PriceHistory
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductItem
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
@@ -14,7 +15,7 @@ interface IProductService {
     suspend fun getProducts(
         page: Int,
         itemsPerPage: Int? = null,
-        query: ProductsQuery
+        query: ProductsQuery,
     ): PaginatedProductOffers
 
     suspend fun getProductById(productId: String): Product
@@ -28,13 +29,13 @@ interface IProductService {
     suspend fun getProductReviews(
         productId: String,
         page: Int,
-        itemsPerPage: Int? = null
+        itemsPerPage: Int? = null,
     ): PaginatedResult<ProductReview>
 
     suspend fun submitProductReview(
         productId: String,
         rating: Int,
-        comment: String?
+        comment: String?,
     ): ProductReview
 
     suspend fun deleteProductReview(productId: String)
@@ -44,4 +45,6 @@ interface IProductService {
     suspend fun addProductToList(listId: String, productId: String, storeId: Int)
 
     suspend fun getFavoriteProducts(): List<ProductItem>
+
+    suspend fun getPriceHistory(productId: String, storeId: Int): PriceHistory
 }

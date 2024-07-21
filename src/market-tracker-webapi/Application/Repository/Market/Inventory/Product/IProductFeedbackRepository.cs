@@ -8,7 +8,7 @@ public interface IProductFeedbackRepository
     Task<PaginatedResult<ProductReview>> GetReviewsByProductIdAsync(string productId, int skip, int take);
 
     Task<ProductReview?> GetReviewByIdAsync(int reviewId);
-    
+
     Task<ReviewId> AddReviewAsync(
         Guid clientId,
         string productId,
@@ -23,7 +23,7 @@ public interface IProductFeedbackRepository
     );
 
     Task<ProductReview?> RemoveReviewAsync(int reviewId);
-    
+
     Task<IEnumerable<ProductItem>> GetFavouriteProductsAsync(Guid clientId);
 
     Task<bool> UpdateProductFavouriteAsync(Guid clientId, string productId, bool isFavourite);
@@ -31,4 +31,6 @@ public interface IProductFeedbackRepository
     Task<ProductPreferences> GetProductPreferencesAsync(Guid clientId, string productId);
 
     public Task<ProductStats?> GetProductStatsByIdAsync(string productId);
+
+    public Task<ProductHistory?> GetProductHistoryFromStoreByIdAsync(string productId, int storeId);
 }

@@ -49,7 +49,7 @@ public static class Uris
         public const string ReviewsByProductId = $"{ProductById}/reviews";
         public const string StatsByProductId = $"{ProductById}/stats";
         public const string PricesByProductId = $"{ProductById}/prices";
-        public const string HistoryByProductId = $"{ProductById}/price-history";
+        public const string HistoryByProductId = $"{ProductById}/price-history/{{storeId}}";
         public const string ProductPreferencesById = $"{ProductById}/me";
         public const string Favourites = $"{Base}/favourites";
 

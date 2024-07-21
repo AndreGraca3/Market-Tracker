@@ -62,4 +62,10 @@ public class ProductFeedbackController(IProductFeedbackService productFeedbackSe
     {
         return await productFeedbackService.GetProductStatsByIdAsync(productId);
     }
+
+    [HttpGet(Uris.Products.HistoryByProductId)]
+    public async Task<ActionResult<ProductHistory>> GetProductHistoryByIdAsync(string productId, int storeId)
+    {
+        return await productFeedbackService.GetProductHistoryFromStoreByIdAsync(productId, storeId);
+    }
 }

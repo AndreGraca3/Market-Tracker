@@ -1,6 +1,7 @@
 package pt.isel.markettracker.ui.screens.profile
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 
@@ -11,6 +12,10 @@ fun ProfileScreen(
     profileScreenViewModel: ProfileScreenViewModel,
 ) {
     val user by profileScreenViewModel.clientFetchingFlow.collectAsState()
+
+    LaunchedEffect(Unit) {
+        profileScreenViewModel.getPreferencesLocal()
+    }
 
     ProfileScreenView(
         userState = user,

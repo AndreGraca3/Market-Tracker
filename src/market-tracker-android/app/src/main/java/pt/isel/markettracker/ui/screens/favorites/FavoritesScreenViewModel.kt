@@ -8,11 +8,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
+import pt.isel.markettracker.repository.auth.IAuthRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class FavoritesScreenViewModel @Inject constructor(
     private val productService: IProductService,
+    private val authRepository: IAuthRepository,
 ) : ViewModel() {
     private val _favoritesFlow: MutableStateFlow<FavoriteScreenState> =
         MutableStateFlow(FavoriteScreenState.Idle)
@@ -45,6 +47,7 @@ class FavoritesScreenViewModel @Inject constructor(
                 productService.updateFavouriteProduct(productId, false)
             }.onSuccess {
                 oldFavorites.removeIf { it.productId == productId }
+                authRepository.removeFavorite(productId)
                 _favoritesFlow.value = FavoriteScreenState.Loaded(oldFavorites.toList())
             }.onFailure {
                 _favoritesFlow.value = FavoriteScreenState.Failed(it)

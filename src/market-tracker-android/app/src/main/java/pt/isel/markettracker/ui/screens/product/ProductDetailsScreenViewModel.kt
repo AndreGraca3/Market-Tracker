@@ -9,8 +9,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductItem
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
+import pt.isel.markettracker.domain.model.market.price.ProductAlert
+import pt.isel.markettracker.domain.model.market.price.StoreItem
 import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
@@ -27,7 +30,7 @@ import javax.inject.Inject
 class ProductDetailsScreenViewModel @Inject constructor(
     private val productService: IProductService,
     private val alertService: IAlertService,
-    private val authRepository: IAuthRepository
+    private val authRepository: IAuthRepository,
 ) : ViewModel() {
 
     private val _stateFlow: MutableStateFlow<ProductDetailsScreenState> =
@@ -257,8 +260,24 @@ class ProductDetailsScreenViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
+            val currentProduct = currScreenState.product
             val res = runCatchingAPIFailure {
-                productService.updateFavouriteProduct(currScreenState.product.id, isFavourite)
+                productService.updateFavouriteProduct(currentProduct.id, isFavourite)
+            }
+
+            res.onSuccess {
+                if (isFavourite) {
+                    authRepository.addFavorite(
+                        ProductItem(
+                            productId = currentProduct.id,
+                            name = currentProduct.name,
+                            imageUrl = currentProduct.imageUrl,
+                            brandName = currentProduct.brand.name
+                        )
+                    )
+                } else {
+                    authRepository.removeFavorite(currentProduct.id)
+                }
             }
 
             res.onFailure {
@@ -274,17 +293,25 @@ class ProductDetailsScreenViewModel @Inject constructor(
         get() = _priceAlertStateFlow.asStateFlow()
 
     fun createAlert(productId: String, storeId: Int, priceThreshold: Int) {
-        if (_priceAlertStateFlow.value is PriceAlertState.Loading) return
+        if (_priceAlertStateFlow.value !is PriceAlertState.Idle) return
         _priceAlertStateFlow.value = PriceAlertState.Loading
 
         viewModelScope.launch {
             runCatchingAPIFailure {
                 alertService.createAlert(productId, storeId, priceThreshold)
             }.onSuccess {
+                // this is just to increase the counter in profile screen
                 val alert = PriceAlert(
                     id = it.value,
-                    productId = productId,
-                    storeId = storeId,
+                    product = ProductAlert(
+                        productId = productId,
+                        name = "",
+                        imageUrl = ""
+                    ),
+                    store = StoreItem(
+                        id = storeId,
+                        name = ""
+                    ),
                     priceThreshold = priceThreshold,
                     createdAt = LocalDateTime.now()
                 )
@@ -313,7 +340,7 @@ class ProductDetailsScreenViewModel @Inject constructor(
 
     private inline fun <T> loadDetailAndSetScreenStateIfReady(
         crossinline apiCall: suspend () -> T,
-        crossinline updateState: ProductDetailsScreenState.LoadingProductDetails.(T) -> ProductDetailsScreenState.LoadingProductDetails
+        crossinline updateState: ProductDetailsScreenState.LoadingProductDetails.(T) -> ProductDetailsScreenState.LoadingProductDetails,
     ) {
         viewModelScope.launch {
             val res = runCatchingAPIFailure { apiCall() }

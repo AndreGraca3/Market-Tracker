@@ -5,6 +5,7 @@ import okhttp3.OkHttpClient
 import pt.isel.markettracker.domain.PaginatedResult
 import pt.isel.markettracker.domain.model.CollectionOutputModel
 import pt.isel.markettracker.domain.model.market.inventory.product.PaginatedProductOffers
+import pt.isel.markettracker.domain.model.market.inventory.product.PriceHistory
 import pt.isel.markettracker.domain.model.market.inventory.product.Product
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductItem
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductPreferences
@@ -52,6 +53,9 @@ private fun buildProductStatsByIdPath(id: String) = "/products/$id/stats"
 private fun buildProductPreferencesByIdPath(id: String) = "/products/$id/me"
 
 private fun buildAddProductToListPath(listId: String) = "/lists/${listId}/entries"
+
+private fun buildProductHistoryByIdPath(id: String, storeId: Int) =
+    "/products/$id/price-history/$storeId"
 
 private const val favoriteProductsPath = "/products/favourites"
 
@@ -168,7 +172,7 @@ class ProductService(
         return requestHandler(
             path = buildAddProductToListPath(listId),
             method = HttpMethod.POST,
-            body = mapOf( // TODO: check if possible, if not, change to a class
+            body = mapOf(
                 "productId" to productId,
                 "storeId" to storeId,
                 "quantity" to 1
@@ -181,5 +185,12 @@ class ProductService(
             path = favoriteProductsPath,
             method = HttpMethod.GET
         ).items
+    }
+
+    override suspend fun getPriceHistory(productId: String, storeId: Int): PriceHistory {
+        return requestHandler(
+            path = buildProductHistoryByIdPath(productId, storeId),
+            method = HttpMethod.GET
+        )
     }
 }

@@ -19,10 +19,12 @@ import kotlinx.coroutines.launch
 import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.operations.auth.IAuthService
 import pt.isel.markettracker.http.service.operations.list.IListService
+import pt.isel.markettracker.http.service.operations.product.IProductService
 import pt.isel.markettracker.http.service.operations.user.IUserService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.repository.auth.extractAlerts
+import pt.isel.markettracker.repository.auth.extractFavorites
 import pt.isel.markettracker.repository.auth.extractLists
 import pt.isel.markettracker.utils.convertImageToBase64
 
@@ -34,6 +36,7 @@ class ProfileScreenViewModel @AssistedInject constructor(
     private val listService: IListService,
     private val alertService: IAlertService,
     private val authRepository: IAuthRepository,
+    private val productService: IProductService,
 ) : ViewModel() {
 
     private val _clientFetchingFlow: MutableStateFlow<ProfileScreenState> =
@@ -56,11 +59,6 @@ class ProfileScreenViewModel @AssistedInject constructor(
                 .onSuccess { client ->
                     name = client.name
                     username = client.username
-                    Log.v("Avatar", "On fetch AvatarPath : ${avatarPath.toString().take(40)}")
-                    Log.v(
-                        "Avatar",
-                        "On fetch Avatar from db : ${client.avatar.toString().take(40)}"
-                    )
 
                     FirebaseMessaging.getInstance().token.addOnCompleteListener {
                         if (it.isSuccessful) {
@@ -75,21 +73,25 @@ class ProfileScreenViewModel @AssistedInject constructor(
                             async { runCatchingAPIFailure { listService.getLists() } }
                         val alertsDeferred =
                             async { runCatchingAPIFailure { alertService.getAlerts() } }
+                        val favoritesDeferred =
+                            async { runCatchingAPIFailure { productService.getFavoriteProducts() } }
                         val lists = listsDeferred.await()
                         val alerts = alertsDeferred.await()
+                        val favorites = favoritesDeferred.await()
 
-                        if (lists.isFailure || alerts.isFailure) {
+                        if (lists.isFailure || alerts.isFailure || favorites.isFailure) {
                             _clientFetchingFlow.value =
-                                ProfileScreenState.Fail(Exception("Failed to fetch lists or alerts"))
+                                ProfileScreenState.Fail(Exception("Failed to fetch lists, alerts or favorites"))
                         } else {
                             val loadedLists = lists.getOrThrow()
                             val loadedAlerts = alerts.getOrThrow()
-                            authRepository.setDetails(loadedLists, loadedAlerts)
+                            val loadedFavorites = favorites.getOrThrow()
+                            authRepository.setDetails(loadedLists, loadedAlerts, loadedFavorites)
                             _clientFetchingFlow.value =
                                 ProfileScreenState.Success(
                                     client,
                                     loadedLists.size,
-                                    0,
+                                    loadedFavorites.size,
                                     loadedAlerts.size
                                 )
                         }
@@ -131,10 +133,10 @@ class ProfileScreenViewModel @AssistedInject constructor(
                 Log.v("Avatar", "On Update AvatarPath : ${avatarPath.toString().take(40)}")
                 Log.v("Avatar", "On Update Avatar from db : ${it.avatar.toString().take(40)}")
                 _clientFetchingFlow.value = ProfileScreenState.Success(
-                    it,
-                    authRepository.authState.value.extractLists().size,
-                    0,
-                    authRepository.authState.value.extractAlerts().size
+                    client = it,
+                    nLists = authRepository.authState.value.extractLists().size,
+                    nFavorites = authRepository.authState.value.extractFavorites().size,
+                    nAlerts = authRepository.authState.value.extractAlerts().size
                 )
             }.onFailure {
                 _clientFetchingFlow.value = ProfileScreenState.Fail(it)
@@ -172,5 +174,20 @@ class ProfileScreenViewModel @AssistedInject constructor(
 
     fun resetToIdle() {
         _clientFetchingFlow.value = ProfileScreenState.Idle
+    }
+
+    fun getPreferencesLocal() {
+        val successState = _clientFetchingFlow.value
+        if (successState !is ProfileScreenState.Success) return
+
+        val details = authRepository.getDetails()
+
+        _clientFetchingFlow.value =
+            ProfileScreenState.Success(
+                successState.client,
+                details.lists.size,
+                details.favorites.size,
+                details.alerts.size
+            )
     }
 }

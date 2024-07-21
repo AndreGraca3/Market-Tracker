@@ -8,11 +8,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.isel.markettracker.http.service.operations.alert.IAlertService
 import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
+import pt.isel.markettracker.repository.auth.IAuthRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class AlertsScreenViewModel @Inject constructor(
     private val alertsService: IAlertService,
+    private val authRepository: IAuthRepository,
 ) : ViewModel() {
     private val _alertsFlow: MutableStateFlow<AlertsScreenState> =
         MutableStateFlow(AlertsScreenState.Idle)
@@ -45,6 +47,7 @@ class AlertsScreenViewModel @Inject constructor(
                 alertsService.deleteAlert(alertId)
             }.onSuccess {
                 oldFavorites.removeIf { it.id == alertId }
+                authRepository.removeAlert(alertId)
                 _alertsFlow.value = AlertsScreenState.Loaded(oldFavorites.toList())
             }.onFailure {
                 _alertsFlow.value = AlertsScreenState.Failed(it)

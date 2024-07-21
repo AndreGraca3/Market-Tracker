@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import pt.isel.markettracker.domain.model.list.ShoppingList
+import pt.isel.markettracker.domain.model.market.inventory.product.ProductItem
 import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import java.util.UUID
 import javax.inject.Inject
@@ -54,40 +55,81 @@ class AuthRepository @Inject constructor(private val dataStore: DataStore<Prefer
         }
     }
 
-    override fun setDetails(lists: List<ShoppingList>, alerts: List<PriceAlert>) {
+    override fun setDetails(
+        lists: List<ShoppingList>,
+        alerts: List<PriceAlert>,
+        favorites: List<ProductItem>,
+    ) {
         // if (_authState.value !is AuthState.Idle) return
-        _authState.value = AuthState.Loaded(lists, alerts)
+        _authState.value = AuthState.Loaded(lists, alerts, favorites)
         Log.v(TAG, "AuthState is loaded")
+    }
+
+    override fun getDetails(): Details {
+        val state = _authState.value
+        if (state !is AuthState.Loaded) return Details(
+            lists = emptyList(),
+            alerts = emptyList(),
+            favorites = emptyList()
+        )
+        return Details(
+            lists = state.lists,
+            alerts = state.alerts,
+            favorites = state.favorites
+        )
     }
 
     override fun addAlert(alert: PriceAlert) {
         val state = _authState.value
         if (state !is AuthState.Loaded) return
-        _authState.value = AuthState.Loaded(state.lists, state.alerts + alert)
+        _authState.value = AuthState.Loaded(state.lists, state.alerts + alert, state.favorites)
     }
 
     override fun removeAlert(alertId: String) {
         val state = _authState.value
         if (state !is AuthState.Loaded) return
-        _authState.value = AuthState.Loaded(state.lists, state.alerts.filter { it.id != alertId })
+        _authState.value =
+            AuthState.Loaded(state.lists, state.alerts.filter { it.id != alertId }, state.favorites)
+    }
+
+    override fun addFavorite(favorite: ProductItem) {
+        val state = _authState.value
+        if (state !is AuthState.Loaded) return
+        _authState.value = AuthState.Loaded(state.lists, state.alerts, state.favorites + favorite)
+    }
+
+    override fun removeFavorite(productId: String) {
+        val state = _authState.value
+        if (state !is AuthState.Loaded) return
+        _authState.value = AuthState.Loaded(
+            state.lists,
+            state.alerts,
+            state.favorites.filter { it.productId != productId })
     }
 
     override fun addList(list: ShoppingList) {
         val state = _authState.value
         if (state !is AuthState.Loaded) return
-        _authState.value = AuthState.Loaded(listOf(list) + state.lists, state.alerts)
+        _authState.value =
+            AuthState.Loaded(listOf(list) + state.lists, state.alerts, state.favorites)
     }
 
     override fun removeList(listId: String) {
         val state = _authState.value
         if (state !is AuthState.Loaded) return
-        _authState.value = AuthState.Loaded(state.lists.filter { it.id != listId }, state.alerts)
+        _authState.value =
+            AuthState.Loaded(state.lists.filter { it.id != listId }, state.alerts, state.favorites)
     }
 }
 
 sealed class AuthState {
     data object Idle : AuthState()
-    data class Loaded(val lists: List<ShoppingList>, val alerts: List<PriceAlert>) : AuthState()
+    data class Loaded(
+        val lists: List<ShoppingList>,
+        val alerts: List<PriceAlert>,
+        val favorites: List<ProductItem>,
+    ) : AuthState()
+
     data object Logout : AuthState()
 }
 
@@ -102,5 +144,11 @@ fun AuthState.extractLists(): List<ShoppingList> =
 fun AuthState.extractAlerts(): List<PriceAlert> =
     when (this) {
         is AuthState.Loaded -> alerts
+        else -> emptyList()
+    }
+
+fun AuthState.extractFavorites(): List<ProductItem> =
+    when (this) {
+        is AuthState.Loaded -> favorites
         else -> emptyList()
     }
