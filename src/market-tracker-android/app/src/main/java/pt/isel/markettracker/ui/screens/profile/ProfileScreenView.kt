@@ -50,7 +50,6 @@ fun ProfileScreenView(
     onUpdateUserRequested: () -> Unit,
     onDeleteAccountRequested: () -> Unit,
 ) {
-
     var isInEditMode by rememberSaveable { mutableStateOf(false) }
 
     val launcher =

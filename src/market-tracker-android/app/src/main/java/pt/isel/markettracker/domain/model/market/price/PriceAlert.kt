@@ -11,7 +11,7 @@ data class PriceAlert(
 )
 
 data class ProductAlert(
-    val productId: String,
+    val id: String,
     val name: String,
     val imageUrl: String,
 )

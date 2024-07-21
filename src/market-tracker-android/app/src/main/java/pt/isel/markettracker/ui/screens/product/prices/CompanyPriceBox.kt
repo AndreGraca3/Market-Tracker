@@ -1,21 +1,12 @@
 package pt.isel.markettracker.ui.screens.product.prices
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddAlert
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
@@ -25,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,8 +35,6 @@ fun CompanyPriceBox(
     price: Price,
     lastChecked: LocalDateTime,
     showOptions: Boolean,
-    hasAlert: Boolean,
-    onAlertClick: () -> Unit,
     onAddToListClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -59,20 +47,6 @@ fun CompanyPriceBox(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
     ) {
-        AnimatedVisibility(showOptions) {
-            IconButton(
-                onClick = onAlertClick, modifier = Modifier
-                    .background(Color.LightGray, shape = CircleShape)
-                    .size(28.dp)
-                    .padding(4.dp)
-            ) {
-                Icon(
-                    imageVector = if (hasAlert) Icons.Filled.Remove else Icons.Filled.AddAlert,
-                    contentDescription = "Alert"
-                )
-            }
-        }
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -126,8 +100,6 @@ fun CompanyPriceBoxPreview() {
         price = Price(100, 50, Promotion(10, LocalDateTime.now()), LocalDateTime.now()),
         lastChecked = LocalDateTime.now(),
         showOptions = true,
-        hasAlert = false,
-        onAlertClick = {},
         onAddToListClick = {}
     )
 }

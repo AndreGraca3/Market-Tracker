@@ -33,6 +33,7 @@
     <string name="invalid_price">Preço Inválido</string>
     <string name="price_alert_title">Nós avisamos-te quando o preço diminuir</string>
     <string name="set_alert">Definir alerta</string>
+    <string name="remove_alert">Remover alerta</string>
     <string name="alert_set">Alerta definido</string>
     <string name="alert_removed">Alerta removido</string>
     <string name="alert_error">Erro na alteração do alerta</string>

@@ -21,10 +21,8 @@ import com.talhafaki.composablesweettoast.util.SweetToastUtil
 import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.market.inventory.product.ProductOffer
 import pt.isel.markettracker.repository.auth.IAuthRepository
-import pt.isel.markettracker.repository.auth.extractAlerts
 import pt.isel.markettracker.repository.auth.extractLists
 import pt.isel.markettracker.repository.auth.isLoggedIn
-import pt.isel.markettracker.ui.screens.product.alert.PriceAlertState
 import pt.isel.markettracker.ui.screens.product.components.ProductNotFoundDialog
 import pt.isel.markettracker.ui.screens.product.components.ProductTopBar
 import pt.isel.markettracker.ui.screens.product.prices.PricesSection
@@ -40,14 +38,12 @@ import pt.isel.markettracker.ui.screens.products.list.ListsBottomSheet
 @Composable
 fun ProductDetailsScreen(
     onBackRequest: () -> Unit,
-    checkOrRequestNotificationPermission: (() -> Unit) -> Unit,
-    onPriceSectionClick: (Int) -> Unit,
+    onPriceSectionClick: (Int, Int) -> Unit,
     vm: ProductDetailsScreenViewModel,
     authRepository: IAuthRepository
 ) {
     val screenState by vm.stateFlow.collectAsState()
     val prefsState by vm.prefsStateFlow.collectAsState()
-    val priceAlertState by vm.priceAlertStateFlow.collectAsState()
 
     val authState by authRepository.authState.collectAsState()
 
@@ -96,13 +92,6 @@ fun ProductDetailsScreen(
             PricesSection(
                 productPrices = screenState.extractPrices(),
                 showOptions = authState.isLoggedIn(),
-                alerts = authState.extractAlerts(),
-                onAlertSet = { id, price ->
-                    checkOrRequestNotificationPermission {
-                        if (product != null) vm.createAlert(product.id, id, price)
-                    }
-                },
-                onAlertDelete = vm::deleteAlert,
                 onAddToListClick = { storeOffer ->
                     if (product != null) vm.selectListToAddProduct(
                         ProductOffer(product, storeOffer)
@@ -137,40 +126,12 @@ fun ProductDetailsScreen(
         }
     }
 
-    when (priceAlertState) {
-        is PriceAlertState.Created -> {
-            SweetToastUtil.SweetSuccess(
-                message = stringResource(id = R.string.alert_set),
-                contentAlignment = Alignment.TopCenter,
-                padding = PaddingValues(top = 18.dp)
-            )
-        }
-
-        is PriceAlertState.Deleted -> {
-            SweetToastUtil.SweetSuccess(
-                message = stringResource(id = R.string.alert_removed),
-                contentAlignment = Alignment.TopCenter,
-                padding = PaddingValues(top = 18.dp)
-            )
-        }
-
-        is PriceAlertState.Error -> {
-            SweetToastUtil.SweetError(
-                message = stringResource(id = R.string.alert_error),
-                contentAlignment = Alignment.TopCenter,
-                padding = PaddingValues(top = 18.dp)
-            )
-        }
-
-        else -> {}
-    }
-
     val addToListState by vm.addToListStateFlow.collectAsState()
 
     when (addToListState) {
         is AddToListState.SelectingList -> {
             ListsBottomSheet(
-                shoppingLists = authState.extractLists(),
+                shoppingLists = authState.extractLists().filter { !it.isArchived },
                 onListSelectedClick = vm::addProductToList,
                 onDismissRequest = vm::resetAddToListState
             )

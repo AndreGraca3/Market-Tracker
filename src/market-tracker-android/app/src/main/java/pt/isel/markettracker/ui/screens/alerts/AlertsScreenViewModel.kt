@@ -40,15 +40,15 @@ class AlertsScreenViewModel @Inject constructor(
         val oldState = _alertsFlow.value
         if (oldState !is AlertsScreenState.Loaded) return
 
-        val oldFavorites = oldState.alerts.toMutableList()
+        val oldAlerts = oldState.alerts.toMutableList()
 
         viewModelScope.launch {
             runCatchingAPIFailure {
                 alertsService.deleteAlert(alertId)
             }.onSuccess {
-                oldFavorites.removeIf { it.id == alertId }
+                oldAlerts.removeIf { it.id == alertId }
                 authRepository.removeAlert(alertId)
-                _alertsFlow.value = AlertsScreenState.Loaded(oldFavorites.toList())
+                _alertsFlow.value = AlertsScreenState.Loaded(oldAlerts.toList())
             }.onFailure {
                 _alertsFlow.value = AlertsScreenState.Failed(it)
             }

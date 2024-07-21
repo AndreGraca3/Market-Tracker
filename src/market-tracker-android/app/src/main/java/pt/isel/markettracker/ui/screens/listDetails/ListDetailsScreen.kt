@@ -50,9 +50,6 @@ fun ListDetailsScreen(
                 }
             }
         },
-        onGenerateCheapestList = {
-            // TODO("")
-        },
         changeProductCount = { entryId, storeId, newQuantity ->
             listDetailsScreenViewModel.changeProductCount(listId, entryId, storeId, newQuantity)
         },

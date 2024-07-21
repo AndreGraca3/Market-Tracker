@@ -146,6 +146,9 @@ public class ListEntryService(
                 throw new MarketTrackerServiceException(
                     new ListFetchingError.ClientDoesNotOwnList(clientId, listId));
 
+            if (list.IsArchived)
+                throw new MarketTrackerServiceException(new ListUpdateError.ListIsArchived(listId));
+
             if (quantity <= 0)
                 throw new MarketTrackerServiceException(
                     new ListEntryCreationError.ListEntryQuantityInvalid(quantity));
@@ -188,6 +191,9 @@ public class ListEntryService(
             var list = await listRepository.GetListByIdAsync(listId);
             if (list is null)
                 throw new MarketTrackerServiceException(new ListFetchingError.ListByIdNotFound(listId));
+            
+            if (list.IsArchived)
+                throw new MarketTrackerServiceException(new ListUpdateError.ListIsArchived(listId));
 
             if (!list.BelongsTo(clientId))
                 throw new MarketTrackerServiceException(

@@ -32,10 +32,8 @@ import coil.compose.SubcomposeAsyncImage
 import pt.isel.markettracker.R
 import pt.isel.markettracker.domain.model.market.Company
 import pt.isel.markettracker.domain.model.market.price.CompanyPrices
-import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.domain.model.market.price.StoreOffer
 import pt.isel.markettracker.dummy.dummyCompanyPrices
-import pt.isel.markettracker.ui.screens.product.alert.PriceAlertDialog
 import pt.isel.markettracker.ui.screens.product.stores.StoresBottomSheet
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 
@@ -43,14 +41,10 @@ import pt.isel.markettracker.ui.theme.MarketTrackerTypography
 fun CompanyRow(
     companyPrices: CompanyPrices,
     showOptions: Boolean,
-    alerts: List<PriceAlert>,
-    onAlertSet: (Int, Int) -> Unit,
-    onAlertDelete: (String) -> Unit,
-    onPriceSectionClick: (Int) -> Unit,
+    onPriceSectionClick: (Int, Int) -> Unit,
     onAddToListClick: (StoreOffer) -> Unit,
 ) {
     var showCompanyStores by rememberSaveable { mutableStateOf(false) }
-    var showAlertDialog by rememberSaveable { mutableStateOf(false) }
 
     var selectedStoreId by rememberSaveable { mutableIntStateOf(companyPrices.stores.first().store.id) }
     val selectedStoreOffer = companyPrices.stores.first { it.store.id == selectedStoreId }
@@ -60,7 +54,10 @@ fun CompanyRow(
             .fillMaxWidth()
             .wrapContentHeight()
             .clickable {
-                onPriceSectionClick(companyPrices.id)
+                onPriceSectionClick(
+                    selectedStoreOffer.store.id,
+                    selectedStoreOffer.price.finalPrice
+                )
             },
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -101,15 +98,10 @@ fun CompanyRow(
         }
 
         if (selectedStoreOffer.isAvailable) {
-            val alert = alerts.find { it.store.id == selectedStoreOffer.store.id }
             CompanyPriceBox(
                 price = selectedStoreOffer.price,
                 lastChecked = selectedStoreOffer.lastChecked,
                 showOptions = showOptions,
-                hasAlert = alert != null,
-                onAlertClick = {
-                    if (alert != null) onAlertDelete(alert.id) else showAlertDialog = true
-                },
                 onAddToListClick = {
                     onAddToListClick(
                         selectedStoreOffer.toStoreOffer(
@@ -138,20 +130,10 @@ fun CompanyRow(
         onDismissRequest = { showCompanyStores = false }
     )
 
-    PriceAlertDialog(
-        showAlertDialog = showAlertDialog,
-        price = selectedStoreOffer.price.finalPrice,
-        onAlertSet = { priceThreshold ->
-            onAlertSet(selectedStoreOffer.store.id, priceThreshold)
-            showAlertDialog = false
-        },
-        onDismissRequest = { showAlertDialog = false }
-    )
-
 }
 
 @Preview
 @Composable
 fun PriceRowPreview() {
-    CompanyRow(dummyCompanyPrices.first(), true, emptyList(), { _, _ -> }, { }, {}, {})
+    CompanyRow(dummyCompanyPrices.first(), true, { _, _ -> }, { })
 }

@@ -34,7 +34,7 @@ android {
             buildConfigField("String", "API_URL", "\"http://192.168.1.26:2001/api\"")
         }
         debug {
-            buildConfigField("String", "API_URL", "\"http://192.168.1.26:2001/api\"")
+            buildConfigField("String", "API_URL", "\"http://192.168.1.3:2001/api\"")
         }
     }
     compileOptions {

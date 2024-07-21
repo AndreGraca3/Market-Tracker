@@ -17,6 +17,7 @@ import pt.isel.markettracker.ui.screens.listDetails.ListDetailsScreenState
 import pt.isel.markettracker.ui.screens.listDetails.cards.ProductListCard
 import pt.isel.markettracker.ui.screens.listDetails.components.DisplayListCount
 import pt.isel.markettracker.ui.screens.listDetails.extractShoppingListEntries
+import pt.isel.markettracker.ui.screens.listDetails.extractShoppingListSocial
 
 @Composable
 fun ProductListView(
@@ -69,6 +70,7 @@ fun ProductListView(
                                 val item = listItems.entries[index]
                                 ProductListCard(
                                     productEntry = item,
+                                    isEditable = state.extractShoppingListSocial()?.archivedAt == null,
                                     isEditing = state is ListDetailsScreenState.Editing,
                                     onQuantityIncreaseRequest = {
                                         onQuantityChangeRequest(

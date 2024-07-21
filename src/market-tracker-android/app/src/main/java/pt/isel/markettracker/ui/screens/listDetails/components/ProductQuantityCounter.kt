@@ -17,6 +17,7 @@ import pt.isel.markettracker.ui.theme.mainFont
 @Composable
 fun ProductQuantityCounter(
     quantity: Int,
+    isEditable: Boolean,
     enabled: Boolean,
     onQuantityIncreaseRequest: () -> Unit,
     onQuantityDecreaseRequest: () -> Unit,
@@ -25,12 +26,14 @@ fun ProductQuantityCounter(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
     ) {
-        MarketTrackerOutlinedButton(
-            modifier = Modifier.weight(1F),
-            icon = Icons.Default.Remove,
-            enabled = enabled,
-            onClick = onQuantityDecreaseRequest
-        )
+        if (isEditable) {
+            MarketTrackerOutlinedButton(
+                modifier = Modifier.weight(1F),
+                icon = Icons.Default.Remove,
+                enabled = enabled,
+                onClick = onQuantityDecreaseRequest
+            )
+        }
 
         Text(
             modifier = Modifier.weight(1F),
@@ -39,12 +42,13 @@ fun ProductQuantityCounter(
             textAlign = TextAlign.Center,
         )
 
-        MarketTrackerOutlinedButton(
-            modifier = Modifier.weight(1F),
-            icon = Icons.Default.Add,
-            enabled = enabled,
-            onClick = onQuantityIncreaseRequest
-        )
-
+        if (isEditable) {
+            MarketTrackerOutlinedButton(
+                modifier = Modifier.weight(1F),
+                icon = Icons.Default.Add,
+                enabled = enabled,
+                onClick = onQuantityIncreaseRequest
+            )
+        }
     }
 }

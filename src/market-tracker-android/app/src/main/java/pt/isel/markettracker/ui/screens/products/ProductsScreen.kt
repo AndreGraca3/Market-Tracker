@@ -26,7 +26,7 @@ fun ProductsScreen(
         fetchProducts = { productsScreenViewModel.fetchProducts(true, it) },
         loadMoreProducts = { productsScreenViewModel.loadMoreProducts() },
         onProductClick = onProductClick,
-        shoppingLists = authState.extractLists(),
+        shoppingLists = authState.extractLists().filter { !it.isArchived },
         addToListState = addToListState,
         onAddToListClick = { productOffer ->
             if (authState.isLoggedIn())

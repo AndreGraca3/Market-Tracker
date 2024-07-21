@@ -82,43 +82,39 @@ class AuthRepository @Inject constructor(private val dataStore: DataStore<Prefer
     override fun addAlert(alert: PriceAlert) {
         val state = _authState.value
         if (state !is AuthState.Loaded) return
-        _authState.value = AuthState.Loaded(state.lists, state.alerts + alert, state.favorites)
+        _authState.value = state.copy(alerts = state.alerts + alert)
     }
 
     override fun removeAlert(alertId: String) {
         val state = _authState.value
         if (state !is AuthState.Loaded) return
         _authState.value =
-            AuthState.Loaded(state.lists, state.alerts.filter { it.id != alertId }, state.favorites)
+            state.copy(alerts = state.alerts.filter { it.id != alertId })
     }
 
     override fun addFavorite(favorite: ProductItem) {
         val state = _authState.value
         if (state !is AuthState.Loaded) return
-        _authState.value = AuthState.Loaded(state.lists, state.alerts, state.favorites + favorite)
+        _authState.value = state.copy(favorites = state.favorites + favorite)
     }
 
     override fun removeFavorite(productId: String) {
         val state = _authState.value
         if (state !is AuthState.Loaded) return
-        _authState.value = AuthState.Loaded(
-            state.lists,
-            state.alerts,
-            state.favorites.filter { it.productId != productId })
+        _authState.value =
+            state.copy(favorites = state.favorites.filter { it.productId != productId })
     }
 
     override fun addList(list: ShoppingList) {
         val state = _authState.value
         if (state !is AuthState.Loaded) return
-        _authState.value =
-            AuthState.Loaded(listOf(list) + state.lists, state.alerts, state.favorites)
+        _authState.value = state.copy(lists = listOf(list) + state.lists)
     }
 
     override fun removeList(listId: String) {
         val state = _authState.value
         if (state !is AuthState.Loaded) return
-        _authState.value =
-            AuthState.Loaded(state.lists.filter { it.id != listId }, state.alerts, state.favorites)
+        _authState.value = state.copy(lists = state.lists.filter { it.id != listId })
     }
 }
 

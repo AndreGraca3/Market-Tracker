@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -94,7 +95,8 @@ class ProductsScreenViewModel @Inject constructor(
 
     fun selectProductToAddToList(productOffer: ProductOffer) {
         if (_addToListStateFlow.value !is AddToListState.Idle &&
-            _addToListStateFlow.value !is AddToListState.Done) return
+            _addToListStateFlow.value !is AddToListState.Done
+        ) return
         _addToListStateFlow.value = AddToListState.SelectingList(productOffer)
     }
 
@@ -124,6 +126,9 @@ class ProductsScreenViewModel @Inject constructor(
             }
 
             res.onFailure { _addToListStateFlow.value = AddToListState.Failed(it) }
+
+            delay(2000)
+            resetAddToListState()
         }
     }
 

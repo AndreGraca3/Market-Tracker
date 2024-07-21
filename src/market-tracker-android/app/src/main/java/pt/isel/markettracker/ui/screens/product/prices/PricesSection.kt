@@ -21,7 +21,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import pt.isel.markettracker.R
-import pt.isel.markettracker.domain.model.market.price.PriceAlert
 import pt.isel.markettracker.domain.model.market.price.ProductPrices
 import pt.isel.markettracker.domain.model.market.price.StoreOffer
 import pt.isel.markettracker.ui.theme.MarketTrackerTypography
@@ -31,10 +30,7 @@ import pt.isel.markettracker.utils.shimmerEffect
 fun PricesSection(
     productPrices: ProductPrices?,
     showOptions: Boolean,
-    alerts: List<PriceAlert>,
-    onPriceSectionClick: (Int) -> Unit,
-    onAlertSet: (Int, Int) -> Unit,
-    onAlertDelete: (String) -> Unit,
+    onPriceSectionClick: (Int, Int) -> Unit,
     onAddToListClick: (StoreOffer) -> Unit,
 ) {
     Column(
@@ -75,9 +71,6 @@ fun PricesSection(
                     CompanyRow(
                         it,
                         showOptions,
-                        alerts,
-                        onAlertSet,
-                        onAlertDelete,
                         onPriceSectionClick,
                         onAddToListClick,
                     )

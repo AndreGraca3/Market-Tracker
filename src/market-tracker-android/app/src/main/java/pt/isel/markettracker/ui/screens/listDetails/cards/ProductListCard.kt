@@ -37,6 +37,7 @@ import pt.isel.markettracker.utils.centToEuro
 @Composable
 fun ProductListCard(
     productEntry: ListEntryOffer,
+    isEditable: Boolean,
     isEditing: Boolean,
     isInCheckBoxMode: Boolean = false,
     onQuantityIncreaseRequest: () -> Unit,
@@ -108,6 +109,7 @@ fun ProductListCard(
 
                             ProductQuantityCounter(
                                 quantity = productEntry.quantity,
+                                isEditable = isEditable,
                                 enabled = !isEditing,
                                 onQuantityIncreaseRequest = onQuantityIncreaseRequest,
                                 onQuantityDecreaseRequest = onQuantityDecreaseRequest
@@ -142,6 +144,7 @@ fun ProductListCard(
 fun ProductListCardPreview() {
     ProductListCard(
         productEntry = dummyShoppingListEntries.entries.first(),
+        isEditable = false,
         isEditing = false,
         onQuantityIncreaseRequest = {},
         onQuantityDecreaseRequest = {},

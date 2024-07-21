@@ -10,6 +10,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddAlert
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +43,8 @@ import pt.isel.markettracker.utils.centToEuro
 @Composable
 fun PriceHistoryScreenView(
     state: PriceHistoryScreenState,
+    hasAlert: Boolean,
+    onAlertClick: () -> Unit,
     onBackRequested: () -> Unit,
 ) {
     Scaffold(
@@ -111,16 +118,41 @@ fun PriceHistoryScreenView(
                             modelProducer.runTransaction {
                                 lineSeries {
                                     series(
-                                        x = filledPrices.map { it.date.dayOfYear },
+                                        x = filledPrices.map { it.date.dayOfMonth },
                                         filledPrices.map { (it.price.toDouble() / 100) })
                                 }
                             }
                         }
                     }
-                    Column {
+
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Button(onClick = onAlertClick) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = if (hasAlert) Icons.Filled.Remove else Icons.Filled.AddAlert,
+                                        contentDescription = "Alert"
+                                    )
+
+                                    Text(
+                                        text = if (hasAlert) stringResource(id = R.string.remove_alert)
+                                        else stringResource(id = R.string.set_alert)
+                                    )
+                                }
+                            }
+                        }
+
                         Box {
                             MarketTrackerLineChart(modelProducer)
                         }
+
                         Row {
                             Column {
                                 Column {

@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingCartCheckout
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import pt.isel.markettracker.ui.components.buttons.MarketTrackerOutlinedButton
 import pt.isel.markettracker.ui.components.modalDrawer.MarketTrackerRightModalDrawer
 import pt.isel.markettracker.ui.screens.listDetails.buttons.OpenUserMenuButton
 import pt.isel.markettracker.ui.screens.listDetails.components.MembersModal
@@ -37,7 +34,6 @@ fun ListDetailsScreenView(
     onRemoveUserFromLisTRequested: (String) -> Unit,
     fetchListDetails: () -> Unit,
     isRefreshing: Boolean,
-    onGenerateCheapestList: () -> Unit,
     changeProductCount: (String, Int, Int) -> Unit,
     deleteProductFromList: (String) -> Unit,
 ) {
@@ -81,29 +77,6 @@ fun ListDetailsScreenView(
                         },
                         modifier = Modifier.align(alignment = Alignment.CenterEnd)
                     )
-                }
-            }
-        },
-        bottomBar = {
-            if (state.extractShoppingListEntries().entries.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Red)
-                        .padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        MarketTrackerOutlinedButton(
-                            text = "Vamos ás compras",
-                            icon = Icons.Default.ShoppingCartCheckout,
-                            onClick = onGenerateCheapestList,
-                        )
-                    }
                 }
             }
         }
