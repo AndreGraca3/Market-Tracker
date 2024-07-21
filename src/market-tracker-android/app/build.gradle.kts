@@ -113,6 +113,18 @@ dependencies {
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0-alpha02")
 
     implementation ("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+
+    // For Jetpack Compose.
+    implementation("com.patrykandpatrick.vico:compose:2.0.0-alpha.24")
+
+    // For `compose`. Creates a `ChartStyle` based on an M2 Material Theme.
+    implementation("com.patrykandpatrick.vico:compose-m2:2.0.0-alpha.24")
+
+    // For `compose`. Creates a `ChartStyle` based on an M3 Material Theme.
+    implementation("com.patrykandpatrick.vico:compose-m3:2.0.0-alpha.24")
+
+    // Houses the core logic for charts and other elements. Included in all other modules.
+    implementation("com.patrykandpatrick.vico:core:2.0.0-alpha.24")
 }
 
 // Allow references to generated code

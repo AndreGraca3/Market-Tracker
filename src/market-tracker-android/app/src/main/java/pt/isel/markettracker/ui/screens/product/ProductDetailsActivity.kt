@@ -17,7 +17,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import pt.isel.markettracker.repository.auth.IAuthRepository
+import pt.isel.markettracker.ui.screens.priceHistory.PriceHistoryActivity
+import pt.isel.markettracker.ui.screens.priceHistory.ProductExtra
 import pt.isel.markettracker.ui.theme.MarkettrackerTheme
+import pt.isel.markettracker.utils.navigateTo
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -28,7 +31,7 @@ class ProductDetailsActivity : ComponentActivity() {
     }
 
     private val productId by lazy {
-        val extra = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
+        val extra = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             intent.getParcelableExtra(
                 PRODUCT_ID_EXTRA,
                 ProductIdExtra::class.java
@@ -81,6 +84,16 @@ class ProductDetailsActivity : ComponentActivity() {
                                 permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             }
                         }
+                    },
+                    onPriceSectionClick = { storeId ->
+                        navigateTo<PriceHistoryActivity>(
+                            this,
+                            PriceHistoryActivity.PRODUCT_EXTRA,
+                            ProductExtra(
+                                productId,
+                                storeId
+                            )
+                        )
                     },
                     vm,
                     authRepository

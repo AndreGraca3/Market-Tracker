@@ -1,6 +1,5 @@
 package pt.isel.markettracker.ui.screens.favorites.list
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,7 +50,6 @@ fun FavoriteListView(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                     ) {
-                        Log.v("Favorites", "Favorites are $favorites")
                         items(favorites.size) { index ->
                             FavoriteProductCard(
                                 product = favorites[index],
@@ -68,7 +66,6 @@ fun FavoriteListView(
         is FavoriteScreenState.Loading -> {
             LoadingIcon(text = "Carregando os Favoritos...")
         }
-
 
         else -> {
             Column(

@@ -32,9 +32,10 @@ fun PricesSection(
     productPrices: ProductPrices?,
     showOptions: Boolean,
     alerts: List<PriceAlert>,
+    onPriceSectionClick: (Int) -> Unit,
     onAlertSet: (Int, Int) -> Unit,
     onAlertDelete: (String) -> Unit,
-    onAddToListClick: (StoreOffer) -> Unit
+    onAddToListClick: (StoreOffer) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(21.dp)
@@ -71,7 +72,15 @@ fun PricesSection(
                         color = Color.Red
                     )
                 } else companiesPricing.forEach {
-                    CompanyRow(it, showOptions, alerts, onAlertSet, onAlertDelete, onAddToListClick)
+                    CompanyRow(
+                        it,
+                        showOptions,
+                        alerts,
+                        onAlertSet,
+                        onAlertDelete,
+                        onPriceSectionClick,
+                        onAddToListClick,
+                    )
                     HorizontalDivider()
                 }
             } ?: repeat(3) {

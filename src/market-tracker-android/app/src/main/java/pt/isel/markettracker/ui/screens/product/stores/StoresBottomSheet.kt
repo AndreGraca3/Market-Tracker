@@ -41,7 +41,7 @@ fun StoresBottomSheet(
                         onStoreSelected = {
                             onStoreSelect(it.store.id)
                             onDismissRequest()
-                        }
+                        },
                     )
                     HorizontalDivider(modifier = Modifier.fillMaxWidth(0.9F))
                 }

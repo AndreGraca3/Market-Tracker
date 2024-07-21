@@ -130,4 +130,13 @@ public class ProductFeedbackService(
                 new ProductFetchingError.ProductByIdNotFound(productId)
             ));
     }
+
+    public async Task<ProductHistory> GetProductHistoryFromStoreByIdAsync(string productId, int storeId)
+    {
+        return await transactionManager.ExecuteAsync(async () =>
+            await productFeedbackRepository.GetProductHistoryFromStoreByIdAsync(productId, storeId) ??
+            throw new MarketTrackerServiceException(
+                new ProductFetchingError.ProductByIdNotFound(productId)
+            ));
+    }
 }

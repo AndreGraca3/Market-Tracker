@@ -20,7 +20,6 @@ import pt.isel.markettracker.http.service.result.runCatchingAPIFailure
 import pt.isel.markettracker.repository.auth.IAuthRepository
 import pt.isel.markettracker.repository.auth.isLoggedIn
 import pt.isel.markettracker.ui.screens.product.alert.PriceAlertState
-import pt.isel.markettracker.ui.screens.product.alert.extractPriceAlert
 import pt.isel.markettracker.ui.screens.product.rating.ProductPreferencesState
 import pt.isel.markettracker.ui.screens.products.list.AddToListState
 import pt.isel.markettracker.ui.screens.products.list.toSuccess
@@ -301,7 +300,7 @@ class ProductDetailsScreenViewModel @Inject constructor(
             runCatchingAPIFailure {
                 alertService.createAlert(productId, storeId, priceThreshold)
             }.onSuccess {
-                // TODO("Fix later")
+                // this is just to increase the counter in profile screen
                 val alert = PriceAlert(
                     id = it.value,
                     product = ProductAlert(

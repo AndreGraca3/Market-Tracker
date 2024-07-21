@@ -61,6 +61,10 @@
             android:name=".ui.screens.alerts.AlertsActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".ui.screens.priceHistory.PriceHistoryActivity"
+            android:screenOrientation="portrait" />
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/mt_logo" />

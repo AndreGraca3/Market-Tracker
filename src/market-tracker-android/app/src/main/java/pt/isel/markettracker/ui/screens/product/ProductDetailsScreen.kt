@@ -41,6 +41,7 @@ import pt.isel.markettracker.ui.screens.products.list.ListsBottomSheet
 fun ProductDetailsScreen(
     onBackRequest: () -> Unit,
     checkOrRequestNotificationPermission: (() -> Unit) -> Unit,
+    onPriceSectionClick: (Int) -> Unit,
     vm: ProductDetailsScreenViewModel,
     authRepository: IAuthRepository
 ) {
@@ -106,7 +107,8 @@ fun ProductDetailsScreen(
                     if (product != null) vm.selectListToAddProduct(
                         ProductOffer(product, storeOffer)
                     )
-                }
+                },
+                onPriceSectionClick = onPriceSectionClick
             )
         }
 

@@ -1,6 +1,7 @@
 using market_tracker_webapi.Application.Domain.Filters;
 using market_tracker_webapi.Application.Domain.Schemas.Market.Inventory.Product;
 using market_tracker_webapi.Infrastructure;
+using market_tracker_webapi.Infrastructure.PostgreSQLTables.List;
 using market_tracker_webapi.Infrastructure.PostgreSQLTables.Market.Inventory.Product;
 using Microsoft.EntityFrameworkCore;
 
@@ -109,7 +110,7 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
     {
         var query = from productFavorite in dataContext.ProductFavorite
             join product in dataContext.Product on productFavorite.ProductId equals product.Id
-            join brand in dataContext.Brand on product.BrandId equals brand.Id 
+            join brand in dataContext.Brand on product.BrandId equals brand.Id
             where productFavorite.ClientId == clientId
             select new
             {
@@ -182,5 +183,29 @@ public class ProductFeedbackRepository(MarketTrackerDataContext dataContext) : I
                     product.Rating
                 )
             ).FirstOrDefaultAsync();
+    }
+
+    public async Task<ProductHistory?> GetProductHistoryFromStoreByIdAsync(string productId, int storeId)
+    {
+        var history = from priceEntry in dataContext.PriceEntry
+            where priceEntry.ProductId == productId && priceEntry.StoreId == storeId
+            select new
+            {
+                PriceEntryEntity = priceEntry,
+            };
+
+        var listEntries = from listEntry in dataContext.ListEntry
+            where listEntry.ProductId == productId
+            select new
+            {
+                ListEntryEntity = listEntry
+            };
+
+        return new ProductHistory(
+            productId,
+            await history.Select(priceEntryEntity =>
+                priceEntryEntity.PriceEntryEntity.ToProductHistoryPrice()).ToListAsync(),
+            listEntries.Count()
+        );
     }
 }

@@ -46,7 +46,8 @@ fun CompanyRow(
     alerts: List<PriceAlert>,
     onAlertSet: (Int, Int) -> Unit,
     onAlertDelete: (String) -> Unit,
-    onAddToListClick: (StoreOffer) -> Unit
+    onPriceSectionClick: (Int) -> Unit,
+    onAddToListClick: (StoreOffer) -> Unit,
 ) {
     var showCompanyStores by rememberSaveable { mutableStateOf(false) }
     var showAlertDialog by rememberSaveable { mutableStateOf(false) }
@@ -57,7 +58,10 @@ fun CompanyRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight(),
+            .wrapContentHeight()
+            .clickable {
+                onPriceSectionClick(companyPrices.id)
+            },
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -149,5 +153,5 @@ fun CompanyRow(
 @Preview
 @Composable
 fun PriceRowPreview() {
-    CompanyRow(dummyCompanyPrices.first(), true, emptyList(), { _, _ -> }, { }, {})
+    CompanyRow(dummyCompanyPrices.first(), true, emptyList(), { _, _ -> }, { }, {}, {})
 }
